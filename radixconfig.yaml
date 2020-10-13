@@ -1,0 +1,109 @@
+apiVersion: radix.equinor.com/v1
+kind: RadixApplication
+metadata:
+  name: fusion-bmt
+spec:
+  environments:
+    - name: dev
+      build:
+        from: master
+    - name: prod
+      build:
+        from: prod
+    - name: pr
+      build:
+        from: pr
+
+  components:
+    - name: frontend
+      src: frontend
+      ports:
+        - name: http
+          port: 3000
+      publicPort: http
+      environmentConfig:
+        - environment: dev
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "100m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+          variables:
+            API_URL: 'https://backend-fusion-bmt-dev.radix.equinor.com'
+        - environment: pr
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "100m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+          variables:
+            API_URL: 'https://backend-fusion-bmt-pr.radix.equinor.com'
+        - environment: prod
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+          horizontalScaling:
+            minReplicas: 1
+            maxReplicas: 6
+          variables:
+            API_URL: 'https://backend-fusion-bmt-prod.radix.equinor.com'
+
+    - name: backend
+      src: backend
+      ports:
+        - name: http
+          port: 5000
+      publicPort: http
+      environmentConfig:
+        - environment: dev
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "200m"
+            limits:
+              memory: "1000Mi"
+              cpu: "1000m"
+          variables:
+            ASPNETCORE_ENVIRONMENT: 'Development'
+            HTTPONLY: 'True'
+        - environment: pr
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "200m"
+            limits:
+              memory: "1000Mi"
+              cpu: "1000m"
+          variables:
+            ASPNETCORE_ENVIRONMENT: 'Development'
+            HTTPONLY: 'True'
+        - environment: prod
+          resources:
+            requests:
+              memory: "700Mi"
+              cpu: "500m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+          horizontalScaling:
+            minReplicas: 2
+            maxReplicas: 6
+          variables:
+            ASPNETCORE_ENVIRONMENT: 'Production'
+            HTTPONLY: 'True'
+      secrets:
+        - AzureAd__ClientSecret
+        - ConnectionStrings__db
+
+  dnsAppAlias:
+    environment: prod
+    component: frontend
+
