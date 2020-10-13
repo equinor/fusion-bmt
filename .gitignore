@@ -1,2 +1,6 @@
+# .NET
 backend/api/bin
 backend/api/obj
+
+# Editors
+.vscode
