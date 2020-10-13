@@ -1,10 +1,22 @@
 version: '3.7'
 services:
   frontend:
-    build: frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
     ports:
       - '3000:3000'
-#  backend:
-#    build: backend
-#    ports:
-#      - '5000:5000'
+    environment:
+      - API_URL=http://localhost:5000
+      - ApplicationInsights__InstrumentationKey
+  backend:
+    build: backend
+    ports:
+      - '5000:5000'
+    environment:
+      - BUILD_MODE=development
+      - ApplicationInsights__InstrumentationKey
+      - AzureAd__ClientSecret
+      - ConnectionStrings__db
