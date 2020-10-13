@@ -9,11 +9,46 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+jobs:
+#  - job: Build_API
+#    steps:
+#      - task: DotNetCoreCLI@2
+#        inputs:
+#          command: 'build'
+#          workingDirectory: 'backend/api'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+
+  - job: Build_Frontend
+    steps:
+      - task: Npm@1
+        inputs:
+          command: 'install'
+          workingDir: 'frontend'
+      - task: Npm@1
+        inputs:
+          command: 'custom'
+          workingDir: 'frontend'
+          customCommand: 'run-script build'
+
+#  - job: Test_API
+#    steps:
+#      - task: DotNetCoreCLI@2
+#        name:
+#        inputs:
+#          publishTestResults: true
+#          command: 'test'
+#          projects: 'backend/Tests/Tests.csproj'
+
+#  - job: Test_Frontend
+#    steps:
+#      - task: Npm@1
+#        name: Install
+#        inputs:
+#          command: 'install'
+#          workingDir: 'frontend'
+#      - task: Npm@1
+#        name: Run_all_tests
+#        inputs:
+#          command: 'custom'
+#          workingDir: 'frontend'
+#          customCommand: 'test'
