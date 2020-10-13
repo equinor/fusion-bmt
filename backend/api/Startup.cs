@@ -1,19 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using HotChocolate;
+using HotChocolate.AspNetCore;
+using HotChocolate.Execution.Configuration;
+using api.Context;
+using api.Scripts;
+using api.GQL;
 
 namespace api
 {
@@ -32,6 +30,14 @@ namespace api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
+            services.AddDbContext<BmtDbContext>();
+
+            services.AddGraphQL(
+                SchemaBuilder.New()
+                    .AddQueryType<Query>()
+                    .Create(),
+                new QueryExecutionOptions { });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -42,6 +48,8 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            Initialize.InitializeDatabase(app);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -52,6 +60,9 @@ namespace api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseGraphQL();
+            app.UsePlayground();
 
             app.UseAuthentication();
             app.UseAuthorization();
