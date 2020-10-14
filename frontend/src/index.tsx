@@ -1,47 +1,45 @@
 import * as React from 'react';
-import { registerApp, useCurrentUser, useNotificationCenter } from '@equinor/fusion';
-import { Button, usePopoverRef } from '@equinor/fusion-components';
-
-import * as styles from './styles.less';
+import { registerApp, useCurrentContext, ContextTypes, Context } from '@equinor/fusion';
+import { Tabs, Tab } from '@equinor/fusion-components';
 
 const App: React.FC = () => {
-    const currentUser = useCurrentUser();
-    const sendNotification = useNotificationCenter();
+    const currentProject = useCurrentContext();
+    const [activeTabKey, setActiveTabKey] = React.useState('Item1');
 
-    const [popoverRef] = usePopoverRef(
-        <div className={styles.popover}>What a lovely popover 💩</div>,
-        {
-            placement: 'below',
-        }
-    );
-    
-    const sendWelcomeNotification = async () => {
-        await sendNotification({
-            id: 'This is a unique id which means the notification will only be shown once',
-            level: 'medium',
-            title:
-                'Welcome to your new fusion app! Open up src/index.tsx to start building your app!',
-        });
-    };
+    const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey);
 
-    React.useEffect(() => {
-        sendWelcomeNotification();
-    }, []);
-
-    if (!currentUser) {
-        return null;
+    if (!currentProject) {
+        return <p>Please select a project.</p>
     }
 
     return (
-        <div className={styles.hello}>
-            <h1>Oh hello there, {currentUser.fullName}</h1>
-            <Button ref={popoverRef}>Click me!</Button>
-        </div>
+        <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
+            <Tab tabKey="Item1" title="Dashboard">
+                <h1>Dashboard</h1>
+            </Tab>
+            <Tab tabKey="Item2" title="Actions">
+                <h1>Actions</h1>
+            </Tab>
+            <Tab tabKey="Item3" title="Archive">
+                <h1>Archive</h1>
+            </Tab>
+        </Tabs>
     );
 };
 
 registerApp('bmt', {
     AppComponent: App,
+    name: "Barrier Management Tool",
+    context: {
+        types: [ContextTypes.Project],
+        buildUrl: (context: Context | null, url: string) => {
+            if (!context) return '';
+            return `/${context.id}`;
+        },
+        getContextFromUrl: (url: string) => {
+            return url.split('/')[0];
+        },
+    },
 });
 
 if (module.hot) {
