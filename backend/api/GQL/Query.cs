@@ -1,18 +1,25 @@
 using System.Linq;
-using HotChocolate;
+
 using HotChocolate.Types;
+
 using api.Models;
-using api.Context;
+using api.Services;
 
 namespace api.GQL
 {
     public class Query
     {
-        /// <summary>
-        /// Gets all projects.
-        /// </summary>
+        private readonly ProjectService _projectService;
+
+        public Query(ProjectService projectService)
+        {
+            _projectService = projectService;
+        }
+
         [UseSelection]
-        public IQueryable<Project> GetProjects([Service] BmtDbContext context) =>
-            context.Projects;
+        public IQueryable<Project> GetProjects()
+        {
+            return _projectService.GetAll();
+        }
     }
 }

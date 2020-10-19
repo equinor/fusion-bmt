@@ -14,8 +14,10 @@
         "shortName": "bmt"
     },
     "dependencies": {
+        "@apollo/client": "^3.2.3",
         "@equinor/fusion": "^2.3.13",
         "@equinor/fusion-components": "^1.4.5",
+        "graphql": "^15.3.0",
         "react": "^16.13.1"
     },
     "devDependencies": {
@@ -30,6 +32,7 @@
         "tslib": "^2.0.1",
         "tslint": "^5.16.0",
         "tslint-config-prettier": "^1.18.0",
-        "typescript": "^3.9.7"
+        "typescript": "^3.9.7",
+        "git-revision-webpack-plugin": "^3.0.6"
     }
 }

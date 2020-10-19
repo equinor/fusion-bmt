@@ -8,15 +8,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using HotChocolate;
 using HotChocolate.AspNetCore;
-using HotChocolate.Execution.Configuration;
+
 using api.Context;
 using api.Scripts;
+using api.Services;
 using api.GQL;
 
 namespace api
 {
     public class Startup
     {
+        private readonly string _accessControlPolicyName = "AllowSpecificOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -30,13 +33,31 @@ namespace api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(_accessControlPolicyName,
+                builder =>
+                {
+                    builder.AllowAnyHeader();
+                    builder.AllowAnyMethod();
+                    builder.WithOrigins(
+                        "http://localhost:3000",
+                        "https://*.equinor.com"
+                    ).SetIsOriginAllowedToAllowWildcardSubdomains();
+                });
+            });
+
             services.AddDbContext<BmtDbContext>();
 
-            services.AddGraphQL(
+            services.AddScoped<ProjectService>();
+
+            services.AddGraphQL(s =>
                 SchemaBuilder.New()
+                    .AddServices(s)
                     .AddQueryType<Query>()
-                    .Create(),
-                new QueryExecutionOptions { });
+                    .AddMutationType<Mutation>()
+                    .Create()
+            );
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -48,6 +69,8 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors(_accessControlPolicyName);
+
             Initialize.InitializeDatabase(app);
 
             if (env.IsDevelopment())
@@ -55,14 +78,13 @@ namespace api
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1"));
-            }
 
-            app.UseHttpsRedirection();
+                app.UsePlayground("/graphql");
+            }
 
             app.UseRouting();
 
-            app.UseGraphQL();
-            app.UsePlayground();
+            app.UseGraphQL("/graphql");
 
             app.UseAuthentication();
             app.UseAuthorization();

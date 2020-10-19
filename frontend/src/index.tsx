@@ -1,34 +1,47 @@
 import * as React from 'react';
-import { registerApp, useCurrentContext, ContextTypes, Context } from '@equinor/fusion';
-import { Tabs, Tab } from '@equinor/fusion-components';
+import { registerApp, ContextTypes, Context } from '@equinor/fusion';
 
-const App: React.FC = () => {
-    const currentProject = useCurrentContext();
-    const [activeTabKey, setActiveTabKey] = React.useState('Item1');
+import { ApolloProvider } from '@apollo/client';
 
-    const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey);
+import { useFusionContext } from '@equinor/fusion';
 
-    if (!currentProject) {
-        return <p>Please select a project.</p>
-    }
+import { client } from './api/graphql';
+import App from './App';
+import { config } from './config';
 
-    return (
-        <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
-            <Tab tabKey="Item1" title="Dashboard">
-                <h1>Dashboard</h1>
-            </Tab>
-            <Tab tabKey="Item2" title="Actions">
-                <h1>Actions</h1>
-            </Tab>
-            <Tab tabKey="Item3" title="Archive">
-                <h1>Archive</h1>
-            </Tab>
-        </Tabs>
-    );
+const APP_ID = `8829d4ca-93e8-499a-8ce1-bc0ef4840176`;
+
+const Start = () => {
+    const fusionContext = useFusionContext();
+
+    const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
+    const login = async () => {
+        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(APP_ID, [
+            new URL(config.API_URL).origin,
+        ]);
+
+        if(!isLoggedIn) {
+            await fusionContext.auth.container.loginAsync(APP_ID);
+            return;
+        }
+
+        setHasLoggedIn(true);
+    };
+
+    React.useEffect(() => {
+        login();
+    }, []);
+
+
+    return <>
+        <ApolloProvider client={client}>
+            <App />
+        </ApolloProvider>
+    </>;
 };
 
 registerApp('bmt', {
-    AppComponent: App,
+    AppComponent: Start,
     name: "Barrier Management Tool",
     context: {
         types: [ContextTypes.Project],
