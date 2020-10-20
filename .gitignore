@@ -8,4 +8,5 @@ backend/api/obj
 # Editors
 .vscode
 
+# Environment variables
 .env
