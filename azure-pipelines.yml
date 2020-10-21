@@ -25,14 +25,13 @@ jobs:
           workingDir: 'frontend'
           customCommand: 'run-script build'
 
-#  - job: Test_API
-#    steps:
-#      - task: DotNetCoreCLI@2
-#        name:
-#        inputs:
-#          publishTestResults: true
-#          command: 'test'
-#          projects: 'backend/Tests/Tests.csproj'
+  - job: Test_Backend
+    steps:
+      - task: DotNetCoreCLI@2
+        name: Run_Backend_Tests
+        inputs:
+          command: 'test'
+          projects: 'backend/tests/tests.csproj'
 
 #  - job: Test_Frontend
 #    steps:

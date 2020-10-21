@@ -10,7 +10,6 @@ using HotChocolate;
 using HotChocolate.AspNetCore;
 
 using api.Context;
-using api.Scripts;
 using api.Services;
 using api.GQL;
 
@@ -70,8 +69,6 @@ namespace api
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors(_accessControlPolicyName);
-
-            Initialize.InitializeDatabase(app);
 
             if (env.IsDevelopment())
             {

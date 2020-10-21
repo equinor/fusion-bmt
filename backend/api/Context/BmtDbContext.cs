@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using api.Models;
 
 namespace api.Context
@@ -12,6 +13,11 @@ namespace api.Context
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Action> Actions { get; set; }
         public DbSet<Note> Notes { get; set; }
+
+        public BmtDbContext() : base()
+        {
+            this.Initialise();
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -49,7 +55,15 @@ namespace api.Context
                 .HasMany(t => t.Notes)
                 .WithOne(t => t.Action)
                 .HasForeignKey(t => t.ActionId);
+        }
 
+        private void Initialise()
+        {
+            if (this.Database.EnsureCreated())
+            {
+                this.Projects.Add(InitContent.Project);
+                this.SaveChangesAsync();
+            }
         }
     }
 }
