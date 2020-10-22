@@ -12,6 +12,7 @@ using HotChocolate.AspNetCore;
 using api.Context;
 using api.Services;
 using api.GQL;
+using System;
 
 namespace api
 {
@@ -19,9 +20,18 @@ namespace api
     {
         private readonly string _accessControlPolicyName = "AllowSpecificOrigins";
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            Configuration = configuration;
+            if (env == null)
+            {
+                throw new Exception("Environment cannot be null");
+            }
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddConfiguration(configuration)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -29,6 +39,10 @@ namespace api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddOptions();
+            services.Configure<BmtDbOptions>(options => Configuration.GetSection("Database").Bind(options));
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 

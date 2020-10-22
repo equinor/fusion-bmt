@@ -9,7 +9,7 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string ProjectId { get; set; }
+        public string Id { get; set; }
         public string FusionProjectId { get; set; }
         public DateTime CreateDate { get; set; }
         public virtual ICollection<Evaluation> Evaluations { get; set; }
@@ -19,13 +19,13 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string EvaluationId { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
         public string ProjectId { get; set; }
         public DateTime CreateDate { get; set; }
         public Progression? Progression { get; set; }
         public virtual ICollection<Participant> Participants { get; set; }
         public virtual ICollection<Question> Questions { get; set; }
-        public virtual ICollection<Action> Actions { get; set; }
         public virtual Project Project { get; set; }
     }
 
@@ -33,10 +33,10 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string ParticipantId { get; set; }
+        public string Id { get; set; }
         public string EvaluationId { get; set; }
         public string FusionPersonId { get; set; }
-        public Discipline? Discipline { get; set; }
+        public Organization? Organization { get; set; }
         public Role? Role { get; set; }
         public DateTime CreateDate { get; set; }
         public virtual Evaluation Evaluation { get; set; }
@@ -46,14 +46,15 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string QuestionId { get; set; }
+        public string Id { get; set; }
         public string EvaluationId { get; set; }
         public Status? Status { get; set; }
-        public Discipline? Discipline { get; set; }
+        public Organization? Organization { get; set; }
         public string Text { get; set; }
         public Barrier? Barrier { get; set; }
         public DateTime CreateDate { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }
+        public virtual ICollection<Action> Actions { get; set; }
         public virtual Evaluation Evaluation { get; set; }
     }
 
@@ -61,7 +62,7 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string AnswerId { get; set; }
+        public string Id { get; set; }
         public string QuestionId { get; set; }
         public Progression? Progression { get; set; }
         public Severity? Severity { get; set; }
@@ -75,8 +76,8 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string ActionId { get; set; }
-        public string EvaluationId { get; set; }
+        public string Id { get; set; }
+        public string QuestionId { get; set; }
         public Participant AssignedTo { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -86,14 +87,14 @@ namespace api.Models
         public DateTime CreateDate { get; set; }
         public Participant CreatedBy { get; set; }
         public virtual ICollection<Note> Notes { get; set; }
-        public virtual Evaluation Evaluation { get; set; }
+        public virtual Question Question { get; set; }
     }
 
     public class Note
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string NoteId { get; set; }
+        public string Id { get; set; }
         public string ActionId { get; set; }
         public string Text { get; set; }
         public Participant CreatedBy { get; set; }
@@ -116,7 +117,7 @@ namespace api.Models
         GM, PS1, PS2, PS3, PS4, PS5, PS6, PS7, PS12, PS15, PS22
     }
 
-    public enum Discipline
+    public enum Organization
     {
         Commissioning, Construction, Engineering, PreOps
     }

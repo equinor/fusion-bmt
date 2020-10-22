@@ -1,9 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Options;
 using api.Models;
+using Action = api.Models.Action;
 
 namespace api.Context
 {
+
+    public class BmtDbOptions
+    {
+        public string ConnectionString { get; set; } = "";
+    }
+
     public class BmtDbContext : DbContext
     {
         public DbSet<Project> Projects { get; set; }
@@ -14,14 +21,30 @@ namespace api.Context
         public DbSet<Action> Actions { get; set; }
         public DbSet<Note> Notes { get; set; }
 
+        private readonly IOptions<BmtDbOptions> _config;
+
         public BmtDbContext() : base()
         {
-            this.Initialise();
+            BmtDbOptions options = new BmtDbOptions();
+            _config = Options.Create(options);
+            this.Initialize();
+        }
+
+        public BmtDbContext(IOptions<BmtDbOptions> config) : base()
+        {
+            _config = config;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseInMemoryDatabase(databaseName: "Bmt");
+            if (string.IsNullOrEmpty(_config.Value.ConnectionString))
+            {
+                options.UseInMemoryDatabase(databaseName: "Bmt");
+            }
+            else
+            {
+                options.UseSqlServer(_config.Value.ConnectionString);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -41,10 +64,10 @@ namespace api.Context
                 .WithOne(t => t.Evaluation)
                 .HasForeignKey(t => t.EvaluationId);
 
-            modelBuilder.Entity<Evaluation>()
+            modelBuilder.Entity<Question>()
                 .HasMany(t => t.Actions)
-                .WithOne(t => t.Evaluation)
-                .HasForeignKey(t => t.EvaluationId);
+                .WithOne(t => t.Question)
+                .HasForeignKey(t => t.QuestionId);
 
             modelBuilder.Entity<Question>()
                 .HasMany(t => t.Answers)
@@ -57,11 +80,11 @@ namespace api.Context
                 .HasForeignKey(t => t.ActionId);
         }
 
-        private void Initialise()
+        private void Initialize()
         {
             if (this.Database.EnsureCreated())
             {
-                this.Projects.Add(InitContent.Project);
+                this.Projects.AddRange(InitContent.Projects);
                 this.SaveChangesAsync();
             }
         }
