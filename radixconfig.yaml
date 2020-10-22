@@ -102,9 +102,8 @@ spec:
             HTTPONLY: 'True'
       secrets:
         - AzureAd__ClientSecret
-        - ConnectionStrings__db
+        - Database_ConnectionString
 
   dnsAppAlias:
     environment: prod
     component: frontend
-

@@ -19,4 +19,4 @@ services:
       - BUILD_MODE=development
       - ApplicationInsights__InstrumentationKey
       - AzureAd__ClientSecret
-      - ConnectionStrings__db
+      - Database_ConnectionString
