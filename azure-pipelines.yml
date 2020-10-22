@@ -33,16 +33,16 @@ jobs:
           command: 'test'
           projects: 'backend/tests/tests.csproj'
 
-#  - job: Test_Frontend
-#    steps:
-#      - task: Npm@1
-#        name: Install
-#        inputs:
-#          command: 'install'
-#          workingDir: 'frontend'
-#      - task: Npm@1
-#        name: Run_all_tests
-#        inputs:
-#          command: 'custom'
-#          workingDir: 'frontend'
-#          customCommand: 'test'
+  - job: Test_Frontend
+    steps:
+      - task: Npm@1
+        name: Install
+        inputs:
+          command: 'install'
+          workingDir: 'frontend'
+      - task: Npm@1
+        name: Run_Frontend_Tests
+        inputs:
+          command: 'custom'
+          workingDir: 'frontend'
+          customCommand: 'test'

@@ -5,7 +5,8 @@
     "main": "src/index.tsx",
     "scripts": {
         "start": "fusion start-app",
-        "build": "fusion build-app"
+        "build": "fusion build-app",
+        "test": "jest"
     },
     "author": "",
     "license": "ISC",
@@ -31,6 +32,9 @@
         "react-hot-loader": "^4.13.0",
         "react-router-dom": "^5.2.0",
         "tslib": "^2.0.3",
+        "@types/jest": "^26.0.15",
+        "jest": "^26.6.0",
+        "ts-jest": "^26.4.1",
         "tslint": "^5.16.0",
         "tslint-config-prettier": "^1.18.0",
         "typescript": "^3.9.7"
