@@ -6,14 +6,15 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using api.Models;
 
 namespace api.Swagger
-{    public class GraphEndpoint : IDocumentFilter
+{
+    public class GraphEndpoint : IDocumentFilter
     {
         public const string graphEndpoint = @"/graphql";
 
         public const string query = "{\"query\":\"" +
-        "query GetProject{projects {projectId, fusionProjectId, createDate, " +
-        "evaluations {actions {title}, createDate, evaluationId, participants " +
-        "{discipline}, progression, projectId, questions {text}}}}\"}";
+        "query GetProject{projects {id, fusionProjectId, createDate, " +
+        "evaluations {createDate, id, participants " +
+        "{organization}, progression, id, questions {text, actions {title}}}}}\"}";
 
         public void Apply(OpenApiDocument openApiDocument, DocumentFilterContext context)
         {

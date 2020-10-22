@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -67,8 +68,8 @@ namespace api
                     .AddQueryType<Query>()
                     .AddMutationType<Mutation>()
                     .AddAuthorizeDirectiveType()
-                    .Create(),
-                new QueryExecutionOptions { });
+                    .Create()
+                );
 
             services.AddControllers();
 
@@ -83,8 +84,8 @@ namespace api
                     {
                         Implicit = new OpenApiOAuthFlow()
                         {
-                            TokenUrl = new Uri($"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/oauth2/v2.0/token"),
-                            AuthorizationUrl = new Uri($"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/oauth2/v2.0/authorize"),
+                            TokenUrl = new Uri($"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/oauth2/token"),
+                            AuthorizationUrl = new Uri($"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/oauth2/authorize"),
                             Scopes = { { $"api://{Configuration["AzureAd:ClientId"]}/user_impersonation", "User Impersonation" } }
                         }
                     }
@@ -128,12 +129,15 @@ namespace api
 
             // Comment out for using playground locally without auth
             app.UseAuthentication();
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1");
                 c.OAuthAppName("Fusion-BMT");
                 c.OAuthClientId(Configuration["AzureAd:ClientId"]);
+                c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>()
+                    { { "resource", $"{Configuration["AzureAd:ClientId"]}" } });
             });
 
 

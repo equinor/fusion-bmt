@@ -75,7 +75,6 @@ namespace api.Models
         public virtual Question Question { get; set; }
     }
 
-    [Authorize(Roles = new[] { "MyPermission" })]
     public class Action
     {
         [Key]
