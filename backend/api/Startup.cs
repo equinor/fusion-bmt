@@ -12,6 +12,7 @@ using HotChocolate.AspNetCore;
 using api.Context;
 using api.Services;
 using api.GQL;
+using System;
 
 namespace api
 {
@@ -29,6 +30,10 @@ namespace api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddOptions();
+            services.Configure<BmtDbOptions>(options => Configuration.GetSection("Database").Bind(options));
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
