@@ -2,8 +2,8 @@
 frontend/node_modules/
 
 # .NET
-backend/api/bin
-backend/api/obj
+backend/*/bin
+backend/*/obj
 
 # Editors
 .vscode
