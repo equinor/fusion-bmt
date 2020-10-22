@@ -20,7 +20,7 @@ namespace api
     {
         private readonly string _accessControlPolicyName = "AllowSpecificOrigins";
 
-        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
