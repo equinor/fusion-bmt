@@ -22,16 +22,7 @@ namespace api
 
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            if (env == null)
-            {
-                throw new Exception("Environment cannot be null");
-            }
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddConfiguration(configuration)
-                .AddEnvironmentVariables();
-
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
