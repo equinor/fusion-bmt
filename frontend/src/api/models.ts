@@ -1,22 +1,22 @@
-export interface Action {
-  actionId: String
+export type Action = {
   assignedTo: Participant
   createDate: Date
   createdBy: Participant
   description: String
   dueDate: Date
-  evaluation: Evaluation
-  evaluationId: String
+  id: String
   notes: [Note]
   onHold: Boolean
   priority: Priority
+  question: Question
+  questionId: String
   title: String
 }
 
-export interface Answer {
+export type Answer = {
   answeredBy: Participant
-  answerId: String
   createDate: Date
+  id: String
   progression: Progression
   question: Question
   questionId: String
@@ -38,17 +38,10 @@ export enum Barrier {
   PS22
 }
 
-export enum Discipline {
-  COMMISSIONING,
-  CONSTRUCTION,
-  ENGINEERING,
-  PREOPS
-}
-
-export interface Evaluation {
-  actions: [Action]
+export type Evaluation = {
   createDate: Date
-  evaluationId: String
+  id: String
+  name: String
   participants: [Participant]
   progression: Progression
   project: Project
@@ -56,26 +49,34 @@ export interface Evaluation {
   questions: [Question]
 }
 
-export interface Mutation {
-  createProject(createDate: Date, fusionProjectID: String): Project
+export type Mutation = {
+  createProject(fusionProjectID: String): Project
 }
 
-export interface Note {
+export type Note = {
   action: Action
   actionId: String
   createDate: Date
   createdBy: Participant
-  noteId: String
+  id: String
   text: String
 }
 
-export interface Participant {
+export enum Organization {
+  COMMISSIONING,
+  CONSTRUCTION,
+  ENGINEERING,
+  PREOPS,
+  ALL
+}
+
+export type Participant = {
   createDate: Date
-  discipline: Discipline
   evaluation: Evaluation
   evaluationId: String
   fusionPersonId: String
-  participantId: String
+  id: String
+  organization: Organization
   role: Role
 }
 
@@ -93,26 +94,28 @@ export enum Progression {
   FOLLOWUP
 }
 
-export interface Project {
+export type Project = {
   createDate: Date
   evaluations: [Evaluation]
   fusionProjectId: String
-  projectId: String
+  id: String
 }
 
-export interface Query {
+export type Query = {
   projects: [Project]
 }
 
-export interface Question {
+export type Question = {
+  actions: [Action]
   answers: [Answer]
   barrier: Barrier
   createDate: Date
-  discipline: Discipline
   evaluation: Evaluation
   evaluationId: String
-  questionId: String
+  id: String
+  organization: Organization
   status: Status
+  supportNotes: String
   text: String
 }
 

@@ -23,21 +23,24 @@ namespace api.Context
 
         private readonly IOptions<BmtDbOptions> _config;
 
+        private bool _isInMemDB = true;
+
         public BmtDbContext() : base()
         {
             BmtDbOptions options = new BmtDbOptions();
             _config = Options.Create(options);
-            this.Initialize();
         }
 
         public BmtDbContext(IOptions<BmtDbOptions> config) : base()
         {
             _config = config;
+            bool hasConnectionString = !string.IsNullOrEmpty(_config.Value.ConnectionString);
+            if (hasConnectionString) _isInMemDB = false;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if (string.IsNullOrEmpty(_config.Value.ConnectionString))
+            if (_isInMemDB)
             {
                 options.UseInMemoryDatabase(databaseName: "Bmt");
             }
@@ -80,9 +83,9 @@ namespace api.Context
                 .HasForeignKey(t => t.ActionId);
         }
 
-        private void Initialize()
+        public void InitializeIfInMem()
         {
-            if (this.Database.EnsureCreated())
+            if (_isInMemDB && this.Database.EnsureCreated())
             {
                 this.Projects.AddRange(InitContent.Projects);
                 this.SaveChangesAsync();
