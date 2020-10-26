@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 using api.Models;
+using api.Utils;
 using Action = api.Models.Action;
 
 namespace api.Context
@@ -106,51 +109,20 @@ namespace api.Context
             var answers1 = Answers.GetRange(0, 2);
             var answers2 = Answers.GetRange(1, 2);
 
-            var qeustion1 = new Question
+            string pathJsonRelativeToApiRoot = "Context/InitQuestions.json";
+
+            List<Question> questions;
+            using (StreamReader reader = new StreamReader(pathJsonRelativeToApiRoot))
             {
-                Status = Status.Active,
-                Organization = Organization.Engineering,
-                Text = "Question1",
-                SupportNotes = "SupportNotes1",
-                Barrier = Barrier.GM,
-                CreateDate = DateTime.UtcNow,
-                Answers = answers1,
-                Actions = actions
-            };
-            var qeustion2 = new Question
-            {
-                Status = Status.Active,
-                Organization = Organization.Commissioning,
-                SupportNotes = "SupportNotes2",
-                Text = "Question2",
-                Barrier = Barrier.PS2,
-                CreateDate = DateTime.UtcNow,
-                Answers = answers2,
-                Actions = actions
-            };
-            var qeustion3 = new Question
-            {
-                Status = Status.Active,
-                Organization = Organization.Commissioning,
-                SupportNotes = "SupportNotes3",
-                Text = "Question3",
-                Barrier = Barrier.PS3,
-                CreateDate = DateTime.UtcNow,
-                Answers = answers2,
-                Actions = actions
-            };
-            var qeustion4 = new Question
-            {
-                Status = Status.Active,
-                Organization = Organization.Commissioning,
-                SupportNotes = "SupportNotes4",
-                Text = "Question4",
-                Barrier = Barrier.PS4,
-                CreateDate = DateTime.UtcNow,
-                Answers = answers1,
-                Actions = actions
-            };
-            return new List<Question>(new Question[] { qeustion1, qeustion2, qeustion3, qeustion4 });
+                string json = reader.ReadToEnd();
+                questions = JsonSerializer.Deserialize<List<Question>>(json, JsonUtils.SerializerOptions);
+            }
+
+            questions[0].Answers = answers1;
+            questions[0].Actions = actions;
+            questions[1].Answers = answers2;
+
+            return questions;
         }
 
         private static List<Evaluation> GetEvaluations()

@@ -5,6 +5,9 @@ frontend/node_modules/
 backend/*/bin
 backend/*/obj
 
+# Python
+venv
+
 # Editors
 .vscode
 
