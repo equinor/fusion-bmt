@@ -111,6 +111,7 @@ namespace api.Context
                 Status = Status.Active,
                 Organization = Organization.Engineering,
                 Text = "Question1",
+                SupportNotes = "SupportNotes1",
                 Barrier = Barrier.GM,
                 CreateDate = DateTime.UtcNow,
                 Answers = answers1,
@@ -120,6 +121,7 @@ namespace api.Context
             {
                 Status = Status.Active,
                 Organization = Organization.Commissioning,
+                SupportNotes = "SupportNotes2",
                 Text = "Question2",
                 Barrier = Barrier.PS2,
                 CreateDate = DateTime.UtcNow,
@@ -130,6 +132,7 @@ namespace api.Context
             {
                 Status = Status.Active,
                 Organization = Organization.Commissioning,
+                SupportNotes = "SupportNotes3",
                 Text = "Question3",
                 Barrier = Barrier.PS3,
                 CreateDate = DateTime.UtcNow,
@@ -140,6 +143,7 @@ namespace api.Context
             {
                 Status = Status.Active,
                 Organization = Organization.Commissioning,
+                SupportNotes = "SupportNotes4",
                 Text = "Question4",
                 Barrier = Barrier.PS4,
                 CreateDate = DateTime.UtcNow,

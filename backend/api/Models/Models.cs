@@ -51,6 +51,7 @@ namespace api.Models
         public Status? Status { get; set; }
         public Organization? Organization { get; set; }
         public string Text { get; set; }
+        public string SupportNotes { get; set; }
         public Barrier? Barrier { get; set; }
         public DateTime CreateDate { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }
@@ -119,7 +120,7 @@ namespace api.Models
 
     public enum Organization
     {
-        Commissioning, Construction, Engineering, PreOps
+        Commissioning, Construction, Engineering, PreOps, All
     }
 
     public enum Role

@@ -14,6 +14,7 @@ namespace tests
         public ProjectServiceTest()
         {
             _context = new BmtDbContext();
+            _context.InitializeIfInMem();
         }
 
         [Fact]
@@ -32,10 +33,10 @@ namespace tests
             ProjectService projectService = new ProjectService(_context);
 
             int nProjectsBefore = projectService.GetAll().Count();
-            Project project = await projectService.Create("2");
+            Project project = await projectService.Create("some_id_that_does_not_exist");
             int nProjectsAfter = projectService.GetAll().Count();
 
-            Assert.Equal(nProjectsBefore+1, nProjectsAfter);
+            Assert.Equal(nProjectsBefore + 1, nProjectsAfter);
         }
     }
 }

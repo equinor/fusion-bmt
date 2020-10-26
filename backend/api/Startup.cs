@@ -12,7 +12,6 @@ using HotChocolate.AspNetCore;
 using api.Context;
 using api.Services;
 using api.GQL;
-using System;
 
 namespace api
 {
@@ -74,6 +73,10 @@ namespace api
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCors(_accessControlPolicyName);
+
+            var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+            var context = serviceScope.ServiceProvider.GetRequiredService<BmtDbContext>();
+            context.InitializeIfInMem();
 
             if (env.IsDevelopment())
             {

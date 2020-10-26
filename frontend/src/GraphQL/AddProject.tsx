@@ -12,15 +12,15 @@ const MutateAction = () => {
             ){
                 fusionProjectId,
                 createDate,
-                projectId
+                id
             }
         }
     `;
 
     const [addProject, { loading, data, error }] = useMutation(
-        ADD_PROJECT,{
-            update(cache, { data: { createProject } }) {
-                cache.modify({
+        ADD_PROJECT, {
+        update(cache, { data: { createProject } }) {
+            cache.modify({
                 fields: {
                     projects(existingProjects = []) {
                         const newProjectRef = cache.writeFragment({
@@ -28,7 +28,7 @@ const MutateAction = () => {
                             data: createProject,
                             fragment: gql`
                             fragment NewProject on Project {
-                                projectId
+                                id
                                 fusionProjectId
                                 createDate
                             }
@@ -37,32 +37,32 @@ const MutateAction = () => {
                         return [...existingProjects, newProjectRef];
                     }
                 }
-                });
-            }
+            });
         }
+    }
     );
 
     const addSpecificProject = () => {
         addProject();
     }
 
-    if(loading){
+    if (loading) {
         return <>
             Loading...
         </>
     }
 
-    if(error !== undefined){
+    if (error !== undefined) {
         return <div>
             <TextArea
                 label={JSON.stringify(error)}
                 disabled={true}
-                onChange={() => {}}
+                onChange={() => { }}
             />
         </div>
     }
 
-    if(data === undefined){
+    if (data === undefined) {
         return <>
             <Button onClick={addSpecificProject}>
                 Add project
@@ -71,8 +71,8 @@ const MutateAction = () => {
                 <TextArea
                     label={"Data is undefiend"}
                     disabled={true}
-                    onChange={() => {}}
-            />
+                    onChange={() => { }}
+                />
             </div>
         </>
     }
@@ -85,7 +85,7 @@ const MutateAction = () => {
             <TextArea
                 label={JSON.stringify(data)}
                 disabled={true}
-                onChange={() => {}}
+                onChange={() => { }}
             />
         </div>
     </>
