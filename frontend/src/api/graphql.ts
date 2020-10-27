@@ -8,8 +8,11 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext((_, { headers }) => {
-  const a = localStorage.getItem(`FUSION_AUTH_CACHE`) || "null";
-  const fusionStorage = JSON.parse(a);
+  const fusionStorageJson = localStorage.getItem(`FUSION_AUTH_CACHE`);
+  if (fusionStorageJson === null) {
+    throw new Error("Could not find auth token in local storage")
+  }
+  const fusionStorage = JSON.parse(fusionStorageJson);
   const token = fusionStorage["FUSION_AUTH_CACHE:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN"];
   return {
     headers: {

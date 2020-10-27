@@ -11,10 +11,8 @@ namespace api.Swagger
     {
         public const string graphEndpoint = @"/graphql";
 
-        public const string query = "{\"query\":\"" +
-        "query GetProject{projects {id, fusionProjectId, createDate, " +
-        "evaluations {createDate, id, participants " +
-        "{organization}, progression, id, questions {text, actions {title}}}}}\"}";
+        public const string query = "{\"query\":\n\"" +
+        "query {projects {id, fusionProjectId, createDate}}\"}";
 
         public void Apply(OpenApiDocument openApiDocument, DocumentFilterContext context)
         {

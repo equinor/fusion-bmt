@@ -124,7 +124,6 @@ namespace api
                 option.AddRedirect("^$", "graphql/playground");
                 app.UseRewriter(option);
             }
-            app.UseCors(_accessControlPolicyName);
             app.UseRouting();
 
             // Comment out for using playground locally without auth
