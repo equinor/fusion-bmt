@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HotChocolate.AspNetCore.Authorization;
 
 namespace api.Models
 {
+    [Authorize]
     public class Project
     {
         [Key]

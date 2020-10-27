@@ -14,25 +14,25 @@
         "shortName": "bmt"
     },
     "dependencies": {
-        "@apollo/client": "^3.2.3",
-        "@equinor/fusion": "^2.3.13",
-        "@equinor/fusion-components": "^1.4.5",
+        "@apollo/client": "^3.2.5",
+        "@equinor/fusion": "^2.4.4",
+        "@equinor/fusion-components": "^1.4.13",
         "graphql": "^15.3.0",
         "react": "^16.13.1"
     },
     "devDependencies": {
         "@equinor/fusion-cli": "1.1.1",
-        "@types/history": "^4.7.6",
-        "@types/react": "^16.9.46",
+        "@types/history": "^4.7.8",
+        "@types/react": "^16.9.53",
         "@types/react-router-dom": "^4.3.3",
-        "@types/webpack-env": "^1.13.9",
+        "@types/webpack-env": "^1.15.3",
+        "git-revision-webpack-plugin": "^3.0.6",
         "history": "^4.9.0",
-        "react-hot-loader": "^4.12.12",
+        "react-hot-loader": "^4.13.0",
         "react-router-dom": "^5.2.0",
-        "tslib": "^2.0.1",
+        "tslib": "^2.0.3",
         "tslint": "^5.16.0",
         "tslint-config-prettier": "^1.18.0",
-        "typescript": "^3.9.7",
-        "git-revision-webpack-plugin": "^3.0.6"
+        "typescript": "^3.9.7"
     }
 }
