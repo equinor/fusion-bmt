@@ -21,5 +21,10 @@ namespace api.GQL
         {
             return _projectService.GetAll();
         }
+
+        public Project GetProject(string fusionProjectID)
+        {
+            return _projectService.EnsureCreated(fusionProjectID);
+        }
     }
 }

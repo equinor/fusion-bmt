@@ -9,6 +9,7 @@ namespace api.Context
     public class BmtDbOptions
     {
         public string ConnectionString { get; set; } = "";
+        public string InMemDbName { get; set; } = "Bmt";
     }
 
     public class BmtDbContext : DbContext
@@ -42,7 +43,7 @@ namespace api.Context
         {
             if (_isInMemDB)
             {
-                options.UseInMemoryDatabase(databaseName: "Bmt");
+                options.UseInMemoryDatabase(databaseName: _config.Value.InMemDbName);
             }
             else
             {
@@ -88,7 +89,8 @@ namespace api.Context
             if (_isInMemDB && this.Database.EnsureCreated())
             {
                 this.Projects.AddRange(InitContent.Projects);
-                this.SaveChangesAsync();
+                // Adding projects adds all other models
+                this.SaveChanges();
             }
         }
     }

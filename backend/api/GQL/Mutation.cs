@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 using api.Services;
 using api.Models;
 
@@ -9,14 +6,31 @@ namespace api.GQL
     public class Mutation
     {
         private readonly ProjectService _projectService;
+        private readonly EvaluationService _evaluationService;
+        private readonly ParticipantService _participantService;
 
-        public Mutation(ProjectService projectService)
+        public Mutation(
+            ProjectService projectService,
+            EvaluationService evaluationService,
+            ParticipantService participantService
+        )
         {
             _projectService = projectService;
+            _evaluationService = evaluationService;
+            _participantService = participantService;
+
         }
-        public async Task<Project> CreateProject(string fusionProjectID)
+
+        public Evaluation CreateEvaluation(string name, string projectId, Participant creator)
         {
-            return await _projectService.Create(fusionProjectID);
+            Project project = _projectService.GetProject(projectId);
+            return _evaluationService.Create(name, project, creator);
+        }
+
+        public Participant CreateParticipant(string fusionPersonId, string evaluationId, Organization organization, Role role)
+        {
+            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+            return _participantService.Create(fusionPersonId, evaluation, organization, role);
         }
     }
 }
