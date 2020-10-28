@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 using HotChocolate;
 
@@ -11,31 +10,52 @@ namespace api.Services
 {
     public class ProjectService
     {
-        private BmtDbContext _context;
+        private readonly BmtDbContext _context;
 
         public ProjectService([Service] BmtDbContext context)
         {
             _context = context;
         }
 
-        public async Task<Project> Create(string fusionProjectID)
+        public Project EnsureCreated(string fusionProjectID)
+        {
+            Project project = _context.Projects.FirstOrDefault(project => project.FusionProjectId.Equals(fusionProjectID));
+            if (project == null)
+            {
+                return Create(fusionProjectID);
+            }
+            return project;
+        }
+
+        public Project Create(string fusionProjectID)
         {
             DateTime createDate = DateTime.UtcNow;
 
-            Project newProject = new Project{
+            Project newProject = new Project
+            {
                 FusionProjectId = fusionProjectID,
                 CreateDate = createDate
             };
 
-            await _context.Projects.AddAsync(newProject);
+            _context.Projects.Add(newProject);
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return newProject;
         }
 
         public IQueryable<Project> GetAll()
         {
             return _context.Projects;
+        }
+
+        public Project GetProject(string projectId)
+        {
+            Project project = _context.Projects.FirstOrDefault(project => project.Id.Equals(projectId));
+            if (project == null)
+            {
+                throw new Exception($"Project not found: {projectId}");
+            }
+            return project;
         }
     }
 }

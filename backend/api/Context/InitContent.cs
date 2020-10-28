@@ -6,20 +6,20 @@ using Action = api.Models.Action;
 
 namespace api.Context
 {
-    static class InitContent
+    public static class InitContent
     {
-        public static readonly List<Project> Projects = GetProjects();
-        public static readonly List<Evaluation> Evaluations = GetEvaluations();
         public static readonly List<Participant> Participants = GetParticipants();
-        public static readonly List<Question> Questions = GetQuestions();
-        public static readonly List<Answer> Answers = GetAnswers();
-        public static readonly List<Action> Actions = GetActions();
         public static readonly List<Note> Notes = GetNotes();
+        public static readonly List<Action> Actions = GetActions();
+        public static readonly List<Answer> Answers = GetAnswers();
+        public static readonly List<Question> Questions = GetQuestions();
+        public static readonly List<Evaluation> Evaluations = GetEvaluations();
+        public static readonly List<Project> Projects = GetProjects();
 
         private static List<Note> GetNotes()
         {
-            var participant1 = GetParticipants()[0];
-            var participant2 = GetParticipants()[1];
+            var participant1 = Participants[0];
+            var participant2 = Participants[1];
             var note1 = new Note
             {
                 Text = "Note1",
@@ -37,9 +37,9 @@ namespace api.Context
 
         private static List<Action> GetActions()
         {
-            var participant1 = GetParticipants()[0];
-            var participant2 = GetParticipants()[1];
-            var notes = GetNotes();
+            var participant1 = Participants[0];
+            var participant2 = Participants[1];
+            var notes = Notes;
 
             var action1 = new Action
             {
@@ -70,8 +70,8 @@ namespace api.Context
 
         private static List<Answer> GetAnswers()
         {
-            var participant1 = GetParticipants()[0];
-            var participant2 = GetParticipants()[1];
+            var participant1 = Participants[0];
+            var participant2 = Participants[1];
             var answer1 = new Answer
             {
                 Progression = Progression.Preparation,
@@ -101,10 +101,10 @@ namespace api.Context
 
         private static List<Question> GetQuestions()
         {
-            var actions = GetActions();
+            var actions = Actions;
 
-            var answers1 = GetAnswers().GetRange(0, 2);
-            var answers2 = GetAnswers().GetRange(1, 2);
+            var answers1 = Answers.GetRange(0, 2);
+            var answers2 = Answers.GetRange(1, 2);
 
             var qeustion1 = new Question
             {
@@ -155,12 +155,12 @@ namespace api.Context
 
         private static List<Evaluation> GetEvaluations()
         {
-            var participants = GetParticipants();
-            var participant1 = GetParticipants()[0];
-            var participant2 = GetParticipants()[1];
+            var participants = Participants;
+            var participant1 = Participants[0];
+            var participant2 = Participants[1];
 
-            var questions1 = GetQuestions().GetRange(0, 2);
-            var questions2 = GetQuestions().GetRange(2, 2);
+            var questions1 = Questions.GetRange(0, 2);
+            var questions2 = Questions.GetRange(2, 2);
 
             var evaluation1 = new Evaluation
             {
@@ -219,8 +219,8 @@ namespace api.Context
         private static List<Project> GetProjects()
         {
 
-            var evaluations1 = GetEvaluations().GetRange(0, 2);
-            var evaluations2 = GetEvaluations().GetRange(2, 2);
+            var evaluations1 = Evaluations.GetRange(0, 2);
+            var evaluations2 = Evaluations.GetRange(2, 2);
 
             var project1 = new Project
             {
