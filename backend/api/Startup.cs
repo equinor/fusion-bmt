@@ -112,8 +112,8 @@ namespace api
             app.UseCors(_accessControlPolicyName);
 
             var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
-            var context = serviceScope.ServiceProvider.GetRequiredService<BmtDbContext>();
-            context.InitializeIfInMem();
+            var dbContext = serviceScope.ServiceProvider.GetRequiredService<BmtDbContext>();
+            dbContext.InitializeIfInMem();
 
             if (env.IsDevelopment())
             {

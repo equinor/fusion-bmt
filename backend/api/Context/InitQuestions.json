@@ -1,0 +1,79 @@
+[
+    {
+        "Barrier":"General matters",
+        "Checkpoint":"Management",
+        "Text":"Is there a process in place?",
+        "SupportNotes":"Processes and tools < individuals and interactions ",
+        "Organization":"All"
+    },
+    {
+        "Barrier":"General matters",
+        "Checkpoint":"Management",
+        "Text":"Is there some documentation available?",
+        "SupportNotes":"Comprehensive documentation < working software",
+        "Organization":"Engineering"
+    },
+    {
+        "Barrier":"PS1 Containment",
+        "Checkpoint":"Management",
+        "Text":"Is there an ongoing contract negotiation?",
+        "SupportNotes":"Contract negotiation < customer collaboration",
+        "Organization":"Construction"
+    },
+    {
+        "Barrier":"PS2 HVAC",
+        "Checkpoint":"Management",
+        "Text":"Do we have a plan?",
+        "SupportNotes":"Following a plan < responding to change",
+        "Organization":"Preparing for operation"
+    },
+    {
+        "Barrier":"PS3 Leak Detection",
+        "Checkpoint":"Management",
+        "Text":"Is the software well-crafted?",
+        "SupportNotes":"Not only working software, but also well-crafted software",
+        "Organization":"Commissioning"
+    },
+    {
+        "Barrier":"PS4 ESD",
+        "Checkpoint":"Management",
+        "Text":"Are we steadily adding value?",
+        "SupportNotes":"Not only responding to change, but also steadily adding value",
+        "Organization":"Engineering"
+    },
+    {
+        "Barrier":"PS6 Ignition Source Control",
+        "Checkpoint":"Management",
+        "Text":"Is there a community of professionals?",
+        "SupportNotes":"Not only individuals and interactions, but also a community of professionals",
+        "Organization":"All"
+    },
+    {
+        "Barrier":"PS7 Fire detection",
+        "Checkpoint":"Management",
+        "Text":"Are the partnerships productive?",
+        "SupportNotes":"Not only customer collaboration, but also productive partnerships",
+        "Organization":"Preparing for operation"
+    },
+    {
+        "Barrier":"PS12 Process Safety",
+        "Checkpoint":"Management",
+        "Text":"Are people safe?",
+        "SupportNotes":"Always safe",
+        "Organization":"Engineering"
+    },
+    {
+        "Barrier":"PS15 Layout",
+        "Checkpoint":"Management",
+        "Text":"Is the value high?",
+        "SupportNotes":"High value",
+        "Organization":"Commissioning"
+    },
+    {
+        "Barrier":"PS22 HMI",
+        "Checkpoint":"Management",
+        "Text":"Is the carbon low?",
+        "SupportNotes":"Low carbon",
+        "Organization":"Construction"
+    }
+]

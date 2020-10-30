@@ -1,1 +1,9 @@
+# Git
 !.git/**
+
+# Node
+frontend/node_modules
+
+# .NET
+backend/*/bin
+backend/*/obj
