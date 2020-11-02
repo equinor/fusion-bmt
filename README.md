@@ -42,12 +42,6 @@ API, the Swagger URL [localhost:5000/swagger](http://localhost:500/swagger/index
 The Schema used for the models in the backend can be found [here](https://backend-fusion-bmt-dev.radix.equinor.com/graphql/schema).
 
 
-
-### Environment variables required:
-```
-Database__ConnectionString
-AzureAd__ClientSecret
-```
 ### Run backend
 ```
 cd backend/api
@@ -80,5 +74,8 @@ and that you have set your `Database__ConnectionString`.
 * Pupulate DB with questions: `dotnet ...`
 
 
-
-### API structure
+## Environment variables
+|          | Frontend  | Backend |
+| -------- | --------- | ------- |
+| Required |           | `AzureAd__ClientSecret` |
+| Optional | `API_URL` | `ASPNETCORE_ENVIRONMENT`, `HTTPONLY`, `Database_ConnectionString` |
