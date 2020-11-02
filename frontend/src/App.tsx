@@ -1,16 +1,15 @@
 import React from 'react';
 
 import { useCurrentContext, useCurrentUser } from '@equinor/fusion';
-import { Tabs, Tab } from '@equinor/fusion-components';
 import GQLButtons from './GraphQL/GQLButtons';
+import { Switch, Route } from 'react-router-dom';
+import ProjectHomeRoute from './routes/ProjectHomeRoute';
+import CreateEvaluationRoute from './routes/CreateEvaluationRoute';
 
 const App = () => {
     const currentProject = useCurrentContext();
-    const [activeTabKey, setActiveTabKey] = React.useState('Item1');
 
     const currentUser = useCurrentUser();
-
-    const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey);
 
     if(!currentUser){
         return <p>Please log in.</p>
@@ -24,17 +23,10 @@ const App = () => {
     }
 
     return <>
-        <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
-            <Tab tabKey="Item1" title="Dashboard">
-                <h1>Dashboard</h1>
-            </Tab>
-            <Tab tabKey="Item2" title="Actions">
-                <h1>Actions</h1>
-            </Tab>
-            <Tab tabKey="Item3" title="Archive">
-                <h1>Archive</h1>
-            </Tab>
-        </Tabs>
+        <Switch>
+            <Route path="/:projectID" exact render={() => <ProjectHomeRoute projectID={currentProject.id} />} />
+            <Route path="/:projectID/createEvaluation" exact render={() => <CreateEvaluationRoute projectID={currentProject.id} />} />
+        </Switch>
     </>
 }
 
