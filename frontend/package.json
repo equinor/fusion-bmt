@@ -9,7 +9,7 @@
         "test": "jest"
     },
     "author": "",
-    "license": "ISC",
+    "license": "MIT",
     "manifest": {
         "name": "bmt",
         "shortName": "bmt"
