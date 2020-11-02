@@ -53,7 +53,7 @@ namespace api.Services
             Project project = _context.Projects.FirstOrDefault(project => project.Id.Equals(projectId));
             if (project == null)
             {
-                throw new Exception($"Project not found: {projectId}");
+                throw new NotFoundInDBException($"Project not found: {projectId}");
             }
             return project;
         }

@@ -128,8 +128,6 @@ namespace api.Context
         private static List<Evaluation> GetEvaluations()
         {
             var participants = Participants;
-            var participant1 = Participants[0];
-            var participant2 = Participants[1];
 
             var questions1 = Questions.GetRange(0, 2);
             var questions2 = Questions.GetRange(2, 2);

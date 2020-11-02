@@ -12,7 +12,7 @@ namespace tests
     [Collection("UsesDbContext")]
     public class ProjectServiceTest
     {
-        private BmtDbContext _context;
+        private readonly BmtDbContext _context;
         public ProjectServiceTest()
         {
             _context = Globals.context;
@@ -32,11 +32,10 @@ namespace tests
         {
             ProjectService projectService = new ProjectService(_context);
             int nProjectsBefore = projectService.GetAll().Count();
-            Project project = projectService.Create("some_id_that_does_not_exist");
+            projectService.Create("some_id_that_does_not_exist");
             int nProjectsAfter = projectService.GetAll().Count();
 
             Assert.Equal(nProjectsBefore + 1, nProjectsAfter);
-            Assert.True(projectService.GetProject(project.Id) != null);
         }
 
         [Fact]
@@ -71,7 +70,7 @@ namespace tests
 
             SystemAction act = () => projectService.GetProject("some_project_id_that_does_not_exist");
 
-            Assert.Throws<Exception>(act);
+            Assert.Throws<NotFoundInDBException>(act);
         }
 
         [Fact]

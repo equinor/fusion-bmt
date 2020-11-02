@@ -46,7 +46,7 @@ namespace api.Services
             Participant participant = _context.Participants.FirstOrDefault(participant => participant.Id.Equals(participantId));
             if (participant == null)
             {
-                throw new Exception($"Participant not found: {participantId}");
+                throw new NotFoundInDBException($"Participant not found: {participantId}");
             }
             return participant;
         }
