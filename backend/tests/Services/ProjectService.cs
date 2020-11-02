@@ -36,7 +36,6 @@ namespace tests
             int nProjectsAfter = projectService.GetAll().Count();
 
             Assert.Equal(nProjectsBefore + 1, nProjectsAfter);
-            Assert.True(projectService.GetProject(project.Id) != null);
         }
 
         [Fact]

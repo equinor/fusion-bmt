@@ -8,17 +8,22 @@ namespace api.GQL
         private readonly ProjectService _projectService;
         private readonly EvaluationService _evaluationService;
         private readonly ParticipantService _participantService;
+        private readonly QuestionService _questionService;
+        private readonly AnswerService _answerService;
 
         public Mutation(
             ProjectService projectService,
             EvaluationService evaluationService,
-            ParticipantService participantService
+            ParticipantService participantService,
+            QuestionService questionService,
+            AnswerService answerService
         )
         {
             _projectService = projectService;
             _evaluationService = evaluationService;
             _participantService = participantService;
-
+            _questionService = questionService;
+            _answerService = answerService;
         }
 
         public Evaluation CreateEvaluation(string name, string projectId, Participant creator)
@@ -31,6 +36,12 @@ namespace api.GQL
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
             return _participantService.Create(fusionPersonId, evaluation, organization, role);
+        }
+
+        public Answer CreateAnswer(Participant answeredBy, Progression progression, string questionId, Severity severity, string text)
+        {
+            Question question = _questionService.GetQuestion(questionId);
+            return _answerService.Create(answeredBy, progression, question, severity, text);
         }
     }
 }

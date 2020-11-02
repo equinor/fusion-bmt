@@ -12,7 +12,9 @@ namespace api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        [Required]
         public string FusionProjectId { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
         public virtual ICollection<Evaluation> Evaluations { get; set; }
     }
@@ -22,9 +24,13 @@ namespace api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        [Required]
         public string Name { get; set; }
+        [Required]
         public string ProjectId { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
         public Progression? Progression { get; set; }
         public virtual ICollection<Participant> Participants { get; set; }
         public virtual ICollection<Question> Questions { get; set; }
@@ -36,10 +42,15 @@ namespace api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        [Required]
         public string EvaluationId { get; set; }
+        [Required]
         public string FusionPersonId { get; set; }
+        [Required]
         public Organization? Organization { get; set; }
+        [Required]
         public Role? Role { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
         public virtual Evaluation Evaluation { get; set; }
     }
@@ -49,12 +60,17 @@ namespace api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        [Required]
         public string EvaluationId { get; set; }
+        [Required]
         public Status? Status { get; set; }
+        [Required]
         public Organization? Organization { get; set; }
         public string Text { get; set; }
         public string SupportNotes { get; set; }
+        [Required]
         public Barrier? Barrier { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }
         public virtual ICollection<Action> Actions { get; set; }
@@ -66,10 +82,13 @@ namespace api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        [Required]
         public string QuestionId { get; set; }
+        [Required]
         public Progression? Progression { get; set; }
         public Severity? Severity { get; set; }
         public string Text { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
         public Participant AnsweredBy { get; set; }
         public virtual Question Question { get; set; }
@@ -80,6 +99,7 @@ namespace api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        [Required]
         public string QuestionId { get; set; }
         public Participant AssignedTo { get; set; }
         public string Title { get; set; }
@@ -87,6 +107,7 @@ namespace api.Models
         public Priority? Priority { get; set; }
         public bool OnHold { get; set; }
         public DateTime DueDate { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
         public Participant CreatedBy { get; set; }
         public virtual ICollection<Note> Notes { get; set; }
@@ -98,9 +119,11 @@ namespace api.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        [Required]
         public string ActionId { get; set; }
         public string Text { get; set; }
         public Participant CreatedBy { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
         public virtual Action Action { get; set; }
     }

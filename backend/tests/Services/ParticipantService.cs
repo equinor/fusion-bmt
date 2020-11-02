@@ -36,7 +36,6 @@ namespace tests
             int nParticipantsAfter = participantService.GetAll().Count();
 
             Assert.Equal(nParticipantsBefore + 1, nParticipantsAfter);
-            Assert.True(participantService.GetParticipant(participant.Id) != null);
         }
 
         [Fact]

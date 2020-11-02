@@ -38,7 +38,6 @@ namespace tests
             int nEvaluationsAfter = evaluationService.GetAll().Count();
 
             Assert.Equal(nEvaluationsBefore + 1, nEvaluationsAfter);
-            Assert.True(evaluationService.GetEvaluation(Evaluation.Id) != null);
         }
 
         [Fact]
