@@ -12,7 +12,7 @@ namespace tests
     [Collection("UsesDbContext")]
     public class EvaluationServiceTest
     {
-        private BmtDbContext _context;
+        private readonly BmtDbContext _context;
         public EvaluationServiceTest()
         {
             _context = Globals.context;
@@ -34,11 +34,10 @@ namespace tests
             EvaluationService evaluationService = new EvaluationService(_context);
 
             int nEvaluationsBefore = evaluationService.GetAll().Count();
-            Evaluation Evaluation = evaluationService.Create("some_name", ExampleProject(), ExampleParticipant());
+            evaluationService.Create("some_name", ExampleProject(), ExampleParticipant());
             int nEvaluationsAfter = evaluationService.GetAll().Count();
 
             Assert.Equal(nEvaluationsBefore + 1, nEvaluationsAfter);
-            Assert.True(evaluationService.GetEvaluation(Evaluation.Id) != null);
         }
 
         [Fact]
@@ -48,7 +47,7 @@ namespace tests
 
             SystemAction act = () => evaluationService.GetEvaluation("some_evaluation_id_that_does_not_exist");
 
-            Assert.Throws<Exception>(act);
+            Assert.Throws<NotFoundInDBException>(act);
         }
 
         [Fact]

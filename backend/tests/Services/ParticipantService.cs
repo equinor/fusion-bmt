@@ -12,7 +12,7 @@ namespace tests
     [Collection("UsesDbContext")]
     public class ParticipantServiceTest
     {
-        private BmtDbContext _context;
+        private readonly BmtDbContext _context;
         public ParticipantServiceTest()
         {
             _context = Globals.context;
@@ -32,11 +32,10 @@ namespace tests
             ParticipantService participantService = new ParticipantService(_context);
 
             int nParticipantsBefore = participantService.GetAll().Count();
-            Participant participant = participantService.Create("some_id_we_got_from_fusion", ExampleEvaluation(), Organization.Engineering, Role.Participant);
+            participantService.Create("some_id_we_got_from_fusion", ExampleEvaluation(), Organization.Engineering, Role.Participant);
             int nParticipantsAfter = participantService.GetAll().Count();
 
             Assert.Equal(nParticipantsBefore + 1, nParticipantsAfter);
-            Assert.True(participantService.GetParticipant(participant.Id) != null);
         }
 
         [Fact]
@@ -46,7 +45,7 @@ namespace tests
 
             SystemAction act = () => participantService.GetParticipant("some_participant_id_that_does_not_exist");
 
-            Assert.Throws<Exception>(act);
+            Assert.Throws<NotFoundInDBException>(act);
         }
 
         [Fact]

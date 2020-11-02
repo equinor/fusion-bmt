@@ -47,7 +47,7 @@ namespace api.Services
             Evaluation evaluation = _context.Evaluations.FirstOrDefault(evaluation => evaluation.Id.Equals(evaluationId));
             if (evaluation == null)
             {
-                throw new Exception($"Evaluation not found: {evaluationId}");
+                throw new NotFoundInDBException($"Evaluation not found: {evaluationId}");
             }
             return evaluation;
         }
