@@ -5,3 +5,5 @@
 We are using a Entity Framework SQL database for storing our data.
 The environment variable "Database__ConnectionString" can be a ADO.NET connection string to an existing
 database. If empty we use an InMemory database which is initialized with dummy data.
+
+:
