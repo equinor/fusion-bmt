@@ -10,8 +10,10 @@ interface ProjectHomeRouteProps {
 const ProjectHomeRoute = ({projectID}: ProjectHomeRouteProps) => {
     const [activeTabKey, setActiveTabKey] = React.useState('Item1');
     const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey);
-    
+
+
     return (
+        <>
         <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
             <Tab tabKey="Item1" title="Dashboard">
                 <ProjectDashboardView projectID={projectID} />
@@ -23,6 +25,8 @@ const ProjectHomeRoute = ({projectID}: ProjectHomeRouteProps) => {
                 <h1>Archive</h1>
             </Tab>
         </Tabs>
+
+        </>
     );
 };
 
