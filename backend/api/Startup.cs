@@ -13,7 +13,6 @@ using Microsoft.OpenApi.Models;
 
 using HotChocolate;
 using HotChocolate.AspNetCore;
-using HotChocolate.Execution.Configuration;
 
 using api.Context;
 using api.Services;
@@ -65,7 +64,7 @@ namespace api
             services.AddGraphQL(s =>
                 SchemaBuilder.New()
                     .AddServices(s)
-                    .AddQueryType<Query>()
+                    .AddQueryType<GraphQuery>()
                     .AddMutationType<Mutation>()
                     .AddAuthorizeDirectiveType()
                     .Create()

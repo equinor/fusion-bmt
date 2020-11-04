@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System;
+
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Any;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 using api.Models;
@@ -9,9 +12,9 @@ namespace api.Swagger
 {
     public class GraphEndpoint : IDocumentFilter
     {
-        public const string graphEndpoint = @"/graphql";
+        public static readonly string graphEndpoint = @"/graphql";
 
-        public const string query = "{\"query\":\n\"" +
+        public static readonly string query = "{\"query\":\n\"" +
         "query {projects {id, fusionProjectId, createDate}}\"}";
 
         public void Apply(OpenApiDocument openApiDocument, DocumentFilterContext context)

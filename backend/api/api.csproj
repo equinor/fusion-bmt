@@ -2,7 +2,6 @@
   <PropertyGroup>
      <TargetFramework>netcoreapp3.1</TargetFramework>
      <EnableNETAnalyzers>true</EnableNETAnalyzers>
-     <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1">

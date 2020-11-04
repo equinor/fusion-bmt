@@ -7,11 +7,11 @@ using api.Services;
 
 namespace api.GQL
 {
-    public class Query
+    public class GraphQuery
     {
         private readonly ProjectService _projectService;
 
-        public Query(ProjectService projectService)
+        public GraphQuery(ProjectService projectService)
         {
             _projectService = projectService;
         }
