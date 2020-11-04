@@ -1,6 +1,6 @@
-import { RadioButton } from '@equinor/fusion-components';
-import React from 'react';
-import { Severity } from "../../api/models";
+import { RadioButton } from '@equinor/fusion-components'
+import React from 'react'
+import { Severity } from '../../api/models'
 
 interface RadioButtonWrapperProps {
     label: string
@@ -9,9 +9,9 @@ interface RadioButtonWrapperProps {
     isSelected: boolean
 }
 
-const RadioButtonWrapper = ({label, color, onClick, isSelected}: RadioButtonWrapperProps) => {
+const RadioButtonWrapper = ({ label, color, onClick, isSelected }: RadioButtonWrapperProps) => {
     return <>
-        <label style={{display: "flex", alignItems: "center"}}>
+        <label style={{ display: 'flex', alignItems: 'center' }}>
             <RadioButton
                 color={color}
                 onChange={onClick}
@@ -27,7 +27,7 @@ interface AnswerSeverityFormProps {
     onSeveritySelected: (severity: Severity) => void
 }
 
-const AnswerSeverityForm = ({severity, onSeveritySelected}: AnswerSeverityFormProps) => {
+const AnswerSeverityForm = ({ severity, onSeveritySelected }: AnswerSeverityFormProps) => {
     return <>
         <RadioButtonWrapper
             label="High"
@@ -56,4 +56,4 @@ const AnswerSeverityForm = ({severity, onSeveritySelected}: AnswerSeverityFormPr
     </>
 }
 
-export default AnswerSeverityForm;
+export default AnswerSeverityForm

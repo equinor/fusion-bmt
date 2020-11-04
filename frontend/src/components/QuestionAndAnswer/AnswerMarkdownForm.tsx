@@ -1,13 +1,13 @@
-import { MarkdownEditor } from '@equinor/fusion-components';
-import { Box } from '@material-ui/core';
-import React from 'react';
+import { MarkdownEditor } from '@equinor/fusion-components'
+import { Box } from '@material-ui/core'
+import React from 'react'
 
 interface AnswerMarkdownFormProps {
     markdown: string
     onMarkdownChange: (markdown: string) => void
 }
 
-const AnswerMarkdownForm = ({markdown, onMarkdownChange}: AnswerMarkdownFormProps) => {
+const AnswerMarkdownForm = ({ markdown, onMarkdownChange }: AnswerMarkdownFormProps) => {
     return <>
         <Box width="100%">
             <MarkdownEditor
@@ -21,7 +21,7 @@ const AnswerMarkdownForm = ({markdown, onMarkdownChange}: AnswerMarkdownFormProp
                     'h1',
                     'h2',
                     'h3',
-                    'paragraph',
+                    'paragraph'
                 ]}
             >
                 {markdown}
@@ -30,4 +30,4 @@ const AnswerMarkdownForm = ({markdown, onMarkdownChange}: AnswerMarkdownFormProp
     </>
 }
 
-export default AnswerMarkdownForm;
+export default AnswerMarkdownForm

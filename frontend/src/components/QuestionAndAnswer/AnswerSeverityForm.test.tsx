@@ -10,7 +10,7 @@ describe('AnswerSeverityForm', () => {
     it('Call on click', () => {
         const onSeveritySelected = jest.fn()
 
-        const {getByLabelText} = renderWithContext(
+        const { getByLabelText } = renderWithContext(
             <AnswerSeverityForm
                 severity={Severity.HIGH}
                 onSeveritySelected={onSeveritySelected}
