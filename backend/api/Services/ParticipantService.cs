@@ -36,6 +36,12 @@ namespace api.Services
             return newParticipant;
         }
 
+        public void Remove(string participantId)
+        {
+            _context.Participants.Remove(GetParticipant(participantId));
+            _context.SaveChanges();
+        }
+
         public IQueryable<Participant> GetAll()
         {
             return _context.Participants;

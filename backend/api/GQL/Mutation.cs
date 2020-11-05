@@ -38,6 +38,11 @@ namespace api.GQL
             return _participantService.Create(fusionPersonId, evaluation, organization, role);
         }
 
+        public void DeleteParticipant(string participantId)
+        {
+            _participantService.Remove(participantId);
+        }
+
         public Answer CreateAnswer(Participant answeredBy, Progression progression, string questionId, Severity severity, string text)
         {
             Question question = _questionService.GetQuestion(questionId);
