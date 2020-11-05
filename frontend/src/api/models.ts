@@ -25,17 +25,16 @@ export type Answer = {
 }
 
 export enum Barrier {
-  GM,
-  PS1,
-  PS2,
-  PS3,
-  PS4,
-  PS5,
-  PS6,
-  PS7,
-  PS12,
-  PS15,
-  PS22
+  GM="General Matters",
+  PS1="Containment",
+  PS2="HVAC",
+  PS3="Leak Detection",
+  PS4="ESD",
+  PS6="Ignition Source Control",
+  PS7="Fire Detection",
+  PS12="Process Safety",
+  PS15="Layout",
+  PS22="HMI"
 }
 
 export type Evaluation = {
@@ -63,17 +62,11 @@ export type Note = {
 }
 
 export enum Organization {
-  COMMISSIONING,
-  CONSTRUCTION,
-  ENGINEERING,
-  PREOPS,
-  ALL
-}
-
-export namespace Organization {
-    export function toString(enumValue: Organization): string {
-        return Organization[enumValue];
-    }
+  COMMISSIONING="Commissioning",
+  CONSTRUCTION="Construction",
+  ENGINEERING="Engineering",
+  PREOPS="PreOps",
+  ALL="All"
 }
 
 export type Participant = {
@@ -126,9 +119,9 @@ export type Question = {
 }
 
 export enum Role {
-  PARTICIPANT,
-  FACILITATOR,
-  READONLY
+  PARTICIPANT="Participant",
+  FACILITATOR="Facilitator",
+  READONLY="ReadOnly"
 }
 
 export enum Severity {

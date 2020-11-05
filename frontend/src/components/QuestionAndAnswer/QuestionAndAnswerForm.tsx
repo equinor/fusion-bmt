@@ -33,7 +33,7 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange
             <Grid item xs={12}>
                 <Box display="flex" flexDirection="row-reverse">
                     <Box>
-                        <Chip primary title={Organization.toString(question.organization).toLowerCase()}/>
+                        <Chip primary title={question.organization.toLowerCase()}/>
                     </Box>
                 </Box>
             </Grid>

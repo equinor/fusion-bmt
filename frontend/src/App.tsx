@@ -5,6 +5,7 @@ import GQLButtons from './GraphQL/GQLButtons';
 import { Switch, Route } from 'react-router-dom';
 import ProjectHomeRoute from './routes/ProjectHomeRoute';
 import CreateEvaluationRoute from './routes/CreateEvaluationRoute';
+import PreparationRoute from './routes/PreparationRoute';
 
 const App = () => {
     const currentProject = useCurrentContext();
@@ -24,8 +25,15 @@ const App = () => {
 
     return <>
         <Switch>
-            <Route path="/:projectID" exact render={() => <ProjectHomeRoute projectID={currentProject.id} />} />
-            <Route path="/:projectID/createEvaluation" exact render={() => <CreateEvaluationRoute projectID={currentProject.id} />} />
+            <Route path="/:projectID" exact>
+                <ProjectHomeRoute projectID={currentProject.id} />
+            </Route>
+            <Route path="/:projectID/createEvaluation" exact>
+                <CreateEvaluationRoute projectID={currentProject.id} />
+            </Route>
+            <Route path="/:projectID/preparation" exact>
+                <PreparationRoute />
+            </Route>
         </Switch>
     </>
 }
