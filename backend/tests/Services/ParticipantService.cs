@@ -60,6 +60,20 @@ namespace tests
             Assert.Equal(participantCreate, participantGet);
         }
 
+        [Fact]
+        public void Delete()
+        {
+            ParticipantService participantService = new ParticipantService(_context);
+
+            Participant participantCreate = participantService.Create("some_fusion_person_id_that_will_be_removed", ExampleEvaluation(), Organization.Engineering, Role.Participant);
+
+            participantService.Remove(participantCreate.Id);
+
+            SystemAction act = () => participantService.GetParticipant(participantCreate.Id);
+
+            Assert.Throws<NotFoundInDBException>(act);
+        }
+
         private Evaluation ExampleEvaluation()
         {
             EvaluationService evaluationService = new EvaluationService(_context);
