@@ -14,14 +14,8 @@ export type NomineeItem = {
     details: PersonDetails;
 };
 
-export type NomineeDisplayItem = {
-    organization: string;
-    role: string;
-    details: PersonDetails;
-};
-
-type NomineeDisplayItemProps = {
-    item: NomineeDisplayItem;
+interface NomineeDisplayItemProps {
+    item: NomineeItem;
     rowIndex: number;
 };
 
@@ -31,7 +25,7 @@ const PersonCardRenderer: React.FC<NomineeDisplayItemProps> = ({ item }) => (
     </div>
 );
 
-const columns: DataTableColumn<NomineeDisplayItem>[] = [
+const columns: DataTableColumn<NomineeItem>[] = [
     {
         key: 'person',
         accessor: 'details',
@@ -56,13 +50,6 @@ const columns: DataTableColumn<NomineeDisplayItem>[] = [
 const NominationView = ({ evaluationTitle }: NominationViewProps) => {
     const [panelOpen, setPanelOpen] = React.useState(false);
     const [nominees, setNominees] = React.useState<NomineeItem[]>([]);
-    const [displayedNominees, setDisplayedNominees] = React.useState<NomineeDisplayItem[]>([]);
-
-    React.useEffect(() => {
-        setDisplayedNominees(nominees.map(n => {
-            return { details: n.details, organization: Organization[n.organization], role: Role[n.role] }
-        }))
-    }, [nominees]);
 
     return (
         <div style={{margin: 20}}>
@@ -78,7 +65,7 @@ const NominationView = ({ evaluationTitle }: NominationViewProps) => {
 
             <DataTable
                 columns={columns}
-                data={displayedNominees}
+                data={nominees}
                 isFetching={false}
                 rowIdentifier={'organization'}
             />

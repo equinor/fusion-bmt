@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { Button } from '@equinor/fusion-components';
 import { Link } from 'react-router-dom';
+import { Project } from '../../api/models';
 
 interface ProjectDashboardViewProps {
-    projectID: string
+    project: Project
 }
 
-const ProjectDashboardView: React.FC<ProjectDashboardViewProps> = (props) => {
+const ProjectDashboardView = ({project}: ProjectDashboardViewProps) => {
     return (
         <div style={{margin: 20}}>
-            <Link to={`/${props.projectID}/createEvaluation`}>
+            <Link to={`/${project.fusionProjectId}/createEvaluation`}>
                 <Button>Create evaluation</Button>
             </Link>
         </div>

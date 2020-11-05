@@ -8,37 +8,33 @@ interface AddNomineeViewProps {
     onNomineeSelected: (person: PersonDetails, role: Role, organization: Organization) => void;
 }
 
-let enumToKvp = function (_enum: any): [number, string][] {
-    let keys = Object.values(_enum).filter(d => typeof d === 'number') as [number];
-    let values = Object.values(_enum).filter(d => typeof d === 'string') as [string];
-    return keys.map(function(e, i) { return [e, values[i]]});
-};
-
 const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
     const apiClients = useApiClients();
 
     const [searchQuery, setSearchQuery] = React.useState<string>("");
     const [searchResults, setSearchResults] = React.useState<PersonDetails[]>([]);
 
-    const [selectedRole, setSelectedRole] = React.useState<Role>();
-    const [selectedOrg, setSelectedOrg] = React.useState<Organization>();
+    const [selectedRole, setSelectedRole] = React.useState<Role>(Role.PARTICIPANT);
+    const [selectedOrg, setSelectedOrg] = React.useState<Organization>(Organization.COMMISSIONING);
 
     const [isSearching, setIsSearching] = React.useState<boolean>(false);
 
     const [orgOptions, setOrgOptions] = React.useState<SearchableDropdownOption[]>(
-        enumToKvp(Organization).map(d => {
+        Object.entries(Organization).map(([key, org]) => {
             return {
-                key: d[0].toString(),
-                title: d[1]
+                key: key,
+                title: org,
+                isSelected: (selectedOrg === org)
             }
         })
     );
 
     const [roleOptions, setRoleOptions] = React.useState<SearchableDropdownOption[]>(
-        enumToKvp(Role).map(d => {
+        Object.entries(Role).map(([key, role]) => {
             return {
-                key: d[0].toString(),
-                title: d[1]
+                key: key,
+                title: role,
+                isSelected: (selectedRole === role)
             }
         })
     );
@@ -56,7 +52,6 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
     const searchPersons = () => {
         if (searchQuery) {
             setIsSearching(true);
-            setSearchResults([]);
             apiClients.people.searchPersons(searchQuery)
                 .then((res) => {
                     setSearchResults(res.data);
@@ -74,7 +69,7 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                 label="Orgnization"
                 onSelect={item => {
                     setOrgOptions(updateOrgOptions(item))
-                    setSelectedOrg(+item.key);
+                    setSelectedOrg(item.key as Organization);
                 }}
             />
             <br/>
@@ -83,7 +78,7 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                 label="Role"
                 onSelect={item => {
                     setRoleOptions(updateRoleOptions(item))
-                    setSelectedRole(+item.key);
+                    setSelectedRole(item.key as Role);
                 }}
             />
             <br/>
@@ -104,14 +99,14 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                     <Spinner />
                 </div>
             }
-            {
+            { !isSearching &&
                 searchResults.map((p) => {
                     return (
                         <div style={{marginBottom: 10}} key={p.azureUniqueId}>
                             <PersonCard person={p} />
                             <Button onClick={() => {
                                 onNomineeSelected(p, selectedRole!, selectedOrg!);
-                            }} disabled={selectedOrg === null || selectedRole == null}>Add</Button>
+                            }}>Add</Button>
                         </div>
                     );
                 })
