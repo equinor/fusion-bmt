@@ -9,19 +9,17 @@ import { client } from './api/graphql';
 import App from './App';
 import { config } from './config';
 
-const APP_ID = `8829d4ca-93e8-499a-8ce1-bc0ef4840176`;
-
 const Start = () => {
     const fusionContext = useFusionContext();
 
     const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
     const login = async () => {
-        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(APP_ID, [
+        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [
             new URL(config.API_URL).origin,
         ]);
 
         if(!isLoggedIn) {
-            await fusionContext.auth.container.loginAsync(APP_ID);
+            await fusionContext.auth.container.loginAsync(config.AD_APP_ID);
             return;
         }
 
