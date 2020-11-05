@@ -2,26 +2,26 @@ export type Action = {
   assignedTo: Participant
   createDate: Date
   createdBy: Participant
-  description: String
+  description: string
   dueDate: Date
-  id: String
+  id: string
   notes: [Note]
   onHold: Boolean
   priority: Priority
   question: Question
-  questionId: String
-  title: String
+  questionId: string
+  title: string
 }
 
 export type Answer = {
   answeredBy: Participant
   createDate: Date
-  id: String
+  id: string
   progression: Progression
   question: Question
-  questionId: String
+  questionId: string
   severity: Severity
-  text: String
+  text: string
 }
 
 export enum Barrier {
@@ -40,26 +40,26 @@ export enum Barrier {
 
 export type Evaluation = {
   createDate: Date
-  id: String
-  name: String
+  id: string
+  name: string
   participants: [Participant]
   progression: Progression
   project: Project
-  projectId: String
+  projectId: string
   questions: [Question]
 }
 
 export type Mutation = {
-  createProject(fusionProjectID: String): Project
+  createProject(fusionProjectID: string): Project
 }
 
 export type Note = {
   action: Action
-  actionId: String
+  actionId: string
   createDate: Date
   createdBy: Participant
-  id: String
-  text: String
+  id: string
+  text: string
 }
 
 export enum Organization {
@@ -70,12 +70,18 @@ export enum Organization {
   ALL
 }
 
+export namespace Organization {
+    export function toString(enumValue: Organization): string {
+        return Organization[enumValue];
+    }
+}
+
 export type Participant = {
   createDate: Date
   evaluation: Evaluation
-  evaluationId: String
-  fusionPersonId: String
-  id: String
+  evaluationId: string
+  fusionPersonId: string
+  id: string
   organization: Organization
   role: Role
 }
@@ -97,8 +103,8 @@ export enum Progression {
 export type Project = {
   createDate: Date
   evaluations: [Evaluation]
-  fusionProjectId: String
-  id: String
+  fusionProjectId: string
+  id: string
 }
 
 export type Query = {
@@ -106,17 +112,17 @@ export type Query = {
 }
 
 export type Question = {
-  actions: [Action]
-  answers: [Answer]
+  actions: Action[]
+  answers: Answer[]
   barrier: Barrier
   createDate: Date
   evaluation: Evaluation
-  evaluationId: String
-  id: String
+  evaluationId: string
+  id: string
   organization: Organization
   status: Status
-  supportNotes: String
-  text: String
+  supportNotes: string
+  text: string
 }
 
 export enum Role {

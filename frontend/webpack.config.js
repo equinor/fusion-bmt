@@ -4,7 +4,7 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const gitRevisionPlugin = new GitRevisionPlugin({
     commithashCommand: 'rev-parse --short HEAD',
     versionCommand: "log -1 --date=short --pretty=format:'%cd'"
-  });
+});
 
 const APP_VERSION = process.env.npm_package_version;
 
