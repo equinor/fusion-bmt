@@ -75,7 +75,27 @@ and that you have set your `Database__ConnectionString`.
 
 
 ## Environment variables
-|          | Frontend  | Backend |
-| -------- | --------- | ------- |
-| Required |           | `AzureAd__ClientSecret` |
-| Optional | `API_URL` | `ASPNETCORE_ENVIRONMENT`, `HTTPONLY`, `Database_ConnectionString` |
+<table>
+    <tr>
+        <th></th>
+        <th>Frontend</th>
+        <th>Backend</th>
+    </tr>
+    <tr>
+        <td>Required</td>
+        <td></td>
+        <td>AzureAd__ClientSecret</td>
+    </tr>
+    <tr>
+        <td>Optional</td>
+        <td>
+            API_URL<br/>
+            AD_APP_ID
+        </td>
+        <td>
+            ASPNETCORE_ENVIRONMENT<br/>
+            HTTPONLY<br/>
+            Database_ConnectionString
+        </td>
+    </tr>
+</table>
