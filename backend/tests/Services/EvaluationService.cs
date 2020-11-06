@@ -1,4 +1,3 @@
-using System;
 using SystemAction = System.Action;
 using System.Linq;
 using Xunit;
@@ -34,7 +33,7 @@ namespace tests
             EvaluationService evaluationService = new EvaluationService(_context);
 
             int nEvaluationsBefore = evaluationService.GetAll().Count();
-            evaluationService.Create("some_name", ExampleProject(), ExampleParticipant());
+            evaluationService.Create("some_name", ExampleProject());
             int nEvaluationsAfter = evaluationService.GetAll().Count();
 
             Assert.Equal(nEvaluationsBefore + 1, nEvaluationsAfter);
@@ -55,7 +54,7 @@ namespace tests
         {
             EvaluationService evaluationService = new EvaluationService(_context);
 
-            Evaluation evaluationCreate = evaluationService.Create("some_evaluation_name", ExampleProject(), ExampleParticipant());
+            Evaluation evaluationCreate = evaluationService.Create("some_evaluation_name", ExampleProject());
 
             Evaluation evaluationGet = evaluationService.GetEvaluation(evaluationCreate.Id);
 
@@ -66,11 +65,6 @@ namespace tests
         {
             ProjectService projectService = new ProjectService(_context);
             return projectService.GetAll().First();
-        }
-        private Participant ExampleParticipant()
-        {
-            ParticipantService participantService = new ParticipantService(_context);
-            return participantService.GetAll().First();
         }
     }
 }

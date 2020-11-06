@@ -12,7 +12,7 @@ const CreateEvaluationRoute = ({projectID}: CreateEvaluationRouteProps) => {
     return (
         <>
             <div style={{margin: 10}}>
-                <h2>Create evaluation</h2>
+                <h3>Nomination</h3>
             </div>
             <Stepper
                 forceOrder={true}

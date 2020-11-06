@@ -45,7 +45,7 @@ namespace api.Models
         [Required]
         public string EvaluationId { get; set; }
         [Required]
-        public string FusionPersonId { get; set; }
+        public string AzureUniqueId { get; set; }
         [Required]
         public Organization? Organization { get; set; }
         [Required]
@@ -63,7 +63,7 @@ namespace api.Models
         [Required]
         public string EvaluationId { get; set; }
         [Required]
-        public Status? Status { get; set; }
+        public string QuestionTemplateId { get; set; }
         [Required]
         public Organization? Organization { get; set; }
         public string Text { get; set; }
@@ -75,6 +75,25 @@ namespace api.Models
         public virtual ICollection<Answer> Answers { get; set; }
         public virtual ICollection<Action> Actions { get; set; }
         public virtual Evaluation Evaluation { get; set; }
+        public virtual QuestionTemplate QuestionTemplate { get; set; }
+    }
+
+    public class QuestionTemplate
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string Id { get; set; }
+        [Required]
+        public Status? Status { get; set; }
+        [Required]
+        public Organization? Organization { get; set; }
+        public string Text { get; set; }
+        public string SupportNotes { get; set; }
+        [Required]
+        public Barrier? Barrier { get; set; }
+        [Required]
+        public DateTime CreateDate { get; set; }
+        public virtual ICollection<Question> Questions { get; set; }
     }
 
     public class Answer

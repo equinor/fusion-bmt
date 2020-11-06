@@ -3,6 +3,8 @@ import { PersonCard, Button, ModalSideSheet, DataTable, DataTableColumn, PersonD
 import AddNomineeView from './AddNomineeView';
 import { PersonDetails } from '@equinor/fusion';
 import { Organization, Role } from '../../api/models';
+import { Box } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 
 interface NominationViewProps {
     evaluationTitle: string
@@ -53,7 +55,18 @@ const NominationView = ({ evaluationTitle }: NominationViewProps) => {
 
     return (
         <div style={{margin: 20}}>
-            <h2>{evaluationTitle}</h2>
+            <Box display="flex" flexDirection="row">
+                <Box flexGrow={1}>
+                    <h2>{evaluationTitle}</h2>
+                </Box>
+                <Box>
+                    <Link to={`./preparation`}>
+                        <Button>
+                            Create
+                        </Button>
+                    </Link>
+                </Box>
+            </Box>
 
             <Button
                 onClick={() => {
