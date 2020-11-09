@@ -3,9 +3,8 @@ import React from 'react';
 import { useCurrentContext, useCurrentUser } from '@equinor/fusion';
 import GQLButtons from './GraphQL/GQLButtons';
 import { Switch, Route } from 'react-router-dom';
-import ProjectHomeRoute from './routes/ProjectHomeRoute';
-import CreateEvaluationRoute from './routes/CreateEvaluationRoute';
-import PreparationRoute from './routes/PreparationRoute';
+import ProjectRoute from './routes/ProjectRoute';
+import EvaluationRoute from './routes/EvaluationRoute';
 
 const App = () => {
     const currentProject = useCurrentContext();
@@ -25,15 +24,8 @@ const App = () => {
 
     return <>
         <Switch>
-            <Route path="/:projectID" exact>
-                <ProjectHomeRoute projectID={currentProject.id} />
-            </Route>
-            <Route path="/:projectID/createEvaluation" exact>
-                <CreateEvaluationRoute projectID={currentProject.id} />
-            </Route>
-            <Route path="/:projectID/preparation" exact>
-                <PreparationRoute />
-            </Route>
+            <Route path="/:fusionProjectId" exact component={ProjectRoute} />
+            <Route path="/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationRoute} />
         </Switch>
     </>
 }

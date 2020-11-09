@@ -86,11 +86,11 @@ export enum Priority {
 }
 
 export enum Progression {
-    NOMINATION,
-    PREPARATION,
-    ALIGNMENT,
-    WORKSHOP,
-    FOLLOWUP
+    NOMINATION = "Nomination",
+    PREPARATION = "Preparation",
+    ALIGNMENT = "Alignment",
+    WORKSHOP = "Workshop",
+    FOLLOWUP = "Follow-up"
 }
 
 export type Project = {

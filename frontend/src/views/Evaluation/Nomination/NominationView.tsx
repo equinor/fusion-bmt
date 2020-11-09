@@ -1,14 +1,11 @@
 import * as React from 'react';
-import { PersonCard, Button, ModalSideSheet, DataTable, DataTableColumn, PersonDetail } from '@equinor/fusion-components';
-import AddNomineeView from './AddNomineeView';
-import { PersonDetails } from '@equinor/fusion';
-import { Organization, Role } from '../../api/models';
-import { Box } from '@material-ui/core';
-import { Link } from 'react-router-dom';
 
-interface NominationViewProps {
-    evaluationTitle: string
-}
+import { Box } from '@material-ui/core';
+import { PersonCard, Button, ModalSideSheet, DataTable, DataTableColumn } from '@equinor/fusion-components';
+import { PersonDetails } from '@equinor/fusion';
+
+import AddNomineeView from './AddNomineeView';
+import { Organization, Role } from '../../../api/models';
 
 export type NomineeItem = {
     organization: Organization;
@@ -49,9 +46,18 @@ const columns: DataTableColumn<NomineeItem>[] = [
     },
 ];
 
-const NominationView = ({ evaluationTitle }: NominationViewProps) => {
+interface NominationViewProps {
+    evaluationTitle: string
+    onNextStep: () => void
+}
+
+const NominationView = ({ evaluationTitle, onNextStep }: NominationViewProps) => {
     const [panelOpen, setPanelOpen] = React.useState(false);
     const [nominees, setNominees] = React.useState<NomineeItem[]>([]);
+
+    const onNextStepClick = () => {
+        onNextStep()
+    }
 
     return (
         <div style={{margin: 20}}>
@@ -60,11 +66,11 @@ const NominationView = ({ evaluationTitle }: NominationViewProps) => {
                     <h2>{evaluationTitle}</h2>
                 </Box>
                 <Box>
-                    <Link to={`./preparation`}>
-                        <Button>
-                            Create
-                        </Button>
-                    </Link>
+                    <Button
+                        onClick={onNextStepClick}
+                    >
+                        Create
+                    </Button>
                 </Box>
             </Box>
 

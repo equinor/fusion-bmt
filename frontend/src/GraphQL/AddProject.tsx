@@ -19,27 +19,27 @@ const MutateAction = () => {
 
     const [addProject, { loading, data, error }] = useMutation(
         ADD_PROJECT, {
-        update(cache, { data: { createProject } }) {
-            cache.modify({
-                fields: {
-                    projects(existingProjects = []) {
-                        const newProjectRef = cache.writeFragment({
-                            id: createProject.projectId,
-                            data: createProject,
-                            fragment: gql`
-                            fragment NewProject on Project {
-                                id
-                                fusionProjectId
-                                createDate
-                            }
-                            `
-                        });
-                        return [...existingProjects, newProjectRef];
+            update(cache, { data: { createProject } }) {
+                cache.modify({
+                    fields: {
+                        projects(existingProjects = []) {
+                            const newProjectRef = cache.writeFragment({
+                                id: createProject.projectId,
+                                data: createProject,
+                                fragment: gql`
+                                fragment NewProject on Project {
+                                    id
+                                    fusionProjectId
+                                    createDate
+                                }
+                                `
+                            });
+                            return [...existingProjects, newProjectRef];
+                        }
                     }
-                }
-            });
+                });
+            }
         }
-    }
     );
 
     const addSpecificProject = () => {
