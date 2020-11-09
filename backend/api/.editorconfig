@@ -6,4 +6,8 @@ dotnet_diagnostic.CA2227.severity = none
 # CA1062: Validate arguments of public methods
 dotnet_diagnostic.CA1062.severity = none
 
-csharp_preserve_single_line_blocks = true
+# IDE0044: Add readonly modifier
+dotnet_diagnostic.IDE0044.severity = none
+
+# IDE0039: Use local function instead of lambda
+dotnet_diagnostic.IDE0039.severity = none

@@ -5,101 +5,71 @@ using System.Text.Json.Serialization;
 namespace api.Models
 {
     public class BarrierConverter : JsonConverter<Barrier>
+    {
+        public override Barrier Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
-            public override Barrier Read(
-                ref Utf8JsonReader reader,
-                Type typeToConvert,
-                JsonSerializerOptions options
-            ){
-                string barrierString = reader.GetString();
-                Barrier barrier;
-                switch(barrierString)
-                {
-                    case "General matters":
-                        barrier = Barrier.GM;
-                        break;
-                    case "PS1 Containment":
-                        barrier = Barrier.PS1;
-                        break;
-                    case "PS2 HVAC":
-                        barrier = Barrier.PS2;
-                        break;
-                    case "PS3 Leak Detection":
-                        barrier = Barrier.PS3;
-                        break;
-                    case "PS4 ESD":
-                        barrier = Barrier.PS4;
-                        break;
-                    case "PS6 Ignition Source Control":
-                        barrier = Barrier.PS6;
-                        break;
-                    case "PS7 Fire detection":
-                        barrier = Barrier.PS7;
-                        break;
-                    case "PS12 Process Safety":
-                        barrier = Barrier.PS12;
-                        break;
-                    case "PS15 Layout":
-                        barrier = Barrier.PS15;
-                        break;
-                    case "PS22 HMI":
-                        barrier = Barrier.PS22;
-                        break;
-                    default:
-                        throw new Exception($"Barrier from JSON is not valid: '{barrierString}'");
-                }
-                return barrier;
-            }
+            string barrierString = reader.GetString();
+            Barrier barrier = barrierString switch
+            {
+                "General matters" => Barrier.GM,
+                "PS1 Containment" => Barrier.PS1,
+                "PS2 HVAC" => Barrier.PS2,
+                "PS3 Leak Detection" => Barrier.PS3,
+                "PS4 ESD" => Barrier.PS4,
+                "PS6 Ignition Source Control" => Barrier.PS6,
+                "PS7 Fire detection" => Barrier.PS7,
+                "PS12 Process Safety" => Barrier.PS12,
+                "PS15 Layout" => Barrier.PS15,
+                "PS22 HMI" => Barrier.PS22,
+                _ => throw new Exception($"Barrier from JSON is not valid: '{barrierString}'"),
+            };
+            return barrier;
+        }
 
 
         public override void Write(
             Utf8JsonWriter writer,
             Barrier barrier,
             JsonSerializerOptions options
-            ){
-                writer.WriteStringValue(barrier.ToString());
-            }
-        }
-
-        public class OrganizationConverter : JsonConverter<Organization>
+            )
         {
-            public override Organization Read(
-                ref Utf8JsonReader reader,
-                Type typeToConvert,
-                JsonSerializerOptions options
-            ){
-                string organizationString = reader.GetString();
-                Organization organization;
-                switch(organizationString)
-                {
-                    case "All":
-                        organization = Organization.All;
-                        break;
-                    case "Engineering":
-                        organization = Organization.Engineering;
-                        break;
-                    case "Construction":
-                        organization = Organization.Construction;
-                        break;
-                    case "Preparing for operation":
-                        organization = Organization.PreOps;
-                        break;
-                    case "Commissioning":
-                        organization = Organization.Commissioning;
-                        break;
-                    default:
-                        throw new Exception($"Organization from JSON is not valid: '{organizationString}'");
-                }
-                return organization;
-            }
+            writer.WriteStringValue(barrier.ToString());
+        }
+    }
+
+    public class OrganizationConverter : JsonConverter<Organization>
+    {
+        public override Organization Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
+        {
+            string organizationString = reader.GetString();
+            Organization organization = organizationString switch
+            {
+                "All" => Organization.All,
+                "Engineering" => Organization.Engineering,
+                "Construction" => Organization.Construction,
+                "Preparing for operation" => Organization.PreOps,
+                "Commissioning" => Organization.Commissioning,
+                _ => throw new Exception($"Organization from JSON is not valid: '{organizationString}'"),
+            };
+            return organization;
+        }
 
 
         public override void Write(
             Utf8JsonWriter writer,
             Organization organization,
             JsonSerializerOptions options
-            ){
-                writer.WriteStringValue(organization.ToString());
-            }
+            )
+        {
+            writer.WriteStringValue(organization.ToString());
         }
+    }
 }
