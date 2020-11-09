@@ -38,14 +38,14 @@ export enum Barrier {
 }
 
 export type Evaluation = {
-    createDate: Date
-    id: string
-    name: string
-    participants: [Participant]
-    progression: Progression
-    project: Project
-    projectId: string
-    questions: [Question]
+  createDate: Date
+  id: string
+  name: string
+  participants: Participant[]
+  progression: Progression
+  project: Project
+  projectId: string
+  questions: Question[]
 }
 
 export type Mutation = {
@@ -94,10 +94,10 @@ export enum Progression {
 }
 
 export type Project = {
-    createDate: Date
-    evaluations: [Evaluation]
-    fusionProjectId: string
-    id: string
+  createDate: Date
+  evaluations: Evaluation[]
+  fusionProjectId: string
+  id: string
 }
 
 export type Query = {
