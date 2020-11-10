@@ -2,7 +2,7 @@ import { Chip } from '@equinor/fusion-components';
 import React, { useEffect, useState } from 'react';
 import { Typography } from '@equinor/eds-core-react';
 
-import { Answer, Organization, Question } from '../../api/models';
+import { Answer, Question } from '../../api/models';
 import { Box, Grid } from '@material-ui/core';
 import AnswerSeverityForm from './AnswerSeverityForm';
 import AnswerMarkdownForm from './AnswerMarkdownForm';
