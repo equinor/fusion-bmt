@@ -66,14 +66,10 @@ namespace api
             services.AddScoped<AnswerService>();
             services.AddScoped<QuestionTemplateService>();
 
-            services.AddGraphQL(s =>
-                SchemaBuilder.New()
-                    .AddServices(s)
+            services.AddGraphQLServer()
+                    .AddProjections()
                     .AddQueryType<GraphQuery>()
-                    .AddMutationType<Mutation>()
-                    .AddAuthorizeDirectiveType()
-                    .Create()
-                );
+                    .AddMutationType<Mutation>();
 
             services.AddControllers();
 
@@ -122,7 +118,7 @@ namespace api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UsePlayground("/graphql");
+                // app.UsePlayground("/graphql");
 
                 var option = new RewriteOptions();
                 option.AddRedirect("^$", "graphql/playground");
@@ -132,6 +128,7 @@ namespace api
 
             // Comment out for using playground locally without auth
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -144,11 +141,9 @@ namespace api
             });
 
 
-            app.UseGraphQL("/graphql");
-
-
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGraphQL();
                 endpoints.MapControllers();
             });
         }
