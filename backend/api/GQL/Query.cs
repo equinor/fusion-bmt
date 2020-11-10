@@ -1,6 +1,5 @@
 using System.Linq;
-
-using HotChocolate.Types;
+using HotChocolate.Data;
 
 using api.Models;
 using api.Services;
@@ -16,7 +15,7 @@ namespace api.GQL
             _projectService = projectService;
         }
 
-        [UseSelection]
+        [UseProjection]
         public IQueryable<Project> GetProjects()
         {
             return _projectService.GetAll();
