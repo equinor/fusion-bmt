@@ -21,6 +21,7 @@ namespace api.Context
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Action> Actions { get; set; }
         public DbSet<Note> Notes { get; set; }
+        public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
 
         private readonly IOptions<BmtDbOptions> _config;
 
@@ -82,6 +83,11 @@ namespace api.Context
                 .HasMany(t => t.Notes)
                 .WithOne(t => t.Action)
                 .HasForeignKey(t => t.ActionId);
+
+            modelBuilder.Entity<QuestionTemplate>()
+                .HasMany(t => t.Questions)
+                .WithOne(t => t.QuestionTemplate)
+                .HasForeignKey(t => t.QuestionTemplateId);
         }
 
         public void InitializeIfInMem()

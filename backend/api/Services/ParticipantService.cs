@@ -17,14 +17,14 @@ namespace api.Services
             _context = context;
         }
 
-        public Participant Create(string fusionPersonId, Evaluation evaluation, Organization organization, Role role)
+        public Participant Create(string azureUniqueId, Evaluation evaluation, Organization organization, Role role)
         {
             DateTime createDate = DateTime.UtcNow;
 
             Participant newParticipant = new Participant
             {
                 CreateDate = createDate,
-                FusionPersonId = fusionPersonId,
+                AzureUniqueId = azureUniqueId,
                 Evaluation = evaluation,
                 Organization = organization,
                 Role = role

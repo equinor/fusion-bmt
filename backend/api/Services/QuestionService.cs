@@ -18,12 +18,8 @@ namespace api.Services
         }
 
         public Question Create(
-            Barrier barrier,
-            Evaluation evaluation,
-            Organization organization,
-            Status status,
-            string text,
-            string supportNotes
+            QuestionTemplate template,
+            Evaluation evaluation
         )
         {
             DateTime createDate = DateTime.UtcNow;
@@ -31,12 +27,12 @@ namespace api.Services
             Question newQuestion = new Question
             {
                 CreateDate = createDate,
-                Barrier = barrier,
+                Barrier = template.Barrier,
                 Evaluation = evaluation,
-                Organization = organization,
-                Status = status,
-                Text = text,
-                SupportNotes = supportNotes
+                Organization = template.Organization,
+                Text = template.Text,
+                SupportNotes = template.SupportNotes,
+                QuestionTemplate = template,
             };
 
             _context.Questions.Add(newQuestion);

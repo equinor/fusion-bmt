@@ -18,7 +18,7 @@ namespace api.Services
             _context = context;
         }
 
-        public Evaluation Create(string name, Project project, Participant creator)
+        public Evaluation Create(string name, Project project)
         {
             DateTime createDate = DateTime.UtcNow;
 
@@ -27,8 +27,7 @@ namespace api.Services
                 CreateDate = createDate,
                 Name = name,
                 Progression = Progression.Nomination,
-                Project = project,
-                Participants = new List<Participant>(new Participant[] { creator }),
+                Project = project
             };
 
             _context.Evaluations.Add(newEvaluation);

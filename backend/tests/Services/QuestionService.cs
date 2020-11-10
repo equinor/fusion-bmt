@@ -34,7 +34,7 @@ namespace tests
             QuestionService questionService = new QuestionService(_context);
 
             int nQuestionBefore = questionService.GetAll().Count();
-            questionService.Create(Barrier.GM, ExampleEvaluation(), Organization.All, Status.Active, "test_question", "test_support_notes");
+            questionService.Create(ExampleQuestionTemplate(), ExampleEvaluation());
             int nQuestionsAfter = questionService.GetAll().Count();
 
             Assert.Equal(nQuestionBefore + 1, nQuestionsAfter);
@@ -55,7 +55,7 @@ namespace tests
         {
             QuestionService questionService = new QuestionService(_context);
 
-            Question questionCreate = questionService.Create(Barrier.GM, ExampleEvaluation(), Organization.All, Status.Active, "test_question", "test_support_notes");
+            Question questionCreate = questionService.Create(ExampleQuestionTemplate(), ExampleEvaluation());
 
             Question questionGet = questionService.GetQuestion(questionCreate.Id);
 
@@ -66,6 +66,12 @@ namespace tests
         {
             EvaluationService evaluationService = new EvaluationService(_context);
             return evaluationService.GetAll().First();
+        }
+
+        private QuestionTemplate ExampleQuestionTemplate()
+        {
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            return questionTemplateService.GetAll().First();
         }
     }
 }

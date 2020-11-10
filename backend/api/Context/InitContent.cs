@@ -11,6 +11,7 @@ namespace api.Context
 {
     public static class InitContent
     {
+        public static readonly List<QuestionTemplate> QuestionTemplates = GetQuestionTemplates();
         public static readonly List<Participant> Participants = GetParticipants();
         public static readonly List<Note> Notes = GetNotes();
         public static readonly List<Action> Actions = GetActions();
@@ -18,6 +19,23 @@ namespace api.Context
         public static readonly List<Question> Questions = GetQuestions();
         public static readonly List<Evaluation> Evaluations = GetEvaluations();
         public static readonly List<Project> Projects = GetProjects();
+
+        private static List<QuestionTemplate> GetQuestionTemplates()
+        {
+            string pathJsonRelativeToApiRoot = "Context/InitQuestions.json";
+            List<QuestionTemplate> questions;
+            using (StreamReader reader = new StreamReader(pathJsonRelativeToApiRoot))
+            {
+                string json = reader.ReadToEnd();
+                questions = JsonSerializer.Deserialize<List<QuestionTemplate>>(json, JsonUtils.SerializerOptions);
+            }
+            foreach (QuestionTemplate q in questions)
+            {
+                q.CreateDate = DateTime.UtcNow;
+                q.Status = Status.Active;
+            }
+            return questions;
+        }
 
         private static List<Note> GetNotes()
         {
@@ -104,23 +122,21 @@ namespace api.Context
 
         private static List<Question> GetQuestions()
         {
-            var actions = Actions;
-
-            var answers1 = Answers.GetRange(0, 2);
-            var answers2 = Answers.GetRange(1, 2);
-
-            string pathJsonRelativeToApiRoot = "Context/InitQuestions.json";
-
-            List<Question> questions;
-            using (StreamReader reader = new StreamReader(pathJsonRelativeToApiRoot))
+            List<Question> questions = new List<Question>();
+            foreach (QuestionTemplate questionTemplate in QuestionTemplates)
             {
-                string json = reader.ReadToEnd();
-                questions = JsonSerializer.Deserialize<List<Question>>(json, JsonUtils.SerializerOptions);
+                questions.Add(new Question
+                {
+                    Barrier = questionTemplate.Barrier,
+                    Text = questionTemplate.Text,
+                    SupportNotes = questionTemplate.SupportNotes,
+                    Organization = questionTemplate.Organization,
+                    QuestionTemplate = questionTemplate,
+                    CreateDate = DateTime.UtcNow,
+                    Answers = Answers,
+                    Actions = Actions
+                });
             }
-
-            questions[0].Answers = answers1;
-            questions[0].Actions = actions;
-            questions[1].Answers = answers2;
 
             return questions;
         }
@@ -164,22 +180,22 @@ namespace api.Context
                 Participants = participants,
                 Questions = questions2
             };
-            return new List<Evaluation>(new Evaluation[] { evaluation1, evaluation2, evaluation3, evaluation4 });
 
+            return new List<Evaluation>(new Evaluation[] { evaluation1, evaluation2, evaluation3, evaluation4 });
         }
 
         private static List<Participant> GetParticipants()
         {
             var participant1 = new Participant
             {
-                FusionPersonId = "1",
+                AzureUniqueId = "1",
                 Organization = Organization.Engineering,
                 Role = Role.Facilitator,
                 CreateDate = DateTime.UtcNow
             };
             var participant2 = new Participant
             {
-                FusionPersonId = "2",
+                AzureUniqueId = "2",
                 Organization = Organization.Construction,
                 Role = Role.Participant,
                 CreateDate = DateTime.UtcNow

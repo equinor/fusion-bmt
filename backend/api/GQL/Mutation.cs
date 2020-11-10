@@ -1,5 +1,6 @@
 using api.Services;
 using api.Models;
+using System.Collections.Generic;
 
 namespace api.GQL
 {
@@ -10,13 +11,15 @@ namespace api.GQL
         private readonly ParticipantService _participantService;
         private readonly QuestionService _questionService;
         private readonly AnswerService _answerService;
+        private readonly QuestionTemplateService _questionTemplateService;
 
         public Mutation(
             ProjectService projectService,
             EvaluationService evaluationService,
             ParticipantService participantService,
             QuestionService questionService,
-            AnswerService answerService
+            AnswerService answerService,
+            QuestionTemplateService questionTemplateService
         )
         {
             _projectService = projectService;
@@ -24,18 +27,28 @@ namespace api.GQL
             _participantService = participantService;
             _questionService = questionService;
             _answerService = answerService;
+            _questionTemplateService = questionTemplateService;
         }
 
-        public Evaluation CreateEvaluation(string name, string projectId, Participant creator)
+        // TODO: This methods should not take azureUniqueId as parameter but get it from token
+        public Evaluation CreateEvaluation(string name, string projectId, string azureUniqueId)
         {
             Project project = _projectService.GetProject(projectId);
-            return _evaluationService.Create(name, project, creator);
+            Evaluation evaluation = _evaluationService.Create(name, project);
+            _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
+
+            List<QuestionTemplate> questionTemplates = _questionTemplateService.ActiveQuestions();
+            foreach (QuestionTemplate template in questionTemplates)
+            {
+                _questionService.Create(template, evaluation);
+            }
+            return evaluation;
         }
 
-        public Participant CreateParticipant(string fusionPersonId, string evaluationId, Organization organization, Role role)
+        public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization, Role role)
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-            return _participantService.Create(fusionPersonId, evaluation, organization, role);
+            return _participantService.Create(azureUniqueId, evaluation, organization, role);
         }
 
         public void DeleteParticipant(string participantId)

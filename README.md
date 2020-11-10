@@ -23,20 +23,20 @@ npm start
 ```
 
 ## Backend
-The backend is build using .NET Core 3.1. We use GraphQL to handle requests 
+The backend is build using .NET Core 3.1. We use GraphQL to handle requests
 to the backend, and [Hot Chocolate](https://github.com/ChilliCream/hotchocolate)
 is used as the implementation in .NET.
 
 We are using a Entity Framework SQL database for storing our data.
-The environment variable `Database__ConnectionString` can be a ADO.NET connection 
-string to an existing database. If empty we use an InMemory database which is 
+The environment variable `Database__ConnectionString` can be a ADO.NET connection
+string to an existing database. If empty we use an InMemory database which is
 initialized with dummy data.
 
 ### GraphQL schema
 When running locally, a playgrond server for trying out GrapQL queries will be
 available at [localhost:500/graphql/playground](http://localhost:500/graphql/playground).
-This will not work properly production since the playground server will not provide 
-bearer token for authentication. For generating a bearer token and try out the 
+This will not work properly production since the playground server will not provide
+bearer token for authentication. For generating a bearer token and try out the
 API, the Swagger URL [localhost:5000/swagger](http://localhost:500/swagger/index.html) can be used.
 
 The Schema used for the models in the backend can be found [here](https://backend-fusion-bmt-dev.radix.equinor.com/graphql/schema).
@@ -67,11 +67,17 @@ dotnet run
 Make sure you have dotnet-ef installed: `dotnet tool install --global dotnet-ef`
 and that you have set your `Database__ConnectionString`.
 
-* Create initiall migration: ```dotnet ef migrations add InitialCreate```
+* Create initial migration: `dotnet ef migrations add InitialCreate`
 * Delete database: `dotnet ef database drop`
 * Apply migrations: `dotnet ef database update`
+* Remove migrations: `dotnet ef migrations remove`
 
 * Pupulate DB with questions: `dotnet ...`
+
+For populating SQL database with question templates go to `backend/scripts`
+make sure your `Database__ConnectionString` is set and run
+`dotnet run --question-file PATH-TO-FILE`. An example file of question templates:
+`backend/api/Context/InitQuestions.json`
 
 
 ## Environment variables
@@ -99,3 +105,5 @@ and that you have set your `Database__ConnectionString`.
         </td>
     </tr>
 </table>
+
+### API structure
