@@ -60,6 +60,11 @@ namespace api
             services.AddDbContext<BmtDbContext>();
 
             services.AddScoped<ProjectService>();
+            services.AddScoped<ParticipantService>();
+            services.AddScoped<EvaluationService>();
+            services.AddScoped<QuestionService>();
+            services.AddScoped<AnswerService>();
+            services.AddScoped<QuestionTemplateService>();
 
             services.AddGraphQL(s =>
                 SchemaBuilder.New()
