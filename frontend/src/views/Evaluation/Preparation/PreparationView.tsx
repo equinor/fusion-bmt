@@ -1,9 +1,8 @@
-
 import * as React from 'react';
-import { Barrier, Evaluation, Participant } from '../api/models';
-import { Box, Container } from '@material-ui/core';
+import { Barrier, Evaluation, Participant } from '../../../api/models';
+import { Box } from '@material-ui/core';
 import BarrierQuestionsView from './BarrierQuestionsView';
-import EvaluationSidebar from './EvaluationSidebar';
+import EvaluationSidebar from '../EvaluationSidebar';
 
 interface PreparationViewProps
 {

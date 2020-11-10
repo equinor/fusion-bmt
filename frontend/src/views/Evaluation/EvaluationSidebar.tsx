@@ -1,6 +1,5 @@
-
 import * as React from 'react';
-import { Barrier, Question, Participant } from '../api/models';
+import { Barrier, Question, Participant } from '../../api/models';
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components';
 
 interface EvaluationSidebarProps

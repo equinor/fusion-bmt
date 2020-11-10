@@ -3,8 +3,8 @@ import * as React from 'react';
 
 import { Typography, Divider } from '@equinor/eds-core-react';
 
-import { Question, Answer, Participant } from "../api/models"
-import QuestionAndAnswerForm from "../components/QuestionAndAnswer/QuestionAndAnswerForm"
+import { Question, Answer, Participant } from "../../../api/models"
+import QuestionAndAnswerForm from "../../../components/QuestionAndAnswer/QuestionAndAnswerForm"
 
 interface BarrierQuestionsViewProps
 {

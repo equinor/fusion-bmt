@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useApiClients, PersonDetails } from '@equinor/fusion';
 import { PersonCard, Button, TextInput, SearchableDropdown, SearchableDropdownOption, Spinner } from '@equinor/fusion-components';
 
-import { Organization, Role } from '../../api/models';
+import { Organization, Role } from '../../../api/models';
 
 interface AddNomineeViewProps {
     onNomineeSelected: (person: PersonDetails, role: Role, organization: Organization) => void;
@@ -92,7 +92,7 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                         searchPersons()
                     }
                 }}
-                />
+            />
             <br/>
             { isSearching &&
                 <div style={{justifyContent: "center"}}>
