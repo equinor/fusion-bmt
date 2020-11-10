@@ -1,0 +1,284 @@
+schema {
+  query: GraphQuery
+  mutation: Mutation
+}
+
+# The cost directives is used to express the complexity of a field.
+directive @cost(
+  # Defines the complexity of the field.
+  complexity: Int! = 1
+  # Defines field arguments that act as complexity multipliers.
+  multipliers: [MultiplierPath!]
+) on FIELD_DEFINITION
+directive @authorize(
+  # The name of the authorization policy that determines access to the annotated resource.
+  policy: String
+  # Roles that are allowed to access to the annotated resource.
+  roles: [String!]
+) on OBJECT | FIELD_DEFINITION
+type Action {
+  assignedTo: Participant
+  createDate: DateTime!
+  createdBy: Participant
+  description: String
+  dueDate: DateTime!
+  id: String
+  notes: [Note]
+  onHold: Boolean!
+  priority: Priority
+  question: Question
+  questionId: String!
+  title: String
+}
+
+input ActionInput {
+  assignedTo: ParticipantInput
+  createDate: DateTime!
+  createdBy: ParticipantInput
+  description: String
+  dueDate: DateTime!
+  id: String
+  notes: [NoteInput]
+  onHold: Boolean!
+  priority: Priority
+  question: QuestionInput
+  questionId: String!
+  title: String
+}
+
+type Answer {
+  answeredBy: Participant
+  createDate: DateTime!
+  id: String
+  progression: Progression!
+  question: Question
+  questionId: String!
+  severity: Severity
+  text: String
+}
+
+input AnswerInput {
+  answeredBy: ParticipantInput
+  createDate: DateTime!
+  id: String
+  progression: Progression!
+  question: QuestionInput
+  questionId: String!
+  severity: Severity
+  text: String
+}
+
+enum Barrier {
+  GM
+  PS1
+  PS2
+  PS3
+  PS4
+  PS5
+  PS6
+  PS7
+  PS12
+  PS15
+  PS22
+}
+
+# The `DateTime` scalar represents
+# an ISO-8601 compliant date time type.
+scalar DateTime
+
+type Evaluation {
+  createDate: DateTime!
+  id: String
+  name: String!
+  participants: [Participant]
+  progression: Progression!
+  project: Project
+  projectId: String!
+  questions: [Question]
+}
+
+input EvaluationInput {
+  createDate: DateTime!
+  id: String
+  name: String!
+  participants: [ParticipantInput]
+  progression: Progression!
+  project: ProjectInput
+  projectId: String!
+  questions: [QuestionInput]
+}
+
+type GraphQuery {
+  project(fusionProjectID: String): Project
+  projects: [Project]
+}
+
+# The multiplier path scalar represents
+# a valid GraphQL multiplier path string.
+scalar MultiplierPath
+
+type Mutation {
+  createAnswer(
+    answeredBy: ParticipantInput
+    progression: Progression!
+    questionId: String
+    severity: Severity!
+    text: String
+  ): Answer
+  createEvaluation(
+    azureUniqueId: String
+    name: String
+    projectId: String
+  ): Evaluation
+  createParticipant(
+    azureUniqueId: String
+    evaluationId: String
+    organization: Organization!
+    role: Role!
+  ): Participant
+}
+
+type Note {
+  action: Action
+  actionId: String!
+  createDate: DateTime!
+  createdBy: Participant
+  id: String
+  text: String
+}
+
+input NoteInput {
+  action: ActionInput
+  actionId: String!
+  createDate: DateTime!
+  createdBy: ParticipantInput
+  id: String
+  text: String
+}
+
+enum Organization {
+  COMMISSIONING
+  CONSTRUCTION
+  ENGINEERING
+  PREOPS
+  ALL
+}
+
+type Participant {
+  azureUniqueId: String!
+  createDate: DateTime!
+  evaluation: Evaluation
+  evaluationId: String!
+  id: String
+  organization: Organization!
+  role: Role!
+}
+
+input ParticipantInput {
+  azureUniqueId: String!
+  createDate: DateTime!
+  evaluation: EvaluationInput
+  evaluationId: String!
+  id: String
+  organization: Organization!
+  role: Role!
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Progression {
+  NOMINATION
+  PREPARATION
+  ALIGNMENT
+  WORKSHOP
+  FOLLOWUP
+}
+
+type Project {
+  createDate: DateTime!
+  evaluations: [Evaluation]
+  fusionProjectId: String!
+  id: String
+}
+
+input ProjectInput {
+  createDate: DateTime!
+  evaluations: [EvaluationInput]
+  fusionProjectId: String!
+  id: String
+}
+
+type Question {
+  actions: [Action]
+  answers: [Answer]
+  barrier: Barrier!
+  createDate: DateTime!
+  evaluation: Evaluation
+  evaluationId: String!
+  id: String
+  organization: Organization!
+  questionTemplate: QuestionTemplate
+  questionTemplateId: String!
+  supportNotes: String
+  text: String
+}
+
+input QuestionInput {
+  actions: [ActionInput]
+  answers: [AnswerInput]
+  barrier: Barrier!
+  createDate: DateTime!
+  evaluation: EvaluationInput
+  evaluationId: String!
+  id: String
+  organization: Organization!
+  questionTemplate: QuestionTemplateInput
+  questionTemplateId: String!
+  supportNotes: String
+  text: String
+}
+
+type QuestionTemplate {
+  barrier: Barrier!
+  createDate: DateTime!
+  id: String
+  organization: Organization!
+  questions: [Question]
+  status: Status!
+  supportNotes: String
+  text: String
+}
+
+input QuestionTemplateInput {
+  barrier: Barrier!
+  createDate: DateTime!
+  id: String
+  organization: Organization!
+  questions: [QuestionInput]
+  status: Status!
+  supportNotes: String
+  text: String
+}
+
+enum Role {
+  PARTICIPANT
+  FACILITATOR
+  READONLY
+}
+
+enum Severity {
+  LOW
+  LIMITED
+  HIGH
+  NA
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+

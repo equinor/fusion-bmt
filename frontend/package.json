@@ -6,7 +6,8 @@
     "scripts": {
         "start": "fusion start-app",
         "build": "fusion build-app",
-        "test": "jest"
+        "test": "jest",
+        "codegen": "graphql-codegen --config codegen.yml"
     },
     "author": "",
     "license": "MIT",
@@ -29,6 +30,10 @@
         "@babel/preset-env": "^7.12.1",
         "@babel/preset-react": "^7.12.1",
         "@equinor/fusion-cli": "1.1.1",
+        "@graphql-codegen/cli": "1.19.1",
+        "@graphql-codegen/typescript": "^1.17.11",
+        "@graphql-codegen/typescript-operations": "^1.17.9",
+        "@graphql-codegen/typescript-react-apollo": "^2.1.1",
         "@testing-library/react": "^11.1.0",
         "@types/history": "^4.7.8",
         "@types/jest": "^26.0.15",
