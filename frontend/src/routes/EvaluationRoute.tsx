@@ -37,7 +37,7 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
         createDate: new Date(),
         evaluation: evaluation,
         evaluationId: evaluation.id,
-        fusionPersonId: "fusion-id",
+        azureUniqueId: "fusion-id",
         id: "participant-id",
         organization: Organization.PREOPS,
         role: Role.READONLY

@@ -4,8 +4,6 @@ import { Button, ModalSideSheet, TextInput } from '@equinor/fusion-components'
 import { Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
 
-const NAME_MIN_LENGTH = 3
-
 interface CreateEvaluationDialogProps {
     open: boolean
     onCreate: (name: string) => void
@@ -17,8 +15,8 @@ const CreateEvaluationDialog = ({open, onCreate, onCancelClick}: CreateEvaluatio
     const [inputErrorMessage, setInputErrorMessage] = useState<string>("")
 
     const handleCreateClick = () => {
-        if(nameInputValue.length < NAME_MIN_LENGTH){
-            setInputErrorMessage(`Name must be at least ${NAME_MIN_LENGTH} characters long`)
+        if(nameInputValue.length <= 0){
+            setInputErrorMessage(`The evaluation name must be filled out`)
         }
         else {
             onCreate(nameInputValue)

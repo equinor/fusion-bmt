@@ -73,7 +73,7 @@ export type Participant = {
     createDate: Date
     evaluation: Evaluation
     evaluationId: string
-    fusionPersonId: string
+    azureUniqueId: string
     id: string
     organization: Organization
     role: Role
