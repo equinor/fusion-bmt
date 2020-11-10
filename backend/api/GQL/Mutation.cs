@@ -45,6 +45,11 @@ namespace api.GQL
             return evaluation;
         }
 
+        public Evaluation ProgressEvaluation(string evaluationId)
+        {
+            return _evaluationService.ProgressEvaluation(evaluationId);
+        }
+
         public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization, Role role)
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);

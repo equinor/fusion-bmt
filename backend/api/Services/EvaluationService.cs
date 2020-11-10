@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 using HotChocolate;
@@ -34,6 +33,16 @@ namespace api.Services
 
             _context.SaveChanges();
             return newEvaluation;
+        }
+
+        public Evaluation ProgressEvaluation(string evaluationId)
+        {
+            Evaluation evaluation = GetEvaluation(evaluationId);
+            Progression nextProgression = ServiceUtil.NextProgression(evaluation.Progression);
+            evaluation.Progression = nextProgression;
+            _context.Evaluations.Update(evaluation);
+            _context.SaveChanges();
+            return evaluation;
         }
 
         public IQueryable<Evaluation> GetAll()

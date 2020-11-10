@@ -1,4 +1,3 @@
-using System;
 using SystemAction = System.Action;
 using System.Linq;
 using Xunit;

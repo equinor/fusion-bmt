@@ -40,6 +40,17 @@ namespace tests
         }
 
         [Fact]
+        public void ProgressEvaluation()
+        {
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.Create("some_name", ExampleProject());
+            Progression? currentProgression = evaluation.Progression;
+            evaluationService.ProgressEvaluation(evaluation.Id);
+            evaluation = evaluationService.GetEvaluation(evaluation.Id);
+            Assert.True(ServiceUtil.NextProgression(currentProgression).Equals(evaluation.Progression));
+        }
+
+        [Fact]
         public void GetDoesNotExist()
         {
             EvaluationService evaluationService = new EvaluationService(_context);
