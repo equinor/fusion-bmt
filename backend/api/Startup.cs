@@ -59,6 +59,7 @@ namespace api
 
             services.AddDbContext<BmtDbContext>();
 
+            services.AddScoped<GraphQuery>();
             services.AddScoped<ProjectService>();
             services.AddScoped<ParticipantService>();
             services.AddScoped<EvaluationService>();
