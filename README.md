@@ -34,12 +34,12 @@ initialized with dummy data.
 
 ### GraphQL schema
 When running locally, a playgrond server for trying out GrapQL queries will be
-available at [localhost:500/graphql/playground](http://localhost:500/graphql/playground).
+available at [localhost:5000/graphql](http://localhost:5000/graphql/).
 This will not work properly production since the playground server will not provide
 bearer token for authentication. For generating a bearer token and try out the
-API, the Swagger URL [localhost:5000/swagger](http://localhost:500/swagger/index.html) can be used.
+API, the Swagger URL [localhost:5000/swagger](http://localhost:5000/swagger/index.html) can be used.
 
-The Schema used for the models in the backend can be found [here](https://backend-fusion-bmt-dev.radix.equinor.com/graphql/schema).
+The Schema used for the models in the backend can be found [here](https://backend-fusion-bmt-dev.radix.equinor.com/graphql?sdl).
 
 
 ### Run backend

@@ -60,6 +60,7 @@ namespace api
             services.AddDbContext<BmtDbContext>();
 
             services.AddScoped<GraphQuery>();
+            services.AddScoped<Mutation>();
             services.AddScoped<ProjectService>();
             services.AddScoped<ParticipantService>();
             services.AddScoped<EvaluationService>();
@@ -69,6 +70,8 @@ namespace api
 
             services.AddGraphQLServer()
                     .AddProjections()
+                    // Comment out to use locally without authentication
+                    .AddAuthorizeDirectiveType()
                     .AddQueryType<GraphQuery>()
                     .AddMutationType<Mutation>();
 
@@ -76,14 +79,14 @@ namespace api
 
             services.AddSwaggerGen(c =>
             {
-                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme()
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
 
                 {
                     Type = SecuritySchemeType.OAuth2,
 
-                    Flows = new OpenApiOAuthFlows()
+                    Flows = new OpenApiOAuthFlows
                     {
-                        Implicit = new OpenApiOAuthFlow()
+                        Implicit = new OpenApiOAuthFlow
                         {
                             TokenUrl = new Uri($"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/oauth2/token"),
                             AuthorizationUrl = new Uri($"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/oauth2/authorize"),
@@ -110,6 +113,7 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseAuthentication();
             app.UseCors(_accessControlPolicyName);
 
             var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
@@ -119,16 +123,12 @@ namespace api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                // app.UsePlayground("/graphql");
 
                 var option = new RewriteOptions();
-                option.AddRedirect("^$", "graphql/playground");
                 app.UseRewriter(option);
             }
             app.UseRouting();
 
-            // Comment out for using playground locally without auth
-            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseSwagger();
@@ -137,7 +137,7 @@ namespace api
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1");
                 c.OAuthAppName("Fusion-BMT");
                 c.OAuthClientId(Configuration["AzureAd:ClientId"]);
-                c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>()
+                c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>
                     { { "resource", $"{Configuration["AzureAd:ClientId"]}" } });
             });
 
