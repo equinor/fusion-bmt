@@ -1,46 +1,48 @@
-import * as React from 'react';
-import { Barrier, Question, Participant } from '../../api/models';
-import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components';
+import * as React from 'react'
+import { Barrier, Question } from '../../api/models'
+import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
+import { useCurrentUser } from '@equinor/fusion'
 
 
 interface EvaluationSidebarProps
 {
-    questions: Question[];
-    participant: Participant;
-    onBarrierSelected: (barrier: string) => void;
+    questions: Question[]
+    barrier: Barrier
+    onBarrierSelected: (barrier: Barrier) => void
 }
 
-const EvaluationSidebar = ({questions, participant, onBarrierSelected}: EvaluationSidebarProps) => {
-    const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm);
+const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSidebarProps) => {
+    const user = useCurrentUser()
+    const azureUniqueId: string = user?.id as string
+
     const [structure, setStructure] = React.useState<NavigationStructure[]>(
-        Object.entries(Barrier).map(([shortName, barrierName]) => {
-            const barrierQuestions = questions.filter(q => q.barrier == barrierName);
-            const barrierAnswers = barrierQuestions.map(bq => bq.answers.find(a => a.answeredBy === participant))
+        Object.entries(Barrier).map(([barrierKey, barrier]) => {
+            const barrierQuestions = questions.filter(q => q.barrier == barrier)
+            const barrierAnswers = barrierQuestions.map(bq => bq.answers.find(a => a.answeredBy.azureUniqueId === azureUniqueId))
 
             return {
-                id: barrierName,
+                id: barrier,
                 type: 'grouping',
-                title: barrierName,
-                icon: <>{shortName}</>,
+                title: barrier,
+                icon: <>{barrierKey}</>,
                 aside: <Chip title={`${barrierAnswers.length}/${barrierQuestions.length}`} />
             }
         })
-    );
+    )
 
     return (
         <NavigationDrawer
             id="navigation-drawer-story"
             structure={structure}
-            selectedId={selectedBarrier}
-            onChangeSelectedId={(selectedItem) => {
-                setSelectedBarrier(selectedItem as Barrier);
-                onBarrierSelected(selectedItem);
+            selectedId={barrier}
+            onChangeSelectedId={(selectedBarrierId) => {
+                onBarrierSelected(selectedBarrierId as Barrier)
             }}
             onChangeStructure={(newStructure) => {
-                setStructure(newStructure);
+                setStructure(newStructure)
             }}
         />
-    );
-};
+    )
+}
 
-export default EvaluationSidebar;
+export default EvaluationSidebar

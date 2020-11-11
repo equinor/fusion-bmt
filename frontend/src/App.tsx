@@ -1,15 +1,14 @@
-import React from 'react';
+import React from 'react'
 
-import { useCurrentContext, useCurrentUser } from '@equinor/fusion';
-import GQLButtons from './GraphQL/GQLButtons';
-import { Switch, Route } from 'react-router-dom';
-import ProjectRoute from './routes/ProjectRoute';
-import EvaluationRoute from './routes/EvaluationRoute';
+import { useCurrentContext, useCurrentUser } from '@equinor/fusion'
+import { Switch, Route } from 'react-router-dom'
+import ProjectRoute from './routes/ProjectRoute'
+import EvaluationRoute from './routes/EvaluationRoute'
 
 const App = () => {
-    const currentProject = useCurrentContext();
+    const currentProject = useCurrentContext()
 
-    const currentUser = useCurrentUser();
+    const currentUser = useCurrentUser()
 
     if(!currentUser){
         return <p>Please log in.</p>
@@ -18,7 +17,6 @@ const App = () => {
     if(!currentProject){
         return <>
             <p>Please select a project.</p>
-            <GQLButtons />
         </>
     }
 
@@ -30,4 +28,4 @@ const App = () => {
     </>
 }
 
-export default App;
+export default App

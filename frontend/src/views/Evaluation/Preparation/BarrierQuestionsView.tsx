@@ -1,19 +1,22 @@
 
-import * as React from 'react';
+import * as React from 'react'
 
-import { Typography, Divider } from '@equinor/eds-core-react';
+import { Typography, Divider } from '@equinor/eds-core-react'
 
-import { Question, Answer, Participant } from "../../../api/models"
+import { Question, Answer } from "../../../api/models"
 import QuestionAndAnswerForm from "../../../components/QuestionAndAnswer/QuestionAndAnswerForm"
+import { useCurrentUser } from '@equinor/fusion'
 
 interface BarrierQuestionsViewProps
 {
     barrier: string
     questions: Question[]
-    participant: Participant
 }
 
-const BarrierQuestionsView = ({barrier, questions, participant}: BarrierQuestionsViewProps) => {
+const BarrierQuestionsView = ({barrier, questions}: BarrierQuestionsViewProps) => {
+    const user = useCurrentUser()
+    const azureUniqueId: string = user?.id as string
+
     return (
         <>
             <Typography variant="h2">{barrier}</Typography>
@@ -23,7 +26,7 @@ const BarrierQuestionsView = ({barrier, questions, participant}: BarrierQuestion
                         <Divider />
                         <QuestionAndAnswerForm
                             question={question}
-                            answer={question.answers.find(a => a.answeredBy.id == participant.id)!}
+                            answer={question.answers.find(a => a.answeredBy.azureUniqueId == azureUniqueId)!}
                             questionNumber={idx + 1}
                             onAnswerChange = {(_: Answer) => {
 
@@ -37,4 +40,4 @@ const BarrierQuestionsView = ({barrier, questions, participant}: BarrierQuestion
     )
 }
 
-export default BarrierQuestionsView;
+export default BarrierQuestionsView

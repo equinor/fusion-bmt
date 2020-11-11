@@ -10,7 +10,7 @@ interface Token {
     [key: string]: any
 }
 
-const FUSION_APP_KEY: string = '74b1613f-f22a-451b-a5c3-1c9391e91e68';
+const FUSION_APP_KEY: string = '74b1613f-f22a-451b-a5c3-1c9391e91e68'
 
 const httpLink = createHttpLink({
     uri: `${config.API_URL}/graphql`
@@ -31,7 +31,7 @@ const getToken = (): string => {
     if (fusionStorageJson === null) {
         throw new Error("Could not find auth token in local storage")
     }
-    const fusionStorage = JSON.parse(fusionStorageJson);
+    const fusionStorage = JSON.parse(fusionStorageJson)
     const token = fusionStorage[`FUSION_AUTH_CACHE:${config.AD_APP_ID}:TOKEN`]
     return token
 }
