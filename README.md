@@ -42,7 +42,7 @@ API, the Swagger URL [localhost:5000/swagger](http://localhost:5000/swagger/inde
 The Schema used for the models in the backend can be found [here](https://backend-fusion-bmt-dev.radix.equinor.com/graphql?sdl).
 
 ### Update frontend schema
-When the data models in the backend changes, the corresponding models in frontend has to be updated as well. This is done by executing the command `npm run codegen` in the fronend directory while the backend server is also running. Then there will be created an updated `models.d.ts` in the src/api folder which contains the updated models.
+When the data models in the backend changes, the corresponding models in frontend has to be updated as well. This is done by executing the command `npm run schema` in the fronend directory while the backend server is also running. Then there will be created an updated `models.ts` in the src/api folder which contains the updated models.
 
 
 ### Run backend

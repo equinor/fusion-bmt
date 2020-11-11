@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -7,65 +8,173 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `DateTime` scalar represents an ISO-8601 compliant date time type. */
   DateTime: any;
-  MultiplierPath: any;
+};
+
+export type GraphQuery = {
+  __typename?: 'GraphQuery';
+  projects?: Maybe<Array<Maybe<Project>>>;
+  project?: Maybe<Project>;
 };
 
 
-
-export type Action = {
-  __typename?: 'Action';
-  assignedTo?: Maybe<Participant>;
-  createDate: Scalars['DateTime'];
-  createdBy?: Maybe<Participant>;
-  description?: Maybe<Scalars['String']>;
-  dueDate: Scalars['DateTime'];
-  id?: Maybe<Scalars['String']>;
-  notes?: Maybe<Array<Maybe<Note>>>;
-  onHold: Scalars['Boolean'];
-  priority?: Maybe<Priority>;
-  question?: Maybe<Question>;
-  questionId: Scalars['String'];
-  title?: Maybe<Scalars['String']>;
+export type GraphQueryProjectArgs = {
+  fusionProjectID?: Maybe<Scalars['String']>;
 };
 
-export type ActionInput = {
-  assignedTo?: Maybe<ParticipantInput>;
-  createDate: Scalars['DateTime'];
-  createdBy?: Maybe<ParticipantInput>;
-  description?: Maybe<Scalars['String']>;
-  dueDate: Scalars['DateTime'];
+export type Mutation = {
+  __typename?: 'Mutation';
+  createEvaluation?: Maybe<Evaluation>;
+  createParticipant?: Maybe<Participant>;
+  createAnswer?: Maybe<Answer>;
+};
+
+
+export type MutationCreateEvaluationArgs = {
+  name?: Maybe<Scalars['String']>;
+  projectId?: Maybe<Scalars['String']>;
+  azureUniqueId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCreateParticipantArgs = {
+  azureUniqueId?: Maybe<Scalars['String']>;
+  evaluationId?: Maybe<Scalars['String']>;
+  organization: Organization;
+  role: Role;
+};
+
+
+export type MutationCreateAnswerArgs = {
+  answeredBy?: Maybe<ParticipantInput>;
+  progression: Progression;
+  questionId?: Maybe<Scalars['String']>;
+  severity: Severity;
+  text?: Maybe<Scalars['String']>;
+};
+
+export type Project = {
+  __typename?: 'Project';
   id?: Maybe<Scalars['String']>;
-  notes?: Maybe<Array<Maybe<NoteInput>>>;
-  onHold: Scalars['Boolean'];
-  priority?: Maybe<Priority>;
-  question?: Maybe<QuestionInput>;
-  questionId: Scalars['String'];
-  title?: Maybe<Scalars['String']>;
+  fusionProjectId: Scalars['String'];
+  createDate: Scalars['DateTime'];
+  evaluations?: Maybe<Array<Maybe<Evaluation>>>;
+};
+
+export type Evaluation = {
+  __typename?: 'Evaluation';
+  id?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  projectId: Scalars['String'];
+  createDate: Scalars['DateTime'];
+  progression: Progression;
+  participants?: Maybe<Array<Maybe<Participant>>>;
+  questions?: Maybe<Array<Maybe<Question>>>;
+  project?: Maybe<Project>;
+};
+
+export type Participant = {
+  __typename?: 'Participant';
+  id?: Maybe<Scalars['String']>;
+  evaluationId: Scalars['String'];
+  azureUniqueId: Scalars['String'];
+  organization: Organization;
+  role: Role;
+  createDate: Scalars['DateTime'];
+  evaluation?: Maybe<Evaluation>;
 };
 
 export type Answer = {
   __typename?: 'Answer';
-  answeredBy?: Maybe<Participant>;
-  createDate: Scalars['DateTime'];
   id?: Maybe<Scalars['String']>;
-  progression: Progression;
-  question?: Maybe<Question>;
   questionId: Scalars['String'];
+  progression: Progression;
   severity?: Maybe<Severity>;
   text?: Maybe<Scalars['String']>;
+  createDate: Scalars['DateTime'];
+  answeredBy?: Maybe<Participant>;
+  question?: Maybe<Question>;
 };
 
-export type AnswerInput = {
-  answeredBy?: Maybe<ParticipantInput>;
-  createDate: Scalars['DateTime'];
+export enum Organization {
+  Commissioning = 'COMMISSIONING',
+  Construction = 'CONSTRUCTION',
+  Engineering = 'ENGINEERING',
+  PreOps = 'PRE_OPS',
+  All = 'ALL'
+}
+
+export enum Role {
+  Participant = 'PARTICIPANT',
+  Facilitator = 'FACILITATOR',
+  ReadOnly = 'READ_ONLY'
+}
+
+export type ParticipantInput = {
   id?: Maybe<Scalars['String']>;
-  progression: Progression;
-  question?: Maybe<QuestionInput>;
-  questionId: Scalars['String'];
-  severity?: Maybe<Severity>;
-  text?: Maybe<Scalars['String']>;
+  evaluationId: Scalars['String'];
+  azureUniqueId: Scalars['String'];
+  organization: Organization;
+  role: Role;
+  createDate: Scalars['DateTime'];
+  evaluation?: Maybe<EvaluationInput>;
 };
+
+export enum Progression {
+  Nomination = 'NOMINATION',
+  Preparation = 'PREPARATION',
+  Alignment = 'ALIGNMENT',
+  Workshop = 'WORKSHOP',
+  FollowUp = 'FOLLOW_UP'
+}
+
+export enum Severity {
+  Low = 'LOW',
+  Limited = 'LIMITED',
+  High = 'HIGH',
+  Na = 'NA'
+}
+
+export type AuthorizeDirective = {
+  __typename?: 'AuthorizeDirective';
+  policy?: Maybe<Scalars['String']>;
+  roles?: Maybe<Array<Scalars['String']>>;
+  apply: ApplyPolicy;
+};
+
+
+export type Question = {
+  __typename?: 'Question';
+  id?: Maybe<Scalars['String']>;
+  evaluationId: Scalars['String'];
+  questionTemplateId: Scalars['String'];
+  organization: Organization;
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+  barrier: Barrier;
+  createDate: Scalars['DateTime'];
+  answers?: Maybe<Array<Maybe<Answer>>>;
+  actions?: Maybe<Array<Maybe<Action>>>;
+  evaluation?: Maybe<Evaluation>;
+  questionTemplate?: Maybe<QuestionTemplate>;
+};
+
+export type EvaluationInput = {
+  id?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  projectId: Scalars['String'];
+  createDate: Scalars['DateTime'];
+  progression: Progression;
+  participants?: Maybe<Array<Maybe<ParticipantInput>>>;
+  questions?: Maybe<Array<Maybe<QuestionInput>>>;
+  project?: Maybe<ProjectInput>;
+};
+
+export enum ApplyPolicy {
+  BeforeResolver = 'BEFORE_RESOLVER',
+  AfterResolver = 'AFTER_RESOLVER'
+}
 
 export enum Barrier {
   Gm = 'GM',
@@ -81,119 +190,54 @@ export enum Barrier {
   Ps22 = 'PS22'
 }
 
-
-export type Evaluation = {
-  __typename?: 'Evaluation';
-  createDate: Scalars['DateTime'];
+export type Action = {
+  __typename?: 'Action';
   id?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  participants?: Maybe<Array<Maybe<Participant>>>;
-  progression: Progression;
-  project?: Maybe<Project>;
-  projectId: Scalars['String'];
+  questionId: Scalars['String'];
+  assignedTo?: Maybe<Participant>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  priority?: Maybe<Priority>;
+  onHold: Scalars['Boolean'];
+  dueDate: Scalars['DateTime'];
+  createDate: Scalars['DateTime'];
+  createdBy?: Maybe<Participant>;
+  notes?: Maybe<Array<Maybe<Note>>>;
+  question?: Maybe<Question>;
+};
+
+export type QuestionTemplate = {
+  __typename?: 'QuestionTemplate';
+  id?: Maybe<Scalars['String']>;
+  status: Status;
+  organization: Organization;
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+  barrier: Barrier;
+  createDate: Scalars['DateTime'];
   questions?: Maybe<Array<Maybe<Question>>>;
 };
 
-export type EvaluationInput = {
-  createDate: Scalars['DateTime'];
+export type QuestionInput = {
   id?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  participants?: Maybe<Array<Maybe<ParticipantInput>>>;
-  progression: Progression;
-  project?: Maybe<ProjectInput>;
-  projectId: Scalars['String'];
-  questions?: Maybe<Array<Maybe<QuestionInput>>>;
-};
-
-export type GraphQuery = {
-  __typename?: 'GraphQuery';
-  project?: Maybe<Project>;
-  projects?: Maybe<Array<Maybe<Project>>>;
-};
-
-
-export type GraphQueryProjectArgs = {
-  fusionProjectID?: Maybe<Scalars['String']>;
-};
-
-
-export type Mutation = {
-  __typename?: 'Mutation';
-  createAnswer?: Maybe<Answer>;
-  createEvaluation?: Maybe<Evaluation>;
-  createParticipant?: Maybe<Participant>;
-};
-
-
-export type MutationCreateAnswerArgs = {
-  answeredBy?: Maybe<ParticipantInput>;
-  progression: Progression;
-  questionId?: Maybe<Scalars['String']>;
-  severity: Severity;
-  text?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationCreateEvaluationArgs = {
-  azureUniqueId?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  projectId?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationCreateParticipantArgs = {
-  azureUniqueId?: Maybe<Scalars['String']>;
-  evaluationId?: Maybe<Scalars['String']>;
-  organization: Organization;
-  role: Role;
-};
-
-export type Note = {
-  __typename?: 'Note';
-  action?: Maybe<Action>;
-  actionId: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  createdBy?: Maybe<Participant>;
-  id?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
-};
-
-export type NoteInput = {
-  action?: Maybe<ActionInput>;
-  actionId: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  createdBy?: Maybe<ParticipantInput>;
-  id?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
-};
-
-export enum Organization {
-  Commissioning = 'COMMISSIONING',
-  Construction = 'CONSTRUCTION',
-  Engineering = 'ENGINEERING',
-  Preops = 'PREOPS',
-  All = 'ALL'
-}
-
-export type Participant = {
-  __typename?: 'Participant';
-  azureUniqueId: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  evaluation?: Maybe<Evaluation>;
   evaluationId: Scalars['String'];
-  id?: Maybe<Scalars['String']>;
+  questionTemplateId: Scalars['String'];
   organization: Organization;
-  role: Role;
-};
-
-export type ParticipantInput = {
-  azureUniqueId: Scalars['String'];
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+  barrier: Barrier;
   createDate: Scalars['DateTime'];
+  answers?: Maybe<Array<Maybe<AnswerInput>>>;
+  actions?: Maybe<Array<Maybe<ActionInput>>>;
   evaluation?: Maybe<EvaluationInput>;
-  evaluationId: Scalars['String'];
+  questionTemplate?: Maybe<QuestionTemplateInput>;
+};
+
+export type ProjectInput = {
   id?: Maybe<Scalars['String']>;
-  organization: Organization;
-  role: Role;
+  fusionProjectId: Scalars['String'];
+  createDate: Scalars['DateTime'];
+  evaluations?: Maybe<Array<Maybe<EvaluationInput>>>;
 };
 
 export enum Priority {
@@ -202,97 +246,63 @@ export enum Priority {
   High = 'HIGH'
 }
 
-export enum Progression {
-  Nomination = 'NOMINATION',
-  Preparation = 'PREPARATION',
-  Alignment = 'ALIGNMENT',
-  Workshop = 'WORKSHOP',
-  Followup = 'FOLLOWUP'
-}
-
-export type Project = {
-  __typename?: 'Project';
-  createDate: Scalars['DateTime'];
-  evaluations?: Maybe<Array<Maybe<Evaluation>>>;
-  fusionProjectId: Scalars['String'];
+export type Note = {
+  __typename?: 'Note';
   id?: Maybe<Scalars['String']>;
-};
-
-export type ProjectInput = {
-  createDate: Scalars['DateTime'];
-  evaluations?: Maybe<Array<Maybe<EvaluationInput>>>;
-  fusionProjectId: Scalars['String'];
-  id?: Maybe<Scalars['String']>;
-};
-
-export type Question = {
-  __typename?: 'Question';
-  actions?: Maybe<Array<Maybe<Action>>>;
-  answers?: Maybe<Array<Maybe<Answer>>>;
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  evaluation?: Maybe<Evaluation>;
-  evaluationId: Scalars['String'];
-  id?: Maybe<Scalars['String']>;
-  organization: Organization;
-  questionTemplate?: Maybe<QuestionTemplate>;
-  questionTemplateId: Scalars['String'];
-  supportNotes?: Maybe<Scalars['String']>;
+  actionId: Scalars['String'];
   text?: Maybe<Scalars['String']>;
-};
-
-export type QuestionInput = {
-  actions?: Maybe<Array<Maybe<ActionInput>>>;
-  answers?: Maybe<Array<Maybe<AnswerInput>>>;
-  barrier: Barrier;
+  createdBy?: Maybe<Participant>;
   createDate: Scalars['DateTime'];
-  evaluation?: Maybe<EvaluationInput>;
-  evaluationId: Scalars['String'];
-  id?: Maybe<Scalars['String']>;
-  organization: Organization;
-  questionTemplate?: Maybe<QuestionTemplateInput>;
-  questionTemplateId: Scalars['String'];
-  supportNotes?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
+  action?: Maybe<Action>;
 };
-
-export type QuestionTemplate = {
-  __typename?: 'QuestionTemplate';
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  id?: Maybe<Scalars['String']>;
-  organization: Organization;
-  questions?: Maybe<Array<Maybe<Question>>>;
-  status: Status;
-  supportNotes?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
-};
-
-export type QuestionTemplateInput = {
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  id?: Maybe<Scalars['String']>;
-  organization: Organization;
-  questions?: Maybe<Array<Maybe<QuestionInput>>>;
-  status: Status;
-  supportNotes?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
-};
-
-export enum Role {
-  Participant = 'PARTICIPANT',
-  Facilitator = 'FACILITATOR',
-  Readonly = 'READONLY'
-}
-
-export enum Severity {
-  Low = 'LOW',
-  Limited = 'LIMITED',
-  High = 'HIGH',
-  Na = 'NA'
-}
 
 export enum Status {
   Active = 'ACTIVE',
   Inactive = 'INACTIVE'
 }
+
+export type AnswerInput = {
+  id?: Maybe<Scalars['String']>;
+  questionId: Scalars['String'];
+  progression: Progression;
+  severity?: Maybe<Severity>;
+  text?: Maybe<Scalars['String']>;
+  createDate: Scalars['DateTime'];
+  answeredBy?: Maybe<ParticipantInput>;
+  question?: Maybe<QuestionInput>;
+};
+
+export type ActionInput = {
+  id?: Maybe<Scalars['String']>;
+  questionId: Scalars['String'];
+  assignedTo?: Maybe<ParticipantInput>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  priority?: Maybe<Priority>;
+  onHold: Scalars['Boolean'];
+  dueDate: Scalars['DateTime'];
+  createDate: Scalars['DateTime'];
+  createdBy?: Maybe<ParticipantInput>;
+  notes?: Maybe<Array<Maybe<NoteInput>>>;
+  question?: Maybe<QuestionInput>;
+};
+
+export type QuestionTemplateInput = {
+  id?: Maybe<Scalars['String']>;
+  status: Status;
+  organization: Organization;
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+  barrier: Barrier;
+  createDate: Scalars['DateTime'];
+  questions?: Maybe<Array<Maybe<QuestionInput>>>;
+};
+
+export type NoteInput = {
+  id?: Maybe<Scalars['String']>;
+  actionId: Scalars['String'];
+  text?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<ParticipantInput>;
+  createDate: Scalars['DateTime'];
+  action?: Maybe<ActionInput>;
+};
