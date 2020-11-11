@@ -12,7 +12,7 @@ describe('AnswerSeverityForm', () => {
 
         const { getByLabelText } = renderWithContext(
             <AnswerSeverityForm
-                severity={Severity.HIGH}
+                severity={Severity.High}
                 onSeveritySelected={onSeveritySelected}
             />
         )

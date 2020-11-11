@@ -2,7 +2,7 @@ import { Organization } from './models'
 
 describe('Test models', () => {
     test('Organization to string', () => {
-        const org: Organization = Organization.ENGINEERING
+        const org: Organization = Organization.Engineering
         const enumString: string = org
         expect(enumString).toBe('Engineering')
     })
@@ -10,6 +10,6 @@ describe('Test models', () => {
     test('Organization from string', () => {
         const orgString: string = "Engineering"
         const enumValue: Organization = orgString as Organization
-        expect(enumValue).toBe(Organization.ENGINEERING)
+        expect(enumValue).toBe(Organization.Engineering)
     })
 })

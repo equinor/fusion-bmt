@@ -2,7 +2,7 @@ import { Chip } from '@equinor/fusion-components';
 import React, { useEffect, useState } from 'react';
 import { Typography } from '@equinor/eds-core-react';
 
-import { Answer, Question } from '../../api/models';
+import { Answer, Organization, Question, Severity } from '../../api/models';
 import { Box, Grid } from '@material-ui/core';
 import AnswerSeverityForm from './AnswerSeverityForm';
 import AnswerMarkdownForm from './AnswerMarkdownForm';
@@ -17,7 +17,7 @@ interface QuestionAndAnswerFormProps {
 }
 
 const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange}: QuestionAndAnswerFormProps) => {
-    const [markdown, setMarkdown] = useState<string>(answer.text);
+    const [markdown, setMarkdown] = useState<string>(answer.text || "");
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -52,7 +52,7 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange
                 <Box display="flex">
                     <Box mr={5}>
                         <AnswerSeverityForm
-                            severity={answer.severity}
+                            severity={answer.severity || Severity.Na}
                             onSeveritySelected={(severity) => onAnswerChange({...answer, severity: severity})}
                         />
                     </Box>

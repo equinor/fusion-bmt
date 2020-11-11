@@ -14,8 +14,8 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
     const [searchQuery, setSearchQuery] = React.useState<string>("");
     const [searchResults, setSearchResults] = React.useState<PersonDetails[]>([]);
 
-    const [selectedRole, setSelectedRole] = React.useState<Role>(Role.PARTICIPANT);
-    const [selectedOrg, setSelectedOrg] = React.useState<Organization>(Organization.COMMISSIONING);
+    const [selectedRole, setSelectedRole] = React.useState<Role>(Role.Participant);
+    const [selectedOrg, setSelectedOrg] = React.useState<Organization>(Organization.Commissioning);
 
     const [isSearching, setIsSearching] = React.useState<boolean>(false);
 
