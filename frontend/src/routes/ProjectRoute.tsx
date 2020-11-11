@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
-import { Tabs, Tab, TextArea } from '@equinor/fusion-components';
-import ProjectDashboardView from '../views/Project/Dashboard/ProjectDashboardView';
-import ProjectActionsView from '../views/Project/Action/ProjectActionsView';
-import { ApolloError, gql, useQuery } from '@apollo/client';
-import { Project } from '../api/models';
+import * as React from 'react'
+import { RouteComponentProps } from 'react-router-dom'
+import { Tabs, Tab, TextArea } from '@equinor/fusion-components'
+import ProjectDashboardView from '../views/Project/Dashboard/ProjectDashboardView'
+import ProjectActionsView from '../views/Project/Action/ProjectActionsView'
+import { ApolloError, gql, useQuery } from '@apollo/client'
+import { Project } from '../api/models'
 
 interface ProjectQueryProps {
     loading: boolean
@@ -17,15 +17,15 @@ const useProjectQuery = (fusionProjectId: string): ProjectQueryProps => {
         query {
             project(fusionProjectID: "${fusionProjectId}") {
                 id
-                createDate
                 fusionProjectId
+                createDate
             }
         }
-    `;
+    `
 
     const { loading, data, error } = useQuery<{project: Project}>(
         GET_PROJECT
-    );
+    )
 
     return {
         loading,
@@ -41,8 +41,8 @@ interface Params {
 const ProjectRoute = ({match}: RouteComponentProps<Params>) => {
     const fusionProjectId = match.params.fusionProjectId
 
-    const [activeTabKey, setActiveTabKey] = React.useState('dashboard');
-    const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey);
+    const [activeTabKey, setActiveTabKey] = React.useState('dashboard')
+    const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey)
     const {loading, project, error} = useProjectQuery(fusionProjectId)
 
     if(loading){
@@ -73,7 +73,7 @@ const ProjectRoute = ({match}: RouteComponentProps<Params>) => {
                 <h1>Archive</h1>
             </Tab>
         </Tabs>
-    );
-};
+    )
+}
 
-export default ProjectRoute;
+export default ProjectRoute
