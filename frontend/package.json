@@ -7,7 +7,7 @@
         "start": "fusion start-app",
         "build": "fusion build-app",
         "test": "jest",
-        "codegen": "graphql-codegen --config codegen.yml"
+        "schema": "graphql-codegen --config schema.yml"
     },
     "author": "",
     "license": "MIT",
