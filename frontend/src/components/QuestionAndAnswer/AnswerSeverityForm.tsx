@@ -32,26 +32,26 @@ const AnswerSeverityForm = ({ severity, onSeveritySelected }: AnswerSeverityForm
         <RadioButtonWrapper
             label="High"
             color="green"
-            onClick={() => onSeveritySelected(Severity.HIGH)}
-            isSelected={severity === Severity.HIGH}
+            onClick={() => onSeveritySelected(Severity.High)}
+            isSelected={severity === Severity.High}
         />
         <RadioButtonWrapper
             label="Limited"
             color="orange"
-            onClick={() => onSeveritySelected(Severity.LIMITED)}
-            isSelected={severity === Severity.LIMITED}
+            onClick={() => onSeveritySelected(Severity.Limited)}
+            isSelected={severity === Severity.Limited}
         />
         <RadioButtonWrapper
             label="Low"
             color="red"
-            onClick={() => onSeveritySelected(Severity.LOW)}
-            isSelected={severity === Severity.LOW}
+            onClick={() => onSeveritySelected(Severity.Low)}
+            isSelected={severity === Severity.Low}
         />
         <RadioButtonWrapper
             label="N/A"
             color="gray"
-            onClick={() => onSeveritySelected(Severity.NA)}
-            isSelected={severity === Severity.NA}
+            onClick={() => onSeveritySelected(Severity.Na)}
+            isSelected={severity === Severity.Na}
         />
     </>
 }

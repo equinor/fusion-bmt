@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -159,7 +160,28 @@ namespace api.Models
 
     public enum Barrier
     {
-        GM, PS1, PS2, PS3, PS4, PS5, PS6, PS7, PS12, PS15, PS22
+        [Description("General Matters")]
+        GM,
+        [Description("Containment")]
+        PS1,
+        [Description("HVAC")]
+        PS2,
+        [Description("Leak Detection")]
+        PS3,
+        [Description("ESD")]
+        PS4,
+        [Description("PS5")]
+        PS5,
+        [Description("Ignition Source Control")]
+        PS6,
+        [Description("Fire Detection")]
+        PS7,
+        [Description("Process Safety")]
+        PS12,
+        [Description("Layout")]
+        PS15,
+        [Description("HMI")]
+        PS22
     }
 
     public enum Organization
