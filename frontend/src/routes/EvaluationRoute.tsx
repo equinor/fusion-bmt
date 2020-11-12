@@ -13,7 +13,7 @@ interface Params {
 }
 
 const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
-    const [currentStep, setCurrentStep] = React.useState<Progression>(Progression.NOMINATION);
+    const [currentStep, setCurrentStep] = React.useState<Progression>(Progression.Nomination);
 
     const project: Project = {
         createDate: new Date(),
@@ -27,7 +27,7 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
         id: "evaluation-id",
         name: "Evaluation name",
         participants: [],
-        progression: Progression.ALIGNMENT,
+        progression: Progression.Alignment,
         project: project,
         projectId: "project-id",
         questions: []
@@ -39,17 +39,17 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
         evaluationId: evaluation.id,
         azureUniqueId: "fusion-id",
         id: "participant-id",
-        organization: Organization.PREOPS,
-        role: Role.READONLY
+        organization: Organization.PreOps,
+        role: Role.ReadOnly
     }
 
     const template: QuestionTemplate = {
-        barrier: Barrier.GM,
+        barrier: Barrier.Gm,
         createDate: new Date(),
         id: "template-id",
-        organization: Organization.ALL,
+        organization: Organization.All,
         questions: [],
-        status: Status.ACTIVE,
+        status: Status.Active,
         supportNotes: "",
         text: ""
     }
@@ -57,12 +57,12 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
     const dummyQuestion: Question = {
         actions: [],
         answers: [],
-        barrier: Barrier.GM,
+        barrier: Barrier.Gm,
         createDate: new Date(),
         evaluation: evaluation,
         evaluationId: evaluation.id,
         id: "question-id",
-        organization: Organization.ENGINEERING,
+        organization: Organization.Engineering,
         supportNotes: "There are the support notes",
         text: "This is the question text",
         questionTemplate: template,
@@ -72,12 +72,12 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
     const dummyQuestion2: Question = {
         actions: [],
         answers: [],
-        barrier: Barrier.GM,
+        barrier: Barrier.Gm,
         createDate: new Date(),
         evaluation: evaluation,
         evaluationId: evaluation.id,
         id: "question-id",
-        organization: Organization.ENGINEERING,
+        organization: Organization.Engineering,
         supportNotes: "There are the support notes",
         text: "This is the question text",
         questionTemplate: template,
@@ -87,12 +87,12 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
     const dummyQuestion3: Question = {
         actions: [],
         answers: [],
-        barrier: Barrier.PS1,
+        barrier: Barrier.Ps1,
         createDate: new Date(),
         evaluation: evaluation,
         evaluationId: evaluation.id,
         id: "question-id",
-        organization: Organization.ENGINEERING,
+        organization: Organization.Engineering,
         supportNotes: "There are the support notes",
         text: "This is the question text",
         questionTemplate: template,
@@ -103,10 +103,10 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
         answeredBy: participant,
         createDate: new Date(),
         id: "answer-id",
-        progression: Progression.ALIGNMENT,
+        progression: Progression.Alignment,
         question: dummyQuestion,
         questionId: dummyQuestion.id,
-        severity: Severity.HIGH,
+        severity: Severity.High,
         text: "Answer text",
     }
 
@@ -127,17 +127,17 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                 <Step
                     title="Nomination"
                     description="In progress"
-                    stepKey={Progression.NOMINATION}
+                    stepKey={Progression.Nomination}
                 >
                     <NominationView
                         evaluationTitle="Evaluation Name"
-                        onNextStep={() => setCurrentStep(Progression.PREPARATION)}
+                        onNextStep={() => setCurrentStep(Progression.Preparation)}
                     />
                 </Step>
                 <Step
                     title="Preparation"
                     description=""
-                    stepKey={Progression.PREPARATION}
+                    stepKey={Progression.Preparation}
                 >
                     <>
                         <PreparationView evaluation={evaluation} participant={participant}/>
@@ -146,21 +146,21 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                 <Step
                     title="Alignment"
                     description=""
-                    stepKey={Progression.ALIGNMENT}
+                    stepKey={Progression.Alignment}
                 >
                     <h1>Alignment</h1>
                 </Step>
                 <Step
                     title="Workshop"
                     description=""
-                    stepKey={Progression.WORKSHOP}
+                    stepKey={Progression.Workshop}
                 >
                     <h1>Workshop</h1>
                 </Step>
                 <Step
                     title="Follow-up"
                     description=""
-                    stepKey={Progression.FOLLOWUP}
+                    stepKey={Progression.FollowUp}
                 >
                     <h1>Follow-up</h1>
                 </Step>
