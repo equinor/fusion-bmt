@@ -1,0 +1,11 @@
+overwrite: true
+
+schema:
+  - http://localhost:5000/graphql?sdl:
+generates:
+  ./models.ts:
+    plugins:
+      - "typescript"
+    config:
+    // Disallow Maybe to be null
+      maybeValue: T

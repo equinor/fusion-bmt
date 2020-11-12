@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,11 +11,13 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public string FusionProjectId { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
         public virtual ICollection<Evaluation> Evaluations { get; set; }
     }
 
@@ -24,6 +25,7 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public string Name { get; set; }
@@ -33,8 +35,11 @@ namespace api.Models
         public DateTime CreateDate { get; set; }
         [Required]
         public Progression? Progression { get; set; }
+        [Required]
         public virtual ICollection<Participant> Participants { get; set; }
+        [Required]
         public virtual ICollection<Question> Questions { get; set; }
+        [Required]
         public virtual Project Project { get; set; }
     }
 
@@ -42,6 +47,7 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public string EvaluationId { get; set; }
@@ -60,6 +66,7 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public string EvaluationId { get; set; }
@@ -73,9 +80,12 @@ namespace api.Models
         public Barrier? Barrier { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
         public virtual ICollection<Answer> Answers { get; set; }
         public virtual ICollection<Action> Actions { get; set; }
+        [Required]
         public virtual Evaluation Evaluation { get; set; }
+        [Required]
         public virtual QuestionTemplate QuestionTemplate { get; set; }
     }
 
@@ -83,17 +93,20 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public Status? Status { get; set; }
         [Required]
         public Organization? Organization { get; set; }
+        [Required]
         public string Text { get; set; }
         public string SupportNotes { get; set; }
         [Required]
         public Barrier? Barrier { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
         public virtual ICollection<Question> Questions { get; set; }
     }
 
@@ -101,15 +114,19 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public string QuestionId { get; set; }
         [Required]
         public Progression? Progression { get; set; }
+        [Required]
         public Severity? Severity { get; set; }
+        [Required]
         public string Text { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
         public Participant AnsweredBy { get; set; }
         public virtual Question Question { get; set; }
     }
@@ -118,6 +135,7 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public string QuestionId { get; set; }
@@ -138,6 +156,7 @@ namespace api.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
         public string Id { get; set; }
         [Required]
         public string ActionId { get; set; }
@@ -160,28 +179,7 @@ namespace api.Models
 
     public enum Barrier
     {
-        [Description("General Matters")]
-        GM,
-        [Description("Containment")]
-        PS1,
-        [Description("HVAC")]
-        PS2,
-        [Description("Leak Detection")]
-        PS3,
-        [Description("ESD")]
-        PS4,
-        [Description("PS5")]
-        PS5,
-        [Description("Ignition Source Control")]
-        PS6,
-        [Description("Fire Detection")]
-        PS7,
-        [Description("Process Safety")]
-        PS12,
-        [Description("Layout")]
-        PS15,
-        [Description("HMI")]
-        PS22
+        GM, PS1, PS2, PS3, PS4, PS5, PS6, PS7, PS12, PS15, PS22
     }
 
     public enum Organization

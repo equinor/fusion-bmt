@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Barrier, Question, Participant } from '../../api/models';
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components';
 
+
 interface EvaluationSidebarProps
 {
     questions: Question[];
@@ -10,7 +11,7 @@ interface EvaluationSidebarProps
 }
 
 const EvaluationSidebar = ({questions, participant, onBarrierSelected}: EvaluationSidebarProps) => {
-    const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.GM);
+    const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm);
     const [structure, setStructure] = React.useState<NavigationStructure[]>(
         Object.entries(Barrier).map(([shortName, barrierName]) => {
             const barrierQuestions = questions.filter(q => q.barrier == barrierName);

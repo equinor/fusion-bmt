@@ -63,7 +63,7 @@ export type Project = {
   id: Scalars['String'];
   fusionProjectId: Scalars['String'];
   createDate: Scalars['DateTime'];
-  evaluations?: Maybe<Array<Maybe<Evaluation>>>;
+  evaluations: Array<Maybe<Evaluation>>;
 };
 
 export type Evaluation = {
@@ -229,7 +229,7 @@ export type ProjectInput = {
   id: Scalars['String'];
   fusionProjectId: Scalars['String'];
   createDate: Scalars['DateTime'];
-  evaluations?: Maybe<Array<Maybe<EvaluationInput>>>;
+  evaluations: Array<Maybe<EvaluationInput>>;
 };
 
 export enum Priority {
