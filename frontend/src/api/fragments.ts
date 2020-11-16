@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-export const PARTICIPANT_FRAGMENT = gql`
+export const PARTICIPANT_FIELDS_FRAGMENT = gql`
     fragment Fields on Participant {
         id
         azureUniqueId
@@ -15,5 +15,13 @@ export const PARTICIPANTS_ARRAY_FRAGMENT = gql`
             ...Fields
         }
     }
-    ${PARTICIPANT_FRAGMENT}
+    ${PARTICIPANT_FIELDS_FRAGMENT}
+`
+
+export const EVALUATION_FIELDS_FRAGMENT = gql`
+    fragment Fields on Evaluation {
+        id
+        name
+        progression
+    }
 `

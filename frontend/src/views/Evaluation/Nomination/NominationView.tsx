@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core'
 import { Button, TextArea } from '@equinor/fusion-components'
 
 import AddNomineeDialog from './AddNomineeDialog'
-import { Evaluation, Organization, Role } from '../../../api/models'
+import { Evaluation, Organization, Progression, Role } from '../../../api/models'
 import NominationTable from './NominationTable'
 import { useCreateParticipantMutation, useParticipantsQuery } from './NominationGQL'
 
@@ -66,6 +66,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 <Box>
                     <Button
                         onClick={onNextStepClick}
+                        disabled={evaluation.progression !== Progression.Nomination}
                     >
                         Create
                     </Button>
@@ -76,6 +77,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 onClick={() => {
                     setPanelOpen(true)
                 }}
+                disabled={evaluation.progression !== Progression.Nomination}
             >
                 Add Person
             </Button>
