@@ -1,11 +1,40 @@
-import * as React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import * as React from 'react'
+import { RouteComponentProps } from 'react-router-dom'
 
-import { Stepper, Step } from '@equinor/fusion-components';
+import { Stepper, Step, TextArea } from '@equinor/fusion-components'
+import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import NominationView from '../views/Evaluation/Nomination/NominationView';
-import { Answer, Barrier, Evaluation, Organization, Participant, Progression, Project, Question, QuestionTemplate, Role, Severity, Status } from '../api/models';
-import PreparationView from '../views/Evaluation/Preparation/PreparationView';
+import NominationView from '../views/Evaluation/Nomination/NominationView'
+import { Evaluation, Progression } from '../api/models'
+import PreparationView from '../views/Evaluation/Preparation/PreparationView'
+
+interface EvaluationQueryProps {
+    loading: boolean
+    evaluation: Evaluation | undefined
+    error: ApolloError | undefined
+}
+
+const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
+    const GET_EVALUATION = gql`
+        query {
+            evaluations(where:{id: {eq: "${evaluationId}"}}) {
+                id
+                name
+                progression
+            }
+        }
+    `
+
+    const { loading, data, error } = useQuery<{evaluations: Evaluation[]}>(
+        GET_EVALUATION
+    )
+
+    return {
+        loading,
+        evaluation: data?.evaluations.find(evaluation => evaluation.id === evaluationId),
+        error
+    }
+}
 
 interface Params {
     fusionProjectId: string
@@ -13,109 +42,25 @@ interface Params {
 }
 
 const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
-    const [currentStep, setCurrentStep] = React.useState<Progression>(Progression.Nomination);
+    const evaluationId: string = match.params.evaluationId
 
-    const project: Project = {
-        createDate: new Date(),
-        evaluations: [],
-        fusionProjectId: "fusion-project-id",
-        id: "project-id"
+    const [currentStep, setCurrentStep] = React.useState<Progression>(Progression.Nomination)
+    const {loading, evaluation, error} = useEvaluationQuery(evaluationId)
+
+    if(loading){
+        return <>
+            Loading...
+        </>
     }
 
-    const evaluation: Evaluation = {
-        createDate: new Date(),
-        id: "evaluation-id",
-        name: "Evaluation name",
-        participants: [],
-        progression: Progression.Alignment,
-        project: project,
-        projectId: "project-id",
-        questions: []
+    if(error !== undefined || evaluation === undefined){
+        return <div>
+            <TextArea
+                value={JSON.stringify(error)}
+                onChange={() => {}}
+            />
+        </div>
     }
-
-    const participant: Participant = {
-        createDate: new Date(),
-        evaluation: evaluation,
-        evaluationId: evaluation.id,
-        azureUniqueId: "fusion-id",
-        id: "participant-id",
-        organization: Organization.PreOps,
-        role: Role.ReadOnly
-    }
-
-    const template: QuestionTemplate = {
-        barrier: Barrier.Gm,
-        createDate: new Date(),
-        id: "template-id",
-        organization: Organization.All,
-        questions: [],
-        status: Status.Active,
-        supportNotes: "",
-        text: ""
-    }
-
-    const dummyQuestion: Question = {
-        actions: [],
-        answers: [],
-        barrier: Barrier.Gm,
-        createDate: new Date(),
-        evaluation: evaluation,
-        evaluationId: evaluation.id,
-        id: "question-id",
-        organization: Organization.Engineering,
-        supportNotes: "There are the support notes",
-        text: "This is the question text",
-        questionTemplate: template,
-        questionTemplateId: template.id
-    }
-
-    const dummyQuestion2: Question = {
-        actions: [],
-        answers: [],
-        barrier: Barrier.Gm,
-        createDate: new Date(),
-        evaluation: evaluation,
-        evaluationId: evaluation.id,
-        id: "question-id",
-        organization: Organization.Engineering,
-        supportNotes: "There are the support notes",
-        text: "This is the question text",
-        questionTemplate: template,
-        questionTemplateId: template.id
-    }
-
-    const dummyQuestion3: Question = {
-        actions: [],
-        answers: [],
-        barrier: Barrier.Ps1,
-        createDate: new Date(),
-        evaluation: evaluation,
-        evaluationId: evaluation.id,
-        id: "question-id",
-        organization: Organization.Engineering,
-        supportNotes: "There are the support notes",
-        text: "This is the question text",
-        questionTemplate: template,
-        questionTemplateId: template.id
-    }
-
-    const dummyAnswer: Answer = {
-        answeredBy: participant,
-        createDate: new Date(),
-        id: "answer-id",
-        progression: Progression.Alignment,
-        question: dummyQuestion,
-        questionId: dummyQuestion.id,
-        severity: Severity.High,
-        text: "Answer text",
-    }
-
-    project.evaluations = [evaluation]
-    evaluation.participants = [participant]
-    evaluation.questions = [dummyQuestion, dummyQuestion2, dummyQuestion3]
-    dummyQuestion.answers = [dummyAnswer]
-    dummyQuestion2.answers = [dummyAnswer]
-    dummyQuestion3.answers = [dummyAnswer]
 
     return (
         <>
@@ -130,7 +75,7 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                     stepKey={Progression.Nomination}
                 >
                     <NominationView
-                        evaluationTitle="Evaluation Name"
+                        evaluation={evaluation}
                         onNextStep={() => setCurrentStep(Progression.Preparation)}
                     />
                 </Step>
@@ -140,7 +85,7 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                     stepKey={Progression.Preparation}
                 >
                     <>
-                        <PreparationView evaluation={evaluation} participant={participant}/>
+                        <PreparationView evaluation={evaluation}/>
                     </>
                 </Step>
                 <Step
@@ -166,7 +111,7 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                 </Step>
             </Stepper>
         </>
-    );
-};
+    )
+}
 
-export default EvaluationRoute;
+export default EvaluationRoute

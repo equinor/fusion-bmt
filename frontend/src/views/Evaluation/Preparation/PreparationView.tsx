@@ -1,24 +1,25 @@
-import * as React from 'react';
-import { Barrier, Evaluation, Participant } from '../../../api/models';
-import { Box } from '@material-ui/core';
-import BarrierQuestionsView from './BarrierQuestionsView';
-import EvaluationSidebar from '../EvaluationSidebar';
+import React, { useState } from 'react'
+import { Barrier, Evaluation, Question } from '../../../api/models'
+import { Box } from '@material-ui/core'
+import BarrierQuestionsView from './BarrierQuestionsView'
+import EvaluationSidebar from '../EvaluationSidebar'
 
 interface PreparationViewProps
 {
     evaluation: Evaluation
-    participant: Participant
 }
 
-const PreparationView = ({evaluation, participant}: PreparationViewProps) => {
-    const [selectedBarrier, setSelectedBarrier] = React.useState<string>(Object.values(Barrier)[0]);
+const PreparationView = ({evaluation}: PreparationViewProps) => {
+    const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
+
+    const [questions, setQuestions] = useState<Question[]>([])
 
     return (
         <Box display="flex" height={1}>
             <Box>
                 <EvaluationSidebar
-                    questions={evaluation.questions}
-                    participant={participant}
+                    questions={questions}
+                    barrier={selectedBarrier}
                     onBarrierSelected={ (barrier) => setSelectedBarrier(barrier)}
                 />
             </Box>
@@ -26,16 +27,15 @@ const PreparationView = ({evaluation, participant}: PreparationViewProps) => {
                 <BarrierQuestionsView
                     barrier={selectedBarrier}
                     questions={
-                        evaluation.questions.filter(
+                        questions.filter(
                             q => q.barrier === selectedBarrier
                         )
                     }
-                    participant={participant}
                 />
             </Box>
         </Box>
 
-    );
-};
+    )
+}
 
-export default PreparationView;
+export default PreparationView

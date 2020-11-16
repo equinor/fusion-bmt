@@ -6,6 +6,7 @@ using HotChocolate.AspNetCore.Authorization;
 
 namespace api.Models
 {
+    // Comment out for using playground locally without auth
     [Authorize]
     public class Project
     {

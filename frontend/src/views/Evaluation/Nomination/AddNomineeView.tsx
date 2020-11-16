@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { useApiClients, PersonDetails } from '@equinor/fusion';
-import { PersonCard, Button, TextInput, SearchableDropdown, SearchableDropdownOption, Spinner } from '@equinor/fusion-components';
+import * as React from 'react'
+import { useApiClients, PersonDetails } from '@equinor/fusion'
+import { PersonCard, Button, TextInput, SearchableDropdown, SearchableDropdownOption, Spinner } from '@equinor/fusion-components'
 
-import { Organization, Role } from '../../../api/models';
+import { Organization, Role } from '../../../api/models'
 
 interface AddNomineeViewProps {
     onNomineeSelected: (person: PersonDetails, role: Role, organization: Organization) => void;
 }
 
 const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
-    const apiClients = useApiClients();
+    const apiClients = useApiClients()
 
-    const [searchQuery, setSearchQuery] = React.useState<string>("");
-    const [searchResults, setSearchResults] = React.useState<PersonDetails[]>([]);
+    const [searchQuery, setSearchQuery] = React.useState<string>("")
+    const [searchResults, setSearchResults] = React.useState<PersonDetails[]>([])
 
-    const [selectedRole, setSelectedRole] = React.useState<Role>(Role.Participant);
-    const [selectedOrg, setSelectedOrg] = React.useState<Organization>(Organization.Commissioning);
+    const [selectedRole, setSelectedRole] = React.useState<Role>(Role.Participant)
+    const [selectedOrg, setSelectedOrg] = React.useState<Organization>(Organization.Commissioning)
 
-    const [isSearching, setIsSearching] = React.useState<boolean>(false);
+    const [isSearching, setIsSearching] = React.useState<boolean>(false)
 
     const [orgOptions, setOrgOptions] = React.useState<SearchableDropdownOption[]>(
         Object.entries(Organization).map(([key, org]) => {
@@ -27,7 +27,7 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                 isSelected: (selectedOrg === org)
             }
         })
-    );
+    )
 
     const [roleOptions, setRoleOptions] = React.useState<SearchableDropdownOption[]>(
         Object.entries(Role).map(([key, role]) => {
@@ -37,27 +37,27 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                 isSelected: (selectedRole === role)
             }
         })
-    );
+    )
 
     const updateOrgOptions = (item: SearchableDropdownOption) =>
         orgOptions.map(option => {
-            return { ...option, isSelected: item.key === option.key };
-        });
+            return { ...option, isSelected: item.key === option.key }
+        })
 
     const updateRoleOptions = (item: SearchableDropdownOption) =>
         roleOptions.map(option => {
-            return { ...option, isSelected: item.key === option.key };
-        });
+            return { ...option, isSelected: item.key === option.key }
+        })
 
     const searchPersons = () => {
         if (searchQuery) {
-            setIsSearching(true);
+            setIsSearching(true)
             apiClients.people.searchPersons(searchQuery)
                 .then((res) => {
-                    setSearchResults(res.data);
+                    setSearchResults(res.data)
                 })
                 .finally(() => {
-                    setIsSearching(false);
+                    setIsSearching(false)
                 })
         }
     }
@@ -69,7 +69,7 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                 label="Orgnization"
                 onSelect={item => {
                     setOrgOptions(updateOrgOptions(item))
-                    setSelectedOrg(item.key as Organization);
+                    setSelectedOrg(item.key as Organization)
                 }}
             />
             <br/>
@@ -78,7 +78,7 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                 label="Role"
                 onSelect={item => {
                     setRoleOptions(updateRoleOptions(item))
-                    setSelectedRole(item.key as Role);
+                    setSelectedRole(item.key as Role)
                 }}
             />
             <br/>
@@ -105,14 +105,14 @@ const AddNomineeView = ({ onNomineeSelected }: AddNomineeViewProps) => {
                         <div style={{marginBottom: 10}} key={p.azureUniqueId}>
                             <PersonCard person={p} />
                             <Button onClick={() => {
-                                onNomineeSelected(p, selectedRole!, selectedOrg!);
+                                onNomineeSelected(p, selectedRole!, selectedOrg!)
                             }}>Add</Button>
                         </div>
-                    );
+                    )
                 })
             }
         </div>
-    );
-};
+    )
+}
 
-export default AddNomineeView;
+export default AddNomineeView

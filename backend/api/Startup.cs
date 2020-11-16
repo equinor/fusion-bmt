@@ -69,11 +69,12 @@ namespace api
             services.AddScoped<QuestionTemplateService>();
 
             services.AddGraphQLServer()
-                    .AddProjections()
-                    // Comment out to use locally without authentication
-                    .AddAuthorizeDirectiveType()
-                    .AddQueryType<GraphQuery>()
-                    .AddMutationType<Mutation>();
+                .AddProjections()
+                // Comment out to use locally without authentication
+                .AddAuthorizeDirectiveType()
+                .AddFiltering()
+                .AddQueryType<GraphQuery>()
+                .AddMutationType<Mutation>();
 
             services.AddControllers();
 

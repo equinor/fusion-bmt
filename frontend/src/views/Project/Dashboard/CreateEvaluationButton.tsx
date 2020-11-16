@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom'
 
-import { Button, TextArea } from '@equinor/fusion-components';
-import { ApolloError, gql, useMutation } from '@apollo/client';
-import CreateEvaluationDialog from './CreateEvaluationDialog';
-import { useCurrentUser } from '@equinor/fusion';
-import { Evaluation } from '../../../api/models';
+import { Button, TextArea } from '@equinor/fusion-components'
+import { ApolloError, gql, useMutation } from '@apollo/client'
+import CreateEvaluationDialog from './CreateEvaluationDialog'
+import { useCurrentUser } from '@equinor/fusion'
+import { Evaluation } from '../../../api/models'
 
 interface CreateEvaluationMutationProps {
     createEvaluation: (azureUniqueId: string, name: string, projectId: string) => void
@@ -28,7 +28,7 @@ const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
                 projectId
             }
         }
-    `;
+    `
 
     const [createEvaluationApolloFunc, { loading, data, error }] = useMutation(
         ADD_PROJECT, {
@@ -47,11 +47,11 @@ const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
                                     projectId
                                 }
                                 `
-                            });
-                            return [...existingEvaluations, newEvaluationRef];
+                            })
+                            return [...existingEvaluations, newEvaluationRef]
                         }
                     }
-                });
+                })
             }
         }
     )
