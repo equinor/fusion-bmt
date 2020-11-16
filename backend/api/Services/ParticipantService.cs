@@ -36,10 +36,12 @@ namespace api.Services
             return newParticipant;
         }
 
-        public void Remove(string participantId)
+        public Participant Remove(string participantId)
         {
-            _context.Participants.Remove(GetParticipant(participantId));
+            Participant participant = GetParticipant(participantId);
+            _context.Participants.Remove(participant);
             _context.SaveChanges();
+            return participant;
         }
 
         public IQueryable<Participant> GetAll()

@@ -7,6 +7,9 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 import NominationView from '../views/Evaluation/Nomination/NominationView'
 import { Evaluation, Progression } from '../api/models'
 import PreparationView from '../views/Evaluation/Preparation/PreparationView'
+import { EVALUATION_FIELDS_FRAGMENT } from '../api/fragments'
+import { useProgressEvaluationMutation } from './EvaluationGQL'
+import { calcProgressionStatus } from '../utils/ProgressionStatus'
 
 interface EvaluationQueryProps {
     loading: boolean
@@ -18,11 +21,10 @@ const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
     const GET_EVALUATION = gql`
         query {
             evaluations(where:{id: {eq: "${evaluationId}"}}) {
-                id
-                name
-                progression
+                ...Fields
             }
         }
+        ${EVALUATION_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error } = useQuery<{evaluations: Evaluation[]}>(
@@ -44,8 +46,12 @@ interface Params {
 const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
     const evaluationId: string = match.params.evaluationId
 
-    const [currentStep, setCurrentStep] = React.useState<Progression>(Progression.Nomination)
     const {loading, evaluation, error} = useEvaluationQuery(evaluationId)
+    const {progressEvaluation, error: errorProgressEvaluation} = useProgressEvaluationMutation()
+
+    const onProgressEvaluationClick = () => {
+        progressEvaluation(evaluationId)
+    }
 
     if(loading){
         return <>
@@ -53,10 +59,28 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
         </>
     }
 
-    if(error !== undefined || evaluation === undefined){
+    if(error !== undefined){
         return <div>
             <TextArea
                 value={JSON.stringify(error)}
+                onChange={() => {}}
+            />
+        </div>
+    }
+
+    if(errorProgressEvaluation !== undefined){
+        return <div>
+            <TextArea
+                value={`Error progressing evaluation: ${JSON.stringify(errorProgressEvaluation)}`}
+                onChange={() => {}}
+            />
+        </div>
+    }
+
+    if(evaluation === undefined){
+        return <div>
+            <TextArea
+                value={`Error: evaluation is undefined`}
                 onChange={() => {}}
             />
         </div>
@@ -66,22 +90,22 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
         <>
             <Stepper
                 forceOrder={false}
-                activeStepKey={currentStep}
+                activeStepKey={evaluation.progression}
                 hideNavButtons={true}
             >
                 <Step
                     title="Nomination"
-                    description="In progress"
+                    description={calcProgressionStatus(evaluation.progression, Progression.Nomination)}
                     stepKey={Progression.Nomination}
                 >
                     <NominationView
                         evaluation={evaluation}
-                        onNextStep={() => setCurrentStep(Progression.Preparation)}
+                        onNextStep={() => onProgressEvaluationClick()}
                     />
                 </Step>
                 <Step
                     title="Preparation"
-                    description=""
+                    description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
                     stepKey={Progression.Preparation}
                 >
                     <>
@@ -90,21 +114,21 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                 </Step>
                 <Step
                     title="Alignment"
-                    description=""
+                    description={calcProgressionStatus(evaluation.progression, Progression.Alignment)}
                     stepKey={Progression.Alignment}
                 >
                     <h1>Alignment</h1>
                 </Step>
                 <Step
                     title="Workshop"
-                    description=""
+                    description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                     stepKey={Progression.Workshop}
                 >
                     <h1>Workshop</h1>
                 </Step>
                 <Step
                     title="Follow-up"
-                    description=""
+                    description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                     stepKey={Progression.FollowUp}
                 >
                     <h1>Follow-up</h1>

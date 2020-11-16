@@ -56,9 +56,9 @@ namespace api.GQL
             return _participantService.Create(azureUniqueId, evaluation, organization, role);
         }
 
-        public void DeleteParticipant(string participantId)
+        public Participant DeleteParticipant(string participantId)
         {
-            _participantService.Remove(participantId);
+            return _participantService.Remove(participantId);
         }
 
         public Answer CreateAnswer(Participant answeredBy, Progression progression, string questionId, Severity severity, string text)

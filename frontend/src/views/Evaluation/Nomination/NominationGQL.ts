@@ -1,5 +1,5 @@
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { PARTICIPANT_FRAGMENT } from '../../../api/fragments'
+import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { Organization, Participant, Role } from "../../../api/models"
 
 interface ParticipantQueryProps {
@@ -15,7 +15,7 @@ export const useParticipantsQuery = (evaluationId: string): ParticipantQueryProp
                 ...Fields
             }
         }
-        ${PARTICIPANT_FRAGMENT}
+        ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error } = useQuery<{participants: Participant[]}>(
@@ -48,7 +48,7 @@ export const useCreateParticipantMutation = (): CreateParticipantMutationProps =
                 ...Fields
             }
         }
-        ${PARTICIPANT_FRAGMENT}
+        ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
     const [createParticipantApolloFunc, { loading, data, error }] = useMutation(
@@ -60,7 +60,7 @@ export const useCreateParticipantMutation = (): CreateParticipantMutationProps =
                             const newParticipantRef = cache.writeFragment({
                                 id: createParticipant.id,
                                 data: createParticipant,
-                                fragment: PARTICIPANT_FRAGMENT
+                                fragment: PARTICIPANT_FIELDS_FRAGMENT
                             })
                             return [...existingParticipants, newParticipantRef]
                         }
