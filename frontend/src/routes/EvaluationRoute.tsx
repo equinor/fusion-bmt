@@ -21,7 +21,7 @@ const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
     const GET_EVALUATION = gql`
         query {
             evaluations(where:{id: {eq: "${evaluationId}"}}) {
-                ...Fields
+                ...EvaluationFields
             }
         }
         ${EVALUATION_FIELDS_FRAGMENT}

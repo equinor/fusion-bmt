@@ -3,9 +3,8 @@ import * as React from 'react'
 
 import { Typography, Divider } from '@equinor/eds-core-react'
 
-import { Question, Answer } from "../../../api/models"
-import QuestionAndAnswerForm from "../../../components/QuestionAndAnswer/QuestionAndAnswerForm"
-import { useCurrentUser } from '@equinor/fusion'
+import { Question } from "../../../api/models"
+import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 
 interface BarrierQuestionsViewProps
 {
@@ -14,23 +13,18 @@ interface BarrierQuestionsViewProps
 }
 
 const BarrierQuestionsView = ({barrier, questions}: BarrierQuestionsViewProps) => {
-    const user = useCurrentUser()
-    const azureUniqueId: string = user?.id as string
+    const barrierQuestions = questions.filter(q => q.barrier === barrier)
 
     return (
         <>
             <Typography variant="h2">{barrier}</Typography>
-            {questions.map((question, idx) => {
+            {barrierQuestions.map((question, idx) => {
                 return (
                     <div key={question.id}>
                         <Divider />
-                        <QuestionAndAnswerForm
-                            question={question}
-                            answer={question.answers.find(a => a.answeredBy.azureUniqueId == azureUniqueId)!}
+                        <QuestionAndAnswerFormWithApi
                             questionNumber={idx + 1}
-                            onAnswerChange = {(_: Answer) => {
-
-                            }}
+                            question={question}
                         />
                     </div>
                 )

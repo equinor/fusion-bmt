@@ -1,13 +1,13 @@
-import { Chip } from '@equinor/fusion-components';
-import React, { useEffect, useState } from 'react';
-import { Typography } from '@equinor/eds-core-react';
+import { Chip } from '@equinor/fusion-components'
+import React, { useEffect, useState } from 'react'
+import { Typography } from '@equinor/eds-core-react'
 
-import { Answer, Question } from '../../api/models';
-import { Box, Grid } from '@material-ui/core';
-import AnswerSeverityForm from './AnswerSeverityForm';
-import AnswerMarkdownForm from './AnswerMarkdownForm';
+import { Answer, Question } from '../../api/models'
+import { Box, Grid } from '@material-ui/core'
+import AnswerSeverityForm from './AnswerSeverityForm'
+import AnswerMarkdownForm from './AnswerMarkdownForm'
 
-const WRITE_DELAY_MS = 1000;
+const WRITE_DELAY_MS = 1000
 
 interface QuestionAndAnswerFormProps {
     questionNumber: number
@@ -17,14 +17,14 @@ interface QuestionAndAnswerFormProps {
 }
 
 const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange}: QuestionAndAnswerFormProps) => {
-    const [markdown, setMarkdown] = useState<string>(answer.text);
+    const [markdown, setMarkdown] = useState<string>(answer.text)
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            onAnswerChange({...answer, text: markdown});
-        }, WRITE_DELAY_MS);
+            onAnswerChange({...answer, text: markdown})
+        }, WRITE_DELAY_MS)
         return () => {
-            clearTimeout(timeout);
+            clearTimeout(timeout)
         }
     }, [markdown])
 
@@ -68,4 +68,4 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange
     </>
 }
 
-export default QuestionAndAnswerForm;
+export default QuestionAndAnswerForm
