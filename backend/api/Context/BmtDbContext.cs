@@ -77,7 +77,8 @@ namespace api.Context
             modelBuilder.Entity<Question>()
                 .HasMany(t => t.Answers)
                 .WithOne(t => t.Question)
-                .HasForeignKey(t => t.QuestionId);
+                .HasForeignKey(t => t.QuestionId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Action>()
                 .HasMany(t => t.Notes)
@@ -87,7 +88,8 @@ namespace api.Context
             modelBuilder.Entity<QuestionTemplate>()
                 .HasMany(t => t.Questions)
                 .WithOne(t => t.QuestionTemplate)
-                .HasForeignKey(t => t.QuestionTemplateId);
+                .HasForeignKey(t => t.QuestionTemplateId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         public void InitializeIfInMem()
