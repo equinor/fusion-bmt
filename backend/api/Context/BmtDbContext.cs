@@ -96,6 +96,7 @@ namespace api.Context
             {
                 this.Projects.AddRange(InitContent.Projects);
                 // Adding projects adds all other models
+                this.QuestionTemplates.AddRange(InitContent.QuestionTemplates);
                 this.SaveChanges();
             }
         }

@@ -12,7 +12,7 @@ export const useParticipantsQuery = (evaluationId: string): ParticipantQueryProp
     const GET_PARTICIPANTS = gql`
         query {
             participants(where:{evaluation: {id: {eq: "${evaluationId}"}}}) {
-                ...Fields
+                ...ParticipantFields
             }
         }
         ${PARTICIPANT_FIELDS_FRAGMENT}
@@ -45,7 +45,7 @@ export const useCreateParticipantMutation = (): CreateParticipantMutationProps =
                 organization: $organization
                 role: $role
             ){
-                ...Fields
+                ...ParticipantFields
             }
         }
         ${PARTICIPANT_FIELDS_FRAGMENT}

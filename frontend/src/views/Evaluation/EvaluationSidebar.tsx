@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Barrier, Question } from '../../api/models'
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
-import { useCurrentUser } from '@equinor/fusion'
+import { getAzureUniqueId } from '../../utils/Variables'
 
 
 interface EvaluationSidebarProps
@@ -12,8 +12,7 @@ interface EvaluationSidebarProps
 }
 
 const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSidebarProps) => {
-    const user = useCurrentUser()
-    const azureUniqueId: string = user?.id as string
+    const azureUniqueId: string = getAzureUniqueId()
 
     const [structure, setStructure] = React.useState<NavigationStructure[]>(
         Object.entries(Barrier).map(([barrierKey, barrier]) => {

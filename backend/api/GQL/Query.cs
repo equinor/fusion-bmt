@@ -11,16 +11,22 @@ namespace api.GQL
         private readonly ProjectService _projectService;
         private readonly EvaluationService _evaluationService;
         private readonly ParticipantService _participantService;
+        private readonly QuestionService _questionService;
+        private readonly AnswerService _answerService;
 
         public GraphQuery(
             ProjectService projectService,
             EvaluationService evaluationService,
-            ParticipantService participantService
+            ParticipantService participantService,
+            QuestionService questionService,
+            AnswerService answerService
         )
         {
             _projectService = projectService;
             _evaluationService = evaluationService;
             _participantService = participantService;
+            _questionService = questionService;
+            _answerService = answerService;
         }
 
         [UseProjection]
@@ -47,6 +53,20 @@ namespace api.GQL
         public IQueryable<Participant> GetParticipants()
         {
             return _participantService.GetAll();
+        }
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Question> GetQuestions()
+        {
+            return _questionService.GetAll();
+        }
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Answer> GetAnswers()
+        {
+            return _answerService.GetAll();
         }
     }
 }

@@ -13,7 +13,7 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
     const PROGRESS_EVALUATION = gql`
         mutation ProgessEvaluation($evaluationId: String!) {
             progressEvaluation(evaluationId: $evaluationId){
-                ...Fields
+                ...EvaluationFields
             }
         }
         ${EVALUATION_FIELDS_FRAGMENT}
