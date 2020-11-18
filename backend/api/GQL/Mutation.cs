@@ -1,6 +1,13 @@
+using System.Collections.Generic;
+using System;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Identity.Web;
+
+using HotChocolate.AspNetCore.Authorization;
+
 using api.Services;
 using api.Models;
-using System.Collections.Generic;
+using api.Authentication;
 
 namespace api.GQL
 {
@@ -13,13 +20,16 @@ namespace api.GQL
         private readonly AnswerService _answerService;
         private readonly QuestionTemplateService _questionTemplateService;
 
+        private readonly IHttpContextAccessor _contextAccessor;
+
         public Mutation(
             ProjectService projectService,
             EvaluationService evaluationService,
             ParticipantService participantService,
             QuestionService questionService,
             AnswerService answerService,
-            QuestionTemplateService questionTemplateService
+            QuestionTemplateService questionTemplateService,
+            IHttpContextAccessor contextAccessor
         )
         {
             _projectService = projectService;
@@ -28,14 +38,18 @@ namespace api.GQL
             _questionService = questionService;
             _answerService = answerService;
             _questionTemplateService = questionTemplateService;
+            _contextAccessor = contextAccessor;
         }
 
-        // TODO: This methods should not take azureUniqueId as parameter but get it from token
+        [Authorize(Policy = "Author")]
         public Evaluation CreateEvaluation(string name, string projectId, string azureUniqueId)
         {
+
+            var httpContext = _contextAccessor.HttpContext;
+            string oid = AuthUtil.GetOID(httpContext);
             Project project = _projectService.GetProject(projectId);
             Evaluation evaluation = _evaluationService.Create(name, project);
-            _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
+            _participantService.Create(oid, evaluation, Organization.All, Role.Facilitator);
 
             List<QuestionTemplate> questionTemplates = _questionTemplateService.ActiveQuestions();
             foreach (QuestionTemplate template in questionTemplates)
@@ -61,10 +75,20 @@ namespace api.GQL
             return _participantService.Remove(participantId);
         }
 
+        [Authorize(Policy = "Author")]
         public Answer CreateAnswer(Participant answeredBy, Progression progression, string questionId, Severity severity, string text)
         {
-            Question question = _questionService.GetQuestion(questionId);
-            return _answerService.Create(answeredBy, progression, question, severity, text);
+            var httpContext = _contextAccessor.HttpContext;
+            string oid = AuthUtil.GetOID(httpContext);
+            if (answeredBy.AzureUniqueId == oid)
+            {
+                Question question = _questionService.GetQuestion(questionId);
+                return _answerService.Create(answeredBy, progression, question, severity, text);
+            }
+            else
+            {
+                throw new UnauthorizedAccessException($"User {httpContext.User.GetDisplayName()} not authorized to change this answer");
+            }
         }
     }
 }
