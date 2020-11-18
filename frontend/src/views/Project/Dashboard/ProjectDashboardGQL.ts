@@ -1,0 +1,84 @@
+import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
+import { EVALUATION_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { Evaluation } from "../../../api/models"
+
+interface EvaluationQueryProps {
+    loading: boolean
+    evaluations: Evaluation[] | undefined
+    error: ApolloError | undefined
+}
+
+export const useEvaluationsQuery = (projectId: string): EvaluationQueryProps => {
+    const GET_EVALUATIONS = gql`
+        query {
+            evaluations(where: {project: {id: {eq: "${projectId}"}}}) {
+                ...EvaluationFields
+            }
+        }
+        ${EVALUATION_FIELDS_FRAGMENT}
+    `
+
+    const { loading, data, error } = useQuery<{evaluations: Evaluation[]}>(
+        GET_EVALUATIONS
+    )
+
+    return {
+        loading,
+        evaluations: data?.evaluations,
+        error
+    }
+}
+
+
+
+interface CreateEvaluationMutationProps {
+    createEvaluation: (azureUniqueId: string, name: string, projectId: string) => void
+    loading: boolean
+    evaluation: Evaluation | undefined
+    error: ApolloError | undefined
+}
+
+export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
+    const ADD_EVALUATION = gql`
+        mutation CreateEvaluation($azureUniqueId: String!, $name: String!, $projectId: String!){
+            createEvaluation(
+                azureUniqueId: $azureUniqueId
+                name: $name
+                projectId: $projectId
+            ){
+                ...EvaluationFields
+            }
+        }
+        ${EVALUATION_FIELDS_FRAGMENT}
+    `
+
+    const [createEvaluationApolloFunc, { loading, data, error }] = useMutation(
+        ADD_EVALUATION, {
+            update(cache, { data: { createEvaluation } }) {
+                cache.modify({
+                    fields: {
+                        evaluations(existingEvaluations = []) {
+                            const newEvaluationRef = cache.writeFragment({
+                                id: createEvaluation.id,
+                                data: createEvaluation,
+                                fragment: EVALUATION_FIELDS_FRAGMENT
+                            })
+                            return [...existingEvaluations, newEvaluationRef]
+                        }
+                    }
+                })
+            }
+        }
+    )
+
+    const createEvaluation = (azureUniqueId: string, name: string, projectId: string) => {
+        createEvaluationApolloFunc({ variables: { azureUniqueId, name, projectId } })
+    }
+
+    return {
+        createEvaluation,
+        loading,
+        evaluation: data?.createEvaluation,
+        error
+    }
+}

@@ -19,7 +19,8 @@ namespace api.Services
 
         public Project EnsureCreated(string fusionProjectID)
         {
-            Project project = _context.Projects.FirstOrDefault(project => project.FusionProjectId.Equals(fusionProjectID));
+            Project project = _context.Projects
+                .FirstOrDefault(project => project.FusionProjectId.Equals(fusionProjectID));
             if (project == null)
             {
                 return Create(fusionProjectID);

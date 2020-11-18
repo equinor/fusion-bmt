@@ -25,12 +25,11 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
                 cache.modify({
                     fields: {
                         evaluations(existingEvaluations = []) {
-                            const newEvaluationRef = cache.writeFragment({
-                                id: progressEvaluation.id,
+                            cache.writeFragment({
                                 data: progressEvaluation,
                                 fragment: EVALUATION_FIELDS_FRAGMENT
                             })
-                            return [...existingEvaluations, newEvaluationRef]
+                            return existingEvaluations
                         }
                     }
                 })
