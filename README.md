@@ -104,7 +104,7 @@ make sure your `Database__ConnectionString` is set and run
         <td>
             ASPNETCORE_ENVIRONMENT<br/>
             HTTPONLY<br/>
-            Database_ConnectionString
+            Database__ConnectionString
         </td>
     </tr>
 </table>
