@@ -4,16 +4,12 @@ WORKDIR /source
 COPY . .
 
 WORKDIR /source/api
-RUN dotnet publish -c release -o /app -r linux-musl-x64 --self-contained true /p:PublishTrimmed=true /p:PublishReadyToRun=true
+RUN dotnet publish -c release -o /app
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-alpine
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 COPY --from=build /app ./
 
-# Needed to read enviroment variables properly(?)
-RUN apk add --no-cache icu-libs
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT false
-
-ENTRYPOINT ["./api", "--urls=http://0.0.0.0:5000"]
+ENTRYPOINT ["dotnet", "api.dll", "--urls=http://0.0.0.0:5000"]
 
 EXPOSE 5000
