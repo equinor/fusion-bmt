@@ -81,3 +81,54 @@ export const useCreateParticipantMutation = (): CreateParticipantMutationProps =
         error
     }
 }
+
+interface DeleteParticipantMutationProps {
+    deleteParticipant: (id: string) => void
+    loading: boolean
+    participant: Participant | undefined
+    error: ApolloError | undefined
+}
+
+export const useDeleteParticipantMutation = (): DeleteParticipantMutationProps => {
+    const DELETE_PARTICIPANT = gql`
+        mutation DeleteParticipant($id: String!){
+            deleteParticipant(
+                participantId: $id
+            ){
+                ...ParticipantFields
+            }
+        }
+        ${PARTICIPANT_FIELDS_FRAGMENT}
+    `
+
+    const [deleteParticipantApolloFunc, { loading, data, error }] = useMutation(
+        DELETE_PARTICIPANT, {
+            update(cache, { data: { deleteParticipant } }) {
+                cache.modify({
+                    fields: {
+                        participants(existingParticipantRefs, { readField }) {
+                            return existingParticipantRefs.filter(
+                                (participantRef: any) => {
+                                    return (
+                                        deleteParticipant.id !== readField('id', participantRef)
+                                    )
+                                }
+                            )
+                        }
+                    }
+                })
+            }
+        }
+    )
+
+    const deleteParticipant = (id: string) => {
+        deleteParticipantApolloFunc({ variables: { id } })
+    }
+
+    return {
+        deleteParticipant: deleteParticipant,
+        loading,
+        participant: data?.deleteParticipant,
+        error
+    }
+}

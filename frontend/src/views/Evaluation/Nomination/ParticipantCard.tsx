@@ -32,7 +32,7 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     }, [])
 
     return <>
-        <Box p="2px">
+        <Box p="4px">
             <PersonCard
                 isFetchingPerson={isFetchingPerson}
                 person={personDetails}

@@ -9,6 +9,8 @@ import { client } from './api/graphql'
 import App from './App'
 import { config } from './config'
 
+import './styles.css'
+
 const Start = () => {
     const fusionContext = useFusionContext()
 
