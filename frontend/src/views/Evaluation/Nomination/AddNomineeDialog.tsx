@@ -3,12 +3,15 @@ import { useApiClients, PersonDetails } from '@equinor/fusion'
 import { PersonCard, Button, TextInput, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
 
 import { Organization, Role } from '../../../api/models'
+import { useEffect } from 'react'
 
 interface AddNomineeDialogProps {
     open: boolean
     onCloseClick: () => void
     onNomineeSelected: (azureUniqueId: string, role: Role, organization: Organization) => void;
 }
+
+const WRITE_DELAY_MS = 1000
 
 const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeDialogProps) => {
     const apiClients = useApiClients()
@@ -40,6 +43,15 @@ const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeD
             }
         })
     )
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            searchPersons()
+        }, WRITE_DELAY_MS)
+        return () => {
+            clearTimeout(timeout)
+        }
+    }, [searchQuery])
 
     const updateOrgOptions = (item: SearchableDropdownOption) =>
         setOrgOptions((oldOptions) => oldOptions.map(option => {
@@ -99,11 +111,6 @@ const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeD
                     onChange={(v) => setSearchQuery(v)}
                     placeholder="Search for person..."
                     disabled={isSearching}
-                    onKeyUp={(ev) => {
-                        if (ev.key === 'Enter') {
-                            searchPersons()
-                        }
-                    }}
                 />
                 <br/>
                 { isSearching &&
