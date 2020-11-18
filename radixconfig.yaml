@@ -102,7 +102,7 @@ spec:
             HTTPONLY: 'True'
       secrets:
         - AzureAd__ClientSecret
-        - Database_ConnectionString
+        - Database__ConnectionString
 
   dnsAppAlias:
     environment: prod
