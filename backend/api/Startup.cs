@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.Extensions.Configuration;
@@ -12,12 +13,12 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.OpenApi.Models;
 
 using HotChocolate;
-using HotChocolate.AspNetCore;
 
 using api.Context;
 using api.Services;
 using api.GQL;
 using api.Swagger;
+using api.Authorization;
 
 
 namespace api
@@ -43,6 +44,12 @@ namespace api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
             services.AddCors(options =>
             {
                 options.AddPolicy(_accessControlPolicyName,
@@ -70,8 +77,7 @@ namespace api
 
             services.AddGraphQLServer()
                 .AddProjections()
-                // Comment out to use locally without authentication
-                .AddAuthorizeDirectiveType()
+                .AddAuthorization()
                 .AddFiltering()
                 .AddQueryType<GraphQuery>()
                 .AddMutationType<Mutation>();
@@ -128,9 +134,8 @@ namespace api
                 var option = new RewriteOptions();
                 app.UseRewriter(option);
             }
-            app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseRouting();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -142,7 +147,8 @@ namespace api
                     { { "resource", $"{Configuration["AzureAd:ClientId"]}" } });
             });
 
-
+            // Comment out to use locally without authentication
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGraphQL();

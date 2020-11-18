@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using HotChocolate.AspNetCore.Authorization;
 
 namespace api.Models
 {
-    // Comment out for using playground locally without auth
-    [Authorize]
     public class Project
     {
         [Key]
