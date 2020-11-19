@@ -1,9 +1,9 @@
-declare const API_URL: string;
-declare const APP_VERSION: string;
-declare const COMMITHASH: string;
-declare const BRANCH: string;
-declare const LAST_COMMIT: string;
-declare const AD_APP_ID: string;
+declare const API_URL: string
+declare const APP_VERSION: string
+declare const COMMITHASH: string
+declare const BRANCH: string
+declare const LAST_COMMIT: string
+declare const AD_APP_ID: string
 
 export const config = {
     API_URL: API_URL,
