@@ -38,6 +38,19 @@ namespace tests
         }
 
         [Fact]
+        public void CreateGetsCorrectEvaluationId()
+        {
+            ParticipantService participantService = new ParticipantService(_context);
+            Evaluation exampleEvaluation = ExampleEvaluation();
+
+            string evaluationIdBefore = exampleEvaluation.Id;
+            Participant participant = participantService.Create("some_id_we_got_from_fusion", exampleEvaluation, Organization.Engineering, Role.Participant);
+            string evaluationIdAfter = participant.Evaluation.Id;
+
+            Assert.Equal(evaluationIdBefore, evaluationIdAfter);
+        }
+
+        [Fact]
         public void GetDoesNotExists()
         {
             ParticipantService participantService = new ParticipantService(_context);

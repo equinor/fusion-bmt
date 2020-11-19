@@ -44,10 +44,12 @@ namespace tests
         {
             EvaluationService evaluationService = new EvaluationService(_context);
             Evaluation evaluation = evaluationService.Create("some_name", ExampleProject());
-            Progression? currentProgression = evaluation.Progression;
+
+            Progression progressionBefore = evaluation.Progression;
             evaluationService.ProgressEvaluation(evaluation.Id);
-            evaluation = evaluationService.GetEvaluation(evaluation.Id);
-            Assert.True(ServiceUtil.NextProgression(currentProgression).Equals(evaluation.Progression));
+            Progression progressionAfter = evaluation.Progression;
+
+            Assert.True(ServiceUtil.NextProgression(progressionBefore).Equals(progressionAfter));
         }
 
         [Fact]

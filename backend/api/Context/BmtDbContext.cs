@@ -52,52 +52,11 @@ namespace api.Context
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Project>()
-                .HasMany(t => t.Evaluations)
-                .WithOne(t => t.Project)
-                .HasForeignKey(t => t.ProjectId);
-
-            modelBuilder.Entity<Evaluation>()
-                .HasMany(t => t.Participants)
-                .WithOne(t => t.Evaluation)
-                .HasForeignKey(t => t.EvaluationId);
-
-            modelBuilder.Entity<Evaluation>()
-                .HasMany(t => t.Questions)
-                .WithOne(t => t.Evaluation)
-                .HasForeignKey(t => t.EvaluationId);
-
-            modelBuilder.Entity<Question>()
-                .HasMany(t => t.Actions)
-                .WithOne(t => t.Question)
-                .HasForeignKey(t => t.QuestionId);
-
-            modelBuilder.Entity<Question>()
-                .HasMany(t => t.Answers)
-                .WithOne(t => t.Question)
-                .HasForeignKey(t => t.QuestionId);
-
-            modelBuilder.Entity<Action>()
-                .HasMany(t => t.Notes)
-                .WithOne(t => t.Action)
-                .HasForeignKey(t => t.ActionId);
-
-            modelBuilder.Entity<QuestionTemplate>()
-                .HasMany(t => t.Questions)
-                .WithOne(t => t.QuestionTemplate)
-                .HasForeignKey(t => t.QuestionTemplateId);
-        }
-
         public void InitializeIfInMem()
         {
             if (_isInMemDB && this.Database.EnsureCreated())
             {
-                this.Projects.AddRange(InitContent.Projects);
-                // Adding projects adds all other models
-                this.QuestionTemplates.AddRange(InitContent.QuestionTemplates);
-                this.SaveChanges();
+                InitContent.PopulateDb(this);
             }
         }
     }

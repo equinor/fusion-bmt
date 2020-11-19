@@ -1,11 +1,18 @@
+using Microsoft.Extensions.DependencyInjection;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
 using api.Context;
+using api.GQL;
 using api.Services;
 using api.Models;
+
+using HotChocolate;
+using HotChocolate.Execution;
+using HotChocolate.Fetching;
 
 namespace tests
 {
@@ -21,7 +28,7 @@ namespace tests
         [Fact]
         public void InitQuestions()
         {
-            List<Question> questions = InitContent.Questions;
+            List<QuestionTemplate> questions = InitContent.QuestionTemplates;
 
             Assert.Equal(11, questions.Count());
         }
@@ -62,13 +69,72 @@ namespace tests
             EvaluationService evaluationService = new EvaluationService(_context);
             Evaluation exampleEvaluation = evaluationService.GetAll().First();
             ParticipantService participantService = new ParticipantService(_context);
-            Participant exampleParticipant = exampleEvaluation.Participants.First();
+            Participant exampleParticipant = participantService.Create("ParticipantDeletedFromEvaluation_id", exampleEvaluation, Organization.Engineering, Role.Participant);
 
             int participantsBefore = exampleEvaluation.Participants.Count;
             participantService.Remove(exampleParticipant.Id);
             int participantsAfter = exampleEvaluation.Participants.Count;
 
             Assert.Equal(participantsBefore - 1, participantsAfter);
+        }
+
+        [Fact]
+        public async void TestSchema()
+        {
+            ISchema schema = SchemaBuilder.New()
+                .AddQueryType<GraphQuery>()
+                .AddFiltering()
+                .AddProjections()
+                .Create();
+            var executor = schema.MakeExecutable();
+            IServiceProvider serviceProvider = new ServiceCollection()
+                .AddBatchDispatcher<BatchScheduler>()
+                .AddDbContext<BmtDbContext>()
+                .AddScoped<GraphQuery>()
+                .AddScoped<ProjectService>()
+                .AddScoped<ParticipantService>()
+                .AddScoped<EvaluationService>()
+                .AddScoped<QuestionService>()
+                .AddScoped<AnswerService>()
+                .AddScoped<QuestionTemplateService>()
+                .AddScoped<Mutation>()
+                .BuildServiceProvider();
+
+            string query = @"{
+                projects {
+                    id
+                    evaluations {
+                        id
+                        participants {
+                            id
+                        }
+                        questions {
+                            id
+                            answers {
+                                id
+                            }
+                            actions {
+                                id
+                                notes {
+                                    id
+                                }
+                            }
+                        }
+                    }
+                }
+            }";
+            IReadOnlyQueryRequest request = QueryRequestBuilder.New()
+                .SetQuery(query)
+                .SetServices(serviceProvider)
+                .Create();
+
+            IExecutionResult result = await executor.ExecuteAsync(request);
+
+            IReadOnlyList<IError> errors = result.Errors ?? new List<IError>();
+            foreach( IError err in errors)
+            {
+                throw err.Exception;
+            }
         }
     }
 }
