@@ -66,5 +66,10 @@ namespace api.GQL
             Question question = _questionService.GetQuestion(questionId);
             return _answerService.Create(answeredBy, progression, question, severity, text);
         }
+
+        public Answer UpdateAnswer(string answerId, Severity severity, string text)
+        {
+            return _answerService.UpdateAnswer(answerId, severity, text);
+        }
     }
 }

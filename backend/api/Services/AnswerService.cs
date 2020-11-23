@@ -48,6 +48,18 @@ namespace api.Services
             return _context.Answers;
         }
 
+        public Answer UpdateAnswer(string answerId, Severity severity, string text)
+        {
+            Answer answer = GetAnswer(answerId);
+
+            answer.Severity = severity;
+            answer.Text = text;
+
+            _context.Answers.Update(answer);
+            _context.SaveChanges();
+            return answer;
+        }
+
         public Answer GetAnswer(string AnswerId)
         {
             Answer Answer = _context.Answers.FirstOrDefault(Answer => Answer.Id.Equals(AnswerId));
