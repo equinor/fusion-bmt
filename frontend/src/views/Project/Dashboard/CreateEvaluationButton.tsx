@@ -12,7 +12,6 @@ interface CreateEvaluationButtonProps {
 
 const CreateEvaluationButton = ({projectId}: CreateEvaluationButtonProps) => {
     const user = useCurrentUser()
-    const azureUniqueId: string = user?.id as string
     const [showDialog, setShowDialog] = useState<boolean>(false)
     const {createEvaluation, loading, evaluation, error} = useCreateEvaluationMutation()
 
@@ -20,7 +19,7 @@ const CreateEvaluationButton = ({projectId}: CreateEvaluationButtonProps) => {
 
     const onCreateEvaluationDialogSureClick = (name: string) => {
         setShowDialog(false)
-        createEvaluation(azureUniqueId, name, projectId)
+        createEvaluation(name, projectId)
     }
     const onCreateEvaluationDialogCancelClick = () => {
         setShowDialog(false)

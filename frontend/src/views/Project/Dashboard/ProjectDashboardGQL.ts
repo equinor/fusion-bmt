@@ -32,7 +32,7 @@ export const useEvaluationsQuery = (projectId: string): EvaluationQueryProps => 
 
 
 interface CreateEvaluationMutationProps {
-    createEvaluation: (azureUniqueId: string, name: string, projectId: string) => void
+    createEvaluation: (name: string, projectId: string) => void
     loading: boolean
     evaluation: Evaluation | undefined
     error: ApolloError | undefined
@@ -40,9 +40,8 @@ interface CreateEvaluationMutationProps {
 
 export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
     const ADD_EVALUATION = gql`
-        mutation CreateEvaluation($azureUniqueId: String!, $name: String!, $projectId: String!){
+        mutation CreateEvaluation($name: String!, $projectId: String!){
             createEvaluation(
-                azureUniqueId: $azureUniqueId
                 name: $name
                 projectId: $projectId
             ){
@@ -71,8 +70,8 @@ export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => 
         }
     )
 
-    const createEvaluation = (azureUniqueId: string, name: string, projectId: string) => {
-        createEvaluationApolloFunc({ variables: { azureUniqueId, name, projectId } })
+    const createEvaluation = (name: string, projectId: string) => {
+        createEvaluationApolloFunc({ variables: { name, projectId } })
     }
 
     return {
