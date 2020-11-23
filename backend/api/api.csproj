@@ -23,6 +23,5 @@
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="11.0.0-rc.6" />
     <PackageReference Include="HotChocolate.Types" Version="11.0.0-rc.6" />
     <PackageReference Include="HotChocolate.Data" Version="11.0.0-rc.6" />
-    <PackageReference Include="HotChocolate.Data" Version="11.0.0-rc.6" />
   </ItemGroup>
 </Project>

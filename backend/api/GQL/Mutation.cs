@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Identity.Web;
 
 using HotChocolate.AspNetCore.Authorization;
@@ -19,8 +18,7 @@ namespace api.GQL
         private readonly QuestionService _questionService;
         private readonly AnswerService _answerService;
         private readonly QuestionTemplateService _questionTemplateService;
-
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly AuthService _authService;
 
         public Mutation(
             ProjectService projectService,
@@ -29,7 +27,7 @@ namespace api.GQL
             QuestionService questionService,
             AnswerService answerService,
             QuestionTemplateService questionTemplateService,
-            IHttpContextAccessor contextAccessor
+            AuthService authService
         )
         {
             _projectService = projectService;
@@ -38,14 +36,12 @@ namespace api.GQL
             _questionService = questionService;
             _answerService = answerService;
             _questionTemplateService = questionTemplateService;
-            _contextAccessor = contextAccessor;
+            _authService = authService;
         }
 
         public Evaluation CreateEvaluation(string name, string projectId)
         {
-
-            var httpContext = _contextAccessor.HttpContext;
-            string azureUniqueId = AuthUtil.GetOID(httpContext);
+            string azureUniqueId = _authService.GetOID();
             Project project = _projectService.GetProject(projectId);
             Evaluation evaluation = _evaluationService.Create(name, project);
             _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
@@ -76,16 +72,15 @@ namespace api.GQL
 
         public Answer CreateAnswer(Participant answeredBy, Progression progression, string questionId, Severity severity, string text)
         {
-            var httpContext = _contextAccessor.HttpContext;
-            string oid = AuthUtil.GetOID(httpContext);
-            if (answeredBy.AzureUniqueId == oid)
+            string azureUniqueId = _authService.GetOID();
+            if (answeredBy.AzureUniqueId == azureUniqueId)
             {
                 Question question = _questionService.GetQuestion(questionId);
                 return _answerService.Create(answeredBy, progression, question, severity, text);
             }
             else
             {
-                throw new UnauthorizedAccessException($"User {httpContext.User.GetDisplayName()} not authorized to change this answer");
+                throw new UnauthorizedAccessException($"User {azureUniqueId} not authorized to change this answer");
             }
         }
     }
