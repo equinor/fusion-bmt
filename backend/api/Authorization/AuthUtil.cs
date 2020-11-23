@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace api.Authentication
+namespace api.Authorization
 {
     public static class AuthUtil
     {

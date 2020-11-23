@@ -7,7 +7,7 @@ using HotChocolate.AspNetCore.Authorization;
 
 using api.Services;
 using api.Models;
-using api.Authentication;
+using api.Authorization;
 
 namespace api.GQL
 {
@@ -45,10 +45,10 @@ namespace api.GQL
         {
 
             var httpContext = _contextAccessor.HttpContext;
-            string oid = AuthUtil.GetOID(httpContext);
+            string azureUniqueId = AuthUtil.GetOID(httpContext);
             Project project = _projectService.GetProject(projectId);
             Evaluation evaluation = _evaluationService.Create(name, project);
-            _participantService.Create(oid, evaluation, Organization.All, Role.Facilitator);
+            _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
 
             List<QuestionTemplate> questionTemplates = _questionTemplateService.ActiveQuestions();
             foreach (QuestionTemplate template in questionTemplates)
