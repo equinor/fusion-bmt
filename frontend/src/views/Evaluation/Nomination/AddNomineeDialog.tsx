@@ -4,6 +4,7 @@ import { PersonCard, Button, TextInput, SearchableDropdown, SearchableDropdownOp
 
 import { Organization, Role } from '../../../api/models'
 import { useEffect } from 'react'
+import { organizationToString, roleToString } from '../../../utils/EnumToString'
 
 interface AddNomineeDialogProps {
     open: boolean
@@ -28,7 +29,7 @@ const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeD
         Object.entries(Organization).map(([key, org]) => {
             return {
                 key: key,
-                title: org,
+                title: organizationToString(org),
                 isSelected: (selectedOrg === org)
             }
         })
@@ -38,7 +39,7 @@ const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeD
         Object.entries(Role).map(([key, role]) => {
             return {
                 key: key,
-                title: role,
+                title: roleToString(role),
                 isSelected: (selectedRole === role)
             }
         })
