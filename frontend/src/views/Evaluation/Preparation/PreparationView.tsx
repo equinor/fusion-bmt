@@ -1,7 +1,7 @@
 import React from 'react'
 import { Barrier, Evaluation } from '../../../api/models'
 import { Box } from '@material-ui/core'
-import BarrierQuestionsView from './BarrierQuestionsView'
+import BarrierQuestionsView from '../../../components/BarrierQuestionsView'
 import EvaluationSidebar from '../EvaluationSidebar'
 import { useQuestionsQuery } from './PerparationGQL'
 import { TextArea } from '@equinor/fusion-components'
@@ -54,6 +54,7 @@ const PreparationView = ({evaluation, onNextStepClick}: PreparationViewProps) =>
                     questions={questions}
                     currentProgression={evaluation.progression}
                     onNextStepClick={onNextStepClick}
+                    showAnswerSummaryButton={true}
                 />
             </Box>
         </Box>

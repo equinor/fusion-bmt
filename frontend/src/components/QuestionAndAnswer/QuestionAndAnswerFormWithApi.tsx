@@ -83,9 +83,11 @@ interface QuestionAndAnswerFormWithApiProps {
     question: Question
     answer: Answer | undefined
     disabled: boolean
+    showAnswerSummaryButton: boolean
 }
 
-const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer, disabled}: QuestionAndAnswerFormWithApiProps) => {
+const QuestionAndAnswerFormWithApi = ({questionNumber, question, showAnswerSummaryButton, answer, disabled}: QuestionAndAnswerFormWithApiProps) => {
+    const azureUniqueId = getAzureUniqueId()
     const {setAnswer, error: errorSettingAnswer} = useSetAnswerMutation()
 
     const emptyAnswer: Answer = {
@@ -113,6 +115,7 @@ const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer, disable
             answer={answer ?? emptyAnswer}
             onAnswerChange={(answer) => setAnswer(question.id, answer.severity, answer.text)}
             disabled={disabled}
+            showAnswerSummaryButton={showAnswerSummaryButton}
         />
     </>
 }

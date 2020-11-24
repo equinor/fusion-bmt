@@ -1,16 +1,14 @@
 
 import * as React from 'react'
 
-import { Typography, Divider } from '@equinor/eds-core-react'
+import { Typography, Divider, Button } from '@equinor/eds-core-react'
 
-import { Barrier, Progression, Question, Role } from "../../../api/models"
-import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
-import { barrierToString } from '../../../utils/EnumToString'
-import { getAzureUniqueId } from '../../../utils/Variables'
+import { Barrier, Question, Progression, Role } from "../api/models"
+import { barrierToString } from '../utils/EnumToString'
+import QuestionAndAnswerFormWithApi from './QuestionAndAnswer/QuestionAndAnswerFormWithApi'
+import { getAzureUniqueId } from '../utils/Variables'
+import { CurrentParticipantContext } from '../views/Evaluation/EvaluationRoute'
 import { Box } from '@material-ui/core'
-import { Button } from '@equinor/fusion-components'
-import { useContext } from 'react'
-import { CurrentParticipantContext } from '../EvaluationRoute'
 
 interface BarrierQuestionsViewProps
 {
@@ -18,13 +16,14 @@ interface BarrierQuestionsViewProps
     questions: Question[]
     currentProgression: Progression
     onNextStepClick: () => void
+    showAnswerSummaryButton: boolean
 }
 
-const BarrierQuestionsView = ({barrier, questions, currentProgression, onNextStepClick}: BarrierQuestionsViewProps) => {
+const BarrierQuestionsView = ({barrier, questions, currentProgression, onNextStepClick, showAnswerSummaryButton}: BarrierQuestionsViewProps) => {
     const azureUniqueId = getAzureUniqueId()
     const barrierQuestions = questions.filter(q => q.barrier === barrier)
 
-    const currentParticipant = useContext(CurrentParticipantContext)
+    const currentParticipant = React.useContext(CurrentParticipantContext)
 
     return (
         <>
@@ -54,6 +53,7 @@ const BarrierQuestionsView = ({barrier, questions, currentProgression, onNextSte
                             question={question}
                             answer={answer}
                             disabled={currentProgression !== Progression.Preparation}
+                            showAnswerSummaryButton={ showAnswerSummaryButton }
                         />
                     </div>
                 )

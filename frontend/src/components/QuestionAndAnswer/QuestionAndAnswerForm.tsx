@@ -1,5 +1,6 @@
-import { Chip } from '@equinor/fusion-components'
+
 import React, { useEffect, useRef, useState } from 'react'
+import { Chip, IconButton, CopyIcon } from '@equinor/fusion-components'
 import { Typography } from '@equinor/eds-core-react'
 
 import { Answer, Question } from '../../api/models'
@@ -17,9 +18,9 @@ interface QuestionAndAnswerFormProps {
     answer: Answer
     disabled: boolean
     onAnswerChange: (answer: Answer) => void
+    showAnswerSummaryButton: boolean
 }
-
-const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange}: QuestionAndAnswerFormProps) => {
+const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange, showAnswerSummaryButton}: QuestionAndAnswerFormProps) => {
     const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
 
@@ -42,6 +43,13 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAn
         <Grid container>
             <Grid item xs={12}>
                 <Box display="flex" flexDirection="row-reverse">
+                    { showAnswerSummaryButton &&
+                        <Box>
+                            <IconButton>
+                                <CopyIcon />
+                            </IconButton>
+                        </Box>
+                    }
                     <Box>
                         <Chip primary title={organizationToString(question.organization)}/>
                     </Box>
