@@ -92,6 +92,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 open={panelOpen}
                 onCloseClick={() => setPanelOpen(false)}
                 onNomineeSelected={onNomineeSelected}
+                currentNominees={participants}
             />
         </div>
     )
