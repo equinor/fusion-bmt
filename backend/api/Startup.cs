@@ -116,6 +116,8 @@ namespace api
                 c.DocumentFilter<GraphEndpoint>();
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "api", Version = "v1" });
             });
+            // This sends logging and telemetry to Application Insights in Azure
+            services.AddApplicationInsightsTelemetry();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
