@@ -1,6 +1,6 @@
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { ANSWER_FIELDS_FRAGMENT, QUESTION_FIELDS_FRAGMENT } from '../../../api/fragments'
-import { Answer, Question } from '../../../api/models'
+import { Question } from '../../../api/models'
 
 interface QuestionsQueryProps {
     loading: boolean
