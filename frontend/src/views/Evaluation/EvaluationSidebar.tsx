@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Barrier, Question } from '../../api/models'
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
 import { getAzureUniqueId } from '../../utils/Variables'
+import { barrierToString } from '../../utils/EnumToString'
 
 
 interface EvaluationSidebarProps
@@ -22,7 +23,7 @@ const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSi
             return {
                 id: barrier,
                 type: 'grouping',
-                title: barrier,
+                title: barrierToString(barrier),
                 icon: <>{barrierKey}</>,
                 aside: <Chip title={`${barrierAnswers.length}/${barrierQuestions.length}`} />
             }
