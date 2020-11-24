@@ -7,6 +7,7 @@ import AddNomineeDialog from './AddNomineeDialog'
 import { Evaluation, Organization, Progression, Role } from '../../../api/models'
 import NominationTable from './NominationTable'
 import { useCreateParticipantMutation, useParticipantsQuery } from './NominationGQL'
+import { calcProgressionStatus } from '../../../utils/ProgressionStatus'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -84,6 +85,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 
             <NominationTable
                 participants={participants}
+                currentProgressionStatus={calcProgressionStatus(Progression.Nomination, evaluation.progression)}
             />
 
             <AddNomineeDialog
