@@ -22,6 +22,8 @@ export type GraphQuery = {
   project?: Maybe<Project>;
   evaluations?: Maybe<Array<Maybe<Evaluation>>>;
   participants?: Maybe<Array<Maybe<Participant>>>;
+  questions?: Maybe<Array<Maybe<Question>>>;
+  answers?: Maybe<Array<Maybe<Answer>>>;
 };
 
 
@@ -44,19 +46,29 @@ export type GraphQueryParticipantsArgs = {
   where?: Maybe<ParticipantFilterInput>;
 };
 
+
+export type GraphQueryQuestionsArgs = {
+  where?: Maybe<QuestionFilterInput>;
+};
+
+
+export type GraphQueryAnswersArgs = {
+  where?: Maybe<AnswerFilterInput>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createEvaluation?: Maybe<Evaluation>;
   progressEvaluation?: Maybe<Evaluation>;
   createParticipant?: Maybe<Participant>;
-  createAnswer?: Maybe<Answer>;
+  deleteParticipant?: Maybe<Participant>;
+  setAnswer?: Maybe<Answer>;
 };
 
 
 export type MutationCreateEvaluationArgs = {
   name?: Maybe<Scalars['String']>;
   projectId?: Maybe<Scalars['String']>;
-  azureUniqueId?: Maybe<Scalars['String']>;
 };
 
 
@@ -73,9 +85,12 @@ export type MutationCreateParticipantArgs = {
 };
 
 
-export type MutationCreateAnswerArgs = {
-  answeredBy?: Maybe<ParticipantInput>;
-  progression: Progression;
+export type MutationDeleteParticipantArgs = {
+  participantId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationSetAnswerArgs = {
   questionId?: Maybe<Scalars['String']>;
   severity: Severity;
   text?: Maybe<Scalars['String']>;
@@ -95,9 +110,8 @@ export type EvaluationFilterInput = {
   or?: Maybe<Array<EvaluationFilterInput>>;
   id?: Maybe<StringOperationFilterInput>;
   name?: Maybe<StringOperationFilterInput>;
-  projectId?: Maybe<StringOperationFilterInput>;
   createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
-  progression?: Maybe<EnumOperationFilterInputOfNullableOfProgressionFilterInput>;
+  progression?: Maybe<EnumOperationFilterInputOfProgressionFilterInput>;
   participants?: Maybe<ListFilterInputOfFilterInputTypeOfParticipantFilterInput>;
   questions?: Maybe<ListFilterInputOfFilterInputTypeOfQuestionFilterInput>;
   project?: Maybe<ProjectFilterInput>;
@@ -107,12 +121,38 @@ export type ParticipantFilterInput = {
   and?: Maybe<Array<ParticipantFilterInput>>;
   or?: Maybe<Array<ParticipantFilterInput>>;
   id?: Maybe<StringOperationFilterInput>;
-  evaluationId?: Maybe<StringOperationFilterInput>;
   azureUniqueId?: Maybe<StringOperationFilterInput>;
-  organization?: Maybe<EnumOperationFilterInputOfNullableOfOrganizationFilterInput>;
-  role?: Maybe<EnumOperationFilterInputOfNullableOfRoleFilterInput>;
+  organization?: Maybe<EnumOperationFilterInputOfOrganizationFilterInput>;
+  role?: Maybe<EnumOperationFilterInputOfRoleFilterInput>;
   createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
   evaluation?: Maybe<EvaluationFilterInput>;
+};
+
+export type QuestionFilterInput = {
+  and?: Maybe<Array<QuestionFilterInput>>;
+  or?: Maybe<Array<QuestionFilterInput>>;
+  id?: Maybe<StringOperationFilterInput>;
+  organization?: Maybe<EnumOperationFilterInputOfOrganizationFilterInput>;
+  text?: Maybe<StringOperationFilterInput>;
+  supportNotes?: Maybe<StringOperationFilterInput>;
+  barrier?: Maybe<EnumOperationFilterInputOfBarrierFilterInput>;
+  createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
+  answers?: Maybe<ListFilterInputOfFilterInputTypeOfAnswerFilterInput>;
+  actions?: Maybe<ListFilterInputOfFilterInputTypeOfActionFilterInput>;
+  evaluation?: Maybe<EvaluationFilterInput>;
+  questionTemplate?: Maybe<QuestionTemplateFilterInput>;
+};
+
+export type AnswerFilterInput = {
+  and?: Maybe<Array<AnswerFilterInput>>;
+  or?: Maybe<Array<AnswerFilterInput>>;
+  id?: Maybe<StringOperationFilterInput>;
+  progression?: Maybe<EnumOperationFilterInputOfProgressionFilterInput>;
+  severity?: Maybe<EnumOperationFilterInputOfSeverityFilterInput>;
+  text?: Maybe<StringOperationFilterInput>;
+  createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
+  answeredBy?: Maybe<ParticipantFilterInput>;
+  question?: Maybe<QuestionFilterInput>;
 };
 
 export type StringOperationFilterInput = {
@@ -152,11 +192,11 @@ export type ListFilterInputOfFilterInputTypeOfEvaluationFilterInput = {
   any?: Maybe<Scalars['Boolean']>;
 };
 
-export type EnumOperationFilterInputOfNullableOfProgressionFilterInput = {
+export type EnumOperationFilterInputOfProgressionFilterInput = {
   eq?: Maybe<Progression>;
   neq?: Maybe<Progression>;
-  in?: Maybe<Array<Maybe<Progression>>>;
-  nin?: Maybe<Array<Maybe<Progression>>>;
+  in?: Maybe<Array<Progression>>;
+  nin?: Maybe<Array<Progression>>;
 };
 
 export type ListFilterInputOfFilterInputTypeOfParticipantFilterInput = {
@@ -173,42 +213,25 @@ export type ListFilterInputOfFilterInputTypeOfQuestionFilterInput = {
   any?: Maybe<Scalars['Boolean']>;
 };
 
-export type EnumOperationFilterInputOfNullableOfOrganizationFilterInput = {
+export type EnumOperationFilterInputOfOrganizationFilterInput = {
   eq?: Maybe<Organization>;
   neq?: Maybe<Organization>;
-  in?: Maybe<Array<Maybe<Organization>>>;
-  nin?: Maybe<Array<Maybe<Organization>>>;
+  in?: Maybe<Array<Organization>>;
+  nin?: Maybe<Array<Organization>>;
 };
 
-export type EnumOperationFilterInputOfNullableOfRoleFilterInput = {
+export type EnumOperationFilterInputOfRoleFilterInput = {
   eq?: Maybe<Role>;
   neq?: Maybe<Role>;
-  in?: Maybe<Array<Maybe<Role>>>;
-  nin?: Maybe<Array<Maybe<Role>>>;
+  in?: Maybe<Array<Role>>;
+  nin?: Maybe<Array<Role>>;
 };
 
-export type QuestionFilterInput = {
-  and?: Maybe<Array<QuestionFilterInput>>;
-  or?: Maybe<Array<QuestionFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  evaluationId?: Maybe<StringOperationFilterInput>;
-  questionTemplateId?: Maybe<StringOperationFilterInput>;
-  organization?: Maybe<EnumOperationFilterInputOfNullableOfOrganizationFilterInput>;
-  text?: Maybe<StringOperationFilterInput>;
-  supportNotes?: Maybe<StringOperationFilterInput>;
-  barrier?: Maybe<EnumOperationFilterInputOfNullableOfBarrierFilterInput>;
-  createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
-  answers?: Maybe<ListFilterInputOfFilterInputTypeOfAnswerFilterInput>;
-  actions?: Maybe<ListFilterInputOfFilterInputTypeOfActionFilterInput>;
-  evaluation?: Maybe<EvaluationFilterInput>;
-  questionTemplate?: Maybe<QuestionTemplateFilterInput>;
-};
-
-export type EnumOperationFilterInputOfNullableOfBarrierFilterInput = {
+export type EnumOperationFilterInputOfBarrierFilterInput = {
   eq?: Maybe<Barrier>;
   neq?: Maybe<Barrier>;
-  in?: Maybe<Array<Maybe<Barrier>>>;
-  nin?: Maybe<Array<Maybe<Barrier>>>;
+  in?: Maybe<Array<Barrier>>;
+  nin?: Maybe<Array<Barrier>>;
 };
 
 export type ListFilterInputOfFilterInputTypeOfAnswerFilterInput = {
@@ -229,37 +252,30 @@ export type QuestionTemplateFilterInput = {
   and?: Maybe<Array<QuestionTemplateFilterInput>>;
   or?: Maybe<Array<QuestionTemplateFilterInput>>;
   id?: Maybe<StringOperationFilterInput>;
-  status?: Maybe<EnumOperationFilterInputOfNullableOfStatusFilterInput>;
-  organization?: Maybe<EnumOperationFilterInputOfNullableOfOrganizationFilterInput>;
+  status?: Maybe<EnumOperationFilterInputOfStatusFilterInput>;
+  organization?: Maybe<EnumOperationFilterInputOfOrganizationFilterInput>;
   text?: Maybe<StringOperationFilterInput>;
   supportNotes?: Maybe<StringOperationFilterInput>;
-  barrier?: Maybe<EnumOperationFilterInputOfNullableOfBarrierFilterInput>;
+  barrier?: Maybe<EnumOperationFilterInputOfBarrierFilterInput>;
   createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
   questions?: Maybe<ListFilterInputOfFilterInputTypeOfQuestionFilterInput>;
 };
 
-export type AnswerFilterInput = {
-  and?: Maybe<Array<AnswerFilterInput>>;
-  or?: Maybe<Array<AnswerFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  questionId?: Maybe<StringOperationFilterInput>;
-  progression?: Maybe<EnumOperationFilterInputOfNullableOfProgressionFilterInput>;
-  severity?: Maybe<EnumOperationFilterInputOfNullableOfSeverityFilterInput>;
-  text?: Maybe<StringOperationFilterInput>;
-  createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
-  answeredBy?: Maybe<ParticipantFilterInput>;
-  question?: Maybe<QuestionFilterInput>;
+export type EnumOperationFilterInputOfSeverityFilterInput = {
+  eq?: Maybe<Severity>;
+  neq?: Maybe<Severity>;
+  in?: Maybe<Array<Severity>>;
+  nin?: Maybe<Array<Severity>>;
 };
 
 export type ActionFilterInput = {
   and?: Maybe<Array<ActionFilterInput>>;
   or?: Maybe<Array<ActionFilterInput>>;
   id?: Maybe<StringOperationFilterInput>;
-  questionId?: Maybe<StringOperationFilterInput>;
   assignedTo?: Maybe<ParticipantFilterInput>;
   title?: Maybe<StringOperationFilterInput>;
   description?: Maybe<StringOperationFilterInput>;
-  priority?: Maybe<EnumOperationFilterInputOfNullableOfPriorityFilterInput>;
+  priority?: Maybe<EnumOperationFilterInputOfPriorityFilterInput>;
   onHold?: Maybe<BooleanOperationFilterInput>;
   dueDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
   createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
@@ -268,25 +284,18 @@ export type ActionFilterInput = {
   question?: Maybe<QuestionFilterInput>;
 };
 
-export type EnumOperationFilterInputOfNullableOfStatusFilterInput = {
+export type EnumOperationFilterInputOfStatusFilterInput = {
   eq?: Maybe<Status>;
   neq?: Maybe<Status>;
-  in?: Maybe<Array<Maybe<Status>>>;
-  nin?: Maybe<Array<Maybe<Status>>>;
+  in?: Maybe<Array<Status>>;
+  nin?: Maybe<Array<Status>>;
 };
 
-export type EnumOperationFilterInputOfNullableOfSeverityFilterInput = {
-  eq?: Maybe<Severity>;
-  neq?: Maybe<Severity>;
-  in?: Maybe<Array<Maybe<Severity>>>;
-  nin?: Maybe<Array<Maybe<Severity>>>;
-};
-
-export type EnumOperationFilterInputOfNullableOfPriorityFilterInput = {
+export type EnumOperationFilterInputOfPriorityFilterInput = {
   eq?: Maybe<Priority>;
   neq?: Maybe<Priority>;
-  in?: Maybe<Array<Maybe<Priority>>>;
-  nin?: Maybe<Array<Maybe<Priority>>>;
+  in?: Maybe<Array<Priority>>;
+  nin?: Maybe<Array<Priority>>;
 };
 
 export type BooleanOperationFilterInput = {
@@ -305,7 +314,6 @@ export type NoteFilterInput = {
   and?: Maybe<Array<NoteFilterInput>>;
   or?: Maybe<Array<NoteFilterInput>>;
   id?: Maybe<StringOperationFilterInput>;
-  actionId?: Maybe<StringOperationFilterInput>;
   text?: Maybe<StringOperationFilterInput>;
   createdBy?: Maybe<ParticipantFilterInput>;
   createDate?: Maybe<ComparableOperationFilterInputOfDateTimeFilterInput>;
@@ -324,7 +332,6 @@ export type Evaluation = {
   __typename?: 'Evaluation';
   id: Scalars['String'];
   name: Scalars['String'];
-  projectId: Scalars['String'];
   createDate: Scalars['DateTime'];
   progression: Progression;
   participants: Array<Maybe<Participant>>;
@@ -335,24 +342,36 @@ export type Evaluation = {
 export type Participant = {
   __typename?: 'Participant';
   id: Scalars['String'];
-  evaluationId: Scalars['String'];
   azureUniqueId: Scalars['String'];
   organization: Organization;
   role: Role;
   createDate: Scalars['DateTime'];
-  evaluation?: Maybe<Evaluation>;
+  evaluation: Evaluation;
+};
+
+export type Question = {
+  __typename?: 'Question';
+  id: Scalars['String'];
+  organization: Organization;
+  text: Scalars['String'];
+  supportNotes: Scalars['String'];
+  barrier: Barrier;
+  createDate: Scalars['DateTime'];
+  answers: Array<Maybe<Answer>>;
+  actions: Array<Maybe<Action>>;
+  evaluation: Evaluation;
+  questionTemplate: QuestionTemplate;
 };
 
 export type Answer = {
   __typename?: 'Answer';
   id: Scalars['String'];
-  questionId: Scalars['String'];
   progression: Progression;
   severity: Severity;
   text: Scalars['String'];
   createDate: Scalars['DateTime'];
-  answeredBy: Participant;
-  question?: Maybe<Question>;
+  answeredBy?: Maybe<Participant>;
+  question: Question;
 };
 
 export enum Organization {
@@ -369,15 +388,13 @@ export enum Role {
   ReadOnly = 'READ_ONLY'
 }
 
-export type ParticipantInput = {
-  id: Scalars['String'];
-  evaluationId: Scalars['String'];
-  azureUniqueId: Scalars['String'];
-  organization: Organization;
-  role: Role;
-  createDate: Scalars['DateTime'];
-  evaluation?: Maybe<EvaluationInput>;
-};
+export enum Severity {
+  Low = 'LOW',
+  Limited = 'LIMITED',
+  High = 'HIGH',
+  Na = 'NA'
+}
+
 
 export enum Progression {
   Nomination = 'NOMINATION',
@@ -387,21 +404,12 @@ export enum Progression {
   FollowUp = 'FOLLOW_UP'
 }
 
-export enum Severity {
-  Low = 'LOW',
-  Limited = 'LIMITED',
-  High = 'HIGH',
-  Na = 'NA'
-}
-
-
 export enum Barrier {
   Gm = 'GM',
   Ps1 = 'PS1',
   Ps2 = 'PS2',
   Ps3 = 'PS3',
   Ps4 = 'PS4',
-  Ps5 = 'PS5',
   Ps6 = 'PS6',
   Ps7 = 'PS7',
   Ps12 = 'PS12',
@@ -420,47 +428,19 @@ export enum Priority {
   High = 'HIGH'
 }
 
-export type Question = {
-  __typename?: 'Question';
-  id: Scalars['String'];
-  evaluationId: Scalars['String'];
-  questionTemplateId: Scalars['String'];
-  organization: Organization;
-  text?: Maybe<Scalars['String']>;
-  supportNotes?: Maybe<Scalars['String']>;
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  answers: Array<Maybe<Answer>>;
-  actions?: Maybe<Array<Maybe<Action>>>;
-  evaluation: Evaluation;
-  questionTemplate: QuestionTemplate;
-};
-
-export type EvaluationInput = {
-  id: Scalars['String'];
-  name: Scalars['String'];
-  projectId: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  progression: Progression;
-  participants: Array<Maybe<ParticipantInput>>;
-  questions: Array<Maybe<QuestionInput>>;
-  project: ProjectInput;
-};
-
 export type Action = {
   __typename?: 'Action';
   id: Scalars['String'];
-  questionId: Scalars['String'];
   assignedTo?: Maybe<Participant>;
-  title?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  priority?: Maybe<Priority>;
+  title: Scalars['String'];
+  description: Scalars['String'];
+  priority: Priority;
   onHold: Scalars['Boolean'];
   dueDate: Scalars['DateTime'];
   createDate: Scalars['DateTime'];
   createdBy?: Maybe<Participant>;
-  notes?: Maybe<Array<Maybe<Note>>>;
-  question?: Maybe<Question>;
+  notes: Array<Maybe<Note>>;
+  question: Question;
 };
 
 export type QuestionTemplate = {
@@ -469,86 +449,17 @@ export type QuestionTemplate = {
   status: Status;
   organization: Organization;
   text: Scalars['String'];
-  supportNotes?: Maybe<Scalars['String']>;
+  supportNotes: Scalars['String'];
   barrier: Barrier;
   createDate: Scalars['DateTime'];
   questions: Array<Maybe<Question>>;
 };
 
-export type QuestionInput = {
-  id: Scalars['String'];
-  evaluationId: Scalars['String'];
-  questionTemplateId: Scalars['String'];
-  organization: Organization;
-  text?: Maybe<Scalars['String']>;
-  supportNotes?: Maybe<Scalars['String']>;
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  answers: Array<Maybe<AnswerInput>>;
-  actions?: Maybe<Array<Maybe<ActionInput>>>;
-  evaluation: EvaluationInput;
-  questionTemplate: QuestionTemplateInput;
-};
-
-export type ProjectInput = {
-  id: Scalars['String'];
-  fusionProjectId: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  evaluations: Array<Maybe<EvaluationInput>>;
-};
-
 export type Note = {
   __typename?: 'Note';
   id: Scalars['String'];
-  actionId: Scalars['String'];
-  text?: Maybe<Scalars['String']>;
+  text: Scalars['String'];
   createdBy?: Maybe<Participant>;
   createDate: Scalars['DateTime'];
-  action?: Maybe<Action>;
-};
-
-export type AnswerInput = {
-  id: Scalars['String'];
-  questionId: Scalars['String'];
-  progression: Progression;
-  severity: Severity;
-  text: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  answeredBy: ParticipantInput;
-  question?: Maybe<QuestionInput>;
-};
-
-export type ActionInput = {
-  id: Scalars['String'];
-  questionId: Scalars['String'];
-  assignedTo?: Maybe<ParticipantInput>;
-  title?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  priority?: Maybe<Priority>;
-  onHold: Scalars['Boolean'];
-  dueDate: Scalars['DateTime'];
-  createDate: Scalars['DateTime'];
-  createdBy?: Maybe<ParticipantInput>;
-  notes?: Maybe<Array<Maybe<NoteInput>>>;
-  question?: Maybe<QuestionInput>;
-};
-
-export type QuestionTemplateInput = {
-  id: Scalars['String'];
-  status: Status;
-  organization: Organization;
-  text: Scalars['String'];
-  supportNotes?: Maybe<Scalars['String']>;
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  questions: Array<Maybe<QuestionInput>>;
-};
-
-export type NoteInput = {
-  id: Scalars['String'];
-  actionId: Scalars['String'];
-  text?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<ParticipantInput>;
-  createDate: Scalars['DateTime'];
-  action?: Maybe<ActionInput>;
+  action: Action;
 };

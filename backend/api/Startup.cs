@@ -74,7 +74,7 @@ namespace api
             services.AddScoped<QuestionService>();
             services.AddScoped<AnswerService>();
             services.AddScoped<QuestionTemplateService>();
-            services.AddScoped<AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             services.AddGraphQLServer()
                 .AddProjections()

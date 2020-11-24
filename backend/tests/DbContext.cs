@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
+using api.Authorization;
 using api.Context;
 using api.GQL;
 using api.Services;
@@ -79,17 +80,99 @@ namespace tests
         }
 
         [Fact]
-        public async void TestSchema()
+        public void TestSchema()
+        {
+            IRequestExecutor executor = MakeExecutor();
+            IServiceProvider serviceProvider = BuildServiceProvider();
+            IReadOnlyQueryRequest request = QueryRequestBuilder.New()
+                .SetQuery(@"{
+                    projects {
+                        id
+                        evaluations {
+                            id
+                            participants {
+                                id
+                            }
+                            questions {
+                                id
+                                answers {
+                                    id
+                                }
+                                actions {
+                                    id
+                                    notes {
+                                        id
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }")
+                .SetServices(serviceProvider)
+                .Create();
+
+            IExecutionResult result = executor.Execute(request);
+
+            IReadOnlyList<IError> errors = result.Errors ?? new List<IError>();
+            foreach( IError err in errors)
+            {
+                throw err.Exception;
+            }
+        }
+
+        [Fact]
+        public void TestSetAnswerMutation()
+        {
+            QuestionService questionService = new QuestionService(_context);
+            string questionId = questionService.GetAll().First().Id;
+            IRequestExecutor executor = MakeExecutor();
+            IServiceProvider serviceProvider = BuildServiceProvider();
+            IReadOnlyQueryRequest request = QueryRequestBuilder.New()
+                .SetQuery(@"
+                    mutation(
+                        $questionId: String!,
+                        $severity: Severity!
+                    ) {
+                        setAnswer(
+                            questionId: $questionId,
+                            severity: $severity,
+                            text: ""New answer text!""
+                        ){
+                            id
+                        }
+                    }
+                ")
+                .SetVariableValue("questionId", questionId)
+                .SetVariableValue("severity", Severity.High)
+                .SetServices(serviceProvider)
+                .Create();
+
+            IExecutionResult result = executor.Execute(request);
+
+            IReadOnlyList<IError> errors = result.Errors ?? new List<IError>();
+            foreach( IError err in errors)
+            {
+                throw err.Exception;
+            }
+        }
+
+        private IRequestExecutor MakeExecutor()
         {
             ISchema schema = SchemaBuilder.New()
                 .AddQueryType<GraphQuery>()
+                .AddMutationType<Mutation>()
                 .AddFiltering()
                 .AddProjections()
                 .Create();
-            var executor = schema.MakeExecutable();
+            return schema.MakeExecutable();
+        }
+
+        private IServiceProvider BuildServiceProvider()
+        {
             IServiceProvider serviceProvider = new ServiceCollection()
                 .AddBatchDispatcher<BatchScheduler>()
                 .AddDbContext<BmtDbContext>()
+                .AddScoped<IAuthService, MockAuthService>()
                 .AddScoped<GraphQuery>()
                 .AddScoped<ProjectService>()
                 .AddScoped<ParticipantService>()
@@ -99,41 +182,14 @@ namespace tests
                 .AddScoped<QuestionTemplateService>()
                 .AddScoped<Mutation>()
                 .BuildServiceProvider();
+            return serviceProvider;
+        }
 
-            string query = @"{
-                projects {
-                    id
-                    evaluations {
-                        id
-                        participants {
-                            id
-                        }
-                        questions {
-                            id
-                            answers {
-                                id
-                            }
-                            actions {
-                                id
-                                notes {
-                                    id
-                                }
-                            }
-                        }
-                    }
-                }
-            }";
-            IReadOnlyQueryRequest request = QueryRequestBuilder.New()
-                .SetQuery(query)
-                .SetServices(serviceProvider)
-                .Create();
-
-            IExecutionResult result = await executor.ExecuteAsync(request);
-
-            IReadOnlyList<IError> errors = result.Errors ?? new List<IError>();
-            foreach( IError err in errors)
+        class MockAuthService : IAuthService
+        {
+            public string GetOID()
             {
-                throw err.Exception;
+                return "1";
             }
         }
     }

@@ -1,4 +1,3 @@
-using SystemAction = System.Action;
 using System.Linq;
 using Xunit;
 
@@ -67,9 +66,7 @@ namespace tests
         {
             ProjectService projectService = new ProjectService(_context);
 
-            SystemAction act = () => projectService.GetProject("some_project_id_that_does_not_exist");
-
-            Assert.Throws<NotFoundInDBException>(act);
+            Assert.Throws<NotFoundInDBException>(() => projectService.GetProject("some_project_id_that_does_not_exist"));
         }
 
         [Fact]

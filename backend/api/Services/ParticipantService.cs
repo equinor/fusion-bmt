@@ -58,5 +58,25 @@ namespace api.Services
             }
             return participant;
         }
+
+        public Participant GetParticipant(string azureUniqueId, Evaluation evaluation)
+        {
+            if (evaluation == null)
+            {
+                throw new ArgumentNullException(nameof(evaluation));
+            }
+
+            Participant participant = _context.Participants.FirstOrDefault(participant =>
+                participant.AzureUniqueId.Equals(azureUniqueId)
+                && participant.Evaluation.Equals(evaluation)
+            );
+
+            if (participant == null)
+            {
+                throw new NotFoundInDBException($"Participant not found: azure id: {azureUniqueId}, evaluation id: {evaluation.Id}");
+            }
+
+            return participant;
+        }
     }
 }

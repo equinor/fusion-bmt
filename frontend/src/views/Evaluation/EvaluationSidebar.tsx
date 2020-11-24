@@ -18,7 +18,7 @@ const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSi
     const [structure, setStructure] = React.useState<NavigationStructure[]>(
         Object.entries(Barrier).map(([barrierKey, barrier]) => {
             const barrierQuestions = questions.filter(q => q.barrier == barrier)
-            const barrierAnswers = barrierQuestions.map(bq => bq.answers.find(a => a.answeredBy.azureUniqueId === azureUniqueId))
+            const barrierAnswers = barrierQuestions.map(bq => bq.answers.find(a => a.answeredBy?.azureUniqueId === azureUniqueId))
 
             return {
                 id: barrier,

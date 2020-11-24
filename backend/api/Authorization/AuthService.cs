@@ -2,7 +2,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace api.Authorization
 {
-    public class AuthService
+    public interface IAuthService
+    {
+        public string GetOID();
+    }
+
+    public class AuthService : IAuthService
     {
         private readonly IHttpContextAccessor _contextAccessor;
         public AuthService(IHttpContextAccessor contextAccessor)

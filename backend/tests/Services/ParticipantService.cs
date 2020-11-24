@@ -1,4 +1,3 @@
-using SystemAction = System.Action;
 using System.Linq;
 using Xunit;
 
@@ -55,9 +54,7 @@ namespace tests
         {
             ParticipantService participantService = new ParticipantService(_context);
 
-            SystemAction act = () => participantService.GetParticipant("some_participant_id_that_does_not_exist");
-
-            Assert.Throws<NotFoundInDBException>(act);
+            Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant("some_participant_id_that_does_not_exist"));
         }
 
         [Fact]
@@ -73,6 +70,29 @@ namespace tests
         }
 
         [Fact]
+        public void GetAzureId()
+        {
+            ParticipantService participantService = new ParticipantService(_context);
+            Evaluation evaluation = ExampleEvaluation();
+            string azureUniqueId = "get_azure_unique_id";
+            Participant participantCreated = participantService.Create(azureUniqueId, evaluation, Organization.Engineering, Role.Participant);
+
+            Participant participantGet = participantService.GetParticipant(azureUniqueId, evaluation);
+
+            Assert.Equal(participantCreated, participantGet);
+        }
+
+        [Fact]
+        public void GetAzureIdNotExists()
+        {
+            ParticipantService participantService = new ParticipantService(_context);
+            Evaluation evaluation = ExampleEvaluation();
+            string azureUniqueId = "get_azure_unique_id_not_exists";
+
+            Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant(azureUniqueId, evaluation));
+        }
+
+        [Fact]
         public void Delete()
         {
             ParticipantService participantService = new ParticipantService(_context);
@@ -81,9 +101,7 @@ namespace tests
 
             participantService.Remove(participantCreate.Id);
 
-            SystemAction act = () => participantService.GetParticipant(participantCreate.Id);
-
-            Assert.Throws<NotFoundInDBException>(act);
+            Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant(participantCreate.Id));
         }
 
         private Evaluation ExampleEvaluation()

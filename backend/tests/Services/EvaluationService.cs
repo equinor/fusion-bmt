@@ -1,4 +1,3 @@
-using SystemAction = System.Action;
 using System.Linq;
 using Xunit;
 
@@ -57,9 +56,7 @@ namespace tests
         {
             EvaluationService evaluationService = new EvaluationService(_context);
 
-            SystemAction act = () => evaluationService.GetEvaluation("some_evaluation_id_that_does_not_exist");
-
-            Assert.Throws<NotFoundInDBException>(act);
+            Assert.Throws<NotFoundInDBException>(() => evaluationService.GetEvaluation("some_evaluation_id_that_does_not_exist"));
         }
 
         [Fact]

@@ -37,25 +37,6 @@ export const useAnswerQuery = (questionId: string, azureUniqueId: string): Answe
     }
 }
 
-const emptyParticipant: Participant = {
-    id: "",
-    evaluationId: "",
-    organization: Organization.All,
-    azureUniqueId: "",
-    role: Role.Facilitator,
-    createDate: ""
-}
-
-const emptyAnswer: Answer = {
-    id: "",
-    questionId: "",
-    progression: Progression.Nomination,
-    severity: Severity.Na,
-    text: "",
-    createDate: "",
-    answeredBy: emptyParticipant
-}
-
 interface QuestionAndAnswerFormWithApiProps {
     questionNumber: number
     question: Question
@@ -64,6 +45,15 @@ interface QuestionAndAnswerFormWithApiProps {
 const QuestionAndAnswerFormWithApi = ({questionNumber, question}: QuestionAndAnswerFormWithApiProps) => {
     const azureUniqueId = getAzureUniqueId()
     const {loading: loadingAnswer, answer, error: errorLoadingAnswer} = useAnswerQuery(question.id, azureUniqueId)
+
+    const emptyAnswer: Answer = {
+        id: "",
+        progression: Progression.Nomination,
+        severity: Severity.Na,
+        text: "",
+        createDate: "",
+        question: question
+    }
 
     if(errorLoadingAnswer !== undefined){
         return <div>

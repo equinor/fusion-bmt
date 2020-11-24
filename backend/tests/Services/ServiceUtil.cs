@@ -1,4 +1,3 @@
-using SystemAction = System.Action;
 using Xunit;
 
 using api.Models;
@@ -16,9 +15,7 @@ namespace tests
             Assert.True(ServiceUtil.NextProgression(Progression.Alignment).Equals(Progression.Workshop));
             Assert.True(ServiceUtil.NextProgression(Progression.Workshop).Equals(Progression.FollowUp));
 
-            SystemAction act = () => ServiceUtil.NextProgression(Progression.FollowUp);
-
-            Assert.Throws<ProgressionTransitionException>(act);
+            Assert.Throws<ProgressionTransitionException>(() => ServiceUtil.NextProgression(Progression.FollowUp));
         }
     }
 }
