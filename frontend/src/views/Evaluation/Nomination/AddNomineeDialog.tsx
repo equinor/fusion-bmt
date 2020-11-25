@@ -127,7 +127,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     </div>
                 }
                 { !isSearching &&
-                    searchResults.map((p) => {
+                    searchResults.filter(p => p.azureUniqueId !== null).map((p) => {
                         return (
                             <div style={{marginBottom: 10}} key={p.azureUniqueId}>
                                 <PersonCard person={p} />
