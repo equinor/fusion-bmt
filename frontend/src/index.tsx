@@ -5,11 +5,31 @@ import { ApolloProvider } from '@apollo/client'
 
 import { useFusionContext } from '@equinor/fusion'
 
+import { ApplicationInsights } from '@microsoft/applicationinsights-web'
+import { ReactPlugin, withAITracking } from '@microsoft/applicationinsights-react-js'
+import { createBrowserHistory } from "history"
+
 import { client } from './api/graphql'
 import App from './App'
 import { config } from './config'
 
 import './styles.css'
+
+
+const browserHistory = createBrowserHistory({ basename: '' })
+const reactPlugin = new ReactPlugin()
+const appInsights = new ApplicationInsights({
+    config: {
+        instrumentationKey: config.APP_INSIGHTS,
+        extensions: [reactPlugin],
+        extensionConfig: {
+            [reactPlugin.identifier]: {history: browserHistory}
+        }
+    }
+})
+
+appInsights.loadAppInsights()
+const AppWithInsights = withAITracking(reactPlugin, App)
 
 const Start = () => {
     const fusionContext = useFusionContext()
@@ -35,7 +55,7 @@ const Start = () => {
 
     return <>
         <ApolloProvider client={client}>
-            <App />
+            <AppWithInsights />
         </ApolloProvider>
     </>
 }
