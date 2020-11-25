@@ -2,11 +2,13 @@ import * as React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
 import { PersonCard, Button, TextInput, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
 
-import { Organization, Role } from '../../../api/models'
+import { Organization, Role, Participant } from '../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../utils/EnumToString'
+import { Divider } from '@equinor/eds-core-react'
 
 interface AddNomineeDialogProps {
+    currentNominees: Array<Participant>
     open: boolean
     onCloseClick: () => void
     onNomineeSelected: (azureUniqueId: string, role: Role, organization: Organization) => void;
@@ -14,7 +16,7 @@ interface AddNomineeDialogProps {
 
 const WRITE_DELAY_MS = 1000
 
-const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeDialogProps) => {
+const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelected }: AddNomineeDialogProps) => {
     const apiClients = useApiClients()
 
     const [searchQuery, setSearchQuery] = React.useState<string>("")
@@ -80,6 +82,11 @@ const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeD
         }
     }
 
+    const isParticipantNominated = (nomineeID: string): boolean => {
+        let found = currentNominees.find(n => n.azureUniqueId == nomineeID)
+        return found !== undefined
+    }
+
     return (
         <ModalSideSheet
             header="Add Person"
@@ -126,7 +133,8 @@ const AddNomineeDialog = ({ open, onCloseClick, onNomineeSelected }: AddNomineeD
                                 <PersonCard person={p} />
                                 <Button onClick={() => {
                                     onNomineeSelected(p.azureUniqueId, selectedRole, selectedOrg)
-                                }}>Add</Button>
+                                }} disabled={isParticipantNominated(p.azureUniqueId)}>Add</Button>
+                                <Divider />
                             </div>
                         )
                     })
