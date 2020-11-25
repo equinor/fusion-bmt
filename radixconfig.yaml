@@ -22,6 +22,8 @@ spec:
         - name: http
           port: 3000
       publicPort: http
+      variables:
+        ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
       environmentConfig:
         - environment: dev
           resources:
@@ -63,6 +65,8 @@ spec:
         - name: http
           port: 5000
       publicPort: http
+      variables:
+        ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
       environmentConfig:
         - environment: dev
           resources:
