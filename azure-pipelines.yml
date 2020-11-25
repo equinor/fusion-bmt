@@ -7,8 +7,11 @@ pool:
 jobs:
   - job: Build_API
     steps:
-      - task: DotNetCoreCLI@2
+      - task: UseDotNet@2
         inputs:
+          packageType: 'sdk'
+          version: '5.0.x'
+          includePreviewVersions: true # Required for preview versions
           command: 'build'
           workingDirectory: 'backend/api'
 
@@ -27,9 +30,12 @@ jobs:
 
   - job: Test_Backend
     steps:
-      - task: DotNetCoreCLI@2
+      - task: UseDotNet@2
         name: Run_Backend_Tests
         inputs:
+          packageType: 'sdk'
+          version: '5.0.x'
+          includePreviewVersions: true # Required for preview versions
           command: 'test'
           projects: 'backend/tests/tests.csproj'
 
