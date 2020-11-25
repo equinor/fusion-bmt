@@ -16,7 +16,7 @@ namespace api.Models
         [Required]
         public DateTime CreateDate { get; set; }
         [Required]
-        public virtual ICollection<Evaluation> Evaluations { get; set; }
+        public virtual ICollection<Evaluation> Evaluations { get; private set; }
     }
 
     public class Evaluation
@@ -28,15 +28,13 @@ namespace api.Models
         [Required]
         public string Name { get; set; }
         [Required]
-        public string ProjectId { get; set; }
-        [Required]
         public DateTime CreateDate { get; set; }
         [Required]
-        public Progression? Progression { get; set; }
+        public Progression Progression { get; set; }
         [Required]
-        public virtual ICollection<Participant> Participants { get; set; }
+        public virtual ICollection<Participant> Participants { get; private set; }
         [Required]
-        public virtual ICollection<Question> Questions { get; set; }
+        public virtual ICollection<Question> Questions { get; private set; }
         [Required]
         public virtual Project Project { get; set; }
     }
@@ -48,15 +46,14 @@ namespace api.Models
         [Required]
         public string Id { get; set; }
         [Required]
-        public string EvaluationId { get; set; }
-        [Required]
         public string AzureUniqueId { get; set; }
         [Required]
-        public Organization? Organization { get; set; }
+        public Organization Organization { get; set; }
         [Required]
-        public Role? Role { get; set; }
+        public Role Role { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
         public virtual Evaluation Evaluation { get; set; }
     }
 
@@ -67,20 +64,19 @@ namespace api.Models
         [Required]
         public string Id { get; set; }
         [Required]
-        public string EvaluationId { get; set; }
+        public Organization Organization { get; set; }
         [Required]
-        public string QuestionTemplateId { get; set; }
-        [Required]
-        public Organization? Organization { get; set; }
         public string Text { get; set; }
+        [Required]
         public string SupportNotes { get; set; }
         [Required]
-        public Barrier? Barrier { get; set; }
+        public Barrier Barrier { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
         [Required]
-        public virtual ICollection<Answer> Answers { get; set; }
-        public virtual ICollection<Action> Actions { get; set; }
+        public virtual ICollection<Answer> Answers { get; private set; }
+        [Required]
+        public virtual ICollection<Action> Actions { get; private set; }
         [Required]
         public virtual Evaluation Evaluation { get; set; }
         [Required]
@@ -94,18 +90,19 @@ namespace api.Models
         [Required]
         public string Id { get; set; }
         [Required]
-        public Status? Status { get; set; }
+        public Status Status { get; set; }
         [Required]
-        public Organization? Organization { get; set; }
+        public Organization Organization { get; set; }
         [Required]
         public string Text { get; set; }
+        [Required]
         public string SupportNotes { get; set; }
         [Required]
-        public Barrier? Barrier { get; set; }
+        public Barrier Barrier { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
         [Required]
-        public virtual ICollection<Question> Questions { get; set; }
+        public virtual ICollection<Question> Questions { get; private set; }
     }
 
     public class Answer
@@ -115,17 +112,15 @@ namespace api.Models
         [Required]
         public string Id { get; set; }
         [Required]
-        public string QuestionId { get; set; }
+        public Progression Progression { get; set; }
         [Required]
-        public Progression? Progression { get; set; }
-        [Required]
-        public Severity? Severity { get; set; }
+        public Severity Severity { get; set; }
         [Required]
         public string Text { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
-        [Required]
         public Participant AnsweredBy { get; set; }
+        [Required]
         public virtual Question Question { get; set; }
     }
 
@@ -135,18 +130,23 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
+        public virtual Participant AssignedTo { get; set; }
         [Required]
-        public string QuestionId { get; set; }
-        public Participant AssignedTo { get; set; }
         public string Title { get; set; }
+        [Required]
         public string Description { get; set; }
-        public Priority? Priority { get; set; }
+        [Required]
+        public Priority Priority { get; set; }
+        [Required]
         public bool OnHold { get; set; }
+        [Required]
         public DateTime DueDate { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
-        public Participant CreatedBy { get; set; }
-        public virtual ICollection<Note> Notes { get; set; }
+        public virtual Participant CreatedBy { get; set; }
+        [Required]
+        public virtual ICollection<Note> Notes { get; private set; }
+        [Required]
         public virtual Question Question { get; set; }
     }
 
@@ -157,11 +157,11 @@ namespace api.Models
         [Required]
         public string Id { get; set; }
         [Required]
-        public string ActionId { get; set; }
         public string Text { get; set; }
         public Participant CreatedBy { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        [Required]
         public virtual Action Action { get; set; }
     }
 
@@ -177,7 +177,7 @@ namespace api.Models
 
     public enum Barrier
     {
-        GM, PS1, PS2, PS3, PS4, PS5, PS6, PS7, PS12, PS15, PS22
+        GM, PS1, PS2, PS3, PS4, PS6, PS7, PS12, PS15, PS22
     }
 
     public enum Organization

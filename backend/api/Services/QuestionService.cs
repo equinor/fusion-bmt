@@ -46,14 +46,15 @@ namespace api.Services
             return _context.Questions;
         }
 
-        public Question GetQuestion(string questionId)
+        public IQueryable<Question> GetQuestion(string questionId)
         {
-            Question question = _context.Questions.FirstOrDefault(question => question.Id.Equals(questionId));
+            IQueryable<Question> queryableQuestion = _context.Questions.Where(question => question.Id.Equals(questionId));
+            Question question = queryableQuestion.FirstOrDefault();
             if (question == null)
             {
                 throw new NotFoundInDBException($"Question not found: {questionId}");
             }
-            return question;
+            return queryableQuestion;
         }
     }
 }

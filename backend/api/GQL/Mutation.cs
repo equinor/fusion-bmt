@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using System;
-using Microsoft.Identity.Web;
-
-using HotChocolate.AspNetCore.Authorization;
+using System.Linq;
 
 using api.Services;
 using api.Models;
@@ -18,7 +15,7 @@ namespace api.GQL
         private readonly QuestionService _questionService;
         private readonly AnswerService _answerService;
         private readonly QuestionTemplateService _questionTemplateService;
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
         public Mutation(
             ProjectService projectService,
@@ -27,7 +24,7 @@ namespace api.GQL
             QuestionService questionService,
             AnswerService answerService,
             QuestionTemplateService questionTemplateService,
-            AuthService authService
+            IAuthService authService
         )
         {
             _projectService = projectService;
@@ -70,18 +67,27 @@ namespace api.GQL
             return _participantService.Remove(participantId);
         }
 
-        public Answer CreateAnswer(Participant answeredBy, Progression progression, string questionId, Severity severity, string text)
+        public Answer SetAnswer(string questionId, Severity severity, string text)
         {
             string azureUniqueId = _authService.GetOID();
-            if (answeredBy.AzureUniqueId == azureUniqueId)
+
+            IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
+            Question question = queryableQuestion.First();
+            Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
+            Participant participant = _participantService.GetParticipant(azureUniqueId, evaluation);
+
+            Answer answer;
+            try
             {
-                Question question = _questionService.GetQuestion(questionId);
-                return _answerService.Create(answeredBy, progression, question, severity, text);
+                answer = _answerService.GetAnswer(question, participant, evaluation.Progression);
+                _answerService.UpdateAnswer(answer, severity, text);
             }
-            else
+            catch(NotFoundInDBException)
             {
-                throw new UnauthorizedAccessException($"User {azureUniqueId} not authorized to change this answer");
+                answer = _answerService.Create(participant, question, severity, text);
             }
+
+            return answer;
         }
     }
 }

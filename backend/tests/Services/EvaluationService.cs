@@ -1,4 +1,3 @@
-using SystemAction = System.Action;
 using System.Linq;
 using Xunit;
 
@@ -44,10 +43,12 @@ namespace tests
         {
             EvaluationService evaluationService = new EvaluationService(_context);
             Evaluation evaluation = evaluationService.Create("some_name", ExampleProject());
-            Progression? currentProgression = evaluation.Progression;
+
+            Progression progressionBefore = evaluation.Progression;
             evaluationService.ProgressEvaluation(evaluation.Id);
-            evaluation = evaluationService.GetEvaluation(evaluation.Id);
-            Assert.True(ServiceUtil.NextProgression(currentProgression).Equals(evaluation.Progression));
+            Progression progressionAfter = evaluation.Progression;
+
+            Assert.True(ServiceUtil.NextProgression(progressionBefore).Equals(progressionAfter));
         }
 
         [Fact]
@@ -55,9 +56,7 @@ namespace tests
         {
             EvaluationService evaluationService = new EvaluationService(_context);
 
-            SystemAction act = () => evaluationService.GetEvaluation("some_evaluation_id_that_does_not_exist");
-
-            Assert.Throws<NotFoundInDBException>(act);
+            Assert.Throws<NotFoundInDBException>(() => evaluationService.GetEvaluation("some_evaluation_id_that_does_not_exist"));
         }
 
         [Fact]

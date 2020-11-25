@@ -13,8 +13,6 @@ const barrierToString = (barrier: Barrier): string => {
         return "Leak Detection"
     case Barrier.Ps4:
         return "ESD"
-    case Barrier.Ps5:
-        return ""
     case Barrier.Ps6:
         return "Ignition Source Control"
     case Barrier.Ps7:

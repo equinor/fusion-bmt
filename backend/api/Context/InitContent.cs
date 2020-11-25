@@ -11,14 +11,14 @@ namespace api.Context
 {
     public static class InitContent
     {
-        public static readonly List<QuestionTemplate> QuestionTemplates = GetQuestionTemplates();
-        public static readonly List<Participant> Participants = GetParticipants();
-        public static readonly List<Note> Notes = GetNotes();
-        public static readonly List<Action> Actions = GetActions();
-        public static readonly List<Answer> Answers = GetAnswers();
-        public static readonly List<Question> Questions = GetQuestions();
-        public static readonly List<Evaluation> Evaluations = GetEvaluations();
         public static readonly List<Project> Projects = GetProjects();
+        public static readonly List<QuestionTemplate> QuestionTemplates = GetQuestionTemplates();
+        public static readonly List<Evaluation> Evaluations = GetEvaluations();
+        public static readonly List<Participant> Participants = GetParticipants();
+        public static readonly List<Question> Questions = GetQuestions();
+        public static readonly List<Answer> Answers = GetAnswers();
+        public static readonly List<Action> Actions = GetActions();
+        public static readonly List<Note> Notes = GetNotes();
 
         private static List<QuestionTemplate> GetQuestionTemplates()
         {
@@ -39,67 +39,62 @@ namespace api.Context
 
         private static List<Note> GetNotes()
         {
-            var participant1 = Participants[0];
-            var participant2 = Participants[1];
             var note1 = new Note
             {
                 Text = "Note1",
                 CreateDate = DateTime.UtcNow,
-                CreatedBy = participant1
+                Action = Actions[0],
+                CreatedBy = Participants[0]
             };
             var note2 = new Note
             {
                 Text = "Note2",
                 CreateDate = DateTime.UtcNow,
-                CreatedBy = participant2
+                Action = Actions[0],
+                CreatedBy = Participants[0]
             };
             return new List<Note>(new Note[] { note1, note2 });
         }
 
         private static List<Action> GetActions()
         {
-            var participant1 = Participants[0];
-            var participant2 = Participants[1];
-            var notes = Notes;
-
             var action1 = new Action
             {
-                AssignedTo = participant1,
                 Title = "Action1",
                 Description = "Description",
                 Priority = Priority.High,
                 OnHold = false,
                 DueDate = DateTime.UtcNow,
                 CreateDate = DateTime.UtcNow,
-                CreatedBy = participant1,
-                Notes = notes
+                AssignedTo = Participants[0],
+                CreatedBy = Participants[0],
+                Question = Questions[0]
             };
             var action2 = new Action
             {
-                AssignedTo = participant2,
                 Title = "Action2",
                 Description = "Description",
                 Priority = Priority.Medium,
                 OnHold = false,
                 DueDate = DateTime.UtcNow,
                 CreateDate = DateTime.UtcNow,
-                CreatedBy = participant1,
-                Notes = notes
+                AssignedTo = Participants[0],
+                CreatedBy = Participants[0],
+                Question = Questions[0]
             };
             return new List<Action>(new Action[] { action1, action2 });
         }
 
         private static List<Answer> GetAnswers()
         {
-            var participant1 = Participants[0];
-            var participant2 = Participants[1];
             var answer1 = new Answer
             {
                 Progression = Progression.Preparation,
                 Severity = Severity.High,
                 Text = "Answer1",
                 CreateDate = DateTime.UtcNow,
-                AnsweredBy = participant1
+                Question = Questions[1],
+                AnsweredBy = Participants[0]
             };
             var answer2 = new Answer
             {
@@ -107,7 +102,8 @@ namespace api.Context
                 Severity = Severity.Limited,
                 Text = "Answer2",
                 CreateDate = DateTime.UtcNow,
-                AnsweredBy = participant2
+                Question = Questions[2],
+                AnsweredBy = Participants[0]
             };
             var answer3 = new Answer
             {
@@ -115,7 +111,8 @@ namespace api.Context
                 Severity = Severity.Low,
                 Text = "Answer3",
                 CreateDate = DateTime.UtcNow,
-                AnsweredBy = participant2
+                Question = Questions[3],
+                AnsweredBy = Participants[0]
             };
             return new List<Answer>(new Answer[] { answer1, answer2, answer3 });
         }
@@ -133,8 +130,7 @@ namespace api.Context
                     Organization = questionTemplate.Organization,
                     QuestionTemplate = questionTemplate,
                     CreateDate = DateTime.UtcNow,
-                    Answers = Answers,
-                    Actions = Actions
+                    Evaluation = Evaluations[0]
                 });
             }
 
@@ -143,42 +139,33 @@ namespace api.Context
 
         private static List<Evaluation> GetEvaluations()
         {
-            var participants = Participants;
-
-            var questions1 = Questions.GetRange(0, 2);
-            var questions2 = Questions.GetRange(2, 2);
-
             var evaluation1 = new Evaluation
             {
                 Name = "Evaluation1",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Nomination,
-                Participants = participants,
-                Questions = questions1
+                Project = Projects[0]
             };
             var evaluation2 = new Evaluation
             {
                 Name = "Evaluation2",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Preparation,
-                Participants = participants,
-                Questions = questions2
+                Project = Projects[0]
             };
             var evaluation3 = new Evaluation
             {
                 Name = "Evaluation3",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Alignment,
-                Participants = participants,
-                Questions = questions1
+                Project = Projects[1]
             };
             var evaluation4 = new Evaluation
             {
                 Name = "Evaluation4",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Workshop,
-                Participants = participants,
-                Questions = questions2
+                Project = Projects[1]
             };
 
             return new List<Evaluation>(new Evaluation[] { evaluation1, evaluation2, evaluation3, evaluation4 });
@@ -189,41 +176,65 @@ namespace api.Context
             var participant1 = new Participant
             {
                 AzureUniqueId = "1",
-                Organization = Organization.Engineering,
-                Role = Role.Facilitator,
-                CreateDate = DateTime.UtcNow
+                Organization = Organization.Construction,
+                Role = Role.Participant,
+                CreateDate = DateTime.UtcNow,
+                Evaluation = Evaluations[0]
             };
             var participant2 = new Participant
             {
                 AzureUniqueId = "2",
+                Organization = Organization.Engineering,
+                Role = Role.Facilitator,
+                CreateDate = DateTime.UtcNow,
+                Evaluation = Evaluations[1]
+            };
+            var participant3 = new Participant
+            {
+                AzureUniqueId = "3",
                 Organization = Organization.Construction,
                 Role = Role.Participant,
-                CreateDate = DateTime.UtcNow
+                CreateDate = DateTime.UtcNow,
+                Evaluation = Evaluations[1]
             };
-            return new List<Participant>(new Participant[] { participant1, participant2 });
+            return new List<Participant>(new Participant[] { participant1, participant2, participant3 });
         }
+
         private static List<Project> GetProjects()
         {
-
-            var evaluations1 = Evaluations.GetRange(0, 2);
-            var evaluations2 = Evaluations.GetRange(2, 2);
-
             var project1 = new Project
             {
                 FusionProjectId = "1",
-                CreateDate = DateTime.UtcNow,
-                Evaluations = evaluations1
+                CreateDate = DateTime.UtcNow
             };
             var project2 = new Project
             {
                 FusionProjectId = "2",
-                CreateDate = DateTime.UtcNow,
-                Evaluations = evaluations2
+                CreateDate = DateTime.UtcNow
             };
 
             List<Project> projects = new List<Project>(new Project[] { project1, project2 });
 
             return projects;
+        }
+
+        public static void PopulateDb(BmtDbContext context)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            context.AddRange(Projects);
+            context.AddRange(QuestionTemplates);
+            context.AddRange(Evaluations);
+            context.AddRange(Participants);
+            context.AddRange(Questions);
+            context.AddRange(Answers);
+            context.AddRange(Actions);
+            context.AddRange(Notes);
+
+            context.SaveChanges();
         }
     }
 }

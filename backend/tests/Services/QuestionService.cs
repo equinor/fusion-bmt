@@ -1,4 +1,3 @@
-using SystemAction = System.Action;
 using System.Linq;
 using Xunit;
 
@@ -44,9 +43,7 @@ namespace tests
         {
             QuestionService questionService = new QuestionService(_context);
 
-            SystemAction act = () => questionService.GetQuestion("some_question_id_that_does_not_exist");
-
-            Assert.Throws<NotFoundInDBException>(act);
+            Assert.Throws<NotFoundInDBException>(() => questionService.GetQuestion("some_question_id_that_does_not_exist"));
         }
 
         [Fact]
@@ -56,7 +53,7 @@ namespace tests
 
             Question questionCreate = questionService.Create(ExampleQuestionTemplate(), ExampleEvaluation());
 
-            Question questionGet = questionService.GetQuestion(questionCreate.Id);
+            Question questionGet = questionService.GetQuestion(questionCreate.Id).First();
 
             Assert.Equal(questionCreate, questionGet);
         }

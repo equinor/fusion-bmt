@@ -19,7 +19,6 @@ namespace api.Services
 
         public Answer Create(
             Participant answeredBy,
-            Progression progression,
             Question question,
             Severity severity,
             string text
@@ -31,7 +30,7 @@ namespace api.Services
             {
                 CreateDate = createDate,
                 AnsweredBy = answeredBy,
-                Progression = progression,
+                Progression = question.Evaluation.Progression,
                 Question = question,
                 Severity = severity,
                 Text = text
@@ -41,6 +40,46 @@ namespace api.Services
 
             _context.SaveChanges();
             return newAnswer;
+        }
+
+        public Answer GetAnswer(Question question, Participant participant, Progression progression)
+        {
+            if (question == null)
+            {
+                throw new ArgumentNullException(nameof(question));
+            }
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            Answer Answer = _context.Answers.FirstOrDefault(Answer =>
+                Answer.Question.Equals(question)
+                && Answer.AnsweredBy.Equals(participant)
+                && Answer.Progression.Equals(progression)
+            );
+
+            if (Answer == null)
+            {
+                throw new NotFoundInDBException($"Answer not found for question {question.Id} for participant {participant.Id} and progression {progression}");
+            }
+            return Answer;
+        }
+
+        public Answer UpdateAnswer(Answer answer, Severity severity, string text)
+        {
+            if (answer == null)
+            {
+                throw new ArgumentNullException(nameof(answer));
+            }
+
+            answer.Severity = severity;
+            answer.Text = text;
+
+            _context.Answers.Update(answer);
+            _context.SaveChanges();
+
+            return answer;
         }
 
         public IQueryable<Answer> GetAll()
