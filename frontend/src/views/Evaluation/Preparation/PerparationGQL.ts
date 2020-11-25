@@ -15,6 +15,10 @@ export const useQuestionsQuery = (evaluationId: string): QuestionsQueryProps => 
                 ...QuestionFields
                 answers {
                     ...AnswerFields
+                    answeredBy {
+                        id
+                        azureUniqueId
+                    }
                 }
             }
         }

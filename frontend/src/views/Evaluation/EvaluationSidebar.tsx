@@ -1,8 +1,9 @@
 import * as React from 'react'
-import { Barrier, Question } from '../../api/models'
+import { Answer, Barrier, Question } from '../../api/models'
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
 import { getAzureUniqueId } from '../../utils/Variables'
 import { barrierToString } from '../../utils/EnumToString'
+import { checkIfAnswerFilled } from '../../utils/QuestionAndAnswerUtils'
 
 
 interface EvaluationSidebarProps
@@ -15,20 +16,22 @@ interface EvaluationSidebarProps
 const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSidebarProps) => {
     const azureUniqueId: string = getAzureUniqueId()
 
-    const [structure, setStructure] = React.useState<NavigationStructure[]>(
-        Object.entries(Barrier).map(([barrierKey, barrier]) => {
-            const barrierQuestions = questions.filter(q => q.barrier == barrier)
-            const barrierAnswers = barrierQuestions.map(bq => bq.answers.find(a => a.answeredBy?.azureUniqueId === azureUniqueId))
+    const structure: NavigationStructure[] = Object.entries(Barrier).map(([barrierKey, barrier]) => {
+        const barrierQuestions = questions.filter(q => q.barrier == barrier)
+        const barrierAnswers = barrierQuestions.reduce((acc: Answer[], cur: Question) => {
+            return acc.concat(cur.answers)
+        }, [] as Answer[])
+        const usersBarrierAnswers = barrierAnswers.filter(a => a.answeredBy?.azureUniqueId === azureUniqueId)
+        const answeredUsersBarrierAnswers = usersBarrierAnswers.filter(a => checkIfAnswerFilled(a))
 
-            return {
-                id: barrier,
-                type: 'grouping',
-                title: barrierToString(barrier),
-                icon: <>{barrierKey}</>,
-                aside: <Chip title={`${barrierAnswers.length}/${barrierQuestions.length}`} />
-            }
-        })
-    )
+        return {
+            id: barrier,
+            type: 'grouping',
+            title: barrierToString(barrier),
+            icon: <>{barrierKey}</>,
+            aside: <Chip title={`${answeredUsersBarrierAnswers.length}/${barrierQuestions.length}`} />
+        }
+    })
 
     return (
         <NavigationDrawer
@@ -38,9 +41,7 @@ const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSi
             onChangeSelectedId={(selectedBarrierId) => {
                 onBarrierSelected(selectedBarrierId as Barrier)
             }}
-            onChangeStructure={(newStructure) => {
-                setStructure(newStructure)
-            }}
+            onChangeStructure={() => {}}
         />
     )
 }
