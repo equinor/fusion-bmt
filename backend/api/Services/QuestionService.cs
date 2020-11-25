@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using HotChocolate;
@@ -22,9 +23,22 @@ namespace api.Services
             Evaluation evaluation
         )
         {
+
+            Question newQuestion = CreateInternal(template, evaluation);
+            _context.Questions.Add(newQuestion);
+
+            _context.SaveChanges();
+            return newQuestion;
+        }
+
+        private static Question CreateInternal(
+            QuestionTemplate template,
+            Evaluation evaluation
+        )
+        {
             DateTime createDate = DateTime.UtcNow;
 
-            Question newQuestion = new Question
+            return new Question
             {
                 CreateDate = createDate,
                 Barrier = template.Barrier,
@@ -34,11 +48,21 @@ namespace api.Services
                 SupportNotes = template.SupportNotes,
                 QuestionTemplate = template,
             };
+        }
 
-            _context.Questions.Add(newQuestion);
-
+        public List<Question> CreateBulk(
+            List<QuestionTemplate> templates,
+            Evaluation evaluation
+        )
+        {
+            List<Question> questions = new List<Question>();
+            foreach (QuestionTemplate template in templates)
+            {
+                questions.Add(CreateInternal(template, evaluation));
+            }
+            _context.Questions.AddRange(questions);
             _context.SaveChanges();
-            return newQuestion;
+            return questions;
         }
 
         public IQueryable<Question> GetAll()

@@ -43,11 +43,7 @@ namespace api.GQL
             Evaluation evaluation = _evaluationService.Create(name, project);
             _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
 
-            List<QuestionTemplate> questionTemplates = _questionTemplateService.ActiveQuestions();
-            foreach (QuestionTemplate template in questionTemplates)
-            {
-                _questionService.Create(template, evaluation);
-            }
+            _questionService.CreateBulk(_questionTemplateService.ActiveQuestions(), evaluation);
             return evaluation;
         }
 

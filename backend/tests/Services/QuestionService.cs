@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -32,10 +33,22 @@ namespace tests
             QuestionService questionService = new QuestionService(_context);
 
             int nQuestionBefore = questionService.GetAll().Count();
-            questionService.Create(ExampleQuestionTemplate(), ExampleEvaluation());
+            questionService.Create(ExampleQuestionTemplates().First(), ExampleEvaluation());
             int nQuestionsAfter = questionService.GetAll().Count();
 
             Assert.Equal(nQuestionBefore + 1, nQuestionsAfter);
+        }
+
+        [Fact]
+        public void CreateBulk()
+        {
+            QuestionService questionService = new QuestionService(_context);
+
+            int nQuestionBefore = questionService.GetAll().Count();
+            questionService.CreateBulk(ExampleQuestionTemplates(), ExampleEvaluation());
+            int nQuestionsAfter = questionService.GetAll().Count();
+
+            Assert.Equal(nQuestionBefore + 11, nQuestionsAfter);
         }
 
         [Fact]
@@ -51,7 +64,7 @@ namespace tests
         {
             QuestionService questionService = new QuestionService(_context);
 
-            Question questionCreate = questionService.Create(ExampleQuestionTemplate(), ExampleEvaluation());
+            Question questionCreate = questionService.Create(ExampleQuestionTemplates().First(), ExampleEvaluation());
 
             Question questionGet = questionService.GetQuestion(questionCreate.Id).First();
 
@@ -64,10 +77,10 @@ namespace tests
             return evaluationService.GetAll().First();
         }
 
-        private QuestionTemplate ExampleQuestionTemplate()
+        private List<QuestionTemplate> ExampleQuestionTemplates()
         {
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
-            return questionTemplateService.GetAll().First();
+            return questionTemplateService.GetAll().ToList();
         }
     }
 }
