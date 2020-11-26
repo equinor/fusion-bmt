@@ -3,12 +3,13 @@ import * as React from 'react'
 
 import { Typography, Divider } from '@equinor/eds-core-react'
 
-import { Question } from "../../../api/models"
+import { Barrier, Question } from "../../../api/models"
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
+import { barrierToString } from '../../../utils/EnumToString'
 
 interface BarrierQuestionsViewProps
 {
-    barrier: string
+    barrier: Barrier
     questions: Question[]
 }
 
@@ -17,7 +18,7 @@ const BarrierQuestionsView = ({barrier, questions}: BarrierQuestionsViewProps) =
 
     return (
         <>
-            <Typography variant="h2">{barrier}</Typography>
+            <Typography variant="h2">{barrierToString(barrier)}</Typography>
             {barrierQuestions.map((question, idx) => {
                 return (
                     <div key={question.id}>

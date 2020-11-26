@@ -28,7 +28,7 @@ const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSi
             id: barrier,
             type: 'grouping',
             title: barrierToString(barrier),
-            icon: <>{barrierKey}</>,
+            icon: <>{barrier}</>,
             aside: <Chip title={`${answeredUsersBarrierAnswers.length}/${barrierQuestions.length}`} />
         }
     })

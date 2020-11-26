@@ -6,6 +6,7 @@ export const PARTICIPANT_FIELDS_FRAGMENT = gql`
         azureUniqueId
         organization
         role
+        __typename
     }
 `
 
@@ -23,16 +24,7 @@ export const EVALUATION_FIELDS_FRAGMENT = gql`
         id
         name
         progression
-    }
-`
-
-export const QUESTION_FIELDS_FRAGMENT = gql`
-    fragment QuestionFields on Question {
-        id
-        text
-        supportNotes
-        barrier
-        organization
+        __typename
     }
 `
 
@@ -42,5 +34,30 @@ export const ANSWER_FIELDS_FRAGMENT = gql`
         text
         severity
         progression
+        __typename
+        answeredBy {
+            ...ParticipantFields
+        }
     }
+    ${PARTICIPANT_FIELDS_FRAGMENT}
+`
+
+export const QUESTION_FIELDS_FRAGMENT = gql`
+    fragment QuestionFields on Question {
+        id
+        text
+        supportNotes
+        barrier
+        organization
+        __typename
+    }
+`
+
+export const QUESTION_ANSWERS_FRAGMENT = gql`
+    fragment QuestionAnswers on Question {
+        answers {
+            ...AnswerFields
+        }
+    }
+    ${ANSWER_FIELDS_FRAGMENT}
 `
