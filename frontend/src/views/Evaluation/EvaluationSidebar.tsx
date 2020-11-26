@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Answer, Barrier, Question } from '../../api/models'
+import { Answer, Barrier, Question, Progression } from '../../api/models'
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
 import { getAzureUniqueId } from '../../utils/Variables'
 import { barrierToString } from '../../utils/EnumToString'
@@ -10,19 +10,21 @@ interface EvaluationSidebarProps
 {
     questions: Question[]
     barrier: Barrier
+    viewProgression: Progression
     onBarrierSelected: (barrier: Barrier) => void
 }
 
-const EvaluationSidebar = ({questions, barrier, onBarrierSelected}: EvaluationSidebarProps) => {
+const EvaluationSidebar = ({questions, barrier, viewProgression, onBarrierSelected}: EvaluationSidebarProps) => {
     const azureUniqueId: string = getAzureUniqueId()
 
     const structure: NavigationStructure[] = Object.entries(Barrier).map(([barrierKey, barrier]) => {
-        const barrierQuestions = questions.filter(q => q.barrier == barrier)
+        const barrierQuestions = questions.filter(q => q.barrier === barrier)
         const barrierAnswers = barrierQuestions.reduce((acc: Answer[], cur: Question) => {
             return acc.concat(cur.answers)
         }, [] as Answer[])
         const usersBarrierAnswers = barrierAnswers.filter(a => a.answeredBy?.azureUniqueId === azureUniqueId)
-        const answeredUsersBarrierAnswers = usersBarrierAnswers.filter(a => checkIfAnswerFilled(a))
+        const userBarrierAnswersAtProgression = usersBarrierAnswers.filter(a => a.progression === viewProgression)
+        const answeredUsersBarrierAnswers = userBarrierAnswersAtProgression.filter(a => checkIfAnswerFilled(a))
 
         return {
             id: barrier,

@@ -18,9 +18,10 @@ interface QuestionAndAnswerFormProps {
     answer: Answer
     disabled: boolean
     onAnswerChange: (answer: Answer) => void
-    showAnswerSummaryButton: boolean
+    onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
 }
-const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange, showAnswerSummaryButton}: QuestionAndAnswerFormProps) => {
+
+const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange, onQuestionSummarySelected}: QuestionAndAnswerFormProps) => {
     const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
 
@@ -43,9 +44,9 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAn
         <Grid container>
             <Grid item xs={12}>
                 <Box display="flex" flexDirection="row-reverse">
-                    { showAnswerSummaryButton &&
+                    { onQuestionSummarySelected &&
                         <Box>
-                            <IconButton>
+                            <IconButton onClick={ () => { onQuestionSummarySelected(question, questionNumber) } }>
                                 <CopyIcon />
                             </IconButton>
                         </Box>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Barrier, Evaluation } from '../../../api/models'
+import { Barrier, Evaluation, Progression } from '../../../api/models'
 import { Box } from '@material-ui/core'
 import BarrierQuestionsView from '../../../components/BarrierQuestionsView'
 import EvaluationSidebar from '../EvaluationSidebar'
@@ -45,6 +45,7 @@ const PreparationView = ({evaluation, onNextStepClick}: PreparationViewProps) =>
                 <EvaluationSidebar
                     questions={questions}
                     barrier={selectedBarrier}
+                    viewProgression={Progression.Preparation}
                     onBarrierSelected={ (barrier) => setSelectedBarrier(barrier)}
                 />
             </Box>
@@ -53,8 +54,8 @@ const PreparationView = ({evaluation, onNextStepClick}: PreparationViewProps) =>
                     barrier={selectedBarrier}
                     questions={questions}
                     currentProgression={evaluation.progression}
+                    viewProgression={Progression.Preparation}
                     onNextStepClick={onNextStepClick}
-                    showAnswerSummaryButton={true}
                 />
             </Box>
         </Box>
