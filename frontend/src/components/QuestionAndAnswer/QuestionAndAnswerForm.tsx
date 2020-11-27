@@ -6,6 +6,7 @@ import { Answer, Question } from '../../api/models'
 import { Box, Grid } from '@material-ui/core'
 import AnswerSeverityForm from './AnswerSeverityForm'
 import AnswerMarkdownForm from './AnswerMarkdownForm'
+import { organizationToString } from '../../utils/EnumToString'
 
 const WRITE_DELAY_MS = 1000
 
@@ -17,23 +18,23 @@ interface QuestionAndAnswerFormProps {
 }
 
 const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange}: QuestionAndAnswerFormProps) => {
-    const [markdown, setMarkdown] = useState<string>(answer.text)
+    const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            onAnswerChange({...answer, text: markdown})
+            onAnswerChange(localAnswer)
         }, WRITE_DELAY_MS)
         return () => {
             clearTimeout(timeout)
         }
-    }, [markdown])
+    }, [localAnswer])
 
     return <>
         <Grid container>
             <Grid item xs={12}>
                 <Box display="flex" flexDirection="row-reverse">
                     <Box>
-                        <Chip primary title={question.organization.toLowerCase()}/>
+                        <Chip primary title={organizationToString(question.organization)}/>
                     </Box>
                 </Box>
             </Grid>
@@ -52,14 +53,14 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange
                 <Box display="flex">
                     <Box mr={5}>
                         <AnswerSeverityForm
-                            severity={answer.severity}
-                            onSeveritySelected={(severity) => onAnswerChange({...answer, severity: severity})}
+                            severity={localAnswer.severity}
+                            onSeveritySelected={(severity) => setLocalAnswer((oldAnswer) => ({...oldAnswer, severity: severity}))}
                         />
                     </Box>
                     <Box width="85%">
                         <AnswerMarkdownForm
-                            markdown={markdown}
-                            onMarkdownChange={setMarkdown}
+                            markdown={localAnswer.text}
+                            onMarkdownChange={(text) => setLocalAnswer((oldAnswer) => ({...oldAnswer, text: text}))}
                         />
                     </Box>
                 </Box>
