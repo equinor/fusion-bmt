@@ -10,6 +10,8 @@ import PreparationView from './Preparation/PreparationView'
 import { EVALUATION_FIELDS_FRAGMENT } from '../../api/fragments'
 import { useProgressEvaluationMutation } from './EvaluationGQL'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'
+import { useState } from 'react'
+import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
 
 interface EvaluationQueryProps {
     loading: boolean
@@ -49,8 +51,17 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
     const {loading, evaluation, error} = useEvaluationQuery(evaluationId)
     const {progressEvaluation, error: errorProgressEvaluation} = useProgressEvaluationMutation()
 
-    const onProgressEvaluationClick = () => {
+    const [isProgressDialogOpen, setIsProgressDialogOpen] = useState<boolean>(false)
+
+    const onConfirmProgressEvaluationClick = () => {
         progressEvaluation(evaluationId)
+        setIsProgressDialogOpen(false)
+    }
+    const onCancelProgressEvaluation = () => {
+        setIsProgressDialogOpen(false)
+    }
+    const onProgressEvaluationClick = () => {
+        setIsProgressDialogOpen(true)
     }
 
     if(loading){
@@ -109,7 +120,10 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                     stepKey={Progression.Preparation}
                 >
                     <>
-                        <PreparationView evaluation={evaluation}/>
+                        <PreparationView
+                            evaluation={evaluation}
+                            onNextStepClick={() => onProgressEvaluationClick()}
+                        />
                     </>
                 </Step>
                 <Step
@@ -134,6 +148,13 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
                     <h1>Follow-up</h1>
                 </Step>
             </Stepper>
+
+            <ProgressEvaluationDialog
+                isOpen={isProgressDialogOpen}
+                currentProgression={evaluation.progression}
+                onConfirmClick={onConfirmProgressEvaluationClick}
+                onCancelClick={onCancelProgressEvaluation}
+            />
         </>
     )
 }
