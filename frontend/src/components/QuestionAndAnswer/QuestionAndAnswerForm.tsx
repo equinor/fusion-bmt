@@ -1,5 +1,5 @@
 import { Chip } from '@equinor/fusion-components'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Typography } from '@equinor/eds-core-react'
 
 import { Answer, Question } from '../../api/models'
@@ -20,7 +20,14 @@ interface QuestionAndAnswerFormProps {
 const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange}: QuestionAndAnswerFormProps) => {
     const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
+
+    const firstUpdate = useRef(true)
     useEffect(() => {
+        if(firstUpdate.current === true){
+            firstUpdate.current = false
+            return 
+        }
+
         const timeout = setTimeout(() => {
             onAnswerChange(localAnswer)
         }, WRITE_DELAY_MS)
