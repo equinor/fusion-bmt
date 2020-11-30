@@ -1,5 +1,3 @@
-using System;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -48,12 +46,10 @@ namespace api.Context
             if (_isInMemDB)
             {
                 options.UseInMemoryDatabase(databaseName: _config.Value.InMemDbName);
-                Console.WriteLine("Using InMemory Database");
             }
             else
             {
                 options.UseSqlServer(_config.Value.ConnectionString);
-                Console.WriteLine("Using SQL Database");
             }
         }
 

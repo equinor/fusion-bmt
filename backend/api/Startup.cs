@@ -65,6 +65,7 @@ namespace api
             });
 
             services.AddDbContext<BmtDbContext>();
+            services.AddErrorFilter<ErrorFilter>();
 
             services.AddScoped<GraphQuery>();
             services.AddScoped<Mutation>();
@@ -152,6 +153,7 @@ namespace api
 
             // Comment out to use locally without authentication
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGraphQL();
