@@ -52,6 +52,8 @@ namespace api.Models
         [Required]
         public Role Role { get; set; }
         [Required]
+        public Progression Progression { get; set; }
+        [Required]
         public DateTime CreateDate { get; set; }
         [Required]
         public virtual Evaluation Evaluation { get; set; }
@@ -187,7 +189,7 @@ namespace api.Models
 
     public enum Role
     {
-        Participant, Facilitator, ReadOnly
+        Participant, Facilitator, OrganizationLead, ReadOnly
     }
 
     public enum Severity

@@ -7,7 +7,7 @@ To run the project with docker-compose use:
 * `docker-compose up --build`
 
 ### Prerequisites
-* [.NET Core 3.1+](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+* [.NET 5.0+](https://dotnet.microsoft.com/download/dotnet/5.0)
 * [Node 12+ with npm](https://github.com/nodesource/distributions/blob/master/README.md)
 * [Docker](https://docs.docker.com/engine/install/)
 
@@ -23,7 +23,7 @@ npm start
 ```
 
 ## Backend
-The backend is build using .NET Core 3.1. We use GraphQL to handle requests
+The backend is build using .NET 5.0. We use GraphQL to handle requests
 to the backend, and [Hot Chocolate](https://github.com/ChilliCream/hotchocolate)
 is used as the implementation in .NET.
 
@@ -74,8 +74,6 @@ and that you have set your `Database__ConnectionString`.
 * Delete database: `dotnet ef database drop`
 * Apply migrations: `dotnet ef database update`
 * Remove migrations: `dotnet ef migrations remove`
-
-* Pupulate DB with questions: `dotnet ...`
 
 For populating SQL database with question templates go to `backend/scripts`
 make sure your `Database__ConnectionString` is set and run

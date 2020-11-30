@@ -47,8 +47,10 @@ const roleToString = (role: Role): string => {
         return "Participant"
     case Role.Facilitator:
         return "Facilitator"
+    case Role.OrganizationLead:
+        return "Organization Lead"
     case Role.ReadOnly:
-        return "ReadOnly"
+        return "Read Only"
     }
 }
 
