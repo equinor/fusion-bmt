@@ -179,6 +179,7 @@ namespace api.Context
                 Organization = Organization.Construction,
                 Role = Role.Participant,
                 CreateDate = DateTime.UtcNow,
+                Progression = Progression.Nomination,
                 Evaluation = Evaluations[0]
             };
             var participant2 = new Participant
@@ -187,6 +188,7 @@ namespace api.Context
                 Organization = Organization.Engineering,
                 Role = Role.Facilitator,
                 CreateDate = DateTime.UtcNow,
+                Progression = Progression.Preparation,
                 Evaluation = Evaluations[1]
             };
             var participant3 = new Participant
@@ -195,6 +197,7 @@ namespace api.Context
                 Organization = Organization.Construction,
                 Role = Role.Participant,
                 CreateDate = DateTime.UtcNow,
+                Progression = Progression.Preparation,
                 Evaluation = Evaluations[1]
             };
             return new List<Participant>(new Participant[] { participant1, participant2, participant3 });
