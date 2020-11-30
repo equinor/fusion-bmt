@@ -2,8 +2,8 @@ import React from 'react'
 
 import { useCurrentContext, useCurrentUser } from '@equinor/fusion'
 import { Switch, Route } from 'react-router-dom'
-import ProjectRoute from './routes/ProjectRoute'
-import EvaluationRoute from './routes/EvaluationRoute'
+import ProjectRoute from './views/Project/ProjectRoute'
+import EvaluationRoute from './views/Evaluation/EvaluationRoute'
 
 const App = () => {
     const currentProject = useCurrentContext()

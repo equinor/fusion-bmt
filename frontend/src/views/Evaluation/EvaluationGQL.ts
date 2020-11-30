@@ -1,6 +1,6 @@
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { EVALUATION_FIELDS_FRAGMENT } from '../api/fragments'
-import { Evaluation } from '../api/models'
+import { EVALUATION_FIELDS_FRAGMENT } from '../../api/fragments'
+import { Evaluation } from '../../api/models'
 
 interface ProgressEvaluationMutationProps {
     progressEvaluation: (evaluationId: string) => void

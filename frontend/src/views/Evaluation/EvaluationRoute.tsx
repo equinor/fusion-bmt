@@ -4,12 +4,12 @@ import { RouteComponentProps } from 'react-router-dom'
 import { Stepper, Step, TextArea } from '@equinor/fusion-components'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import NominationView from '../views/Evaluation/Nomination/NominationView'
-import { Evaluation, Progression } from '../api/models'
-import PreparationView from '../views/Evaluation/Preparation/PreparationView'
-import { EVALUATION_FIELDS_FRAGMENT } from '../api/fragments'
+import NominationView from './Nomination/NominationView'
+import { Evaluation, Progression } from '../../api/models'
+import PreparationView from './Preparation/PreparationView'
+import { EVALUATION_FIELDS_FRAGMENT } from '../../api/fragments'
 import { useProgressEvaluationMutation } from './EvaluationGQL'
-import { calcProgressionStatus } from '../utils/ProgressionStatus'
+import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 
 interface EvaluationQueryProps {
     loading: boolean

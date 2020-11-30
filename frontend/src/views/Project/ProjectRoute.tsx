@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { Tabs, Tab, TextArea } from '@equinor/fusion-components'
-import ProjectDashboardView from '../views/Project/Dashboard/ProjectDashboardView'
-import ProjectActionsView from '../views/Project/Action/ProjectActionsView'
+import ProjectDashboardView from './Dashboard/ProjectDashboardView'
+import ProjectActionsView from './Action/ProjectActionsView'
 import { ApolloError, gql, useQuery } from '@apollo/client'
-import { Project } from '../api/models'
+import { Project } from '../../api/models'
 
 interface ProjectQueryProps {
     loading: boolean
