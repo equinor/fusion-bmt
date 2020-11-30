@@ -3,12 +3,14 @@ import * as React from 'react'
 
 import { Typography, Divider } from '@equinor/eds-core-react'
 
-import { Barrier, Progression, Question } from "../../../api/models"
+import { Barrier, Progression, Question, Role } from "../../../api/models"
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import { barrierToString } from '../../../utils/EnumToString'
 import { getAzureUniqueId } from '../../../utils/Variables'
 import { Box } from '@material-ui/core'
 import { Button } from '@equinor/fusion-components'
+import { useContext } from 'react'
+import { CurrentParticipantContext } from '../EvaluationRoute'
 
 interface BarrierQuestionsViewProps
 {
@@ -22,6 +24,8 @@ const BarrierQuestionsView = ({barrier, questions, currentProgression, onNextSte
     const azureUniqueId = getAzureUniqueId()
     const barrierQuestions = questions.filter(q => q.barrier === barrier)
 
+    const currentParticipant = useContext(CurrentParticipantContext)
+
     return (
         <>
             <Box display="flex" flexDirection="row">
@@ -31,7 +35,10 @@ const BarrierQuestionsView = ({barrier, questions, currentProgression, onNextSte
                 <Box>
                     <Button
                         onClick={onNextStepClick}
-                        disabled={currentProgression !== Progression.Preparation}
+                        disabled={
+                            currentParticipant?.role !== Role.Facilitator
+                            || currentProgression !== Progression.Preparation
+                        }
                     >
                         Finish Preparation
                     </Button>

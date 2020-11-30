@@ -1,6 +1,7 @@
-import { ApolloError, gql, useMutation } from '@apollo/client'
-import { EVALUATION_FIELDS_FRAGMENT } from '../../api/fragments'
-import { Evaluation } from '../../api/models'
+import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
+import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../api/fragments'
+import { Evaluation, Participant } from '../../api/models'
+import { getAzureUniqueId } from '../../utils/Variables'
 
 interface ProgressEvaluationMutationProps {
     progressEvaluation: (evaluationId: string) => void
@@ -45,6 +46,71 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
         progressEvaluation: progressEvaluation,
         loading,
         evaluation: data?.progressEvaluation,
+        error
+    }
+}
+
+interface EvaluationQueryProps {
+    loading: boolean
+    evaluation: Evaluation | undefined
+    error: ApolloError | undefined
+}
+
+export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
+    const GET_EVALUATION = gql`
+        query($evaluationId: String!) {
+            evaluations(where:{id: {eq: $evaluationId}}) {
+                ...EvaluationFields
+            }
+        }
+        ${EVALUATION_FIELDS_FRAGMENT}
+    `
+
+    const { loading, data, error } = useQuery<{evaluations: Evaluation[]}>(
+        GET_EVALUATION,
+        {
+            variables: { evaluationId }
+        }
+    )
+
+    return {
+        loading,
+        evaluation: data?.evaluations.find(evaluation => evaluation.id === evaluationId),
+        error
+    }
+}
+
+interface ParticipantQueryProps {
+    loading: boolean
+    participant: Participant | undefined
+    error: ApolloError | undefined
+}
+
+export const useParticipantQuery = (evaluationId: string): ParticipantQueryProps => {
+    const azureUniqueId = getAzureUniqueId()
+
+    const GET_PARTICIPANT = gql`
+        query($evaluationId: String!, $azureUniqueId: String!) {
+            participants(where:{
+                evaluation: {id: {eq: $evaluationId}},
+                azureUniqueId: {eq: $azureUniqueId}
+            }) {
+                ...ParticipantFields
+            }
+        }
+        ${PARTICIPANT_FIELDS_FRAGMENT}
+    `
+
+    const { loading, data, error } = useQuery<{participants: Participant[]}>(
+        GET_PARTICIPANT,
+        {
+            variables: { evaluationId, azureUniqueId }
+        }
+    )
+
+    return {
+        loading,
+        participant: data?.participants.find(p => p.azureUniqueId === azureUniqueId),
         error
     }
 }
