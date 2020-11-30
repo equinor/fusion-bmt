@@ -78,7 +78,6 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 onClick={() => {
                     setPanelOpen(true)
                 }}
-                disabled={evaluation.progression !== Progression.Nomination}
             >
                 Add Person
             </Button>
