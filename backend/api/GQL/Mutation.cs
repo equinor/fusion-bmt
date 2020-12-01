@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 
 using api.Services;
@@ -49,6 +49,8 @@ namespace api.GQL
 
         public Evaluation ProgressEvaluation(string evaluationId)
         {
+            _authService.AssertIsFacilitator(evaluationId);
+
             return _evaluationService.ProgressEvaluation(evaluationId);
         }
 
@@ -78,7 +80,7 @@ namespace api.GQL
                 answer = _answerService.GetAnswer(question, participant, evaluation.Progression);
                 _answerService.UpdateAnswer(answer, severity, text);
             }
-            catch(NotFoundInDBException)
+            catch (NotFoundInDBException)
             {
                 answer = _answerService.Create(participant, question, severity, text);
             }
