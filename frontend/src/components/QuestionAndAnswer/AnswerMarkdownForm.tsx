@@ -4,14 +4,21 @@ import React from 'react'
 
 interface AnswerMarkdownFormProps {
     markdown: string
+    disabled: boolean
     onMarkdownChange: (markdown: string) => void
 }
 
-const AnswerMarkdownForm = ({ markdown, onMarkdownChange }: AnswerMarkdownFormProps) => {
+const AnswerMarkdownForm = ({ markdown, disabled, onMarkdownChange }: AnswerMarkdownFormProps) => {
+    const onLocalMarkdownChange = (markdown: string) => {
+        if(!disabled){
+            onMarkdownChange(markdown)
+        }
+    }
+
     return <>
         <Box width="100%">
             <MarkdownEditor
-                onChange={(markdown) => onMarkdownChange(markdown)}
+                onChange={(markdown) => onLocalMarkdownChange(markdown)}
                 menuItems={[
                     'strong',
                     'em',

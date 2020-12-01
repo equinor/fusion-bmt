@@ -53,6 +53,7 @@ const BarrierQuestionsView = ({barrier, questions, currentProgression, onNextSte
                             questionNumber={idx + 1}
                             question={question}
                             answer={answer}
+                            disabled={currentProgression !== Progression.Preparation}
                         />
                     </div>
                 )

@@ -57,7 +57,6 @@ const PreparationView = ({evaluation, onNextStepClick}: PreparationViewProps) =>
                 />
             </Box>
         </Box>
-
     )
 }
 

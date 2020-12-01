@@ -13,6 +13,7 @@ describe('AnswerSeverityForm', () => {
         const { getByLabelText } = renderWithContext(
             <AnswerSeverityForm
                 severity={Severity.High}
+                disabled={false}
                 onSeveritySelected={onSeveritySelected}
             />
         )
@@ -22,5 +23,22 @@ describe('AnswerSeverityForm', () => {
         fireEvent.click(severityFormRadio)
 
         expect(onSeveritySelected).toHaveBeenCalledTimes(1)
+    })
+    it('Disabled', () => {
+        const onSeveritySelected = jest.fn()
+
+        const { getByLabelText } = renderWithContext(
+            <AnswerSeverityForm
+                severity={Severity.High}
+                disabled={true}
+                onSeveritySelected={onSeveritySelected}
+            />
+        )
+
+        const severityFormRadio = getByLabelText('Limited')
+
+        fireEvent.click(severityFormRadio)
+
+        expect(onSeveritySelected).toHaveBeenCalledTimes(0)
     })
 })
