@@ -31,7 +31,7 @@ namespace tests
 
             AnswerService answerService = new AnswerService(_context);
             int nAnswerBefore = answerService.GetAll().Count();
-            answerService.Create(participant, question, Severity.High, "test_answer");
+            answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
             int nAnswersAfter = answerService.GetAll().Count();
 
             Assert.Equal(nAnswerBefore + 1, nAnswersAfter);
@@ -54,7 +54,7 @@ namespace tests
             QuestionService questionService = new QuestionService(_context);
             Question question = questionService.GetAll().First();
 
-            Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer");
+            Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
 
             Answer answerGet = answerService.GetAnswer(answerCreate.Id);
 
@@ -77,7 +77,7 @@ namespace tests
             Question question = questionService.Create(questionTemplate, evaluation);
 
             AnswerService answerService = new AnswerService(_context);
-            Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer");
+            Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
 
             Answer answerGet = answerService.GetAnswer(question, participant, question.Evaluation.Progression);
 
@@ -120,7 +120,7 @@ namespace tests
 
             AnswerService answerService = new AnswerService(_context);
             string initialText = "test answer";
-            Answer answer = answerService.Create(participant, question, Severity.High, initialText);
+            Answer answer = answerService.Create(participant, question, Severity.High, initialText, participant.Progression);
             string answerId = answer.Id;
 
             string newText = "some different test answer";

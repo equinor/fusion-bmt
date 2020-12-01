@@ -1,46 +1,23 @@
 import React from 'react'
-import { Barrier, Evaluation, Question, Progression } from '../../../api/models'
+import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/models'
 import { Box } from '@material-ui/core'
 import BarrierQuestionsView from '../../../components/BarrierQuestionsView'
 import EvaluationSidebar from '../EvaluationSidebar'
-import { useQuestionsQuery } from '../Preparation/PerparationGQL'
-import { TextArea } from '@equinor/fusion-components'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 
 interface WorkshopViewProps
 {
     evaluation: Evaluation
     onNextStepClick: () => void
+    onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const WorkshopView = ({evaluation, onNextStepClick}: WorkshopViewProps) => {
+const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: WorkshopViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
 
-    const {loading: loadingQuestions, questions, error: errorQuestions} = useQuestionsQuery(evaluation.id)
-
-    if(errorQuestions !== undefined){
-        return <div>
-            <TextArea
-                value={`Error in loading questions: ${JSON.stringify(errorQuestions)}`}
-                onChange={() => { }}
-            />
-        </div>
-    }
-
-    if(loadingQuestions){
-        return <>Loading...</>
-    }
-
-    if(questions === undefined){
-        return <div>
-            <TextArea
-                value={`Questions is undefined`}
-                onChange={() => { }}
-            />
-        </div>
-    }
+    const questions = evaluation.questions
 
     return (
         <>
@@ -64,6 +41,8 @@ const WorkshopView = ({evaluation, onNextStepClick}: WorkshopViewProps) => {
                             setSelectedQuestion(question)
                             setSelectedQuestionNumber(questionNumber)
                         }}
+                        onCompleteSwitchClick={onProgressParticipant}
+                        allowedRoles={ [Role.Facilitator] }
                     />
                 </Box>
             </Box>

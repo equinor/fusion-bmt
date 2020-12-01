@@ -6,6 +6,7 @@ export const PARTICIPANT_FIELDS_FRAGMENT = gql`
         azureUniqueId
         organization
         role
+        progression
         __typename
     }
 `

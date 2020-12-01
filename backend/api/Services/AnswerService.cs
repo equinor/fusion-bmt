@@ -19,7 +19,8 @@ namespace api.Services
             Participant answeredBy,
             Question question,
             Severity severity,
-            string text
+            string text,
+            Progression progression
         )
         {
             DateTime createDate = DateTime.UtcNow;
@@ -28,7 +29,7 @@ namespace api.Services
             {
                 CreateDate = createDate,
                 AnsweredBy = answeredBy,
-                Progression = question.Evaluation.Progression,
+                Progression = progression,
                 Question = question,
                 Severity = severity,
                 Text = text
