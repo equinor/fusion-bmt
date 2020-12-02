@@ -7,6 +7,7 @@ import { Box, Grid } from '@material-ui/core'
 import AnswerSeverityForm from './AnswerSeverityForm'
 import AnswerMarkdownForm from './AnswerMarkdownForm'
 import { organizationToString } from '../../utils/EnumToString'
+import Disabler from '../Disabler'
 
 const WRITE_DELAY_MS = 1000
 
@@ -14,10 +15,11 @@ interface QuestionAndAnswerFormProps {
     questionNumber: number
     question: Question
     answer: Answer
+    disabled: boolean
     onAnswerChange: (answer: Answer) => void
 }
 
-const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange}: QuestionAndAnswerFormProps) => {
+const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange}: QuestionAndAnswerFormProps) => {
     const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
 
@@ -25,7 +27,7 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange
     useEffect(() => {
         if(firstUpdate.current === true){
             firstUpdate.current = false
-            return 
+            return
         }
 
         const timeout = setTimeout(() => {
@@ -57,20 +59,24 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, onAnswerChange
                 </Box>
             </Grid>
             <Grid item xs={12}>
-                <Box display="flex">
-                    <Box mr={5}>
-                        <AnswerSeverityForm
-                            severity={localAnswer.severity}
-                            onSeveritySelected={(severity) => setLocalAnswer((oldAnswer) => ({...oldAnswer, severity: severity}))}
-                        />
+                <Disabler disable={disabled}>
+                    <Box display="flex">
+                        <Box mr={5}>
+                            <AnswerSeverityForm
+                                severity={localAnswer.severity}
+                                onSeveritySelected={(severity) => setLocalAnswer((oldAnswer) => ({...oldAnswer, severity: severity}))}
+                                disabled={disabled}
+                            />
+                        </Box>
+                        <Box width="85%">
+                            <AnswerMarkdownForm
+                                markdown={localAnswer.text}
+                                disabled={disabled}
+                                onMarkdownChange={(text) => setLocalAnswer((oldAnswer) => ({...oldAnswer, text: text}))}
+                            />
+                        </Box>
                     </Box>
-                    <Box width="85%">
-                        <AnswerMarkdownForm
-                            markdown={localAnswer.text}
-                            onMarkdownChange={(text) => setLocalAnswer((oldAnswer) => ({...oldAnswer, text: text}))}
-                        />
-                    </Box>
-                </Box>
+                </Disabler>
             </Grid>
         </Grid>
     </>

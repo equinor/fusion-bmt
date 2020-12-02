@@ -69,7 +69,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                         onClick={onNextStepClick}
                         disabled={evaluation.progression !== Progression.Nomination}
                     >
-                        Create
+                        Finish Nomination
                     </Button>
                 </Box>
             </Box>

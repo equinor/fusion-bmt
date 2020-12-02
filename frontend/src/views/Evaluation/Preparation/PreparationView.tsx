@@ -9,9 +9,10 @@ import { TextArea } from '@equinor/fusion-components'
 interface PreparationViewProps
 {
     evaluation: Evaluation
+    onNextStepClick: () => void
 }
 
-const PreparationView = ({evaluation}: PreparationViewProps) => {
+const PreparationView = ({evaluation, onNextStepClick}: PreparationViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
 
     const {loading: loadingQuestions, questions, error: errorQuestions} = useQuestionsQuery(evaluation.id)
@@ -51,10 +52,11 @@ const PreparationView = ({evaluation}: PreparationViewProps) => {
                 <BarrierQuestionsView
                     barrier={selectedBarrier}
                     questions={questions}
+                    currentProgression={evaluation.progression}
+                    onNextStepClick={onNextStepClick}
                 />
             </Box>
         </Box>
-
     )
 }
 

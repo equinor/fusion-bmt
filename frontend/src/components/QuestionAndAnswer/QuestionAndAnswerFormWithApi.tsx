@@ -82,9 +82,10 @@ interface QuestionAndAnswerFormWithApiProps {
     questionNumber: number
     question: Question
     answer: Answer | undefined
+    disabled: boolean
 }
 
-const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer}: QuestionAndAnswerFormWithApiProps) => {
+const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer, disabled}: QuestionAndAnswerFormWithApiProps) => {
     const {setAnswer, error: errorSettingAnswer} = useSetAnswerMutation()
 
     const emptyAnswer: Answer = {
@@ -111,6 +112,7 @@ const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer}: Questi
             question={question}
             answer={answer ?? emptyAnswer}
             onAnswerChange={(answer) => setAnswer(question.id, answer.severity, answer.text)}
+            disabled={disabled}
         />
     </>
 }

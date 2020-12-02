@@ -1,7 +1,7 @@
 
-import { Barrier, Organization, Role } from "../api/models"
+import { Barrier, Organization, Progression, Role } from "../api/models"
 
-const barrierToString = (barrier: Barrier): string => {
+export const barrierToString = (barrier: Barrier): string => {
     switch (barrier) {
     case Barrier.Gm:
         return "General Matters"
@@ -26,7 +26,7 @@ const barrierToString = (barrier: Barrier): string => {
     }
 }
 
-const organizationToString = (organization: Organization): string => {
+export const organizationToString = (organization: Organization): string => {
     switch (organization) {
     case Organization.Commissioning:
         return "Commissioning"
@@ -41,7 +41,7 @@ const organizationToString = (organization: Organization): string => {
     }
 }
 
-const roleToString = (role: Role): string => {
+export const roleToString = (role: Role): string => {
     switch (role) {
     case Role.Participant:
         return "Participant"
@@ -54,4 +54,12 @@ const roleToString = (role: Role): string => {
     }
 }
 
-export { barrierToString, organizationToString, roleToString }
+export const progressionToString = (progression: Progression): string => {
+    switch(progression) {
+    case Progression.Nomination: return "Nomination"
+    case Progression.Preparation: return "Preparation"
+    case Progression.Alignment: return "Alignment"
+    case Progression.Workshop: return "Workshop"
+    case Progression.FollowUp: return "Follow-up"
+    }
+}
