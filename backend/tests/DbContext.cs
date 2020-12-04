@@ -191,6 +191,8 @@ namespace tests
             {
                 return "1";
             }
+            public void AssertIsFacilitator(string evaluationId)
+            {}
         }
     }
 }

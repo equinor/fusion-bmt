@@ -12,6 +12,9 @@ jobs:
           packageType: 'sdk'
           version: '5.0.x'
           includePreviewVersions: true # Required for preview versions
+      - task: DotNetCoreCLI@2
+        name: Build_Backend
+        inputs:
           command: 'build'
           workingDirectory: 'backend/api'
 
@@ -31,11 +34,13 @@ jobs:
   - job: Test_Backend
     steps:
       - task: UseDotNet@2
-        name: Run_Backend_Tests
         inputs:
           packageType: 'sdk'
           version: '5.0.x'
           includePreviewVersions: true # Required for preview versions
+      - task: DotNetCoreCLI@2
+        name: Run_Backend_Tests
+        inputs:
           command: 'test'
           projects: 'backend/tests/tests.csproj'
 
