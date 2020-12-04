@@ -7,8 +7,15 @@ namespace api.GQL
     {
         public IError OnError(IError error)
         {
-            Console.WriteLine(error.Exception.ToString());
-            return error.WithMessage(error.Exception.Message);
+            if (error.Exception != null)
+            {
+                Console.WriteLine(error.Exception.ToString());
+                return error.WithMessage(error.Exception.Message);
+            }
+            else
+            {
+                return error;
+            }
         }
     }
 }

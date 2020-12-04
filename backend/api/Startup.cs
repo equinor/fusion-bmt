@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 
 using HotChocolate;
@@ -27,9 +29,29 @@ namespace api
     {
         private readonly string _accessControlPolicyName = "AllowSpecificOrigins";
 
+        private readonly SqliteConnection _connection;
+        private readonly string _sqlConnectionString;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            // In-memory sqlite requires an open connection throughout the whole lifetime of the database
+            _sqlConnectionString = Configuration.GetSection("Database").GetValue<string>("ConnectionString");
+            if (string.IsNullOrEmpty(_sqlConnectionString))
+            {
+                DbContextOptionsBuilder<BmtDbContext> builder = new DbContextOptionsBuilder<BmtDbContext>();
+                string connectionString = new SqliteConnectionStringBuilder { DataSource = "file::memory:", Cache = SqliteCacheMode.Shared }.ToString();
+                _connection = new SqliteConnection(connectionString);
+                _connection.Open();
+                builder.UseSqlite(_connection);
+
+                using (BmtDbContext context = new BmtDbContext(builder.Options))
+                {
+                    context.Database.EnsureCreated();
+                    InitContent.PopulateDb(context);
+                }
+            }
         }
 
         public IConfiguration Configuration { get; }
@@ -37,10 +59,6 @@ namespace api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            services.AddOptions();
-            services.Configure<BmtDbOptions>(options => Configuration.GetSection("Database").Bind(options));
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
@@ -64,7 +82,17 @@ namespace api
                 });
             });
 
-            services.AddDbContext<BmtDbContext>();
+            if (!string.IsNullOrEmpty(_sqlConnectionString))
+            {
+                // Setting splitting behavior explicitly to avoid warning
+                services.AddDbContext<BmtDbContext>(options => options.UseSqlServer(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)));
+            }
+            else
+            {
+                // Setting splitting behavior explicitly to avoid warning
+                services.AddDbContext<BmtDbContext>(options => options.UseSqlite(_connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)));
+            }
+
             services.AddErrorFilter<ErrorFilter>();
 
             services.AddScoped<GraphQuery>();
@@ -126,10 +154,6 @@ namespace api
         {
             app.UseAuthentication();
             app.UseCors(_accessControlPolicyName);
-
-            var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
-            var dbContext = serviceScope.ServiceProvider.GetRequiredService<BmtDbContext>();
-            dbContext.InitializeIfInMem();
 
             if (env.IsDevelopment())
             {

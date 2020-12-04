@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 
 using api.Context;
 using api.Models;
@@ -20,8 +20,9 @@ namespace scripts
             {
                 throw new ArgumentException("ConnectionString cannot be empty");
             }
-            BmtDbOptions options = new BmtDbOptions { ConnectionString = ConnectionString };
-            BmtDbContext context = new BmtDbContext(Options.Create(options));
+            DbContextOptionsBuilder<BmtDbContext> builder = new DbContextOptionsBuilder<BmtDbContext>();
+            builder.UseSqlServer(ConnectionString);
+            BmtDbContext context = new BmtDbContext(builder.Options);
 
             List<QuestionTemplate> questions;
             using (StreamReader reader = new StreamReader(questionFile))

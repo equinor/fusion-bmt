@@ -1,21 +1,14 @@
 using System.Linq;
 using Xunit;
 
-using api.Context;
 using api.Models;
 using api.Services;
 
 namespace tests
 {
     [Collection("UsesDbContext")]
-    public class EvaluationServiceTest
+    public class EvaluationServiceTest : DbContextTestSetup
     {
-        private readonly BmtDbContext _context;
-        public EvaluationServiceTest()
-        {
-            _context = Globals.context;
-        }
-
         [Fact]
         public void GetQueryable()
         {
@@ -29,10 +22,13 @@ namespace tests
         [Fact]
         public void Create()
         {
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.GetAll().First();
+
             EvaluationService evaluationService = new EvaluationService(_context);
 
             int nEvaluationsBefore = evaluationService.GetAll().Count();
-            evaluationService.Create("some_name", ExampleProject());
+            evaluationService.Create("some_name", project);
             int nEvaluationsAfter = evaluationService.GetAll().Count();
 
             Assert.Equal(nEvaluationsBefore + 1, nEvaluationsAfter);
@@ -41,8 +37,11 @@ namespace tests
         [Fact]
         public void ProgressEvaluation()
         {
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.GetAll().First();
+
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.Create("some_name", ExampleProject());
+            Evaluation evaluation = evaluationService.Create("some_name", project);
 
             Progression progressionBefore = evaluation.Progression;
             evaluationService.ProgressEvaluation(evaluation.Id);
@@ -62,19 +61,15 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.GetAll().First();
 
-            Evaluation evaluationCreate = evaluationService.Create("some_evaluation_name", ExampleProject());
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluationCreate = evaluationService.Create("some_evaluation_name", project);
 
             Evaluation evaluationGet = evaluationService.GetEvaluation(evaluationCreate.Id);
 
             Assert.Equal(evaluationCreate, evaluationGet);
-        }
-
-        private Project ExampleProject()
-        {
-            ProjectService projectService = new ProjectService(_context);
-            return projectService.GetAll().First();
         }
     }
 }

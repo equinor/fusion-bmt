@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using HotChocolate;
-
 using api.Context;
 using api.Models;
 
@@ -13,7 +11,7 @@ namespace api.Services
     {
         private readonly BmtDbContext _context;
 
-        public QuestionService([Service] BmtDbContext context)
+        public QuestionService(BmtDbContext context)
         {
             _context = context;
         }

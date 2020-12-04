@@ -1,21 +1,14 @@
 using System.Linq;
 using Xunit;
 
-using api.Context;
 using api.Models;
 using api.Services;
 
 namespace tests
 {
     [Collection("UsesDbContext")]
-    public class ProjectServiceTest
+    public class ProjectServiceTest : DbContextTestSetup
     {
-        private readonly BmtDbContext _context;
-        public ProjectServiceTest()
-        {
-            _context = Globals.context;
-        }
-
         [Fact]
         public void GetQueryable()
         {

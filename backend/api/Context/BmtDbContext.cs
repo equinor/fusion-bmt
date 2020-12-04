@@ -1,18 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-
 using api.Models;
 using Action = api.Models.Action;
 
 namespace api.Context
 {
-
-    public class BmtDbOptions
-    {
-        public string ConnectionString { get; set; } = "";
-        public string InMemDbName { get; set; } = "Bmt";
-    }
-
     public class BmtDbContext : DbContext
     {
         public DbSet<Project> Projects { get; set; }
@@ -24,41 +15,15 @@ namespace api.Context
         public DbSet<Note> Notes { get; set; }
         public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
 
-        private readonly IOptions<BmtDbOptions> _config;
-
-        private bool _isInMemDB = true;
-
-        public BmtDbContext() : base()
+        public BmtDbContext(DbContextOptions<BmtDbContext> options)
+        : base(options)
         {
-            BmtDbOptions options = new BmtDbOptions();
-            _config = Options.Create(options);
         }
 
-        public BmtDbContext(IOptions<BmtDbOptions> config) : base()
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            _config = config;
-            bool hasConnectionString = !string.IsNullOrEmpty(_config.Value.ConnectionString);
-            if (hasConnectionString) _isInMemDB = false;
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            if (_isInMemDB)
-            {
-                options.UseInMemoryDatabase(databaseName: _config.Value.InMemDbName);
-            }
-            else
-            {
-                options.UseSqlServer(_config.Value.ConnectionString);
-            }
-        }
-
-        public void InitializeIfInMem()
-        {
-            if (_isInMemDB && this.Database.EnsureCreated())
-            {
-                InitContent.PopulateDb(this);
-            }
+            modelBuilder.Entity<Participant>().HasIndex(p => new { p.AzureUniqueId, p.EvaluationId }).IsUnique();
+            modelBuilder.Entity<Answer>().HasIndex(a => new { a.QuestionId, a.AnsweredById, a.Progression }).IsUnique();
         }
     }
 }

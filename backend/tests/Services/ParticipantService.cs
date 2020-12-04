@@ -1,20 +1,14 @@
 using System.Linq;
 using Xunit;
 
-using api.Context;
 using api.Models;
 using api.Services;
 
 namespace tests
 {
     [Collection("UsesDbContext")]
-    public class ParticipantServiceTest
+    public class ParticipantServiceTest : DbContextTestSetup
     {
-        private readonly BmtDbContext _context;
-        public ParticipantServiceTest()
-        {
-            _context = Globals.context;
-        }
         [Fact]
         public void GetQueryable()
         {
@@ -27,10 +21,13 @@ namespace tests
         [Fact]
         public void Create()
         {
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
             ParticipantService participantService = new ParticipantService(_context);
 
             int nParticipantsBefore = participantService.GetAll().Count();
-            participantService.Create("some_id_we_got_from_fusion", ExampleEvaluation(), Organization.Engineering, Role.Participant);
+            participantService.Create("Create_id", evaluation, Organization.Engineering, Role.Participant);
             int nParticipantsAfter = participantService.GetAll().Count();
 
             Assert.Equal(nParticipantsBefore + 1, nParticipantsAfter);
@@ -40,10 +37,11 @@ namespace tests
         public void CreateGetsCorrectEvaluationId()
         {
             ParticipantService participantService = new ParticipantService(_context);
-            Evaluation exampleEvaluation = ExampleEvaluation();
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
 
-            string evaluationIdBefore = exampleEvaluation.Id;
-            Participant participant = participantService.Create("some_id_we_got_from_fusion", exampleEvaluation, Organization.Engineering, Role.Participant);
+            string evaluationIdBefore = evaluation.Id;
+            Participant participant = participantService.Create("CreateGetsCorrectEvaluationId_id", evaluation, Organization.Engineering, Role.Participant);
             string evaluationIdAfter = participant.Evaluation.Id;
 
             Assert.Equal(evaluationIdBefore, evaluationIdAfter);
@@ -60,9 +58,11 @@ namespace tests
         [Fact]
         public void GetExist()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
 
-            Participant participantCreate = participantService.Create("some_fusion_person_id", ExampleEvaluation(), Organization.Engineering, Role.Participant);
+            ParticipantService participantService = new ParticipantService(_context);
+            Participant participantCreate = participantService.Create("GetExist_id", evaluation, Organization.Engineering, Role.Participant);
 
             Participant participantGet = participantService.GetParticipant(participantCreate.Id);
 
@@ -72,9 +72,11 @@ namespace tests
         [Fact]
         public void GetAzureId()
         {
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
             ParticipantService participantService = new ParticipantService(_context);
-            Evaluation evaluation = ExampleEvaluation();
-            string azureUniqueId = "get_azure_unique_id";
+            string azureUniqueId = "GetAzureId_id";
             Participant participantCreated = participantService.Create(azureUniqueId, evaluation, Organization.Engineering, Role.Participant);
 
             Participant participantGet = participantService.GetParticipant(azureUniqueId, evaluation);
@@ -85,8 +87,10 @@ namespace tests
         [Fact]
         public void GetAzureIdNotExists()
         {
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
             ParticipantService participantService = new ParticipantService(_context);
-            Evaluation evaluation = ExampleEvaluation();
             string azureUniqueId = "get_azure_unique_id_not_exists";
 
             Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant(azureUniqueId, evaluation));
@@ -95,19 +99,16 @@ namespace tests
         [Fact]
         public void Delete()
         {
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
             ParticipantService participantService = new ParticipantService(_context);
 
-            Participant participantCreate = participantService.Create("some_fusion_person_id_that_will_be_removed", ExampleEvaluation(), Organization.Engineering, Role.Participant);
+            Participant participantCreate = participantService.Create("Delete_id", evaluation, Organization.Engineering, Role.Participant);
 
             participantService.Remove(participantCreate.Id);
 
             Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant(participantCreate.Id));
-        }
-
-        private Evaluation ExampleEvaluation()
-        {
-            EvaluationService evaluationService = new EvaluationService(_context);
-            return evaluationService.GetAll().First();
         }
     }
 }
