@@ -2,21 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-using api.Context;
 using api.Models;
 using api.Services;
 
 namespace tests
 {
     [Collection("UsesDbContext")]
-    public class QuestionServiceTest
+    public class QuestionServiceTest : DbContextTestSetup
     {
-        private readonly BmtDbContext _context;
-        public QuestionServiceTest()
-        {
-            _context = Globals.context;
-        }
-
         [Fact]
         public void GetQueryable()
         {
@@ -30,10 +23,16 @@ namespace tests
         [Fact]
         public void Create()
         {
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
+
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
             QuestionService questionService = new QuestionService(_context);
 
             int nQuestionBefore = questionService.GetAll().Count();
-            questionService.Create(ExampleQuestionTemplates().First(), ExampleEvaluation());
+            questionService.Create(questionTemplate, evaluation);
             int nQuestionsAfter = questionService.GetAll().Count();
 
             Assert.Equal(nQuestionBefore + 1, nQuestionsAfter);
@@ -42,10 +41,16 @@ namespace tests
         [Fact]
         public void CreateBulk()
         {
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            List<QuestionTemplate> questionTemplates = questionTemplateService.GetAll().ToList();
+
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
             QuestionService questionService = new QuestionService(_context);
 
             int nQuestionBefore = questionService.GetAll().Count();
-            questionService.CreateBulk(ExampleQuestionTemplates(), ExampleEvaluation());
+            questionService.CreateBulk(questionTemplates, evaluation);
             int nQuestionsAfter = questionService.GetAll().Count();
 
             Assert.Equal(nQuestionBefore + 11, nQuestionsAfter);
@@ -62,25 +67,18 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            QuestionService questionService = new QuestionService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
-            Question questionCreate = questionService.Create(ExampleQuestionTemplates().First(), ExampleEvaluation());
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
+            QuestionService questionService = new QuestionService(_context);
+            Question questionCreate = questionService.Create(questionTemplate, evaluation);
 
             Question questionGet = questionService.GetQuestion(questionCreate.Id).First();
 
             Assert.Equal(questionCreate, questionGet);
-        }
-
-        private Evaluation ExampleEvaluation()
-        {
-            EvaluationService evaluationService = new EvaluationService(_context);
-            return evaluationService.GetAll().First();
-        }
-
-        private List<QuestionTemplate> ExampleQuestionTemplates()
-        {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
-            return questionTemplateService.GetAll().ToList();
         }
     }
 }

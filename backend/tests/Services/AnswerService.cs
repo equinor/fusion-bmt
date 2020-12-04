@@ -3,21 +3,14 @@ using System.Linq;
 
 using Xunit;
 
-using api.Context;
 using api.Models;
 using api.Services;
 
 namespace tests
 {
     [Collection("UsesDbContext")]
-    public class AnswerServiceTest
+    public class AnswerServiceTest : DbContextTestSetup
     {
-        private readonly BmtDbContext _context;
-        public AnswerServiceTest()
-        {
-            _context = Globals.context;
-        }
-
         [Fact]
         public void GetQueryable()
         {
@@ -31,10 +24,14 @@ namespace tests
         [Fact]
         public void Create()
         {
-            AnswerService answerService = new AnswerService(_context);
+            ParticipantService participantService = new ParticipantService(_context);
+            Participant participant = participantService.GetAll().ToList()[0];
+            QuestionService questionService = new QuestionService(_context);
+            Question question = questionService.GetAll().First();
 
+            AnswerService answerService = new AnswerService(_context);
             int nAnswerBefore = answerService.GetAll().Count();
-            answerService.Create(ExampleParticipant(), ExampleQuestion(), Severity.High, "test_answer");
+            answerService.Create(participant, question, Severity.High, "test_answer");
             int nAnswersAfter = answerService.GetAll().Count();
 
             Assert.Equal(nAnswerBefore + 1, nAnswersAfter);
@@ -52,8 +49,12 @@ namespace tests
         public void GetExists()
         {
             AnswerService answerService = new AnswerService(_context);
+            ParticipantService participantService = new ParticipantService(_context);
+            Participant participant = participantService.GetAll().ToList()[1];
+            QuestionService questionService = new QuestionService(_context);
+            Question question = questionService.GetAll().First();
 
-            Answer answerCreate = answerService.Create(ExampleParticipant(), ExampleQuestion(), Severity.High, "test_answer");
+            Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer");
 
             Answer answerGet = answerService.GetAnswer(answerCreate.Id);
 
@@ -63,11 +64,19 @@ namespace tests
         [Fact]
         public void GetFromQuestionExists()
         {
-            AnswerService answerService = new AnswerService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
+
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
+            ParticipantService participantService = new ParticipantService(_context);
+            Participant participant = participantService.GetAll().ToList()[0];
+
             QuestionService questionService = new QuestionService(_context);
-            Evaluation evaluation = ExampleEvaluation();
-            Question question = questionService.Create(ExampleQuestionTemplate(), evaluation);
-            Participant participant = ExampleParticipant();
+            Question question = questionService.Create(questionTemplate, evaluation);
+
+            AnswerService answerService = new AnswerService(_context);
             Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer");
 
             Answer answerGet = answerService.GetAnswer(question, participant, question.Evaluation.Progression);
@@ -86,10 +95,16 @@ namespace tests
         [Fact]
         public void GetFromQuestionNotExists()
         {
-            AnswerService answerService = new AnswerService(_context);
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+
             ParticipantService participantService = new ParticipantService(_context);
-            Question question = ExampleQuestion();
-            Participant participant = participantService.Create("GetFromQuestionNotExists_id", ExampleEvaluation(), Organization.All, Role.ReadOnly);
+            Participant participant = participantService.Create("GetFromQuestionNotExists_id", evaluation, Organization.All, Role.ReadOnly);
+
+            QuestionService questionService = new QuestionService(_context);
+            Question question = questionService.GetAll().First();
+
+            AnswerService answerService = new AnswerService(_context);
 
             Assert.Throws<NotFoundInDBException>(() => answerService.GetAnswer(question, participant, Progression.Nomination));
         }
@@ -97,9 +112,13 @@ namespace tests
         [Fact]
         public void UpdateAnswer()
         {
+            ParticipantService participantService = new ParticipantService(_context);
+            Participant participant = participantService.GetAll().ToList()[2];
+
+            QuestionService questionService = new QuestionService(_context);
+            Question question = questionService.GetAll().First();
+
             AnswerService answerService = new AnswerService(_context);
-            Question question = ExampleQuestion();
-            Participant participant = ExampleParticipant();
             string initialText = "test answer";
             Answer answer = answerService.Create(participant, question, Severity.High, initialText);
             string answerId = answer.Id;
@@ -109,30 +128,6 @@ namespace tests
 
             Answer resultingAnswer = answerService.GetAnswer(answerId);
             Assert.Equal(newText, resultingAnswer.Text);
-        }
-
-        private Question ExampleQuestion()
-        {
-            QuestionService questionService = new QuestionService(_context);
-            return questionService.GetAll().First();
-        }
-
-        private Evaluation ExampleEvaluation()
-        {
-            EvaluationService evaluationService = new EvaluationService(_context);
-            return evaluationService.GetAll().First();
-        }
-
-        private Participant ExampleParticipant()
-        {
-            ParticipantService participantService = new ParticipantService(_context);
-            return participantService.GetAll().First();
-        }
-
-        private QuestionTemplate ExampleQuestionTemplate()
-        {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
-            return questionTemplateService.GetAll().First();
         }
     }
 }

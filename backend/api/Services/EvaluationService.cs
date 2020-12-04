@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 
-using HotChocolate;
-
 using api.Context;
 using api.Models;
 
@@ -12,7 +10,7 @@ namespace api.Services
     {
         private readonly BmtDbContext _context;
 
-        public EvaluationService([Service] BmtDbContext context)
+        public EvaluationService(BmtDbContext context)
         {
             _context = context;
         }

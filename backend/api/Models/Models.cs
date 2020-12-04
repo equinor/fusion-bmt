@@ -56,6 +56,9 @@ namespace api.Models
         [Required]
         public DateTime CreateDate { get; set; }
         [Required]
+        public string EvaluationId { get; set; }
+        [Required]
+        [ForeignKey("EvaluationId")]
         public virtual Evaluation Evaluation { get; set; }
     }
 
@@ -121,8 +124,13 @@ namespace api.Models
         public string Text { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }
+        public string AnsweredById { get; set; }
+        [ForeignKey("AnsweredById")]
         public Participant AnsweredBy { get; set; }
         [Required]
+        public string QuestionId { get; set; }
+        [Required]
+        [ForeignKey("QuestionId")]
         public virtual Question Question { get; set; }
     }
 

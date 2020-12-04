@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
@@ -18,14 +19,8 @@ using HotChocolate.Fetching;
 namespace tests
 {
     [Collection("UsesDbContext")]
-    public class DbContextTests
+    public class DbContextTests : DbContextTestSetup
     {
-        private readonly BmtDbContext _context;
-        public DbContextTests()
-        {
-            _context = Globals.context;
-        }
-
         [Fact]
         public void InitQuestions()
         {
@@ -39,12 +34,12 @@ namespace tests
         public void ParticipantAddedToEvaluation()
         {
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation exampleEvaluation = evaluationService.GetAll().First();
+            Evaluation evaluation = evaluationService.GetAll().First();
             ParticipantService participantService = new ParticipantService(_context);
 
-            int participantsBefore = exampleEvaluation.Participants.Count;
-            participantService.Create("some_id_we_got_from_fusion", exampleEvaluation, Organization.Engineering, Role.Participant);
-            int participantsAfter = exampleEvaluation.Participants.Count;
+            int participantsBefore = evaluation.Participants.Count;
+            participantService.Create("ParticipantAddedToEvaluation_id", evaluation, Organization.Engineering, Role.Participant);
+            int participantsAfter = evaluation.Participants.Count;
 
             Assert.Equal(participantsBefore + 1, participantsAfter);
         }
@@ -53,13 +48,13 @@ namespace tests
         public void ParticipantAddedToProject()
         {
             ProjectService projectService = new ProjectService(_context);
-            Project exampleProject = projectService.GetAll().First();
-            Evaluation exampleEvaluation = exampleProject.Evaluations.First();
+            Project project = projectService.GetAll().First();
+            Evaluation evaluation = project.Evaluations.First();
             ParticipantService participantService = new ParticipantService(_context);
 
-            int participantsBefore = exampleProject.Evaluations.First().Participants.Count;
-            participantService.Create("some_id_we_got_from_fusion", exampleEvaluation, Organization.Engineering, Role.Participant);
-            int participantsAfter = exampleProject.Evaluations.First().Participants.Count;
+            int participantsBefore = project.Evaluations.First().Participants.Count;
+            participantService.Create("ParticipantAddedToProject", evaluation, Organization.Engineering, Role.Participant);
+            int participantsAfter = project.Evaluations.First().Participants.Count;
 
             Assert.Equal(participantsBefore + 1, participantsAfter);
         }
@@ -68,15 +63,33 @@ namespace tests
         public void ParticipantDeletedFromEvaluation()
         {
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation exampleEvaluation = evaluationService.GetAll().First();
+            Evaluation evaluation = evaluationService.GetAll().First();
             ParticipantService participantService = new ParticipantService(_context);
-            Participant exampleParticipant = participantService.Create("ParticipantDeletedFromEvaluation_id", exampleEvaluation, Organization.Engineering, Role.Participant);
+            Participant participant = participantService.Create("ParticipantDeletedFromEvaluation_id", evaluation, Organization.Engineering, Role.Participant);
 
-            int participantsBefore = exampleEvaluation.Participants.Count;
-            participantService.Remove(exampleParticipant.Id);
-            int participantsAfter = exampleEvaluation.Participants.Count;
+            int participantsBefore = evaluation.Participants.Count;
+            participantService.Remove(participant.Id);
+            int participantsAfter = evaluation.Participants.Count;
 
             Assert.Equal(participantsBefore - 1, participantsAfter);
+        }
+
+        [Fact]
+        public void ParticipantUnique()
+        {
+            DbContextOptionsBuilder<BmtDbContext> builder = new DbContextOptionsBuilder<BmtDbContext>();
+            builder.UseSqlite(_connection);
+
+            // This is done because bug in xunit making Dbcontext dispose never being called when exception is thrown
+            using (var _context = new BmtDbContext(builder.Options))
+            {
+                EvaluationService evaluationService = new EvaluationService(_context);
+                Evaluation evaluation = evaluationService.GetAll().First();
+
+                ParticipantService participantService = new ParticipantService(_context);
+                participantService.Create("azure_unique_id", evaluation, Organization.All, Role.OrganizationLead);
+                Assert.Throws<DbUpdateException>(() => participantService.Create("azure_unique_id", evaluation, Organization.All, Role.OrganizationLead));
+            }
         }
 
         [Fact]
@@ -114,7 +127,7 @@ namespace tests
             IExecutionResult result = executor.Execute(request);
 
             IReadOnlyList<IError> errors = result.Errors ?? new List<IError>();
-            foreach( IError err in errors)
+            foreach (IError err in errors)
             {
                 throw err.Exception;
             }
@@ -150,7 +163,7 @@ namespace tests
             IExecutionResult result = executor.Execute(request);
 
             IReadOnlyList<IError> errors = result.Errors ?? new List<IError>();
-            foreach( IError err in errors)
+            foreach (IError err in errors)
             {
                 throw err.Exception;
             }
@@ -171,7 +184,7 @@ namespace tests
         {
             IServiceProvider serviceProvider = new ServiceCollection()
                 .AddBatchDispatcher<BatchScheduler>()
-                .AddDbContext<BmtDbContext>()
+                .AddDbContext<BmtDbContext>(options => options.UseSqlite(_connection))
                 .AddScoped<IAuthService, MockAuthService>()
                 .AddScoped<GraphQuery>()
                 .AddScoped<ProjectService>()

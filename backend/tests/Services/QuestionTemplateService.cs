@@ -2,21 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-using api.Context;
 using api.Models;
 using api.Services;
 
 namespace tests
 {
     [Collection("UsesDbContext")]
-    public class QuestionTemplateServiceTest
+    public class QuestionTemplateServiceTest : DbContextTestSetup
     {
-        private readonly BmtDbContext _context;
-        public QuestionTemplateServiceTest()
-        {
-            _context = Globals.context;
-        }
-
         [Fact]
         public void GetQueryable()
         {
