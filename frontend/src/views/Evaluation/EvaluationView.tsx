@@ -6,6 +6,7 @@ import NominationView from './Nomination/NominationView'
 import PreparationView from './Preparation/PreparationView'
 import AlignmentView from './Alignment/AlignmentView'
 import WorkshopView from './Workshop/WorkshopView'
+import QuestionnaireStatusTabs from '../../components/StatusTab'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -35,24 +36,26 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
                 stepKey={Progression.Preparation}
             >
-                <>
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation}>
                     <PreparationView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
                         onProgressParticipant={onProgressParticipant}
                     />
-                </>
+                </QuestionnaireStatusTabs>
             </Step>
             <Step
                 title="Alignment"
                 description={calcProgressionStatus(evaluation.progression, Progression.Alignment)}
                 stepKey={Progression.Alignment}
             >
-                <AlignmentView
-                    evaluation={evaluation}
-                    onNextStepClick={() => onProgressEvaluationClick()}
-                    onProgressParticipant={onProgressParticipant}
-                />
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Alignment}>
+                    <AlignmentView
+                        evaluation={evaluation}
+                        onNextStepClick={() => onProgressEvaluationClick()}
+                        onProgressParticipant={onProgressParticipant}
+                    />
+                </QuestionnaireStatusTabs>
             </Step>
             <Step
                 title="Workshop"

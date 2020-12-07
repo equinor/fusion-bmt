@@ -2,7 +2,7 @@ import { PersonDetails, useApiClients } from '@equinor/fusion'
 import { PersonCard } from '@equinor/fusion-components'
 import { Box } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { Participant } from '../../../api/models'
+import { Participant } from '../api/models'
 
 interface ParticipantCardProps {
     participant: Participant

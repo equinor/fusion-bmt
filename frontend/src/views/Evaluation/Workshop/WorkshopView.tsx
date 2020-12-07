@@ -37,12 +37,12 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                         currentProgression={evaluation.progression}
                         viewProgression={Progression.Workshop}
                         onNextStepClick={onNextStepClick}
+                        allowedRoles={[Role.Facilitator]}
                         onQuestionSummarySelected={ (question: Question, questionNumber: number) => {
                             setSelectedQuestion(question)
                             setSelectedQuestionNumber(questionNumber)
                         }}
                         onCompleteSwitchClick={onProgressParticipant}
-                        allowedRoles={ [Role.Facilitator] }
                     />
                 </Box>
                 <Box>

@@ -2,7 +2,7 @@ import { DataTable, DataTableColumn, Button } from '@equinor/fusion-components'
 import React from 'react'
 
 import { Organization, Participant, Role } from '../../../api/models'
-import ParticipantCard from './ParticipantCard'
+import ParticipantCard from '../../../components/ParticipantCard'
 import { ProgressionStatus } from '../../../utils/ProgressionStatus'
 import { useDeleteParticipantMutation } from './NominationGQL'
 
