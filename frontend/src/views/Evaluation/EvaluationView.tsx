@@ -5,6 +5,7 @@ import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 import NominationView from './Nomination/NominationView'
 import PreparationView from './Preparation/PreparationView'
 import AlignmentView from './Alignment/AlignmentView'
+import WorkshopView from './Workshop/WorkshopView'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -55,7 +56,10 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick}: EvaluationViewP
                 description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                 stepKey={Progression.Workshop}
             >
-                <h1>Workshop</h1>
+                <WorkshopView
+                    evaluation={evaluation}
+                    onNextStepClick={() => onProgressEvaluationClick()}
+                />
             </Step>
             <Step
                 title="Follow-up"
