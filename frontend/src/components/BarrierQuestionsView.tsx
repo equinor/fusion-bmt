@@ -16,15 +16,28 @@ interface BarrierQuestionsViewProps
     questions: Question[]
     currentProgression: Progression
     viewProgression: Progression
+    allowedRoles?: Role[]
     onNextStepClick: () => void
     onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
 }
 
-const BarrierQuestionsView = ({barrier, questions, currentProgression, viewProgression, onNextStepClick, onQuestionSummarySelected}: BarrierQuestionsViewProps) => {
+const BarrierQuestionsView = ({barrier, questions, currentProgression, viewProgression, allowedRoles, onNextStepClick, onQuestionSummarySelected}: BarrierQuestionsViewProps) => {
     const barrierQuestions = questions.filter(q => q.barrier === barrier)
     const azureUniqueId = getAzureUniqueId()
 
     const currentParticipant = React.useContext(CurrentParticipantContext)
+
+    const isQuestionDisabled = () => {
+        if (!currentParticipant) {
+            return false
+        }
+
+        if (allowedRoles) {
+            return !allowedRoles.includes(currentParticipant.role)
+        }
+
+        return currentProgression !== viewProgression
+    }
 
     return (
         <>
@@ -55,7 +68,7 @@ const BarrierQuestionsView = ({barrier, questions, currentProgression, viewProgr
                             questionNumber={idx+1}
                             question={question}
                             answer={answer}
-                            disabled={currentProgression !== viewProgression}
+                            disabled={isQuestionDisabled()}
                             onQuestionSummarySelected={ onQuestionSummarySelected }
                         />
                     </div>
