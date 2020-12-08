@@ -1,5 +1,5 @@
 import React from 'react'
-import { Barrier, Evaluation, Question, Progression } from '../../../api/models'
+import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/models'
 import { Box } from '@material-ui/core'
 import BarrierQuestionsView from '../../../components/BarrierQuestionsView'
 import EvaluationSidebar from '../EvaluationSidebar'
@@ -60,6 +60,7 @@ const AlignmentView = ({evaluation, onNextStepClick}: AlignmentViewProps) => {
                         currentProgression={evaluation.progression}
                         viewProgression={Progression.Alignment}
                         onNextStepClick={onNextStepClick}
+                        allowedRoles={ [Role.OrganizationLead, Role.Facilitator] }
                         onQuestionSummarySelected={ (question: Question, questionNumber: number) => {
                             setSelectedQuestion(question)
                             setSelectedQuestionNumber(questionNumber)
