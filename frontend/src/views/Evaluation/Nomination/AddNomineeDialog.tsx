@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard, Button, TextInput, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
+import { PersonCard, Button, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
 
 import { Organization, Role, Participant } from '../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../utils/EnumToString'
-import { Divider } from '@equinor/eds-core-react'
+import { Divider, TextField } from '@equinor/eds-core-react'
 
 interface AddNomineeDialogProps {
     currentNominees: Array<Participant>
@@ -114,11 +114,14 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     }}
                 />
                 <br/>
-                <TextInput
-                    value={searchQuery}
-                    onChange={(v) => setSearchQuery(v)}
+                <TextField
+                    id='' // avoids error
+                    autoFocus={true}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                    }}
+                    type="search"
                     placeholder="Search for person..."
-                    disabled={isSearching}
                 />
                 <br/>
                 { isSearching &&

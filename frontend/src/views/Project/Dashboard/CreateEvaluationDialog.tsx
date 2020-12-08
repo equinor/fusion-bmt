@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import { Button, ModalSideSheet, TextInput } from '@equinor/fusion-components'
-import { Typography } from '@equinor/eds-core-react'
+import { Button, ModalSideSheet } from '@equinor/fusion-components'
+import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
 
 interface CreateEvaluationDialogProps {
@@ -43,10 +43,18 @@ const CreateEvaluationDialog = ({open, onCreate, onCancelClick}: CreateEvaluatio
                         </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                        <TextInput
-                            value={nameInputValue}
-                            onChange={(v) => onInputChange(v)}
+                        <TextField
+                            id='' // avoids error
+                            autoFocus={true}
+                            onChange={(e) => {
+                                onInputChange(e.target.value)
+                            }}
                             placeholder="Evaluation Name"
+                            onKeyPress={(e) => {
+                                if(e.key === "Enter"){
+                                    handleCreateClick()
+                                }
+                            }}
                         />
                     </Grid>
                     {inputErrorMessage !== "" &&
