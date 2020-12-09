@@ -10,9 +10,10 @@ import WorkshopView from './Workshop/WorkshopView'
 interface EvaluationViewProps {
     evaluation: Evaluation
     onProgressEvaluationClick: () => void
+    onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const EvaluationView = ({evaluation, onProgressEvaluationClick}: EvaluationViewProps) => {
+const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressParticipant}: EvaluationViewProps) => {
     return <>
         <Stepper
             forceOrder={false}
@@ -38,6 +39,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick}: EvaluationViewP
                     <PreparationView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
+                        onProgressParticipant={onProgressParticipant}
                     />
                 </>
             </Step>
@@ -49,6 +51,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick}: EvaluationViewP
                 <AlignmentView
                     evaluation={evaluation}
                     onNextStepClick={() => onProgressEvaluationClick()}
+                    onProgressParticipant={onProgressParticipant}
                 />
             </Step>
             <Step
@@ -59,6 +62,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick}: EvaluationViewP
                 <WorkshopView
                     evaluation={evaluation}
                     onNextStepClick={() => onProgressEvaluationClick()}
+                    onProgressParticipant={onProgressParticipant}
                 />
             </Step>
             <Step

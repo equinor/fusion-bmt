@@ -45,11 +45,27 @@ namespace api.GQL
             return evaluation;
         }
 
-        public Evaluation ProgressEvaluation(string evaluationId)
+        public Evaluation ProgressEvaluation(string evaluationId, Progression newProgression)
         {
             _authService.AssertIsFacilitator(evaluationId);
+            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
-            return _evaluationService.ProgressEvaluation(evaluationId);
+            _evaluationService.ProgressEvaluation(evaluation, newProgression);
+
+            _participantService.ProgressAllParticipants(evaluation, newProgression);
+
+            return evaluation;
+        }
+
+        public Participant ProgressParticipant(string evaluationId, Progression newProgression)
+        {
+            string azureUniqueId = _authService.GetOID();
+            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+            Participant participant = _participantService.GetParticipant(azureUniqueId, evaluation);
+
+            Participant progressedParticipant = _participantService.ProgressParticipant(participant, newProgression);
+
+            return progressedParticipant;
         }
 
         public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization, Role role)
@@ -63,7 +79,7 @@ namespace api.GQL
             return _participantService.Remove(participantId);
         }
 
-        public Answer SetAnswer(string questionId, Severity severity, string text)
+        public Answer SetAnswer(string questionId, Severity severity, string text, Progression progression)
         {
             string azureUniqueId = _authService.GetOID();
 
@@ -75,12 +91,12 @@ namespace api.GQL
             Answer answer;
             try
             {
-                answer = _answerService.GetAnswer(question, participant, evaluation.Progression);
+                answer = _answerService.GetAnswer(question, participant, progression);
                 _answerService.UpdateAnswer(answer, severity, text);
             }
             catch (NotFoundInDBException)
             {
-                answer = _answerService.Create(participant, question, severity, text);
+                answer = _answerService.Create(participant, question, severity, text, progression);
             }
 
             return answer;

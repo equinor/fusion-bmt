@@ -25,7 +25,8 @@ namespace api.Services
                 AzureUniqueId = azureUniqueId,
                 Evaluation = evaluation,
                 Organization = organization,
-                Role = role
+                Role = role,
+                Progression = evaluation.Progression
             };
 
             _context.Participants.Add(newParticipant);
@@ -73,6 +74,29 @@ namespace api.Services
             {
                 throw new NotFoundInDBException($"Participant not found: azure id: {azureUniqueId}, evaluation id: {evaluation.Id}");
             }
+
+            return participant;
+        }
+
+        public IQueryable<Participant> ProgressAllParticipants(Evaluation evaluation, Progression newProgression)
+        {
+            IQueryable<Participant> participants = _context.Participants.Where(p => p.Evaluation.Equals(evaluation));
+            foreach(Participant p in participants)
+            {
+                p.Progression = newProgression;
+            }
+            _context.UpdateRange(participants);
+            _context.SaveChanges();
+
+            return participants;
+        }
+
+        public Participant ProgressParticipant(Participant participant, Progression newProgression)
+        {
+            participant.Progression = newProgression;
+
+            _context.Update(participant);
+            _context.SaveChanges();
 
             return participant;
         }

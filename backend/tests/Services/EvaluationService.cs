@@ -42,9 +42,10 @@ namespace tests
 
             EvaluationService evaluationService = new EvaluationService(_context);
             Evaluation evaluation = evaluationService.Create("some_name", project);
+            Progression nextEvaluation = ServiceUtil.NextProgression(evaluation.Progression);
 
             Progression progressionBefore = evaluation.Progression;
-            evaluationService.ProgressEvaluation(evaluation.Id);
+            evaluationService.ProgressEvaluation(evaluation, nextEvaluation);
             Progression progressionAfter = evaluation.Progression;
 
             Assert.True(ServiceUtil.NextProgression(progressionBefore).Equals(progressionAfter));

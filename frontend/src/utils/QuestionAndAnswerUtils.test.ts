@@ -7,7 +7,8 @@ const dummyAnswer: Answer = {
     severity: Severity.Na,
     text: '',
     createDate: '',
-    question: {} as unknown as Question
+    question: {} as unknown as Question,
+    questionId: ''
 }
 
 describe('Test QuestionAndAnswerUtils', () => {

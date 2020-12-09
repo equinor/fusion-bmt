@@ -58,7 +58,6 @@ export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => 
                     fields: {
                         evaluations(existingEvaluations = []) {
                             const newEvaluationRef = cache.writeFragment({
-                                id: createEvaluation.id,
                                 data: createEvaluation,
                                 fragment: EVALUATION_FIELDS_FRAGMENT
                             })

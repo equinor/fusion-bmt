@@ -1,14 +1,13 @@
-import { ApolloError, gql, Reference, useMutation, useQuery } from '@apollo/client'
+import { ApolloError, gql, Reference, useMutation } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
 import React from 'react'
 import { ANSWER_FIELDS_FRAGMENT, QUESTION_ANSWERS_FRAGMENT } from '../../api/fragments'
 
 import { Answer, Progression, Question, Severity } from '../../api/models'
-import { getAzureUniqueId } from '../../utils/Variables'
 import QuestionAndAnswerForm from './QuestionAndAnswerForm'
 
 interface SetAnswerMutationProps {
-    setAnswer: (questionId: string, severity: Severity, text: string) => void
+    setAnswer: (questionId: string, severity: Severity, text: string, progression: Progression) => void
     loading: boolean
     answer: Answer | undefined
     error: ApolloError | undefined
@@ -19,12 +18,14 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
         mutation SetAnswer(
             $questionId: String,
             $severity: Severity!,
-            $text: String
+            $text: String,
+            $progression: Progression!
         ) {
             setAnswer(
                 questionId: $questionId,
                 severity: $severity,
-                text: $text
+                text: $text,
+                progression: $progression
             ){
                 ...AnswerFields
                 question {
@@ -40,7 +41,7 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
             update(cache, { data: { setAnswer: answer } }) {
                 cache.modify({
                     fields: {
-                        questions(existingQuestions: Reference[] = []){
+                        evaluations(existingEvaluations: Reference[] = []){
                             const questionId: string = answer.question.id
                             const questionFragmentId: string = `Question:${questionId}`
                             const oldFragment: Question | null = cache.readFragment({
@@ -57,7 +58,7 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
                                 fragmentName: 'QuestionAnswers',
                                 fragment: QUESTION_ANSWERS_FRAGMENT
                             })
-                            return existingQuestions
+                            return existingEvaluations
                         }
                     }
                 })
@@ -66,8 +67,8 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
         }
     )
 
-    const setAnswer = (questionId: string, severity: Severity, text: string) => {
-        setAnswerApolloFunc({ variables: { questionId, severity, text } })
+    const setAnswer = (questionId: string, severity: Severity, text: string, progression: Progression) => {
+        setAnswerApolloFunc({ variables: { questionId, severity, text, progression } })
     }
 
     return {
@@ -83,10 +84,18 @@ interface QuestionAndAnswerFormWithApiProps {
     question: Question
     answer: Answer | undefined
     disabled: boolean
+    viewProgression: Progression
     onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
 }
 
-const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer, disabled, onQuestionSummarySelected}: QuestionAndAnswerFormWithApiProps) => {
+const QuestionAndAnswerFormWithApi = ({
+    questionNumber,
+    question,
+    answer,
+    disabled,
+    viewProgression,
+    onQuestionSummarySelected
+}: QuestionAndAnswerFormWithApiProps) => {
     const {setAnswer, error: errorSettingAnswer} = useSetAnswerMutation()
 
     const emptyAnswer: Answer = {
@@ -95,7 +104,8 @@ const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer, disable
         severity: Severity.Na,
         text: "",
         createDate: "",
-        question: question
+        question: question,
+        questionId: question.id
     }
 
     if(errorSettingAnswer !== undefined){
@@ -112,7 +122,7 @@ const QuestionAndAnswerFormWithApi = ({questionNumber, question, answer, disable
             questionNumber={questionNumber}
             question={question}
             answer={answer ?? emptyAnswer}
-            onAnswerChange={(answer) => setAnswer(question.id, answer.severity, answer.text)}
+            onAnswerChange={(answer) => setAnswer(question.id, answer.severity, answer.text, viewProgression)}
             disabled={disabled}
             onQuestionSummarySelected={onQuestionSummarySelected}
         />

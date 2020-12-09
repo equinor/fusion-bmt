@@ -33,10 +33,8 @@ namespace api.Services
             return newEvaluation;
         }
 
-        public Evaluation ProgressEvaluation(string evaluationId)
+        public Evaluation ProgressEvaluation(Evaluation evaluation, Progression nextProgression)
         {
-            Evaluation evaluation = GetEvaluation(evaluationId);
-            Progression nextProgression = ServiceUtil.NextProgression(evaluation.Progression);
             evaluation.Progression = nextProgression;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();

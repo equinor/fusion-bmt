@@ -1,43 +1,20 @@
 import React from 'react'
-import { Barrier, Evaluation, Progression } from '../../../api/models'
+import { Barrier, Evaluation, Progression, Role } from '../../../api/models'
 import { Box } from '@material-ui/core'
 import BarrierQuestionsView from '../../../components/BarrierQuestionsView'
 import EvaluationSidebar from '../EvaluationSidebar'
-import { useQuestionsQuery } from './PerparationGQL'
-import { TextArea } from '@equinor/fusion-components'
 
 interface PreparationViewProps
 {
     evaluation: Evaluation
     onNextStepClick: () => void
+    onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const PreparationView = ({evaluation, onNextStepClick}: PreparationViewProps) => {
+const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: PreparationViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
 
-    const {loading: loadingQuestions, questions, error: errorQuestions} = useQuestionsQuery(evaluation.id)
-
-    if(errorQuestions !== undefined){
-        return <div>
-            <TextArea
-                value={`Error in loading questions: ${JSON.stringify(errorQuestions)}`}
-                onChange={() => { }}
-            />
-        </div>
-    }
-
-    if(loadingQuestions){
-        return <>Loading...</>
-    }
-
-    if(questions === undefined){
-        return <div>
-            <TextArea
-                value={`Questions is undefined`}
-                onChange={() => { }}
-            />
-        </div>
-    }
+    const questions = evaluation.questions
 
     return (
         <Box display="flex" height={1}>
@@ -56,6 +33,8 @@ const PreparationView = ({evaluation, onNextStepClick}: PreparationViewProps) =>
                     currentProgression={evaluation.progression}
                     viewProgression={Progression.Preparation}
                     onNextStepClick={onNextStepClick}
+                    onCompleteSwitchClick={onProgressParticipant}
+                    allowedRoles={ Object.values(Role) }
                 />
             </Box>
         </Box>

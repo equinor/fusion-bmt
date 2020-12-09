@@ -3,44 +3,21 @@ import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/m
 import { Box } from '@material-ui/core'
 import BarrierQuestionsView from '../../../components/BarrierQuestionsView'
 import EvaluationSidebar from '../EvaluationSidebar'
-import { useQuestionsQuery } from '../Preparation/PerparationGQL'
-import { TextArea } from '@equinor/fusion-components'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 
 interface AlignmentViewProps
 {
     evaluation: Evaluation
     onNextStepClick: () => void
+    onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const AlignmentView = ({evaluation, onNextStepClick}: AlignmentViewProps) => {
+const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: AlignmentViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
 
-    const {loading: loadingQuestions, questions, error: errorQuestions} = useQuestionsQuery(evaluation.id)
-
-    if(errorQuestions !== undefined){
-        return <div>
-            <TextArea
-                value={`Error in loading questions: ${JSON.stringify(errorQuestions)}`}
-                onChange={() => { }}
-            />
-        </div>
-    }
-
-    if(loadingQuestions){
-        return <>Loading...</>
-    }
-
-    if(questions === undefined){
-        return <div>
-            <TextArea
-                value={`Questions is undefined`}
-                onChange={() => { }}
-            />
-        </div>
-    }
+    const questions = evaluation.questions
 
     return (
         <>
@@ -65,6 +42,7 @@ const AlignmentView = ({evaluation, onNextStepClick}: AlignmentViewProps) => {
                             setSelectedQuestion(question)
                             setSelectedQuestionNumber(questionNumber)
                         }}
+                        onCompleteSwitchClick={onProgressParticipant}
                     />
                 </Box>
             </Box>

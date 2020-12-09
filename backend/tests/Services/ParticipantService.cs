@@ -3,6 +3,7 @@ using Xunit;
 
 using api.Models;
 using api.Services;
+using System;
 
 namespace tests
 {
@@ -109,6 +110,45 @@ namespace tests
             participantService.Remove(participantCreate.Id);
 
             Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant(participantCreate.Id));
+        }
+
+        [Fact]
+        public void ProgressAllParticipants()
+        {
+            ProjectService projectService = new ProjectService(_context);
+            ParticipantService participantService = new ParticipantService(_context);
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Project project = projectService.Create("ProgressAllParticipants");
+            Evaluation evaluation = evaluationService.Create("ProgressAllParticipants", project);
+            Participant participant1 = participantService.Create("ProgressAllParticipants1", evaluation, Organization.All, Role.Facilitator);
+            Participant participant2 = participantService.Create("ProgressAllParticipants2", evaluation, Organization.Commissioning, Role.OrganizationLead);
+
+            Progression progression1Before = participant1.Progression;
+            participantService.ProgressAllParticipants(evaluation, Progression.Preparation);
+            Progression progression1After = participant1.Progression;
+            Progression progression2After = participant2.Progression;
+
+            Assert.Equal(Progression.Nomination, progression1Before);
+            Assert.Equal(Progression.Preparation, progression1After);
+            Assert.Equal(Progression.Preparation, progression2After);
+        }
+
+        [Fact]
+        public void ProgressParticipant()
+        {
+            ProjectService projectService = new ProjectService(_context);
+            ParticipantService participantService = new ParticipantService(_context);
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Project project = projectService.Create("ProgressParticipant");
+            Evaluation evaluation = evaluationService.Create("ProgressParticipant", project);
+            Participant participant = participantService.Create("ProgressParticipant", evaluation, Organization.All, Role.Facilitator);
+
+            Progression progressionBefore = participant.Progression;
+            participantService.ProgressParticipant(participant, Progression.Preparation);
+            Progression progressionAfter = participant.Progression;
+
+            Assert.Equal(Progression.Nomination, progressionBefore);
+            Assert.Equal(Progression.Preparation, progressionAfter);
         }
     }
 }

@@ -144,12 +144,14 @@ namespace tests
                 .SetQuery(@"
                     mutation(
                         $questionId: String!,
-                        $severity: Severity!
+                        $severity: Severity!,
+                        $progression: Progression!
                     ) {
                         setAnswer(
                             questionId: $questionId,
                             severity: $severity,
-                            text: ""New answer text!""
+                            text: ""New answer text!"",
+                            progression: $progression
                         ){
                             id
                         }
@@ -157,6 +159,7 @@ namespace tests
                 ")
                 .SetVariableValue("questionId", questionId)
                 .SetVariableValue("severity", Severity.High)
+                .SetVariableValue("progression", Progression.Preparation)
                 .SetServices(serviceProvider)
                 .Create();
 

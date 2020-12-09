@@ -60,6 +60,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createEvaluation?: Maybe<Evaluation>;
   progressEvaluation?: Maybe<Evaluation>;
+  progressParticipant?: Maybe<Participant>;
   createParticipant?: Maybe<Participant>;
   deleteParticipant?: Maybe<Participant>;
   setAnswer?: Maybe<Answer>;
@@ -74,6 +75,13 @@ export type MutationCreateEvaluationArgs = {
 
 export type MutationProgressEvaluationArgs = {
   evaluationId?: Maybe<Scalars['String']>;
+  newProgression: Progression;
+};
+
+
+export type MutationProgressParticipantArgs = {
+  evaluationId?: Maybe<Scalars['String']>;
+  newProgression: Progression;
 };
 
 
@@ -94,6 +102,7 @@ export type MutationSetAnswerArgs = {
   questionId?: Maybe<Scalars['String']>;
   severity: Severity;
   text?: Maybe<Scalars['String']>;
+  progression: Progression;
 };
 
 export type ProjectFilterInput = {
@@ -126,6 +135,7 @@ export type ParticipantFilterInput = {
   role?: Maybe<RoleOperationFilterInput>;
   progression?: Maybe<ProgressionOperationFilterInput>;
   createDate?: Maybe<ComparableDateTimeOperationFilterInput>;
+  evaluationId?: Maybe<StringOperationFilterInput>;
   evaluation?: Maybe<EvaluationFilterInput>;
 };
 
@@ -152,7 +162,9 @@ export type AnswerFilterInput = {
   severity?: Maybe<SeverityOperationFilterInput>;
   text?: Maybe<StringOperationFilterInput>;
   createDate?: Maybe<ComparableDateTimeOperationFilterInput>;
+  answeredById?: Maybe<StringOperationFilterInput>;
   answeredBy?: Maybe<ParticipantFilterInput>;
+  questionId?: Maybe<StringOperationFilterInput>;
   question?: Maybe<QuestionFilterInput>;
 };
 
@@ -348,6 +360,7 @@ export type Participant = {
   role: Role;
   progression: Progression;
   createDate: Scalars['DateTime'];
+  evaluationId: Scalars['String'];
   evaluation: Evaluation;
 };
 
@@ -372,9 +385,19 @@ export type Answer = {
   severity: Severity;
   text: Scalars['String'];
   createDate: Scalars['DateTime'];
+  answeredById?: Maybe<Scalars['String']>;
   answeredBy?: Maybe<Participant>;
+  questionId: Scalars['String'];
   question: Question;
 };
+
+export enum Progression {
+  Nomination = 'NOMINATION',
+  Preparation = 'PREPARATION',
+  Alignment = 'ALIGNMENT',
+  Workshop = 'WORKSHOP',
+  FollowUp = 'FOLLOW_UP'
+}
 
 export enum Organization {
   Commissioning = 'COMMISSIONING',
@@ -398,14 +421,6 @@ export enum Severity {
   Na = 'NA'
 }
 
-
-export enum Progression {
-  Nomination = 'NOMINATION',
-  Preparation = 'PREPARATION',
-  Alignment = 'ALIGNMENT',
-  Workshop = 'WORKSHOP',
-  FollowUp = 'FOLLOW_UP'
-}
 
 export enum Barrier {
   Gm = 'GM',
