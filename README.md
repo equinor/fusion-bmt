@@ -33,9 +33,9 @@ string to an existing database. If empty we use an InMemory database which is
 initialized with dummy data.
 
 ### GraphQL schema
-When running locally, a playgrond server for trying out GrapQL queries will be
+When running locally, a playground server for trying out GraphQL queries will be
 available at [localhost:5000/graphql](http://localhost:5000/graphql/).
-This will not work properly production since the playground server will not provide
+This will not work properly in production, since the playground server will not provide a
 bearer token for authentication. For generating a bearer token and try out the
 API, the Swagger URL [localhost:5000/swagger](http://localhost:5000/swagger/index.html) can be used.
 
