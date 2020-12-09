@@ -48,13 +48,14 @@ const BarrierQuestionsView = ({
     const {role: participantRole, progression: participantProgression} = useParticipant()
 
     const isEvaluationAtThisProgression = currentProgression == viewProgression
+    const participantAllowed = allowedRoles.includes(participantRole)
     const isParticipantCompleted= progressionLessThan(viewProgression, participantProgression)
     const isEvaluationFinishedHere = progressionLessThan(viewProgression, currentProgression)
     const hasParticipantBeenHere = !progressionLessThan(participantProgression, viewProgression)
 
-    const isQuestionAndAnswerDisabled = isEvaluationFinishedHere
-                                        || isParticipantCompleted
-                                        || !allowedRoles.includes(participantRole)
+    const disableAllUserInput = isEvaluationFinishedHere
+                                || !participantAllowed
+                                || !hasParticipantBeenHere
 
     const localOnClompleteClick = () => {
         const nextProgression = getNextProgression(participantProgression)
@@ -75,7 +76,7 @@ const BarrierQuestionsView = ({
                 <Box mr={2}>
                     <ProgressionCompleteSwitch
                         isCheckedInitially={isParticipantCompleted}
-                        disabled={isEvaluationFinishedHere || !hasParticipantBeenHere}
+                        disabled={disableAllUserInput}
                         onCompleteClick={localOnClompleteClick}
                         onUnCompleteClick={localOnUnCompleteClick}
                     />
@@ -103,7 +104,7 @@ const BarrierQuestionsView = ({
                             questionNumber={idx+1}
                             question={question}
                             answer={answer}
-                            disabled={isQuestionAndAnswerDisabled}
+                            disabled={disableAllUserInput || isParticipantCompleted}
                             onQuestionSummarySelected={ onQuestionSummarySelected }
                             viewProgression={viewProgression}
                         />
