@@ -3,6 +3,7 @@ import { Question, Progression } from '../api/models'
 import { Typography, Divider, SideSheet } from '@equinor/eds-core-react'
 import { barrierToString } from '../utils/EnumToString'
 import SingleAnswerSummary from './SingleAnswerSummary'
+import { progressionLessThan } from '../utils/ProgressionStatus'
 
 interface AnswerSummarySidebarProps
 {
@@ -10,10 +11,15 @@ interface AnswerSummarySidebarProps
     onCloseClick: () => void
     question: Question
     questionNumber: number
-    previousProgression: Progression
+    viewProgression: Progression
 }
 
-const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, previousProgression }: AnswerSummarySidebarProps) => {
+const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, viewProgression }: AnswerSummarySidebarProps) => {
+    const answers = question.answers.filter(answer => progressionLessThan(answer.progression, viewProgression))
+
+    const preparationAnswers = answers.filter(a => a.progression === Progression.Preparation)
+    const alignmentAnswers = answers.filter(a => a.progression === Progression.Alignment)
+
     return (
         <SideSheet
             title={ barrierToString(question.barrier) }
@@ -23,15 +29,23 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, pr
             style={{position: 'relative'}}
         >
             <Typography variant="h4">{questionNumber}. {question.text}</Typography>
-            <Divider />
-            {
-                question.answers.filter(answer => answer.progression === previousProgression).map((answer) => {
-                    return <SingleAnswerSummary answer={answer} key={answer.id} />
-                })
-            }
-            { question.answers.length === 0 &&
+            { answers.length === 0 &&
                 <p>No submitted answers</p>
             }
+            {alignmentAnswers.length !== 0 && <>
+                <Divider />
+                <Typography variant="h5">Alignment</Typography>
+            </>}
+            {alignmentAnswers.map((answer) => {
+                return <SingleAnswerSummary answer={answer} key={answer.id} />
+            })}
+            {preparationAnswers.length !== 0 && <>
+                <Divider />
+                <Typography variant="h5">Preparation</Typography>
+            </>}
+            {preparationAnswers.map((answer) => {
+                return <SingleAnswerSummary answer={answer} key={answer.id} />
+            })}
         </SideSheet>
     )
 }

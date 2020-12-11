@@ -55,7 +55,7 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                             }}
                             question={selectedQuestion}
                             questionNumber={selectedQuestionNumber}
-                            previousProgression={Progression.Alignment}
+                            viewProgression={Progression.Workshop}
                         />
                     }
                 </Box>

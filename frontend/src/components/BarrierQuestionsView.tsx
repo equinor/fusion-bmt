@@ -10,7 +10,7 @@ import { getAzureUniqueId } from '../utils/Variables'
 import { CurrentParticipantContext } from '../views/Evaluation/EvaluationRoute'
 import { Box } from '@material-ui/core'
 import ProgressionCompleteSwitch from './ProgressionCompleteSwitch'
-import { getLastProgression, getNextProgression, progressionLessThan } from '../utils/ProgressionStatus'
+import { getLastProgression, getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../utils/ProgressionStatus'
 
 const useParticipant = (): Participant => {
     const participant = useContext(CurrentParticipantContext)
@@ -51,7 +51,7 @@ const BarrierQuestionsView = ({
     const participantAllowed = allowedRoles.includes(participantRole)
     const isParticipantCompleted= progressionLessThan(viewProgression, participantProgression)
     const isEvaluationFinishedHere = progressionLessThan(viewProgression, currentProgression)
-    const hasParticipantBeenHere = !progressionLessThan(participantProgression, viewProgression)
+    const hasParticipantBeenHere = progressionGreaterThanOrEqual(participantProgression, viewProgression)
 
     const disableAllUserInput = isEvaluationFinishedHere
                                 || !participantAllowed

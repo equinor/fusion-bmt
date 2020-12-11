@@ -55,7 +55,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                             }}
                             question={selectedQuestion}
                             questionNumber={selectedQuestionNumber}
-                            previousProgression={Progression.Preparation}
+                            viewProgression={Progression.Alignment}
                         />
                     }
                 </Box>

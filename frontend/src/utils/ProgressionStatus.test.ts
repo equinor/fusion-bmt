@@ -1,5 +1,5 @@
 import { Progression } from '../api/models'
-import { calcProgressionStatus, progressionLessThan, ProgressionStatus } from "./ProgressionStatus"
+import { calcProgressionStatus, progressionGreaterThan, progressionLessThan, ProgressionStatus } from "./ProgressionStatus"
 
 describe('Test Progression status', () => {
     it('Same', () => {
@@ -22,7 +22,7 @@ describe('Test Progression status', () => {
 })
 
 describe('Test Progression', () => {
-    it('Correct progression order', () => {
+    it('Correct progression order progressionLessThan', () => {
         expect(progressionLessThan(Progression.Nomination, Progression.Preparation)).toBe(true)
         expect(progressionLessThan(Progression.Preparation, Progression.Alignment)).toBe(true)
         expect(progressionLessThan(Progression.Alignment, Progression.Workshop)).toBe(true)
@@ -32,5 +32,16 @@ describe('Test Progression', () => {
         expect(progressionLessThan(Progression.Alignment, Progression.Preparation)).toBe(false)
         expect(progressionLessThan(Progression.Workshop, Progression.Alignment)).toBe(false)
         expect(progressionLessThan(Progression.FollowUp, Progression.Workshop)).toBe(false)
+    })
+    it('Correct progression order progressionGreaterThan', () => {
+        expect(progressionGreaterThan(Progression.Nomination, Progression.Preparation)).toBe(false)
+        expect(progressionGreaterThan(Progression.Preparation, Progression.Alignment)).toBe(false)
+        expect(progressionGreaterThan(Progression.Alignment, Progression.Workshop)).toBe(false)
+        expect(progressionGreaterThan(Progression.Workshop, Progression.FollowUp)).toBe(false)
+
+        expect(progressionGreaterThan(Progression.Preparation, Progression.Nomination)).toBe(true)
+        expect(progressionGreaterThan(Progression.Alignment, Progression.Preparation)).toBe(true)
+        expect(progressionGreaterThan(Progression.Workshop, Progression.Alignment)).toBe(true)
+        expect(progressionGreaterThan(Progression.FollowUp, Progression.Workshop)).toBe(true)
     })
 })
