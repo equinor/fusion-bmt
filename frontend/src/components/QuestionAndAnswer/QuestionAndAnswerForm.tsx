@@ -24,7 +24,6 @@ interface QuestionAndAnswerFormProps {
 const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange, onQuestionSummarySelected}: QuestionAndAnswerFormProps) => {
     const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
-
     const firstUpdate = useRef(true)
     useEffect(() => {
         if(firstUpdate.current === true){
@@ -63,7 +62,9 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAn
                     </Box>
                     <Box>
                         <Typography variant="h3">{question.text}</Typography>
-                        <Typography>{question.supportNotes}</Typography>
+                        {question.supportNotes.split('\n').map(supportNotePart => {
+                            return <Typography key={question.id + supportNotePart}>{supportNotePart}</Typography>
+                        })}
                     </Box>
                 </Box>
             </Grid>
