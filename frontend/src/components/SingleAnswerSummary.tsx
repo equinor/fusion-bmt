@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
+
 import { Grid, Box } from '@material-ui/core'
-import SeverityIndicator from './SeverityIndicator'
 import { Typography } from '@equinor/eds-core-react'
-import { organizationToString } from '../utils/EnumToString'
-import { MarkdownViewer } from '@equinor/fusion-components'
-import { Answer } from '../api/models'
 import { useApiClients } from '@equinor/fusion'
+import { MarkdownViewer } from '@equinor/fusion-components'
+
+import { Answer } from '../api/models'
+import { organizationToString } from '../utils/EnumToString'
+import SeverityIndicator from './SeverityIndicator'
 
 interface SingleAnswerSummaryProps
 {
@@ -27,11 +29,11 @@ const SingleAnswerSummary = ({ answer }: SingleAnswerSummaryProps) => {
         <>
             <Grid item xs={12}>
                 <Box display="flex">
-                    <Box mr={5}>
+                    <Box mr={1}>
                         <SeverityIndicator severity={answer.severity} />
                     </Box>
-                    <Box width="85%">
-                        <Typography variant="h4">
+                    <Box width={1}>
+                        <Typography variant="h5">
                             {username}, {organizationToString(answer.answeredBy?.organization!)}
                         </Typography>
                         <MarkdownViewer markdown={answer.text} />

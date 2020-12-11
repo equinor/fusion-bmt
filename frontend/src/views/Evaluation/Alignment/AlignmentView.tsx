@@ -45,20 +45,21 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                         onCompleteSwitchClick={onProgressParticipant}
                     />
                 </Box>
+                <Box>
+                    { selectedQuestion && selectedQuestionNumber &&
+                        <AnswerSummarySidebar
+                            open={selectedQuestion != undefined}
+                            onCloseClick={() => {
+                                setSelectedQuestion(undefined)
+                                setSelectedQuestionNumber(undefined)
+                            }}
+                            question={selectedQuestion}
+                            questionNumber={selectedQuestionNumber}
+                            previousProgression={Progression.Preparation}
+                        />
+                    }
+                </Box>
             </Box>
-
-            { selectedQuestion && selectedQuestionNumber &&
-                <AnswerSummarySidebar
-                    open={selectedQuestion != undefined}
-                    onCloseClick={() => {
-                        setSelectedQuestion(undefined)
-                        setSelectedQuestionNumber(undefined)
-                    }}
-                    question={selectedQuestion}
-                    questionNumber={selectedQuestionNumber}
-                    previousProgression={Progression.Preparation}
-                />
-            }
         </>
     )
 }
