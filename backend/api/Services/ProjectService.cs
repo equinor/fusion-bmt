@@ -14,18 +14,6 @@ namespace api.Services
         {
             _context = context;
         }
-
-        public Project EnsureCreated(string fusionProjectID)
-        {
-            Project project = _context.Projects
-                .FirstOrDefault(project => project.FusionProjectId.Equals(fusionProjectID));
-            if (project == null)
-            {
-                return Create(fusionProjectID);
-            }
-            return project;
-        }
-
         public Project Create(string fusionProjectID)
         {
             DateTime createDate = DateTime.UtcNow;
@@ -47,6 +35,16 @@ namespace api.Services
             return _context.Projects;
         }
 
+        public Project GetProjectFromFusionId(string fusionProjectId)
+        {
+            Project project = _context.Projects
+                .FirstOrDefault(project => project.FusionProjectId.Equals(fusionProjectId));
+            if (project == null)
+            {
+                throw new NotFoundInDBException($"Project with fusionProjectId: {fusionProjectId} not found");
+            }
+            return project;
+        }
         public Project GetProject(string projectId)
         {
             Project project = _context.Projects.FirstOrDefault(project => project.Id.Equals(projectId));

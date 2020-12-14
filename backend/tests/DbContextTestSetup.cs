@@ -1,8 +1,10 @@
 using System;
-using api.Context;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
+
+using api.Authorization;
+using api.Context;
 
 namespace tests
 {
@@ -28,6 +30,19 @@ namespace tests
         public void Dispose()
         {
             _connection.Close();
+        }
+    }
+
+    class MockAuthService : IAuthService
+    {
+        public string GetOID()
+        {
+            return "1";
+        }
+        public void AssertIsFacilitator(string evaluationId)
+        {
+            // Not implementet in the mock beacuse we dont need it
+            throw new NotSupportedException();
         }
     }
 }

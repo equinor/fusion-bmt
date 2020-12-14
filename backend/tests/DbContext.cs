@@ -188,6 +188,7 @@ namespace tests
             IServiceProvider serviceProvider = new ServiceCollection()
                 .AddBatchDispatcher<BatchScheduler>()
                 .AddDbContext<BmtDbContext>(options => options.UseSqlite(_connection))
+                .AddLogging()
                 .AddScoped<IAuthService, MockAuthService>()
                 .AddScoped<GraphQuery>()
                 .AddScoped<ProjectService>()
@@ -199,16 +200,6 @@ namespace tests
                 .AddScoped<Mutation>()
                 .BuildServiceProvider();
             return serviceProvider;
-        }
-
-        class MockAuthService : IAuthService
-        {
-            public string GetOID()
-            {
-                return "1";
-            }
-            public void AssertIsFacilitator(string evaluationId)
-            {}
         }
     }
 }
