@@ -1,5 +1,6 @@
-using System.Linq;
 using HotChocolate.Data;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 
 using api.Models;
 using api.Services;
@@ -13,13 +14,15 @@ namespace api.GQL
         private readonly ParticipantService _participantService;
         private readonly QuestionService _questionService;
         private readonly AnswerService _answerService;
+        private readonly ILogger _logger;
 
         public GraphQuery(
             ProjectService projectService,
             EvaluationService evaluationService,
             ParticipantService participantService,
             QuestionService questionService,
-            AnswerService answerService
+            AnswerService answerService,
+            ILogger<GraphQuery> logger
         )
         {
             _projectService = projectService;
@@ -27,6 +30,7 @@ namespace api.GQL
             _participantService = participantService;
             _questionService = questionService;
             _answerService = answerService;
+            _logger = logger;
         }
 
         [UseProjection]
@@ -38,7 +42,17 @@ namespace api.GQL
 
         public Project GetProject(string fusionProjectID)
         {
-            return _projectService.EnsureCreated(fusionProjectID);
+            Project project;
+            try
+            {
+                project = _projectService.GetProjectFromFusionId(fusionProjectID);
+            }
+            catch (NotFoundInDBException)
+            {
+                project = _projectService.Create(fusionProjectID);
+                _logger.LogInformation($"Created new project with fusionProjectId: {fusionProjectID}");
+            }
+            return project;
         }
 
         [UseProjection]

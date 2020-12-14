@@ -30,28 +30,23 @@ namespace tests
         }
 
         [Fact]
-        public void EnsureCreatedMightExist()
+        public void GetProjectFromFusionIdException()
         {
             ProjectService projectService = new ProjectService(_context);
 
-            projectService.EnsureCreated("some_id_that_might_exist");
-            int nProjectsBefore = projectService.GetAll().Count();
-            projectService.EnsureCreated("some_id_that_might_exist");
-            int nProjectsAfter = projectService.GetAll().Count();
-
-            Assert.Equal(nProjectsBefore, nProjectsAfter);
+            Assert.Throws<NotFoundInDBException>(() => projectService.GetProjectFromFusionId("some_project_id_that_does_not_exist"));
         }
 
         [Fact]
-        public void EnsureCreatedDoesNotExist()
+        public void GetProjectFromFusionId()
         {
             ProjectService projectService = new ProjectService(_context);
 
-            int nProjectsBefore = projectService.GetAll().Count();
-            projectService.EnsureCreated("some_id_that_definitely_does_not_exist");
-            int nProjectsAfter = projectService.GetAll().Count();
+            Project projectExsists = projectService.GetAll().First();
 
-            Assert.Equal(nProjectsBefore + 1, nProjectsAfter);
+            Project projectGotten = projectService.GetProjectFromFusionId(projectExsists.FusionProjectId);
+
+            Assert.Equal(projectExsists, projectGotten);
         }
 
         [Fact]

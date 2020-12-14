@@ -1,4 +1,7 @@
 using System.Linq;
+
+using Microsoft.Extensions.Logging;
+
 using api.Services;
 using api.Models;
 using api.Authorization;
@@ -14,6 +17,7 @@ namespace api.GQL
         private readonly AnswerService _answerService;
         private readonly QuestionTemplateService _questionTemplateService;
         private readonly IAuthService _authService;
+        private readonly ILogger _logger;
 
         public Mutation(
             ProjectService projectService,
@@ -22,7 +26,8 @@ namespace api.GQL
             QuestionService questionService,
             AnswerService answerService,
             QuestionTemplateService questionTemplateService,
-            IAuthService authService
+            IAuthService authService,
+            ILogger<Mutation> logger
         )
         {
             _projectService = projectService;
@@ -32,6 +37,7 @@ namespace api.GQL
             _answerService = answerService;
             _questionTemplateService = questionTemplateService;
             _authService = authService;
+            _logger = logger;
         }
 
         public Evaluation CreateEvaluation(string name, string projectId)
@@ -42,6 +48,7 @@ namespace api.GQL
             _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
 
             _questionService.CreateBulk(_questionTemplateService.ActiveQuestions(), evaluation);
+            _logger.LogInformation($"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}");
             return evaluation;
         }
 
