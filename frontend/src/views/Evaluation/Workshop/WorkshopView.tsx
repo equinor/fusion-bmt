@@ -45,20 +45,21 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                         allowedRoles={ [Role.Facilitator] }
                     />
                 </Box>
+                <Box>
+                    { selectedQuestion && selectedQuestionNumber &&
+                        <AnswerSummarySidebar
+                            open={selectedQuestion != undefined}
+                            onCloseClick={() => {
+                                setSelectedQuestion(undefined)
+                                setSelectedQuestionNumber(undefined)
+                            }}
+                            question={selectedQuestion}
+                            questionNumber={selectedQuestionNumber}
+                            previousProgression={Progression.Alignment}
+                        />
+                    }
+                </Box>
             </Box>
-
-            { selectedQuestion && selectedQuestionNumber &&
-                <AnswerSummarySidebar
-                    open={selectedQuestion != undefined}
-                    onCloseClick={() => {
-                        setSelectedQuestion(undefined)
-                        setSelectedQuestionNumber(undefined)
-                    }}
-                    question={selectedQuestion}
-                    questionNumber={selectedQuestionNumber}
-                    previousProgression={Progression.Alignment}
-                />
-            }
         </>
     )
 }

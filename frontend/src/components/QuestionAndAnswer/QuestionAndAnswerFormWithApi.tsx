@@ -1,4 +1,4 @@
-import { ApolloError, gql, Reference, useMutation } from '@apollo/client'
+import { ApolloError, gql, useMutation } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
 import React from 'react'
 import { ANSWER_FIELDS_FRAGMENT, QUESTION_ANSWERS_FRAGMENT } from '../../api/fragments'
@@ -39,28 +39,21 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
     const [setAnswerApolloFunc, { loading, data, error }] = useMutation(
         SET_ANSWER, {
             update(cache, { data: { setAnswer: answer } }) {
-                cache.modify({
-                    fields: {
-                        evaluations(existingEvaluations: Reference[] = []){
-                            const questionId: string = answer.question.id
-                            const questionFragmentId: string = `Question:${questionId}`
-                            const oldFragment: Question | null = cache.readFragment({
-                                id: questionFragmentId,
-                                fragmentName: 'QuestionAnswers',
-                                fragment: QUESTION_ANSWERS_FRAGMENT
-                            })
-                            const newData = {
-                                answers: [...oldFragment!.answers.filter(a => a.id !== answer.id), answer]
-                            }
-                            const newFragment = cache.writeFragment({
-                                id: questionFragmentId,
-                                data: newData,
-                                fragmentName: 'QuestionAnswers',
-                                fragment: QUESTION_ANSWERS_FRAGMENT
-                            })
-                            return existingEvaluations
-                        }
-                    }
+                const questionId: string = answer.question.id
+                const questionFragmentId: string = `Question:${questionId}`
+                const oldFragment: Question | null = cache.readFragment({
+                    id: questionFragmentId,
+                    fragmentName: 'QuestionAnswers',
+                    fragment: QUESTION_ANSWERS_FRAGMENT
+                })
+                const newData = {
+                    answers: [...oldFragment!.answers.filter(a => a.id !== answer.id), answer]
+                }
+                cache.writeFragment({
+                    id: questionFragmentId,
+                    data: newData,
+                    fragmentName: 'QuestionAnswers',
+                    fragment: QUESTION_ANSWERS_FRAGMENT
                 })
             },
 

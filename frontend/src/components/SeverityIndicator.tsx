@@ -1,6 +1,11 @@
-import { Severity } from '../api/models'
 import React from 'react'
-import { RadioButton } from '@equinor/fusion-components'
+
+import { Icon } from '@equinor/eds-core-react'
+import {
+    radio_button_selected
+} from '@equinor/eds-icons'
+
+import { Severity } from '../api/models'
 
 interface SeverityIndicatorProps
 {
@@ -21,15 +26,12 @@ const SeverityIndicator = ({severity}: SeverityIndicatorProps) => {
         }
     }
 
-    return (
-        <label style={{ display: 'flex', alignItems: 'center' }}>
-            <RadioButton
-                color={getColor(severity)}
-                selected={true}
-                disabled={true}
-            />
-        </label>
-    )
+    return <>
+        <Icon
+            data={radio_button_selected}
+            color={getColor(severity)}
+        />
+    </>
 }
 
 export default SeverityIndicator
