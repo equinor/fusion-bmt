@@ -19,6 +19,16 @@ export const progressionLessThan = (p1: Progression, p2: Progression): boolean =
     return p1i < p2i
 }
 
+export const progressionGreaterThan = (p1: Progression, p2: Progression): boolean => {
+    if(p1 === p2) return false
+    return !progressionLessThan(p1, p2)
+}
+
+export const progressionGreaterThanOrEqual = (p1: Progression, p2: Progression): boolean => {
+    if(p1 === p2) return true
+    return progressionGreaterThan(p1, p2)
+}
+
 export const getNextProgression = (progression: Progression): Progression => {
     switch(progression){
     case Progression.Nomination: return Progression.Preparation
