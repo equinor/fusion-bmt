@@ -111,6 +111,9 @@ export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps =
                     answers {
                         ...AnswerFields
                     }
+                    evaluation {
+                        ...EvaluationFields
+                    }
                 }
             }
         }
