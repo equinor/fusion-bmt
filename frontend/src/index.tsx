@@ -70,7 +70,7 @@ registerApp('bmt', {
             return `/${context.id}`
         },
         getContextFromUrl: (url: string) => {
-            return url.split('/')[0]
+            return url.split('/')[1]
         },
     },
 })
