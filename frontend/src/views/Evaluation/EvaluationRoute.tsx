@@ -1,17 +1,15 @@
-import * as React from 'react'
+import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
 import { TextArea } from '@equinor/fusion-components'
 
 import { Participant, Progression } from '../../api/models'
 import { useEvaluationQuery, useProgressEvaluationMutation, useProgressParticipantMutation } from './EvaluationGQL'
-import { createContext, useState } from 'react'
 import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
 import EvaluationView from './EvaluationView'
 import { getAzureUniqueId } from '../../utils/Variables'
 import { getNextProgression } from '../../utils/ProgressionStatus'
-
-export const CurrentParticipantContext = createContext<Participant | undefined>(undefined)
+import { CurrentParticipantContext } from '../../globals/contexts'
 
 interface Params {
     fusionProjectId: string
