@@ -20,6 +20,8 @@ namespace tests
                 new ParticipantService(_context),
                 new QuestionService(_context),
                 new AnswerService(_context),
+                new ActionService(_context),
+                new NoteService(_context),
                 new Logger<GraphQuery>(factory)
             );
         }
