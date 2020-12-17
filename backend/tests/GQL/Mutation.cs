@@ -21,6 +21,8 @@ namespace tests
                 new QuestionService(_context),
                 new AnswerService(_context),
                 new QuestionTemplateService(_context),
+                new ActionService(_context),
+                new NoteService(_context),
                 new MockAuthService(),
                 new Logger<Mutation>(factory)
             );

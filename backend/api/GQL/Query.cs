@@ -14,6 +14,8 @@ namespace api.GQL
         private readonly ParticipantService _participantService;
         private readonly QuestionService _questionService;
         private readonly AnswerService _answerService;
+        private readonly ActionService _actionService;
+        private readonly NoteService _noteService;
         private readonly ILogger _logger;
 
         public GraphQuery(
@@ -22,6 +24,8 @@ namespace api.GQL
             ParticipantService participantService,
             QuestionService questionService,
             AnswerService answerService,
+            ActionService actionService,
+            NoteService noteService,
             ILogger<GraphQuery> logger
         )
         {
@@ -30,6 +34,8 @@ namespace api.GQL
             _participantService = participantService;
             _questionService = questionService;
             _answerService = answerService;
+            _actionService = actionService;
+            _noteService = noteService;
             _logger = logger;
         }
 
@@ -81,6 +87,20 @@ namespace api.GQL
         public IQueryable<Answer> GetAnswers()
         {
             return _answerService.GetAll();
+        }
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Action> GetActions()
+        {
+            return _actionService.GetAll();
+        }
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Note> GetNotes()
+        {
+            return _noteService.GetAll();
         }
     }
 }
