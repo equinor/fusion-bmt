@@ -11,6 +11,7 @@ import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import { getNextBarrier } from '../../../utils/BarrierUtils'
+import QuestionActionsListWithApi from '../../../components/Action/QuestionActionsListWithApi'
 
 interface WorkshopViewProps
 {
@@ -107,6 +108,9 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                                     disabled={disableAllUserInput || isParticipantCompleted}
                                     onQuestionSummarySelected={ onQuestionSummarySelected }
                                     viewProgression={viewProgression}
+                                />
+                                <QuestionActionsListWithApi
+                                    question={question}
                                 />
                             </div>
                         )

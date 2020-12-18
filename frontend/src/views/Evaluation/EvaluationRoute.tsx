@@ -9,7 +9,7 @@ import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
 import EvaluationView from './EvaluationView'
 import { getAzureUniqueId } from '../../utils/Variables'
 import { getNextProgression } from '../../utils/ProgressionStatus'
-import { CurrentParticipantContext } from '../../globals/contexts'
+import { CurrentParticipantContext, EvaluationContext } from '../../globals/contexts'
 
 interface Params {
     fusionProjectId: string
@@ -89,17 +89,19 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
     return (
         <>
             <CurrentParticipantContext.Provider value={participant}>
-                <EvaluationView
-                    evaluation={evaluation}
-                    onProgressEvaluationClick={onProgressEvaluationClick}
-                    onProgressParticipant={onProgressParticipant}
-                />
-                <ProgressEvaluationDialog
-                    isOpen={isProgressDialogOpen}
-                    currentProgression={evaluation.progression}
-                    onConfirmClick={onConfirmProgressEvaluationClick}
-                    onCancelClick={onCancelProgressEvaluation}
-                />
+                <EvaluationContext.Provider value={evaluation}>
+                    <EvaluationView
+                        evaluation={evaluation}
+                        onProgressEvaluationClick={onProgressEvaluationClick}
+                        onProgressParticipant={onProgressParticipant}
+                    />
+                    <ProgressEvaluationDialog
+                        isOpen={isProgressDialogOpen}
+                        currentProgression={evaluation.progression}
+                        onConfirmClick={onConfirmProgressEvaluationClick}
+                        onCancelClick={onCancelProgressEvaluation}
+                    />
+                </EvaluationContext.Provider>
             </CurrentParticipantContext.Provider>
         </>
     )
