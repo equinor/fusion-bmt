@@ -26,7 +26,7 @@ jobs:
           workingDir: 'frontend'
           customCommand: 'run-script build'
 
-      - task: FusionApp@1
+      - task: FusionApp@2
         displayName: 'Deploy frontend'
         inputs:
           fusionCredentials: 'Fusion BMT'
@@ -38,7 +38,7 @@ jobs:
           forceReplaceExisting: true
 
 
-      - task: FusionApp@1
+      - task: FusionApp@2
         displayName: 'Publish frontend'
         inputs:
           fusionCredentials: 'Fusion BMT'
