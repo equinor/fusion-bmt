@@ -1,4 +1,4 @@
-# Deploy fusion-dcd to dev enviroment
+# Deploy fusion-bmt to dev enviroment
 # Use `/azp run` to execute directly from comment in PR
 
 trigger:
@@ -29,7 +29,7 @@ jobs:
       - task: FusionApp@1
         displayName: 'Deploy frontend'
         inputs:
-          fusionCredentials: 'Fusion BMT dev'
+          fusionCredentials: 'Fusion BMT'
           portalUrl: 'https://pro-s-portal-ci.azurewebsites.net'
           action: 'Deploy'
           bundlePath: 'frontend/out/bmt.zip'
@@ -41,9 +41,9 @@ jobs:
       - task: FusionApp@1
         displayName: 'Publish frontend'
         inputs:
-          fusionCredentials: 'Fusion BMT dev'
+          fusionCredentials: 'Fusion BMT'
           portalUrl: 'https://pro-s-portal-ci.azurewebsites.net'
           action: 'Publish'
-          appKey: 'dcd'
+          appKey: 'bmt'
           tokenResource: '5a842df8-3238-415d-b168-9f16a6a6031b'
           forceReplaceExisting: true
