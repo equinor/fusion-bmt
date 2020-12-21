@@ -29,6 +29,7 @@ const ProgressionCompleteSwitch = ({isCheckedInitially, disabled, onCompleteClic
             onClick={onLocalClick}
             disabled={disabled}
             label="Complete"
+            enterKeyHint=""
         />
     </>
 }

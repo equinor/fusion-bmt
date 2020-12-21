@@ -46,11 +46,11 @@ const CreateEvaluationDialog = ({open, onCreate, onCancelClick}: CreateEvaluatio
                         <TextField
                             id='' // avoids error
                             autoFocus={true}
-                            onChange={(e) => {
+                            onChange={(e: any) => {
                                 onInputChange(e.target.value)
                             }}
                             placeholder="Evaluation Name"
-                            onKeyPress={(e) => {
+                            onKeyPress={(e: any) => {
                                 if(e.key === "Enter"){
                                     handleCreateClick()
                                 }

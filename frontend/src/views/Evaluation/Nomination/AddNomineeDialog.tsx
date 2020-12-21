@@ -117,7 +117,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                 <TextField
                     id='' // avoids error
                     autoFocus={true}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                         setSearchQuery(e.target.value)
                     }}
                     type="search"
