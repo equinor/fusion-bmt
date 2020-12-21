@@ -9,11 +9,12 @@
         "test": "jest",
         "schema": "graphql-codegen --config src/api/schema.yml"
     },
-    "author": "",
+    "author": "Software Innovation Bergen",
     "license": "MIT",
     "manifest": {
         "name": "bmt",
-        "shortName": "bmt"
+        "shortName": "bmt",
+        "admins": [ "krr@equinor.com" ]
     },
     "dependencies": {
         "@apollo/client": "^3.2.5",
