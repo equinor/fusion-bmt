@@ -81,6 +81,16 @@ namespace api.Services
             return answer;
         }
 
+        public IQueryable<Answer> CreateFollowUpAnswers(Evaluation evaluation)
+        {
+            IQueryable<Answer> answers = GetAll().Where(a => (a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation)));
+            foreach (Answer a in answers)
+            {
+                Create(a.AnsweredBy, a.Question, a.Severity, a.Text, Progression.FollowUp);
+            }
+            return GetAll().Where(a => a.Progression.Equals(Progression.FollowUp));
+        }
+
         public IQueryable<Answer> GetAll()
         {
             return _context.Answers;

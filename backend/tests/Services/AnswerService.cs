@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 using Xunit;
 
@@ -128,6 +129,30 @@ namespace tests
 
             Answer resultingAnswer = answerService.GetAnswer(answerId);
             Assert.Equal(newText, resultingAnswer.Text);
+        }
+
+        [Fact]
+        public void CreateFollowUpAnswers()
+        {
+            EvaluationService evaluationService = new EvaluationService(_context);
+            ParticipantService participantService = new ParticipantService(_context);
+            QuestionService questionService = new QuestionService(_context);
+            AnswerService answerService = new AnswerService(_context);
+
+            Evaluation evaluation = evaluationService.GetAll().First();
+            Participant participant = participantService.Create("CreateFollowUpAnswers_id", evaluation, Organization.All, Role.Facilitator);
+            QuestionTemplateService qts = new QuestionTemplateService(_context);
+            List<Question> questions = questionService.CreateBulk(qts.GetAll().ToList(), evaluation);
+            answerService.Create(participant, questions[0], Severity.High, "test_answer_0", Progression.Workshop);
+            answerService.Create(participant, questions[1], Severity.High, "test_answer_1", Progression.Workshop);
+            answerService.Create(participant, questions[2], Severity.High, "test_answer_2", Progression.Workshop);
+
+            int nAnswersFollowupBefore = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation))).Count();
+            int nAnswersWorkshop = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation))).Count();
+            answerService.CreateFollowUpAnswers(evaluation);
+            int nAnswersFollowup = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation))).Count();
+
+            Assert.Equal(nAnswersFollowupBefore + nAnswersWorkshop, nAnswersFollowup);
         }
     }
 }

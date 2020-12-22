@@ -69,6 +69,11 @@ namespace api.GQL
 
             _participantService.ProgressAllParticipants(evaluation, newProgression);
 
+            if (newProgression.Equals(Progression.FollowUp))
+            {
+                _answerService.CreateFollowUpAnswers(evaluation);
+            }
+
             return evaluation;
         }
 
