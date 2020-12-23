@@ -77,7 +77,10 @@ namespace api
                     builder.AllowAnyMethod();
                     builder.WithOrigins(
                         "http://localhost:3000",
-                        "https://*.equinor.com"
+                        "https://*.equinor.com",
+                        "https://pro-s-portal-ci.azurewebsites.net",
+                        "https://pro-s-portal-fqa.azurewebsites.net",
+                        "https://pro-s-portal-fprd.azurewebsites.net"
                     ).SetIsOriginAllowedToAllowWildcardSubdomains();
                 });
             });
