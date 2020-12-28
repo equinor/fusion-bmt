@@ -35,6 +35,7 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
                     onNextStepClick={onNextStepClick}
                     onCompleteSwitchClick={onProgressParticipant}
                     allowedRoles={ Object.values(Role) }
+                    onNextBarrier={ (barrier) => setSelectedBarrier(barrier)}
                 />
             </Box>
         </Box>

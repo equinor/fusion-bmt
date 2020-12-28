@@ -43,6 +43,7 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                             setSelectedQuestionNumber(questionNumber)
                         }}
                         onCompleteSwitchClick={onProgressParticipant}
+                        onNextBarrier={ (barrier) => setSelectedBarrier(barrier)}
                     />
                 </Box>
                 <Box>

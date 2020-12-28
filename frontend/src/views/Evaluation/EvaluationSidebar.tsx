@@ -4,6 +4,7 @@ import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-com
 import { getAzureUniqueId } from '../../utils/Variables'
 import { barrierToString } from '../../utils/EnumToString'
 import {  getFilledUserAnswersForProgression } from '../../utils/QuestionAndAnswerUtils'
+import { useState } from 'react'
 
 interface EvaluationSidebarProps
 {
@@ -16,15 +17,20 @@ interface EvaluationSidebarProps
 const EvaluationSidebar = ({questions, barrier, viewProgression, onBarrierSelected}: EvaluationSidebarProps) => {
     const azureUniqueId: string = getAzureUniqueId()
 
-    const structure: NavigationStructure[] = Object.entries(Barrier).map(([_, barrier]) => {
-        const barrierQuestions = questions.filter(q => q.barrier === barrier)
+    const selectBarrier = (barrier: Barrier) => {
+        onBarrierSelected(barrier)
+    }
+
+    const structure: NavigationStructure[] = Object.entries(Barrier).map(([_, b]) => {
+        const barrierQuestions = questions.filter(q => q.barrier === b)
         const answeredUsersBarrierAnswers = getFilledUserAnswersForProgression(barrierQuestions, viewProgression, azureUniqueId)
 
         return {
-            id: barrier,
+            id: b,
             type: 'grouping',
-            title: barrierToString(barrier),
-            icon: <>{barrier}</>,
+            title: barrierToString(b),
+            icon: <>{b}</>,
+            isActive: barrier === b,
             aside: <Chip title={`${answeredUsersBarrierAnswers.length}/${barrierQuestions.length}`} />
         }
     })
@@ -35,7 +41,7 @@ const EvaluationSidebar = ({questions, barrier, viewProgression, onBarrierSelect
             structure={structure}
             selectedId={barrier}
             onChangeSelectedId={(selectedBarrierId) => {
-                onBarrierSelected(selectedBarrierId as Barrier)
+                selectBarrier(selectedBarrierId as Barrier)
             }}
             onChangeStructure={() => {}}
         />

@@ -43,6 +43,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                             setSelectedQuestionNumber(questionNumber)
                         }}
                         onCompleteSwitchClick={onProgressParticipant}
+                        onNextBarrier={ (barrier) => setSelectedBarrier(barrier)}
                     />
                 </Box>
                 <Box>
