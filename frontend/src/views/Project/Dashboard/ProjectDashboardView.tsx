@@ -7,6 +7,7 @@ import { Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
 import { useEvaluationsQuery } from './ProjectDashboardGQL'
 import { TextArea } from '@equinor/fusion-components'
+import { useCurrentUser } from '@equinor/fusion'
 
 interface ProjectDashboardViewProps {
     project: Project
@@ -14,6 +15,11 @@ interface ProjectDashboardViewProps {
 
 const ProjectDashboardView = ({project}: ProjectDashboardViewProps) => {
     const {loading: loadingQuery, evaluations, error: errorQuery} = useEvaluationsQuery(project.id)
+
+    const currentUser = useCurrentUser()
+    if(!currentUser){
+        return <p>Please log in.</p>
+    }
 
     if (loadingQuery){
         return <>
@@ -50,7 +56,7 @@ const ProjectDashboardView = ({project}: ProjectDashboardViewProps) => {
                     </Box>
                     {evaluations &&
                         <Box display="flex" flexDirection="column">
-                            {evaluations.map(e => {
+                            {evaluations.filter(e => e.participants.map(p => p.azureUniqueId).includes(currentUser.id)).map(e => {
                                 return (
                                     <Box key={e.id}>
                                         <EvaluationListItem evaluation={e}/>
