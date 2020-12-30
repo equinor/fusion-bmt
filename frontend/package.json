@@ -14,7 +14,9 @@
     "manifest": {
         "name": "bmt",
         "shortName": "bmt",
-        "admins": [ "krr@equinor.com" ]
+        "admins": [
+            "krr@equinor.com"
+        ]
     },
     "dependencies": {
         "@apollo/client": "^3.2.5",

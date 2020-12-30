@@ -4,7 +4,7 @@ import { Evaluation, Organization, Participant, Question, Progression, Answer } 
 import ParticipantCard from './ParticipantCard'
 import { DataTableColumn, DataTable } from '@equinor/fusion-components'
 import { ProgressionStatus } from '../utils/ProgressionStatus'
-import { checkIfAnswerFilled, getFilledUserAnswersForProgression } from '../utils/QuestionAndAnswerUtils'
+import { getFilledUserAnswersForProgression } from '../utils/QuestionAndAnswerUtils'
 import { organizationToString } from '../utils/EnumToString'
 
 interface DataTableItem {
@@ -12,6 +12,7 @@ interface DataTableItem {
     participant: Participant
     progressOrg: number
     progressAll: number
+    completed: boolean
     rowIdentifier: string
 }
 
@@ -39,6 +40,12 @@ const ProgressAllRenderer: React.FC<DataTableRowProps> = ({ item }) => {
 const OrganizationRenderer: React.FC<DataTableRowProps> = ({ item }) => {
     return (
         <>{organizationToString(item.organization)}</>
+    )
+}
+
+const CompletedRenderer: React.FC<DataTableRowProps> = ({ item }) => {
+    return (
+        <>{item.completed ? "Yes" : "No"}</>
     )
 }
 
@@ -70,6 +77,13 @@ const columns: DataTableColumn<DataTableItem>[] = [
         label: 'Progress all questions',
         sortable: false,
         component: ProgressAllRenderer
+    },
+    {
+        key: 'completed',
+        accessor: 'completed',
+        label: 'Completed',
+        sortable: false,
+        component: CompletedRenderer
     },
 ]
 
@@ -103,7 +117,8 @@ const ProgressSummary = ({evaluation, viewProgression}: ProgressSummaryProps) =>
         progressionStatus: ProgressionStatus.Awaiting,
         rowIdentifier: participant.id,
         progressOrg: getProgressOrganisation(participant, questions, viewProgression),
-        progressAll: getProgressAll(participant, questions, viewProgression)
+        progressAll: getProgressAll(participant, questions, viewProgression),
+        completed: participant.progression != viewProgression
     }))
 
     return <>
