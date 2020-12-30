@@ -11,6 +11,7 @@ import { CurrentParticipantContext } from '../views/Evaluation/EvaluationRoute'
 import { Box } from '@material-ui/core'
 import ProgressionCompleteSwitch from './ProgressionCompleteSwitch'
 import { getLastProgression, getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../utils/ProgressionStatus'
+import { getNextBarrier } from '../utils/BarrierUtils'
 
 const useParticipant = (): Participant => {
     const participant = useContext(CurrentParticipantContext)
@@ -30,6 +31,7 @@ interface BarrierQuestionsViewProps
     onNextStepClick: () => void
     onCompleteSwitchClick: (newProgression: Progression) => void
     onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
+    onNextBarrier: (barrier: Barrier) => void;
 }
 
 const BarrierQuestionsView = ({
@@ -40,7 +42,8 @@ const BarrierQuestionsView = ({
     allowedRoles,
     onNextStepClick,
     onCompleteSwitchClick,
-    onQuestionSummarySelected
+    onQuestionSummarySelected,
+    onNextBarrier
 }: BarrierQuestionsViewProps) => {
     const azureUniqueId = getAzureUniqueId()
     const barrierQuestions = questions.filter(q => q.barrier === barrier)
@@ -66,6 +69,8 @@ const BarrierQuestionsView = ({
         const lastProgression = getLastProgression(participantProgression)
         onCompleteSwitchClick(lastProgression)
     }
+
+    const nextBarrier = getNextBarrier(barrier)
 
     return (
         <>
@@ -112,6 +117,12 @@ const BarrierQuestionsView = ({
                 )
             })}
             <br/>
+            { nextBarrier &&
+                <Button onClick={ () => {
+                    onNextBarrier(nextBarrier)
+                    window.scrollTo({top: 0, behavior: 'smooth'})
+                }}>Next Barrier: {barrierToString(nextBarrier)}</Button>
+            }
         </>
     )
 }
