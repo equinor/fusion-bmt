@@ -5,6 +5,7 @@ import { Organization, Participant, Role } from '../../../api/models'
 import ParticipantCard from '../../../components/ParticipantCard'
 import { ProgressionStatus } from '../../../utils/ProgressionStatus'
 import { useDeleteParticipantMutation } from './NominationGQL'
+import { roleToString, organizationToString } from '../../../utils/EnumToString'
 
 interface DataTableItem {
     organization: Organization
@@ -19,7 +20,7 @@ interface DataTableRowProps {
     rowIndex: number
 }
 
-const DataTableItemRenderer: React.FC<DataTableRowProps> = ({ item }) => (
+const ParticipantRenderer: React.FC<DataTableRowProps> = ({ item }) => (
     <ParticipantCard participant={item.participant} />
 )
 
@@ -37,24 +38,34 @@ const DeleteColumnItemRenderer: React.FC<DataTableRowProps> = ({ item }) => {
     )
 }
 
+const RoleRenderer: React.FC<DataTableRowProps> = ({ item }) => (
+    <>{roleToString(item.role)}</>
+)
+
+const OrganizationRenderer: React.FC<DataTableRowProps> = ({ item }) => (
+    <>{organizationToString(item.organization)}</>
+)
+
 const columns: DataTableColumn<DataTableItem>[] = [
     {
         key: 'person',
         accessor: 'participant',
         label: 'Details',
         sortable: false,
-        component: DataTableItemRenderer
+        component: ParticipantRenderer
     },
     {
         key: 'role',
         accessor: 'role',
         label: 'Role',
         sortable: false,
+        component: RoleRenderer,
     },
     {
         key: 'organization',
         accessor: 'organization',
         label: 'Organization',
+        component: OrganizationRenderer,
         sortable: false,
     },
     {
