@@ -1,9 +1,9 @@
 
 import React from 'react'
-import { Evaluation, Organization, Participant, Question, Progression, Answer } from '../api/models'
+import { Evaluation, Organization, Participant, Question, Progression } from '../api/models'
 import ParticipantCard from './ParticipantCard'
 import { DataTableColumn, DataTable } from '@equinor/fusion-components'
-import { ProgressionStatus } from '../utils/ProgressionStatus'
+import { progressionLessThan, ProgressionStatus } from '../utils/ProgressionStatus'
 import { getFilledUserAnswersForProgression } from '../utils/QuestionAndAnswerUtils'
 import { organizationToString } from '../utils/EnumToString'
 
@@ -110,16 +110,19 @@ const getProgressAll = (participant: Participant, questions: Question[], progres
 const ProgressSummary = ({evaluation, viewProgression}: ProgressSummaryProps) => {
     const questions = evaluation.questions
 
-    const data: DataTableItem[] = evaluation.participants.map(participant => ({
-        participant,
-        organization: participant.organization,
-        role: participant.role,
-        progressionStatus: ProgressionStatus.Awaiting,
-        rowIdentifier: participant.id,
-        progressOrg: getProgressOrganisation(participant, questions, viewProgression),
-        progressAll: getProgressAll(participant, questions, viewProgression),
-        completed: participant.progression != viewProgression
-    }))
+    const data: DataTableItem[] = evaluation.participants.map(participant => {
+        const isParticipantCompleted = progressionLessThan(viewProgression, participant.progression)
+        return {
+            participant,
+            organization: participant.organization,
+            role: participant.role,
+            progressionStatus: ProgressionStatus.Awaiting,
+            rowIdentifier: participant.id,
+            progressOrg: getProgressOrganisation(participant, questions, viewProgression),
+            progressAll: getProgressAll(participant, questions, viewProgression),
+            completed: isParticipantCompleted
+        }
+    })
 
     return <>
         <DataTable
