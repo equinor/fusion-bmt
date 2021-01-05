@@ -1,0 +1,50 @@
+# Deploy fusion-bmt to prod environment
+# Use `/azp run` to execute directly from comment in PR
+
+trigger:
+- deploy-fusion-prod
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+  - deployment: DeployApp
+    environment: fusion
+
+  - job: 'Deploy_Fusion_BMT'
+    steps:
+      - task: Npm@1
+        displayName: 'Build frontend'
+        inputs:
+          command: 'install'
+          workingDir: 'frontend'
+
+      - task: Npm@1
+        displayName: 'Bundle frontend'
+        inputs:
+          command: 'custom'
+          workingDir: 'frontend'
+          customCommand: 'run-script build'
+
+      - task: FusionApp@2
+        displayName: 'Deploy frontend'
+        inputs:
+          fusionCredentials: 'Fusion BMT'
+          portalUrl: 'https://pro-s-portal-fprd.azurewebsites.net'
+          action: 'Deploy'
+          appKey: 'bmt'
+          bundlePath: 'frontend/out/bmt.zip'
+          tokenResource: '97978493-9777-4d48-b38a-67b0b9cd88d2'
+          ignoreVersionConflict: true
+          forceReplaceExisting: true
+
+
+      - task: FusionApp@2
+        displayName: 'Publish frontend'
+        inputs:
+          fusionCredentials: 'Fusion BMT'
+          portalUrl: 'https://pro-s-portal-fprd.azurewebsites.net'
+          action: 'Publish'
+          appKey: 'bmt'
+          tokenResource: '97978493-9777-4d48-b38a-67b0b9cd88d2'
+          forceReplaceExisting: true

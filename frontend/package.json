@@ -12,12 +12,13 @@
     "author": "Software Innovation Bergen",
     "license": "MIT",
     "manifest": {
-        "name": "bmt",
-        "shortName": "bmt",
+        "name": "Barrier Management Tool",
+        "shortName": "BMT",
         "admins": [
             "krr@equinor.com"
         ]
     },
+    "icon": "resources/app-icon.svg",
     "dependencies": {
         "@apollo/client": "^3.2.5",
         "@equinor/eds-core-react": "^0.8.3",
@@ -35,7 +36,7 @@
     "devDependencies": {
         "@babel/preset-env": "^7.12.1",
         "@babel/preset-react": "^7.12.1",
-        "@equinor/fusion-cli": "^1.1.4",
+        "@equinor/fusion-cli": "^1.1.5",
         "@graphql-codegen/cli": "1.19.1",
         "@graphql-codegen/typescript": "^1.17.11",
         "@testing-library/react": "^11.1.2",
