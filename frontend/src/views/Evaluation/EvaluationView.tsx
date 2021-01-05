@@ -64,22 +64,32 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                 stepKey={Progression.Workshop}
             >
-                <WorkshopView
-                    evaluation={evaluation}
-                    onNextStepClick={() => onProgressEvaluationClick()}
-                    onProgressParticipant={onProgressParticipant}
-                />
+                <div>
+                    {
+                    // Added to make position: sticky work for deeper components
+                    }
+                    <WorkshopView
+                        evaluation={evaluation}
+                        onNextStepClick={() => onProgressEvaluationClick()}
+                        onProgressParticipant={onProgressParticipant}
+                    />
+                </div>
             </Step>
             <Step
                 title="Follow-up"
                 description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                 stepKey={Progression.FollowUp}
             >
-                <FollowUpView
-                    evaluation={evaluation}
-                    onNextStepClick={() => onProgressEvaluationClick()}
-                    onProgressParticipant={onProgressParticipant}
-                />
+                <div>
+                    {
+                    // Added to make position: sticky work for deeper components
+                    }
+                    <FollowUpView
+                        evaluation={evaluation}
+                        onNextStepClick={() => onProgressEvaluationClick()}
+                        onProgressParticipant={onProgressParticipant}
+                    />
+                </div>
             </Step>
         </Stepper>
     </>

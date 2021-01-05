@@ -4,6 +4,7 @@ import { Typography, Divider, SideSheet } from '@equinor/eds-core-react'
 import { barrierToString } from '../utils/EnumToString'
 import SingleAnswerSummary from './SingleAnswerSummary'
 import { progressionLessThan } from '../utils/ProgressionStatus'
+import Sticky from './Sticky'
 
 interface AnswerSummarySidebarProps
 {
@@ -21,7 +22,7 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
     const alignmentAnswers = answers.filter(a => a.progression === Progression.Alignment)
     const workshopAnswers = answers.filter(a => a.progression === Progression.Workshop)
 
-    return (
+    return <Sticky>
         <SideSheet
             title={ barrierToString(question.barrier) }
             open={open}
@@ -55,7 +56,7 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
                 return <SingleAnswerSummary answer={answer} key={answer.id} />
             })}
         </SideSheet>
-    )
+    </Sticky>
 }
 
 export default AnswerSummarySidebar

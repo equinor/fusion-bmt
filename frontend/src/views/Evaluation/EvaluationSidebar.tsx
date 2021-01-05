@@ -1,10 +1,11 @@
 import * as React from 'react'
-import { Barrier, Question, Progression } from '../../api/models'
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
+
+import { Barrier, Question, Progression } from '../../api/models'
 import { getAzureUniqueId } from '../../utils/Variables'
 import { barrierToString } from '../../utils/EnumToString'
 import {  getFilledUserAnswersForProgression } from '../../utils/QuestionAndAnswerUtils'
-import { useState } from 'react'
+import Sticky from '../../components/Sticky'
 
 interface EvaluationSidebarProps
 {
@@ -36,15 +37,17 @@ const EvaluationSidebar = ({questions, barrier, viewProgression, onBarrierSelect
     })
 
     return (
-        <NavigationDrawer
-            id="navigation-drawer-story"
-            structure={structure}
-            selectedId={barrier}
-            onChangeSelectedId={(selectedBarrierId) => {
-                selectBarrier(selectedBarrierId as Barrier)
-            }}
-            onChangeStructure={() => {}}
-        />
+        <Sticky>
+            <NavigationDrawer
+                id="navigation-drawer-story"
+                structure={structure}
+                selectedId={barrier}
+                onChangeSelectedId={(selectedBarrierId) => {
+                    selectBarrier(selectedBarrierId as Barrier)
+                }}
+                onChangeStructure={() => {}}
+            />
+        </Sticky>
     )
 }
 
