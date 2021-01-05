@@ -1,5 +1,5 @@
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { EVALUATION_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { Evaluation } from "../../../api/models"
 
 interface EvaluationQueryProps {
@@ -13,9 +13,13 @@ export const useEvaluationsQuery = (projectId: string): EvaluationQueryProps => 
         query {
             evaluations(where: {project: {id: {eq: "${projectId}"}}}) {
                 ...EvaluationFields
+                participants {
+                    ...ParticipantFields
+                }
             }
         }
         ${EVALUATION_FIELDS_FRAGMENT}
+        ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error } = useQuery<{evaluations: Evaluation[]}>(

@@ -52,7 +52,7 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
         onProgressParticipant(nextProgression)
     }
 
-    const localOnUnCompleteClick = () => {
+    const localOnUncompleteClick = () => {
         onProgressParticipant(viewProgression)
     }
 
@@ -79,7 +79,7 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                                 isCheckedInitially={isParticipantCompleted}
                                 disabled={disableAllUserInput}
                                 onCompleteClick={localOnClompleteClick}
-                                onUnCompleteClick={localOnUnCompleteClick}
+                                onUncompleteClick={localOnUncompleteClick}
                             />
                         </Box>
                         <Box>

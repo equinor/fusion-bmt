@@ -15,7 +15,7 @@ const EvaluationListItem = ({evaluation}: EvaluationListItemProps) => {
         <Link to={`${pathname}/evaluation/${evaluation.id}`} style={{textDecoration: "none"}}>
             <Box display="flex" flexDirection="row" alignItems="center" marginY="0.7rem">
                 <Box width="200px">
-                    <Typography variant="body_short" link token={{
+                    <Typography color="primary" variant="body_short" token={{
                         fontSize: '1.2rem',
                     }}>
                         {evaluation.name}

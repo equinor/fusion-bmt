@@ -44,7 +44,7 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
         onProgressParticipant(nextProgression)
     }
 
-    const localOnUnCompleteClick = () => {
+    const localOnUncompleteClick = () => {
         onProgressParticipant(viewProgression)
     }
 
@@ -70,7 +70,7 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
                             isCheckedInitially={isParticipantCompleted}
                             disabled={disableAllUserInput}
                             onCompleteClick={localOnClompleteClick}
-                            onUnCompleteClick={localOnUnCompleteClick}
+                            onUncompleteClick={localOnUncompleteClick}
                         />
                     </Box>
                     <Box>

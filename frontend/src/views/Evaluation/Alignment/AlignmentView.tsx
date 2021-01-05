@@ -52,7 +52,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
         onProgressParticipant(nextProgression)
     }
 
-    const localOnUnCompleteClick = () => {
+    const localOnUncompleteClick = () => {
         onProgressParticipant(viewProgression)
     }
 
@@ -79,7 +79,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                                 isCheckedInitially={isParticipantCompleted}
                                 disabled={disableAllUserInput}
                                 onCompleteClick={localOnClompleteClick}
-                                onUnCompleteClick={localOnUnCompleteClick}
+                                onUncompleteClick={localOnUncompleteClick}
                             />
                         </Box>
                         <Box>
