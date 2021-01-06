@@ -19,6 +19,7 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
 
     const preparationAnswers = answers.filter(a => a.progression === Progression.Preparation)
     const alignmentAnswers = answers.filter(a => a.progression === Progression.Alignment)
+    const workshopAnswers = answers.filter(a => a.progression === Progression.Workshop)
 
     return (
         <SideSheet
@@ -32,6 +33,13 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
             { answers.length === 0 &&
                 <p>No submitted answers</p>
             }
+            {workshopAnswers.length !== 0 && <>
+                <Divider />
+                <Typography variant="h5">Follow-up</Typography>
+            </>}
+            {workshopAnswers.map((answer) => {
+                return <SingleAnswerSummary answer={answer} key={answer.id} />
+            })}
             {alignmentAnswers.length !== 0 && <>
                 <Divider />
                 <Typography variant="h5">Alignment</Typography>
