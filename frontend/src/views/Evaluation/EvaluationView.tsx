@@ -1,6 +1,6 @@
 import { Step, Stepper } from '@equinor/fusion-components'
 import React from 'react'
-import { Evaluation, Progression } from '../../api/models'
+import { Evaluation, Progression, Role } from '../../api/models'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 import NominationView from './Nomination/NominationView'
 import PreparationView from './Preparation/PreparationView'
@@ -15,6 +15,7 @@ interface EvaluationViewProps {
 }
 
 const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressParticipant}: EvaluationViewProps) => {
+    let allowedRoles = Object.values(Role);
     return <>
         <Stepper
             forceOrder={false}
@@ -36,7 +37,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
                 stepKey={Progression.Preparation}
             >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation}>
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation} allowedRoles={allowedRoles}>
                     <PreparationView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
@@ -49,7 +50,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 description={calcProgressionStatus(evaluation.progression, Progression.Alignment)}
                 stepKey={Progression.Alignment}
             >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Alignment}>
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Alignment} allowedRoles={[Role.OrganizationLead]}>
                     <AlignmentView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
