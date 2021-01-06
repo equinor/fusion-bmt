@@ -15,7 +15,7 @@ interface EvaluationViewProps {
 }
 
 const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressParticipant}: EvaluationViewProps) => {
-    let allowedRoles = Object.values(Role);
+    const allowedRoles = Object.values(Role)
     return <>
         <Stepper
             forceOrder={false}
