@@ -5,10 +5,10 @@ interface Props {
     isCheckedInitially: boolean
     disabled: boolean
     onCompleteClick: () => void
-    onUnCompleteClick: () => void
+    onUncompleteClick: () => void
 }
 
-const ProgressionCompleteSwitch = ({isCheckedInitially, disabled, onCompleteClick, onUnCompleteClick}: Props) => {
+const ProgressionCompleteSwitch = ({isCheckedInitially, disabled, onCompleteClick, onUncompleteClick}: Props) => {
     const [isChecked, setIsChecked] = useState<boolean>(isCheckedInitially)
 
     const onLocalClick = () => {
@@ -18,7 +18,7 @@ const ProgressionCompleteSwitch = ({isCheckedInitially, disabled, onCompleteClic
         }
         else{
             setIsChecked(false)
-            onUnCompleteClick()
+            onUncompleteClick()
         }
     }
 

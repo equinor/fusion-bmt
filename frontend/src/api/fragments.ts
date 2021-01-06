@@ -25,9 +25,6 @@ export const EVALUATION_FIELDS_FRAGMENT = gql`
         id
         name
         progression
-        participants {
-            azureUniqueId
-        }
         __typename
     }
 `
