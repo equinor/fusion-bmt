@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { Evaluation, Organization, Participant, Question, Progression } from '../api/models'
+import { Evaluation, Organization, Participant, Question, Progression, Role } from '../api/models'
 import ParticipantCard from './ParticipantCard'
 import { DataTableColumn, DataTable } from '@equinor/fusion-components'
 import { progressionLessThan, ProgressionStatus } from '../utils/ProgressionStatus'
@@ -90,6 +90,7 @@ const columns: DataTableColumn<DataTableItem>[] = [
 interface ProgressSummaryProps {
     evaluation: Evaluation
     viewProgression: Progression
+    allowedRoles: Role[]
 }
 
 const getProgressOrganisation = (participant: Participant, questions: Question[], progression: Progression) => {
@@ -107,10 +108,12 @@ const getProgressAll = (participant: Participant, questions: Question[], progres
     return Math.floor((filledAnswers.length / questions.length) * 100)
 }
 
-const ProgressSummary = ({evaluation, viewProgression}: ProgressSummaryProps) => {
+const ProgressSummary = ({evaluation, viewProgression, allowedRoles}: ProgressSummaryProps) => {
     const questions = evaluation.questions
 
-    const data: DataTableItem[] = evaluation.participants.map(participant => {
+    const data: DataTableItem[] = evaluation.participants
+        .filter(participant => allowedRoles.includes(participant.role))
+        .map(participant => {
         const isParticipantCompleted = progressionLessThan(viewProgression, participant.progression)
         return {
             participant,
