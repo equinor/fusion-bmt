@@ -130,14 +130,14 @@ namespace api.GQL
             return _actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority, question);
         }
 
-        public Action EditAction(string actionId, string assignedToId, string description, DateTime dueDate, string title, bool onHold, Priority priority)
+        public Action EditAction(string actionId, string assignedToId, string description, DateTime dueDate, string title, bool onHold, bool completed, Priority priority)
         {
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
             Action action = queryableAction.First();
 
             Participant assignedTo = _participantService.GetParticipant(assignedToId);
 
-            return _actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, priority);
+            return _actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed, priority);
         }
 
         public Note CreateNote(string actionId, string text)

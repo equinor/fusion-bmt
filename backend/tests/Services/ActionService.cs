@@ -77,7 +77,7 @@ namespace tests
             string actionId = action.Id;
 
             string newDescription = "new description";
-            actionService.EditAction(action, participant, newDescription, DateTime.UtcNow, "title", false, Priority.High);
+            actionService.EditAction(action, participant, newDescription, DateTime.UtcNow, "title", false, false, Priority.High);
 
             Action resultingAction = actionService.GetAction(actionId).First();
             Assert.Equal(newDescription, resultingAction.Description);
