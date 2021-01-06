@@ -16,7 +16,7 @@ interface Props {
     onActionCreate: (action: Action) => void
 }
 
-const QuestionActionsList = ({question, participants, onActionCreate}: Props) => {
+const QuestionActionsList = ({ question, participants, onActionCreate }: Props) => {
     const [isActionCreateSidebarOpen, setIsActionCreateSidebarOpen] = useState<boolean>(false)
 
     const actions: Action[] = [{
@@ -27,6 +27,7 @@ const QuestionActionsList = ({question, participants, onActionCreate}: Props) =>
         priority: Priority.High,
         dueDate: new Date(),
         onHold: false,
+        completed: false,
         createDate: new Date(),
         notes: [],
         question: question
@@ -39,6 +40,7 @@ const QuestionActionsList = ({question, participants, onActionCreate}: Props) =>
         priority: Priority.Medium,
         dueDate: new Date(),
         onHold: false,
+        completed: false,
         createDate: new Date(),
         notes: [],
         question: question
@@ -65,7 +67,7 @@ const QuestionActionsList = ({question, participants, onActionCreate}: Props) =>
                     return <div key={action.id}>
                         <Box display="flex">
                             <Box p='0.3em'>
-                                <PriorityIndicator priority={action.priority}/>
+                                <PriorityIndicator priority={action.priority} />
                             </Box>
                             <Box display="flex" alignItems="center">
                                 <Typography>
@@ -91,4 +93,3 @@ const QuestionActionsList = ({question, participants, onActionCreate}: Props) =>
 }
 
 export default QuestionActionsList
-

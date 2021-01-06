@@ -36,6 +36,7 @@ namespace api.Services
                 Description = description,
                 DueDate = dueDate,
                 OnHold = false,
+                Completed = false,
                 Priority = priority,
                 Title = title,
                 Question = question
@@ -54,6 +55,7 @@ namespace api.Services
             DateTime dueDate,
             string title,
             bool onHold,
+            bool completed,
             Priority priority
         )
         {
@@ -66,6 +68,7 @@ namespace api.Services
             action.DueDate = dueDate;
             action.Title = title;
             action.OnHold = onHold;
+            action.Completed = completed;
             action.Priority = priority;
 
             _context.Actions.Update(action);

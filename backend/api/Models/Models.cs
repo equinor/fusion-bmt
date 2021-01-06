@@ -150,6 +150,8 @@ namespace api.Models
         [Required]
         public bool OnHold { get; set; }
         [Required]
+        public bool Completed { get; set; }
+        [Required]
         public DateTime DueDate { get; set; }
         [Required]
         public DateTime CreateDate { get; set; }

@@ -80,11 +80,11 @@ const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssign
     const onLocalCreateClick = () => {
         const isTitleValid = checkIfTitleValid(title)
         const isParticipantValid = checkIfParticipantValid(assignedTo)
-        if(!isTitleValid || !isParticipantValid){
-            if(!isTitleValid){
+        if (!isTitleValid || !isParticipantValid) {
+            if (!isTitleValid) {
                 setTitleValidity("error")
             }
-            if(!isParticipantValid){
+            if (!isParticipantValid) {
                 setAssignedToValidity("error")
             }
         }
@@ -97,6 +97,7 @@ const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssign
                 priority: priority,
                 dueDate: dueDate,
                 onHold: false,
+                completed: false,
                 createDate: new Date(),
                 notes: [],
                 question: connectedQuestion
@@ -137,9 +138,9 @@ const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssign
                 <Typography group="input" variant="label">Priority</Typography>
                 <Select
                     options={[
-                        {key: Priority.High, title: "High", isSelected: priority === Priority.High},
-                        {key: Priority.Medium, title: "Medium", isSelected: priority === Priority.Medium},
-                        {key: Priority.Low, title: "Low", isSelected: priority === Priority.Low}
+                        { key: Priority.High, title: "High", isSelected: priority === Priority.High },
+                        { key: Priority.Medium, title: "Medium", isSelected: priority === Priority.Medium },
+                        { key: Priority.Low, title: "Low", isSelected: priority === Priority.Low }
                     ]}
                     onSelect={option => {
                         setPriority(option.key as Priority)
@@ -161,7 +162,7 @@ const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssign
                     label="Description"
                     onChange={(event: TextFieldChangeEvent) => setDescription(event.target.value)}
                     variant="default"
-                    style={{height: 150}}
+                    style={{ height: 150 }}
                 />
             </Grid>
         </Grid>
