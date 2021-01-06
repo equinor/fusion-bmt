@@ -1,5 +1,12 @@
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { ANSWER_FIELDS_FRAGMENT, EVALUATION_FIELDS_FRAGMENT, PARTICIPANTS_ARRAY_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT, QUESTION_FIELDS_FRAGMENT } from '../../api/fragments'
+import {
+    ACTION_FIELDS_FRAGMENT,
+    ANSWER_FIELDS_FRAGMENT,
+    EVALUATION_FIELDS_FRAGMENT,
+    PARTICIPANTS_ARRAY_FRAGMENT,
+    PARTICIPANT_FIELDS_FRAGMENT,
+    QUESTION_FIELDS_FRAGMENT
+} from '../../api/fragments'
 import { Evaluation, Participant, Progression } from '../../api/models'
 
 interface ProgressEvaluationMutationProps {
@@ -114,6 +121,9 @@ export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps =
                     evaluation {
                         ...EvaluationFields
                     }
+                    actions {
+                        ...ActionFields
+                    }
                 }
             }
         }
@@ -121,6 +131,7 @@ export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps =
         ${PARTICIPANTS_ARRAY_FRAGMENT}
         ${QUESTION_FIELDS_FRAGMENT}
         ${ANSWER_FIELDS_FRAGMENT}
+        ${ACTION_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error } = useQuery<{evaluations: Evaluation[]}>(

@@ -62,3 +62,20 @@ export const QUESTION_ANSWERS_FRAGMENT = gql`
     }
     ${ANSWER_FIELDS_FRAGMENT}
 `
+
+export const ACTION_FIELDS_FRAGMENT = gql`
+    fragment ActionFields on Action {
+        id
+        title
+        priority
+    }
+`
+
+export const QUESTION_ACTIONS_FRAGMENT = gql`
+    fragment QuestionActions on Question {
+        actions {
+            ...ActionFields
+        }
+    }
+    ${ACTION_FIELDS_FRAGMENT}
+`

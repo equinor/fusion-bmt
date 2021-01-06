@@ -6,45 +6,20 @@ import {
     add
 } from '@equinor/eds-icons'
 
-import { Action, Participant, Priority, Question } from '../../api/models'
+import { Participant, Question } from '../../api/models'
 import ActionCreateSidebar from './ActionCreateSidebar'
 import PriorityIndicator from './PriorityIndicator'
+import { DataToCreateAction } from '../../api/mutations'
 
 interface Props {
     question: Question
     participants: Participant[]
-    onActionCreate: (action: Action) => void
+    onActionCreate: (action: DataToCreateAction) => void
 }
 
 const QuestionActionsList = ({ question, participants, onActionCreate }: Props) => {
     const [isActionCreateSidebarOpen, setIsActionCreateSidebarOpen] = useState<boolean>(false)
-
-    const actions: Action[] = [{
-        id: '1',
-        title: 'This is an action',
-        assignedTo: participants[0],
-        description: 'This is the action description',
-        priority: Priority.High,
-        dueDate: new Date(),
-        onHold: false,
-        completed: false,
-        createDate: new Date(),
-        notes: [],
-        question: question
-    },
-    {
-        id: '2',
-        title: 'This is another action',
-        assignedTo: participants[0],
-        description: 'This is the action description',
-        priority: Priority.Medium,
-        dueDate: new Date(),
-        onHold: false,
-        completed: false,
-        createDate: new Date(),
-        notes: [],
-        question: question
-    }]
+    const actions = question.actions
 
     return <>
         <Container>
@@ -77,6 +52,11 @@ const QuestionActionsList = ({ question, participants, onActionCreate }: Props) 
                         </Box>
                     </div>
                 })}
+                {actions.length === 0 &&
+                    <Typography italic>
+                        No actions added
+                    </Typography>
+                }
             </Box>
         </Container>
         <ActionCreateSidebar
