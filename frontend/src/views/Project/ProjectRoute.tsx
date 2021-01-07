@@ -5,6 +5,7 @@ import ProjectDashboardView from './Dashboard/ProjectDashboardView'
 import ProjectActionsView from './Action/ProjectActionsView'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Project } from '../../api/models'
+import { ProjectContext } from '../../globals/contexts'
 
 interface ProjectQueryProps {
     loading: boolean
@@ -62,17 +63,19 @@ const ProjectRoute = ({match}: RouteComponentProps<Params>) => {
     }
 
     return (
-        <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
-            <Tab tabKey="dashboard" title="Dashboard">
-                <ProjectDashboardView project={project} />
-            </Tab>
-            <Tab tabKey="actions" title="Actions">
-                <ProjectActionsView />
-            </Tab>
-            <Tab tabKey="archive" title="Archive">
-                <h1>Archive</h1>
-            </Tab>
-        </Tabs>
+        <ProjectContext.Provider value={project}>
+            <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
+                <Tab tabKey="dashboard" title="Dashboard">
+                    <ProjectDashboardView project={project} />
+                </Tab>
+                <Tab tabKey="actions" title="Actions">
+                    <ProjectActionsView />
+                </Tab>
+                <Tab tabKey="archive" title="Archive">
+                    <h1>Archive</h1>
+                </Tab>
+            </Tabs>
+        </ProjectContext.Provider>
     )
 }
 
