@@ -4,15 +4,17 @@ import { Link } from 'react-router-dom'
 import { Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
 import ProgressStatusIcon from '../../../components/ProgressStatusIcon'
+import { useProject } from '../../../globals/contexts'
 
 interface EvaluationListItemProps {
     evaluation: Evaluation
 }
 
 const EvaluationListItem = ({evaluation}: EvaluationListItemProps) => {
-    const pathname = window.location.pathname
+    const project = useProject()
+
     return (
-        <Link to={`${pathname}/evaluation/${evaluation.id}`} style={{textDecoration: "none"}}>
+        <Link to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} style={{textDecoration: "none"}}>
             <Box display="flex" flexDirection="row" alignItems="center" marginY="0.7rem">
                 <Box width="200px">
                     <Typography color="primary" variant="body_short" token={{

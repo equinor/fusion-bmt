@@ -3,19 +3,18 @@ import { Redirect } from 'react-router-dom'
 
 import { Button, TextArea } from '@equinor/fusion-components'
 import CreateEvaluationDialog from './CreateEvaluationDialog'
-import { useCurrentUser } from '@equinor/fusion'
 import { useCreateEvaluationMutation } from './ProjectDashboardGQL'
+import { useProject } from '../../../globals/contexts'
 
 interface CreateEvaluationButtonProps {
     projectId: string
 }
 
 const CreateEvaluationButton = ({projectId}: CreateEvaluationButtonProps) => {
-    const user = useCurrentUser()
     const [showDialog, setShowDialog] = useState<boolean>(false)
     const {createEvaluation, loading, evaluation, error} = useCreateEvaluationMutation()
 
-    const pathname = window.location.pathname
+    const project = useProject()
 
     const onCreateEvaluationDialogSureClick = (name: string) => {
         setShowDialog(false)
@@ -57,7 +56,7 @@ const CreateEvaluationButton = ({projectId}: CreateEvaluationButtonProps) => {
     }
 
     return <>
-        <Redirect push to={`${pathname}/evaluation/${evaluation.id}`} />
+        <Redirect push to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} />
     </>
 }
 
