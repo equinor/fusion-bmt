@@ -7,6 +7,7 @@ import PreparationView from './Preparation/PreparationView'
 import AlignmentView from './Alignment/AlignmentView'
 import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
+import FollowUpView from './FollowUp/FollowUpView'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -74,7 +75,11 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                 stepKey={Progression.FollowUp}
             >
-                <h1>Follow-up</h1>
+                <FollowUpView
+                    evaluation={evaluation}
+                    onNextStepClick={() => onProgressEvaluationClick()}
+                    onProgressParticipant={onProgressParticipant}
+                />
             </Step>
         </Stepper>
     </>
