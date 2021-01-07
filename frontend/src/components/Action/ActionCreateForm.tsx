@@ -7,9 +7,10 @@ import {
     error_filled
 } from '@equinor/eds-icons'
 
-import { Action, Participant, Priority, Question } from '../../api/models'
+import { Participant, Priority, Question } from '../../api/models'
 import { Grid } from '@material-ui/core'
 import { barrierToString } from '../../utils/EnumToString'
+import { DataToCreateAction } from '../../api/mutations'
 
 type TextFieldChangeEvent = React.ChangeEvent<HTMLTextAreaElement> & React.ChangeEvent<HTMLInputElement>
 
@@ -29,7 +30,7 @@ interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
     possibleAssigneesDetails: PersonDetails[]
-    onActionCreate: (action: Action) => void
+    onActionCreate: (action: DataToCreateAction) => void
     onCancelClick: () => void
 }
 
@@ -89,20 +90,15 @@ const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssign
             }
         }
         else {
-            const action: Action = {
-                id: '',
+            const actionData: DataToCreateAction = {
                 title: title,
-                assignedTo: assignedTo,
+                assignedToId: assignedTo!.id,
                 description: description,
                 priority: priority,
                 dueDate: dueDate,
-                onHold: false,
-                completed: false,
-                createDate: new Date(),
-                notes: [],
-                question: connectedQuestion
+                questionId: connectedQuestion.id
             }
-            onActionCreate(action)
+            onActionCreate(actionData)
         }
     }
 
@@ -111,6 +107,7 @@ const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssign
             <Grid item xs={12}>
                 <TextField
                     id="title"
+                    autoFocus={true}
                     label="Title"
                     onChange={(event: TextFieldChangeEvent) => setTitle(event.target.value)}
                     variant={titleValidity}

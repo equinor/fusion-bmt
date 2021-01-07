@@ -3,15 +3,16 @@ import React, { useEffect, useState } from 'react'
 import { PersonDetails, useApiClients } from '@equinor/fusion'
 import { ModalSideSheet } from '@equinor/fusion-components'
 
-import { Action, Participant, Question } from '../../api/models'
+import { Participant, Question } from '../../api/models'
 import ActionCreateForm from './ActionCreateForm'
 import { CircularProgress } from '@equinor/eds-core-react'
+import { DataToCreateAction } from '../../api/mutations'
 
 interface Props {
     open: boolean
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    onActionCreate: (action: Action) => void
+    onActionCreate: (action: DataToCreateAction) => void
     onCloseClick: () => void
 }
 
