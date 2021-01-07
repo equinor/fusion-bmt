@@ -7,7 +7,7 @@ import PreparationView from './Preparation/PreparationView'
 import AlignmentView from './Alignment/AlignmentView'
 import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
-import FollowUpView from "./FollowUp/FollowUpView";
+import FollowUpView from './FollowUp/FollowUpView'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -38,8 +38,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
                 stepKey={Progression.Preparation}
             >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation}
-                                         allowedRoles={allowedRoles}>
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation} allowedRoles={allowedRoles}>
                     <PreparationView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
@@ -52,8 +51,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 description={calcProgressionStatus(evaluation.progression, Progression.Alignment)}
                 stepKey={Progression.Alignment}
             >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Alignment}
-                                         allowedRoles={[Role.OrganizationLead]}>
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Alignment} allowedRoles={[Role.OrganizationLead]}>
                     <AlignmentView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
@@ -84,7 +82,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 />
             </Step>
         </Stepper>
-    </>;
+    </>
 }
 
 export default EvaluationView

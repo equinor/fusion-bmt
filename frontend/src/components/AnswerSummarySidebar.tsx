@@ -35,7 +35,7 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
             }
             {workshopAnswers.length !== 0 && <>
                 <Divider />
-                <Typography variant="h5">Follow-up</Typography>
+                <Typography variant="h5">Workshop</Typography>
             </>}
             {workshopAnswers.map((answer) => {
                 return <SingleAnswerSummary answer={answer} key={answer.id} />
