@@ -10,7 +10,6 @@ import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSw
 import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
-import { getNextBarrier } from '../../../utils/BarrierUtils'
 import QuestionActionsListWithApi from '../../../components/Action/QuestionActionsListWithApi'
 
 interface FollowUpViewProps
@@ -55,8 +54,6 @@ const FollowUpView = ({evaluation, onNextStepClick, onProgressParticipant}: Foll
     const localOnUncompleteClick = () => {
         onProgressParticipant(viewProgression)
     }
-
-    const nextBarrier = getNextBarrier(selectedBarrier)
 
     return (
         <>
@@ -115,14 +112,6 @@ const FollowUpView = ({evaluation, onNextStepClick, onProgressParticipant}: Foll
                             </div>
                         )
                     })}
-                    {nextBarrier !== undefined &&
-                        <Button onClick={ () => {
-                            setSelectedBarrier(nextBarrier)
-                            window.scrollTo({top: 0, behavior: 'smooth'})
-                        }}>
-                            Next Barrier: {barrierToString(nextBarrier)}
-                        </Button>
-                    }
                 </Box>
                 <Box>
                     { selectedQuestion && selectedQuestionNumber &&

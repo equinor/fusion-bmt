@@ -11,7 +11,6 @@ import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSw
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
-import { getNextBarrier } from '../../../utils/BarrierUtils'
 
 interface AlignmentViewProps
 {
@@ -55,8 +54,6 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
     const localOnUncompleteClick = () => {
         onProgressParticipant(viewProgression)
     }
-
-    const nextBarrier = getNextBarrier(selectedBarrier)
 
     return (
         <>
@@ -112,14 +109,6 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                             </div>
                         )
                     })}
-                    {nextBarrier !== undefined &&
-                        <Button onClick={ () => {
-                            setSelectedBarrier(nextBarrier)
-                            window.scrollTo({top: 0, behavior: 'smooth'})
-                        }}>
-                            Next Barrier: {barrierToString(nextBarrier)}
-                        </Button>
-                    }
                 </Box>
                 <Box>
                     { selectedQuestion && selectedQuestionNumber &&
