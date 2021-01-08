@@ -114,18 +114,18 @@ const ProgressSummary = ({evaluation, viewProgression, allowedRoles}: ProgressSu
     const data: DataTableItem[] = evaluation.participants
         .filter(participant => allowedRoles.includes(participant.role))
         .map(participant => {
-        const isParticipantCompleted = progressionLessThan(viewProgression, participant.progression)
-        return {
-            participant,
-            organization: participant.organization,
-            role: participant.role,
-            progressionStatus: ProgressionStatus.Awaiting,
-            rowIdentifier: participant.id,
-            progressOrg: getProgressOrganisation(participant, questions, viewProgression),
-            progressAll: getProgressAll(participant, questions, viewProgression),
-            completed: isParticipantCompleted
-        }
-    })
+            const isParticipantCompleted = progressionLessThan(viewProgression, participant.progression)
+            return {
+                participant,
+                organization: participant.organization,
+                role: participant.role,
+                progressionStatus: ProgressionStatus.Awaiting,
+                rowIdentifier: participant.id,
+                progressOrg: getProgressOrganisation(participant, questions, viewProgression),
+                progressAll: getProgressAll(participant, questions, viewProgression),
+                completed: isParticipantCompleted
+            }
+        })
 
     return <>
         <DataTable

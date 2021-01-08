@@ -55,6 +55,16 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
         onProgressParticipant(viewProgression)
     }
 
+    const closeAnswerSummarySidebar = () => {
+        setSelectedQuestion(undefined)
+        setSelectedQuestionNumber(undefined)
+    }
+
+    const onBarrierSelected = (barrier: Barrier) => {
+        closeAnswerSummarySidebar()
+        setSelectedBarrier(barrier)
+    }
+
     return (
         <>
             <Box display="flex" height={1}>
@@ -63,7 +73,7 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                         questions={questions}
                         barrier={selectedBarrier}
                         viewProgression={Progression.Workshop}
-                        onBarrierSelected={ (barrier) => setSelectedBarrier(barrier)}
+                        onBarrierSelected={onBarrierSelected}
                     />
                 </Box>
                 <Box p="20px" width="1">
@@ -117,10 +127,7 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                     { selectedQuestion && selectedQuestionNumber &&
                         <AnswerSummarySidebar
                             open={selectedQuestion != undefined}
-                            onCloseClick={() => {
-                                setSelectedQuestion(undefined)
-                                setSelectedQuestionNumber(undefined)
-                            }}
+                            onCloseClick={closeAnswerSummarySidebar}
                             question={selectedQuestion}
                             questionNumber={selectedQuestionNumber}
                             viewProgression={Progression.Workshop}

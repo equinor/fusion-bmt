@@ -1,8 +1,16 @@
-
 import React from 'react'
+import { Tabs } from '@equinor/eds-core-react'
+import styled from 'styled-components'
+
 import {Evaluation, Progression, Role} from '../api/models'
-import { Tabs, Tab } from '@equinor/fusion-components'
 import ProgressSummary from './ProgressSummary'
+
+const { TabList, Tab, TabPanels, TabPanel } = Tabs
+
+const StyledTabPanel = styled(TabPanel)`
+  padding-top: 0px;
+  border-top: 1px solid LightGray;
+`
 
 interface QuestionnaireStatusTabsProps {
     evaluation: Evaluation
@@ -11,18 +19,22 @@ interface QuestionnaireStatusTabsProps {
 }
 
 const QuestionnaireStatusTabs = ({evaluation, children, viewProgression, allowedRoles}: React.PropsWithChildren<QuestionnaireStatusTabsProps>) => {
-    const [activeTabKey, setActiveTabKey] = React.useState('questionnaire')
-
-    const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey)
+    const [activeTab, setActiveTab] = React.useState(0)
 
     return (
-        <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
-            <Tab tabKey="questionnaire" title="Questionnaire">
-                {children}
-            </Tab>
-            <Tab tabKey="progress" title="Progress">
-                <ProgressSummary evaluation={evaluation} viewProgression={viewProgression} allowedRoles={allowedRoles}/>
-            </Tab>
+        <Tabs activeTab={activeTab} onChange={setActiveTab}>
+            <TabList>
+                <Tab>Questionaire</Tab>
+                <Tab>Progress</Tab>
+            </TabList>
+            <TabPanels>
+                <StyledTabPanel>
+                    {children}
+                </StyledTabPanel>
+                <StyledTabPanel>
+                    <ProgressSummary evaluation={evaluation} viewProgression={viewProgression} allowedRoles={allowedRoles}/>
+                </StyledTabPanel>
+            </TabPanels>
         </Tabs>
     )
 }
