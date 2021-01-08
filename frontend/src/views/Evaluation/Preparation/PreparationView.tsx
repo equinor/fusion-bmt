@@ -10,7 +10,6 @@ import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSw
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import { useParticipant } from '../../../globals/contexts'
-import { getNextBarrier } from '../../../utils/BarrierUtils'
 
 interface PreparationViewProps
 {
@@ -47,8 +46,6 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
     const localOnUncompleteClick = () => {
         onProgressParticipant(viewProgression)
     }
-
-    const nextBarrier = getNextBarrier(selectedBarrier)
 
     return <>
         <Box display="flex" height={1}>
@@ -102,14 +99,6 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
                         </div>
                     )
                 })}
-                {nextBarrier !== undefined &&
-                    <Button onClick={ () => {
-                        setSelectedBarrier(nextBarrier)
-                        window.scrollTo({top: 0, behavior: 'smooth'})
-                    }}>
-                        Next Barrier: {barrierToString(nextBarrier)}
-                    </Button>
-                }
             </Box>
         </Box>
     </>

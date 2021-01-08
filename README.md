@@ -107,4 +107,6 @@ make sure your `Database__ConnectionString` is set and run
     </tr>
 </table>
 
-### API structure
+### Model overview
+
+![alt text](docs/model.png?raw=true "Simple domain model diagram")
