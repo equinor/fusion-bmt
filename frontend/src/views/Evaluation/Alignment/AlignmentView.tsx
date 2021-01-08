@@ -55,6 +55,16 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
         onProgressParticipant(viewProgression)
     }
 
+    const closeAnswerSummarySidebar = () => {
+        setSelectedQuestion(undefined)
+        setSelectedQuestionNumber(undefined)
+    }
+
+    const onBarrierSelected = (barrier: Barrier) => {
+        closeAnswerSummarySidebar()
+        setSelectedBarrier(barrier)
+    }
+
     return (
         <>
             <Box display="flex" height={1}>
@@ -63,7 +73,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                         questions={questions}
                         barrier={selectedBarrier}
                         viewProgression={Progression.Alignment}
-                        onBarrierSelected={ (barrier) => setSelectedBarrier(barrier)}
+                        onBarrierSelected={onBarrierSelected}
                     />
                 </Box>
                 <Box p="20px" width="1">
@@ -114,10 +124,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                     { selectedQuestion && selectedQuestionNumber &&
                         <AnswerSummarySidebar
                             open={selectedQuestion != undefined}
-                            onCloseClick={() => {
-                                setSelectedQuestion(undefined)
-                                setSelectedQuestionNumber(undefined)
-                            }}
+                            onCloseClick={closeAnswerSummarySidebar}
                             question={selectedQuestion}
                             questionNumber={selectedQuestionNumber}
                             viewProgression={Progression.Alignment}
