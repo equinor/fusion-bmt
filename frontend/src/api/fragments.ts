@@ -68,6 +68,12 @@ export const ACTION_FIELDS_FRAGMENT = gql`
         id
         title
         priority
+        dueDate
+        createDate
+        description
+        assignedTo {
+            azureUniqueId
+        }
     }
 `
 
