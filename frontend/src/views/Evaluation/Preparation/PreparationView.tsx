@@ -12,14 +12,14 @@ import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/
 import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 
-interface AlignmentViewProps
+interface PreparationViewProps
 {
     evaluation: Evaluation
     onNextStepClick: () => void
     onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: AlignmentViewProps) => {
+const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: PreparationViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
@@ -28,7 +28,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
 
     const {role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId} = useParticipant()
 
-    const viewProgression = Progression.Alignment
+    const viewProgression = Progression.Preparation
     const allowedRoles = [Role.Facilitator, Role.OrganizationLead]
 
     const isEvaluationAtThisProgression = evaluation.progression == viewProgression
@@ -72,7 +72,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                     <EvaluationSidebar
                         questions={questions}
                         barrier={selectedBarrier}
-                        viewProgression={Progression.Alignment}
+                        viewProgression={Progression.Preparation}
                         onBarrierSelected={onBarrierSelected}
                     />
                 </Box>
@@ -127,7 +127,7 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
                             onCloseClick={closeAnswerSummarySidebar}
                             question={selectedQuestion}
                             questionNumber={selectedQuestionNumber}
-                            viewProgression={Progression.Alignment}
+                            viewProgression={Progression.Preparation}
                         />
                     }
                 </Box>
@@ -136,4 +136,4 @@ const AlignmentView = ({evaluation, onNextStepClick, onProgressParticipant}: Ali
     )
 }
 
-export default AlignmentView
+export default PreparationView

@@ -58,7 +58,7 @@ export const progressionToString = (progression: Progression): string => {
     switch(progression) {
     case Progression.Nomination: return "Nomination"
     case Progression.IndividualAssessment: return "Individual Assessment"
-    case Progression.Alignment: return "Alignment"
+    case Progression.Preparation: return "Preparation"
     case Progression.Workshop: return "Workshop"
     case Progression.FollowUp: return "Follow-up"
     }

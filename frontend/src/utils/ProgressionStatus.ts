@@ -32,8 +32,8 @@ export const progressionGreaterThanOrEqual = (p1: Progression, p2: Progression):
 export const getNextProgression = (progression: Progression): Progression => {
     switch(progression){
     case Progression.Nomination: return Progression.IndividualAssessment
-    case Progression.IndividualAssessment: return Progression.Alignment
-    case Progression.Alignment: return Progression.Workshop
+    case Progression.IndividualAssessment: return Progression.Preparation
+    case Progression.Preparation: return Progression.Workshop
     case Progression.Workshop: return Progression.FollowUp
     case Progression.FollowUp: return Progression.FollowUp
     }
@@ -43,8 +43,8 @@ export const getLastProgression = (progression: Progression): Progression => {
     switch(progression){
     case Progression.Nomination: return Progression.Nomination
     case Progression.IndividualAssessment: return Progression.Nomination
-    case Progression.Alignment: return Progression.IndividualAssessment
-    case Progression.Workshop: return Progression.Alignment
+    case Progression.Preparation: return Progression.IndividualAssessment
+    case Progression.Workshop: return Progression.Preparation
     case Progression.FollowUp: return Progression.Workshop
     }
 }

@@ -8,8 +8,8 @@ namespace api.Services
             currentProgression switch
             {
                 Progression.Nomination => Progression.IndividualAssessment,
-                Progression.IndividualAssessment => Progression.Alignment,
-                Progression.Alignment => Progression.Workshop,
+                Progression.IndividualAssessment => Progression.Preparation,
+                Progression.Preparation => Progression.Workshop,
                 Progression.Workshop => Progression.FollowUp,
                 _ => throw new ProgressionTransitionException("Invalid progression"),
             };

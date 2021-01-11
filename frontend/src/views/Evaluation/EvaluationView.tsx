@@ -4,7 +4,7 @@ import { Evaluation, Progression, Role } from '../../api/models'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 import NominationView from './Nomination/NominationView'
 import IndividualAssessmentView from './IndividualAssessment/IndividualAssessmentView'
-import AlignmentView from './Alignment/AlignmentView'
+import PreparationView from './Preparation/PreparationView'
 import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
 import FollowUpView from './FollowUp/FollowUpView'
@@ -47,12 +47,12 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 </QuestionnaireStatusTabs>
             </Step>
             <Step
-                title="Alignment"
-                description={calcProgressionStatus(evaluation.progression, Progression.Alignment)}
-                stepKey={Progression.Alignment}
+                title="Preparation"
+                description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
+                stepKey={Progression.Preparation}
             >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Alignment} allowedRoles={[Role.OrganizationLead]}>
-                    <AlignmentView
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation} allowedRoles={[Role.OrganizationLead]}>
+                    <PreparationView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
                         onProgressParticipant={onProgressParticipant}

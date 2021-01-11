@@ -109,7 +109,7 @@ namespace api.Context
             };
             var answer3 = new Answer
             {
-                Progression = Progression.Alignment,
+                Progression = Progression.Preparation,
                 Severity = Severity.Low,
                 Text = "Answer3",
                 CreateDate = DateTime.UtcNow,
@@ -159,7 +159,7 @@ namespace api.Context
             {
                 Name = "Evaluation3",
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Alignment,
+                Progression = Progression.Preparation,
                 Project = Projects[1]
             };
             var evaluation4 = new Evaluation

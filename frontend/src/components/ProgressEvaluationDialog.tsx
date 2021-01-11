@@ -61,7 +61,7 @@ const progressionDialogTexts = (progression: Progression): string => {
         Progressing to ${progressionToString(Progression.IndividualAssessment)} will disable the ability to delete participants.
     `
     case Progression.IndividualAssessment:
-    case Progression.Alignment:
+    case Progression.Preparation:
     case Progression.Workshop: return `
         Progressing from ${progressionToString(progression)}
         will disable for everyone the ability to answer questions
