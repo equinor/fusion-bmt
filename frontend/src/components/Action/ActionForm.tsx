@@ -2,13 +2,22 @@ import React, { useEffect, useState } from 'react'
 
 import { PersonDetails } from '@equinor/fusion'
 import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
-import { Button, Icon, TextField, TextFieldProps, Typography } from '@equinor/eds-core-react'
+import { Button, Icon, Switch, TextField, TextFieldProps, Typography } from '@equinor/eds-core-react'
 import { error_filled } from '@equinor/eds-icons'
 
 import { Action, Participant, Priority, Question } from '../../api/models'
 import { Grid } from '@material-ui/core'
 import { barrierToString } from '../../utils/EnumToString'
 import { DataToCreateAction } from '../../api/mutations'
+import styled from 'styled-components'
+
+const RightOrientedDate = styled(Typography)`
+    float: right;
+`
+
+const RightOrientedSwitch = styled(Switch)`
+    float: right;
+`
 
 type TextFieldChangeEvent = React.ChangeEvent<HTMLTextAreaElement> & React.ChangeEvent<HTMLInputElement>
 
@@ -36,7 +45,6 @@ interface Props {
 const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssigneesDetails, onActionCreate, onCancelClick }: Props) => {
     const [title, setTitle] = useState<string>((action && action.title) || '')
     const [titleValidity, setTitleValidity] = useState<Validity>('default')
-
     const [assignedToId, setAssignedToId] = useState<string | undefined>(
         (action && action.assignedTo && action.assignedTo.azureUniqueId) || undefined
     )
@@ -46,12 +54,16 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
     const [dueDate, setDueDate] = useState<Date>((action && action.dueDate) || new Date())
     const [priority, setPriority] = useState<Priority>((action && action.priority) || Priority.High)
     const [description, setDescription] = useState<string>((action && action.description) || '')
+    const [onHold, setOnHold] = useState<boolean>(false)
 
     const assigneesOptions: SearchableDropdownOption[] = possibleAssigneesDetails.map(personDetails => ({
         title: personDetails.name,
         key: personDetails.azureUniqueId,
         isSelected: personDetails.azureUniqueId === assignedToId,
     }))
+
+    const createdDate = action && action.createDate && new Date(action.createDate).toLocaleString('en-GB').split(',')[0]
+    const isEditMode = action && action.id
 
     useEffect(() => {
         if (titleValidity === 'error') {
@@ -103,6 +115,24 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
     return (
         <>
             <Grid container spacing={3}>
+                {isEditMode && (
+                    <>
+                        <Grid item xs={7}>
+                            <Button onClick={() => {}}>Complete</Button>
+                        </Grid>
+                        <Grid item xs={5}>
+                            <RightOrientedSwitch
+                                checked={onHold}
+                                onChange={() => {}} // This is required to avoid an error
+                                onClick={() => setOnHold(!onHold)}
+                                disabled={false}
+                                label="On hold"
+                                enterKeyHint=""
+                            />
+                            <RightOrientedDate>Created: {createdDate}</RightOrientedDate>
+                        </Grid>
+                    </>
+                )}
                 <Grid item xs={12}>
                     <TextField
                         id="title"
