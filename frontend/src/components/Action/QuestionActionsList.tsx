@@ -2,14 +2,21 @@ import React, { useState } from 'react'
 
 import { Box, Container } from '@material-ui/core'
 import { Button, Typography, Icon } from '@equinor/eds-core-react'
-import {
-    add
-} from '@equinor/eds-icons'
+import { add } from '@equinor/eds-icons'
 
-import { Participant, Question } from '../../api/models'
-import ActionCreateSidebar from './ActionCreateSidebar'
+import { Action, Participant, Question } from '../../api/models'
+import ActionSidebar from './ActionSidebar'
 import PriorityIndicator from './PriorityIndicator'
 import { DataToCreateAction } from '../../api/mutations'
+import styled from 'styled-components'
+
+const ActionLink = styled(Typography)`
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+`
 
 interface Props {
     question: Question
@@ -18,58 +25,67 @@ interface Props {
 }
 
 const QuestionActionsList = ({ question, participants, onActionCreate }: Props) => {
-    const [isActionCreateSidebarOpen, setIsActionCreateSidebarOpen] = useState<boolean>(false)
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
+    const [actionToEdit, setActionToEdit] = useState<Action>()
     const actions = question.actions
 
-    return <>
-        <Container>
-            <Box pl={15}>
-                <Box display="flex" alignItems="center">
-                    <Box flexGrow={1} display="flex" flexDirection="column-reverse">
-                        <Typography variant="body_short" bold>Actions</Typography>
-                    </Box>
-                    <Box >
-                        <Button
-                            variant="ghost"
-                            onClick={() => setIsActionCreateSidebarOpen(true)}
-                        >
-                            <Icon data={add}></Icon>
-                            Add action
-                        </Button>
-                    </Box>
-                </Box>
-                {actions.map(action => {
-                    return <div key={action.id}>
-                        <Box display="flex">
-                            <Box p='0.3em'>
-                                <PriorityIndicator priority={action.priority} />
-                            </Box>
-                            <Box display="flex" alignItems="center">
-                                <Typography>
-                                    {action.title}
-                                </Typography>
-                            </Box>
+    const editAction = (action: Action) => {
+        setIsSidebarOpen(true)
+        setActionToEdit(action)
+    }
+
+    const onClose = () => {
+        setIsSidebarOpen(false)
+        actionToEdit && setActionToEdit(undefined)
+    }
+
+    return (
+        <>
+            <Container>
+                <Box pl={15}>
+                    <Box display="flex" alignItems="center">
+                        <Box flexGrow={1} display="flex" flexDirection="column-reverse">
+                            <Typography variant="body_short" bold>
+                                Actions
+                            </Typography>
                         </Box>
-                    </div>
-                })}
-                {actions.length === 0 &&
-                    <Typography italic>
-                        No actions added
-                    </Typography>
-                }
-            </Box>
-        </Container>
-        <ActionCreateSidebar
-            open={isActionCreateSidebarOpen}
-            onCloseClick={() => setIsActionCreateSidebarOpen(false)}
-            connectedQuestion={question}
-            possibleAssignees={participants}
-            onActionCreate={(action) => {
-                setIsActionCreateSidebarOpen(false)
-                onActionCreate(action)
-            }}
-        />
-    </>
+                        <Box>
+                            <Button variant="ghost" onClick={() => setIsSidebarOpen(true)}>
+                                <Icon data={add}></Icon>
+                                Add action
+                            </Button>
+                        </Box>
+                    </Box>
+                    {actions.map(action => {
+                        return (
+                            <div key={action.id}>
+                                <Box display="flex">
+                                    <Box p="0.3em">
+                                        <PriorityIndicator priority={action.priority} />
+                                    </Box>
+                                    <Box display="flex" alignItems="center">
+                                        <ActionLink onClick={() => editAction(action)}>{action.title}</ActionLink>
+                                    </Box>
+                                </Box>
+                            </div>
+                        )
+                    })}
+                    {actions.length === 0 && <Typography italic>No actions added</Typography>}
+                </Box>
+            </Container>
+            <ActionSidebar
+                action={actionToEdit}
+                open={isSidebarOpen}
+                onClose={onClose}
+                connectedQuestion={question}
+                possibleAssignees={participants}
+                onActionCreate={action => {
+                    setIsSidebarOpen(false)
+                    onActionCreate(action)
+                }}
+            />
+        </>
+    )
 }
 
 export default QuestionActionsList

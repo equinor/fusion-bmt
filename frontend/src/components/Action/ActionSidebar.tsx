@@ -3,33 +3,35 @@ import React, { useEffect, useState } from 'react'
 import { PersonDetails, useApiClients } from '@equinor/fusion'
 import { ModalSideSheet } from '@equinor/fusion-components'
 
-import { Participant, Question } from '../../api/models'
-import ActionCreateForm from './ActionCreateForm'
+import { Action, Participant, Question } from '../../api/models'
+import ActionForm from './ActionForm'
 import { CircularProgress } from '@equinor/eds-core-react'
 import { DataToCreateAction } from '../../api/mutations'
 
 interface Props {
+    action: Action | undefined
     open: boolean
     connectedQuestion: Question
     possibleAssignees: Participant[]
     onActionCreate: (action: DataToCreateAction) => void
-    onCloseClick: () => void
+    onClose: () => void
 }
 
-const ActionCreateSidebar = ({ open, connectedQuestion, possibleAssignees, onActionCreate, onCloseClick }: Props) => {
+const ActionSidebar = ({ action, open, connectedQuestion, possibleAssignees, onActionCreate, onClose }: Props) => {
     const apiClients = useApiClients()
     const [personDetailsList, setPersonDetailsList] = useState<PersonDetails[]>([])
 
     const isLoading = personDetailsList.length !== possibleAssignees.length
+    const actionExists = action && action.id !== undefined
 
     const getAllPersonDetails = (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
-        const manyPrommises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
+        const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
             return apiClients.people.getPersonDetailsAsync(azureUniqueId).then(response => {
                 return response.data
             })
         })
 
-        return Promise.all(manyPrommises)
+        return Promise.all(manyPromises)
     }
 
     useEffect(() => {
@@ -37,40 +39,37 @@ const ActionCreateSidebar = ({ open, connectedQuestion, possibleAssignees, onAct
 
         const azureUniqueIds = possibleAssignees.map(a => a.azureUniqueId)
         getAllPersonDetails(azureUniqueIds).then(fetchedPersonDetailsList => {
-            if(shouldUpdate){
+            if (shouldUpdate) {
                 setPersonDetailsList(fetchedPersonDetailsList)
             }
         })
 
-        return () => {shouldUpdate = false}
+        return () => {
+            shouldUpdate = false
+        }
     }, [possibleAssignees])
 
     return (
-        <ModalSideSheet
-            header='Add Action'
-            show={open}
-            size='large'
-            onClose={onCloseClick}
-            isResizable={false}
-        >
-            {isLoading &&
-                <div style={{textAlign: "center"}}>
+        <ModalSideSheet header={`${actionExists ? 'Edit' : 'Add'} Action`} show={open} size="large" onClose={onClose} isResizable={false}>
+            {isLoading && (
+                <div style={{ textAlign: 'center' }}>
                     <CircularProgress />
                 </div>
-            }
-            {!isLoading &&
-                <div style={{margin: 20}}>
-                    <ActionCreateForm
+            )}
+            {!isLoading && (
+                <div style={{ margin: 20 }}>
+                    <ActionForm
+                        action={action}
                         connectedQuestion={connectedQuestion}
                         possibleAssignees={possibleAssignees}
                         possibleAssigneesDetails={personDetailsList}
                         onActionCreate={onActionCreate}
-                        onCancelClick={onCloseClick}
+                        onCancelClick={onClose}
                     />
                 </div>
-            }
+            )}
         </ModalSideSheet>
     )
 }
 
-export default ActionCreateSidebar
+export default ActionSidebar
