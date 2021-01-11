@@ -469,8 +469,8 @@ export type Note = {
 
 export enum Progression {
   Nomination = 'NOMINATION',
-  IndividualAssessment = 'PREPARATION',
-  Alignment = 'ALIGNMENT',
+  IndividualAssessment = 'INDIVIDUAL_ASSESSMENT',
+  Preparation = 'PREPARATION',
   Workshop = 'WORKSHOP',
   FollowUp = 'FOLLOW_UP'
 }

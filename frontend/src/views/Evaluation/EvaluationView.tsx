@@ -60,7 +60,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 </QuestionnaireStatusTabs>
             </Step>
             <Step
-                title="Workshop"
+                title="Workshop Assessment"
                 description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                 stepKey={Progression.Workshop}
             >
