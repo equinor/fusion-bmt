@@ -8,15 +8,6 @@ import { Action, Participant, Question } from '../../api/models'
 import ActionSidebar from './ActionSidebar'
 import PriorityIndicator from './PriorityIndicator'
 import { DataToCreateAction } from '../../api/mutations'
-import styled from 'styled-components'
-
-const ActionLink = styled(Typography)`
-    cursor: pointer;
-
-    &:hover {
-        text-decoration: underline;
-    }
-`
 
 interface Props {
     question: Question
@@ -36,7 +27,9 @@ const QuestionActionsList = ({ question, participants, onActionCreate }: Props) 
 
     const onClose = () => {
         setIsSidebarOpen(false)
-        actionToEdit && setActionToEdit(undefined)
+        if (actionToEdit) {
+            setActionToEdit(undefined)
+        }
     }
 
     return (
@@ -64,7 +57,9 @@ const QuestionActionsList = ({ question, participants, onActionCreate }: Props) 
                                         <PriorityIndicator priority={action.priority} />
                                     </Box>
                                     <Box display="flex" alignItems="center">
-                                        <ActionLink onClick={() => editAction(action)}>{action.title}</ActionLink>
+                                        <Typography link onClick={() => editAction(action)}>
+                                            {action.title}
+                                        </Typography>
                                     </Box>
                                 </Box>
                             </div>
