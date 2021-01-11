@@ -184,7 +184,7 @@ namespace api.Models
 
     public enum Progression
     {
-        Nomination, Preparation, Alignment, Workshop, FollowUp
+        Nomination, IndividualAssessment, Alignment, Workshop, FollowUp
     }
 
     public enum Barrier

@@ -91,7 +91,7 @@ namespace api.Context
         {
             var answer1 = new Answer
             {
-                Progression = Progression.Preparation,
+                Progression = Progression.IndividualAssessment,
                 Severity = Severity.High,
                 Text = "Answer1",
                 CreateDate = DateTime.UtcNow,
@@ -152,7 +152,7 @@ namespace api.Context
             {
                 Name = "Evaluation2",
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Preparation,
+                Progression = Progression.IndividualAssessment,
                 Project = Projects[0]
             };
             var evaluation3 = new Evaluation
@@ -190,7 +190,7 @@ namespace api.Context
                 Organization = Organization.Engineering,
                 Role = Role.Facilitator,
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Preparation,
+                Progression = Progression.IndividualAssessment,
                 Evaluation = Evaluations[1]
             };
             var participant3 = new Participant
@@ -199,7 +199,7 @@ namespace api.Context
                 Organization = Organization.Construction,
                 Role = Role.Participant,
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Preparation,
+                Progression = Progression.IndividualAssessment,
                 Evaluation = Evaluations[1]
             };
             return new List<Participant>(new Participant[] { participant1, participant2, participant3 });

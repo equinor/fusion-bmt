@@ -11,21 +11,21 @@ import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import { useParticipant } from '../../../globals/contexts'
 
-interface PreparationViewProps
+interface IndividualAssessmentViewProps
 {
     evaluation: Evaluation
     onNextStepClick: () => void
     onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: PreparationViewProps) => {
+const IndividualAssessmentView = ({evaluation, onNextStepClick, onProgressParticipant}: IndividualAssessmentViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
 
     const questions = evaluation.questions
 
     const {role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId} = useParticipant()
 
-    const viewProgression = Progression.Preparation
+    const viewProgression = Progression.IndividualAssessment
     const allowedRoles = Object.values(Role)
 
     const isEvaluationAtThisProgression = evaluation.progression == viewProgression
@@ -53,7 +53,7 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
                 <EvaluationSidebar
                     questions={questions}
                     barrier={selectedBarrier}
-                    viewProgression={Progression.Preparation}
+                    viewProgression={Progression.IndividualAssessment}
                     onBarrierSelected={ (barrier) => setSelectedBarrier(barrier)}
                 />
             </Box>
@@ -104,4 +104,4 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
     </>
 }
 
-export default PreparationView
+export default IndividualAssessmentView

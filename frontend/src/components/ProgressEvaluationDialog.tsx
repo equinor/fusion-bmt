@@ -58,9 +58,9 @@ const ProgressEvaluationDialog = ({isOpen, currentProgression, onConfirmClick, o
 const progressionDialogTexts = (progression: Progression): string => {
     switch(progression){
     case Progression.Nomination: return `
-        Progressing to ${progressionToString(Progression.Preparation)} will disable the ability to delete participants.
+        Progressing to ${progressionToString(Progression.IndividualAssessment)} will disable the ability to delete participants.
     `
-    case Progression.Preparation:
+    case Progression.IndividualAssessment:
     case Progression.Alignment:
     case Progression.Workshop: return `
         Progressing from ${progressionToString(progression)}

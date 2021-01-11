@@ -124,13 +124,13 @@ namespace tests
             Participant participant2 = participantService.Create("ProgressAllParticipants2", evaluation, Organization.Commissioning, Role.OrganizationLead);
 
             Progression progression1Before = participant1.Progression;
-            participantService.ProgressAllParticipants(evaluation, Progression.Preparation);
+            participantService.ProgressAllParticipants(evaluation, Progression.IndividualAssessment);
             Progression progression1After = participant1.Progression;
             Progression progression2After = participant2.Progression;
 
             Assert.Equal(Progression.Nomination, progression1Before);
-            Assert.Equal(Progression.Preparation, progression1After);
-            Assert.Equal(Progression.Preparation, progression2After);
+            Assert.Equal(Progression.IndividualAssessment, progression1After);
+            Assert.Equal(Progression.IndividualAssessment, progression2After);
         }
 
         [Fact]
@@ -144,11 +144,11 @@ namespace tests
             Participant participant = participantService.Create("ProgressParticipant", evaluation, Organization.All, Role.Facilitator);
 
             Progression progressionBefore = participant.Progression;
-            participantService.ProgressParticipant(participant, Progression.Preparation);
+            participantService.ProgressParticipant(participant, Progression.IndividualAssessment);
             Progression progressionAfter = participant.Progression;
 
             Assert.Equal(Progression.Nomination, progressionBefore);
-            Assert.Equal(Progression.Preparation, progressionAfter);
+            Assert.Equal(Progression.IndividualAssessment, progressionAfter);
         }
     }
 }

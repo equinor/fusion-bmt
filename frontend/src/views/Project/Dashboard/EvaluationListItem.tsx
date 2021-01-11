@@ -25,7 +25,7 @@ const EvaluationListItem = ({evaluation}: EvaluationListItemProps) => {
                 </Box>
 
                 <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.Nomination} />
-                <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.Preparation} />
+                <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.IndividualAssessment} />
                 <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.Alignment} />
                 <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.Workshop} />
                 <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.FollowUp} />
