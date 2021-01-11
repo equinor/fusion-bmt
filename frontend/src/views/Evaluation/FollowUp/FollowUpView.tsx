@@ -1,25 +1,23 @@
 import React from 'react'
+
 import { Box } from '@material-ui/core'
-import { Button, Divider, Typography } from '@equinor/eds-core-react'
+import { Divider, Typography } from '@equinor/eds-core-react'
 
 import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
-import { barrierToString, progressionToString } from '../../../utils/EnumToString'
-import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSwitch'
+import { barrierToString } from '../../../utils/EnumToString'
 import { useParticipant } from '../../../globals/contexts'
-import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
+import { progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import QuestionActionsListWithApi from '../../../components/Action/QuestionActionsListWithApi'
 
 interface FollowUpViewProps
 {
     evaluation: Evaluation
-    onNextStepClick: () => void
-    onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const FollowUpView = ({evaluation, onNextStepClick, onProgressParticipant}: FollowUpViewProps) => {
+const FollowUpView = ({evaluation}: FollowUpViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
@@ -36,7 +34,6 @@ const FollowUpView = ({evaluation, onNextStepClick, onProgressParticipant}: Foll
     const viewProgression = Progression.FollowUp
     const allowedRoles = [Role.Facilitator]
 
-    const isEvaluationAtThisProgression = evaluation.progression == viewProgression
     const participantAllowed = allowedRoles.includes(participantRole)
     const isParticipantCompleted= progressionLessThan(viewProgression, participantProgression)
     const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
@@ -45,15 +42,6 @@ const FollowUpView = ({evaluation, onNextStepClick, onProgressParticipant}: Foll
     const disableAllUserInput = isEvaluationFinishedHere
                                 || !participantAllowed
                                 || !hasParticipantBeenHere
-
-    const localOnClompleteClick = () => {
-        const nextProgression = getNextProgression(participantProgression)
-        onProgressParticipant(nextProgression)
-    }
-
-    const localOnUncompleteClick = () => {
-        onProgressParticipant(viewProgression)
-    }
 
     const closeAnswerSummarySidebar = () => {
         setSelectedQuestion(undefined)
@@ -80,25 +68,6 @@ const FollowUpView = ({evaluation, onNextStepClick, onProgressParticipant}: Foll
                     <Box display="flex" flexDirection="row">
                         <Box flexGrow={1}>
                             <Typography variant="h2">{barrierToString(selectedBarrier)}</Typography>
-                        </Box>
-                        <Box mr={2}>
-                            <ProgressionCompleteSwitch
-                                isCheckedInitially={isParticipantCompleted}
-                                disabled={disableAllUserInput}
-                                onCompleteClick={localOnClompleteClick}
-                                onUncompleteClick={localOnUncompleteClick}
-                            />
-                        </Box>
-                        <Box>
-                            <Button
-                                onClick={onNextStepClick}
-                                disabled={
-                                    participantRole !== Role.Facilitator
-                                    || !isEvaluationAtThisProgression
-                                }
-                            >
-                                Finish { progressionToString(viewProgression) }
-                            </Button>
                         </Box>
                     </Box>
                     {questions.filter(q => q.barrier === selectedBarrier).map((question, idx) => {
