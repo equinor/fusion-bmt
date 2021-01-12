@@ -22,6 +22,17 @@ npm install
 npm start
 ```
 
+### Formatting
+We use [Prettier](frontend/.prettierrc.json). Remember to set this up. 
+
+VSCode settings:
+```
+"editor.defaultFormatter": "esbenp.prettier-vscode",
+"editor.formatOnSave": true
+```
+
+[Page to edit Codacy settings](https://app.codacy.com/p/366408/patterns/list?engine=cf05f3aa-fd23-4586-8cce-5368917ec3e5)
+
 ## Backend
 The backend is build using .NET 5.0. We use GraphQL to handle requests
 to the backend, and [Hot Chocolate](https://github.com/ChilliCream/hotchocolate)
