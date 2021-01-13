@@ -8,6 +8,7 @@ import PreparationView from './Preparation/PreparationView'
 import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
 import FollowUpView from './FollowUp/FollowUpView'
+import { progressionToString } from '../../utils/EnumToString'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -24,7 +25,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
             hideNavButtons={true}
         >
             <Step
-                title="Nomination"
+                title={progressionToString(Progression.Nomination)}
                 description={calcProgressionStatus(evaluation.progression, Progression.Nomination)}
                 stepKey={Progression.Nomination}
             >
@@ -34,7 +35,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 />
             </Step>
             <Step
-                title="Individual Assessment"
+                title={progressionToString(Progression.Individual)}
                 description={calcProgressionStatus(evaluation.progression, Progression.Individual)}
                 stepKey={Progression.Individual}
             >
@@ -47,7 +48,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 </QuestionnaireStatusTabs>
             </Step>
             <Step
-                title="Preparation"
+                title={progressionToString(Progression.Preparation)}
                 description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
                 stepKey={Progression.Preparation}
             >
@@ -60,7 +61,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 </QuestionnaireStatusTabs>
             </Step>
             <Step
-                title="Workshop Assessment"
+                title={progressionToString(Progression.Workshop)}
                 description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                 stepKey={Progression.Workshop}
             >
@@ -74,7 +75,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 </div>
             </Step>
             <Step
-                title="Follow-up"
+                title={progressionToString(Progression.FollowUp)}
                 description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                 stepKey={Progression.FollowUp}
             >

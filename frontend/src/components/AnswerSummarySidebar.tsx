@@ -18,7 +18,7 @@ interface AnswerSummarySidebarProps
 const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, viewProgression }: AnswerSummarySidebarProps) => {
     const answers = question.answers.filter(answer => progressionLessThan(answer.progression, viewProgression))
 
-    const IndividualAnswers = answers.filter(a => a.progression === Progression.Individual)
+    const individualAnswers = answers.filter(a => a.progression === Progression.Individual)
     const preparationAnswers = answers.filter(a => a.progression === Progression.Preparation)
     const workshopAnswers = answers.filter(a => a.progression === Progression.Workshop)
 
@@ -48,11 +48,11 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
             {preparationAnswers.map((answer) => {
                 return <SingleAnswerSummary answer={answer} key={answer.id} />
             })}
-            {IndividualAnswers.length !== 0 && <>
+            {individualAnswers.length !== 0 && <>
                 <Divider />
                 <Typography variant="h5">Individual</Typography>
             </>}
-            {IndividualAnswers.map((answer) => {
+            {individualAnswers.map((answer) => {
                 return <SingleAnswerSummary answer={answer} key={answer.id} />
             })}
         </SideSheet>

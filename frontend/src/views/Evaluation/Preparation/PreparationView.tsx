@@ -123,7 +123,7 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
                 <Box>
                     { selectedQuestion && selectedQuestionNumber &&
                         <AnswerSummarySidebar
-                            open={selectedQuestion != undefined}
+                            open={selectedQuestion !== undefined}
                             onCloseClick={closeAnswerSummarySidebar}
                             question={selectedQuestion}
                             questionNumber={selectedQuestionNumber}
