@@ -18,7 +18,7 @@
             "krr@equinor.com"
         ]
     },
-    "icon": "resources/app-icon.svg",
+    "icon": "../docs/app-icon.svg",
     "dependencies": {
         "@apollo/client": "^3.2.5",
         "@equinor/eds-core-react": "^0.8.3",

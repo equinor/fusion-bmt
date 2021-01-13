@@ -14,7 +14,7 @@ jobs:
   - job: 'Deploy_Fusion_BMT'
     steps:
       - task: Npm@1
-        displayName: 'Build frontend'
+        displayName: 'Install frontend'
         inputs:
           command: 'install'
           workingDir: 'frontend'
