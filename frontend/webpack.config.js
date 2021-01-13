@@ -1,12 +1,5 @@
 const webpack = require('webpack')
 
-const GitRevisionPlugin = require('git-revision-webpack-plugin')
-const gitRevisionPlugin = new GitRevisionPlugin({
-    commithashCommand: 'rev-parse --short HEAD',
-    versionCommand: "log -1 --date=short --pretty=format:'%cd'"
-})
-
-const APP_VERSION = process.env.npm_package_version
 
 let isProduction = false
 if (process.env.BUILD_MODE && process.env.BUILD_MODE === "production") {
@@ -25,10 +18,6 @@ module.exports = {
     plugins: [
         new webpack.DefinePlugin({
             API_URL: JSON.stringify(API_URL),
-            APP_VERSION: JSON.stringify(APP_VERSION),
-            COMMITHASH: JSON.stringify(gitRevisionPlugin.commithash()),
-            BRANCH: JSON.stringify(gitRevisionPlugin.branch()),
-            LAST_COMMIT: JSON.stringify(gitRevisionPlugin.version()),
             AD_APP_ID: JSON.stringify(AD_APP_ID),
             APP_INSIGHTS: JSON.stringify(APP_INSIGHTS)
         })
