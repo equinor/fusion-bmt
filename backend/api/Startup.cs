@@ -193,7 +193,7 @@ namespace api
             });
 
             // Comment out to use locally without authentication
-            // app.UseAuthorization();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

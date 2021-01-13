@@ -146,28 +146,32 @@ namespace api.Context
                 Name = "Evaluation1",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Nomination,
-                Project = Projects[0]
+                Project = Projects[0],
+                Status = Status.Active
             };
             var evaluation2 = new Evaluation
             {
                 Name = "Evaluation2",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Individual,
-                Project = Projects[0]
+                Project = Projects[0],
+                Status = Status.Active
             };
             var evaluation3 = new Evaluation
             {
                 Name = "Evaluation3",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Preparation,
-                Project = Projects[1]
+                Project = Projects[1],
+                Status = Status.Active
             };
             var evaluation4 = new Evaluation
             {
                 Name = "Evaluation4",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Workshop,
-                Project = Projects[1]
+                Project = Projects[1],
+                Status = Status.Active
             };
 
             return new List<Evaluation>(new Evaluation[] { evaluation1, evaluation2, evaluation3, evaluation4 });

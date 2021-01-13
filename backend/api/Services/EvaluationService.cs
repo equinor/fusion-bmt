@@ -24,7 +24,8 @@ namespace api.Services
                 CreateDate = createDate,
                 Name = name,
                 Progression = Progression.Nomination,
-                Project = project
+                Project = project,
+                Status = Status.Active
             };
 
             _context.Evaluations.Add(newEvaluation);
