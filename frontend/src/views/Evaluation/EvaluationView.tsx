@@ -3,7 +3,7 @@ import React from 'react'
 import { Evaluation, Progression, Role } from '../../api/models'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 import NominationView from './Nomination/NominationView'
-import IndividualAssessmentView from './IndividualAssessment/IndividualAssessmentView'
+import IndividualView from './Individual/IndividualView'
 import PreparationView from './Preparation/PreparationView'
 import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
@@ -35,11 +35,11 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
             </Step>
             <Step
                 title="Individual Assessment"
-                description={calcProgressionStatus(evaluation.progression, Progression.IndividualAssessment)}
-                stepKey={Progression.IndividualAssessment}
+                description={calcProgressionStatus(evaluation.progression, Progression.Individual)}
+                stepKey={Progression.Individual}
             >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.IndividualAssessment} allowedRoles={allowedRoles}>
-                    <IndividualAssessmentView
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Individual} allowedRoles={allowedRoles}>
+                    <IndividualView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
                         onProgressParticipant={onProgressParticipant}

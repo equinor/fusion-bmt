@@ -10,8 +10,8 @@ namespace tests
         [Fact]
         public void NextProgression()
         {
-            Assert.True(ServiceUtil.NextProgression(Progression.Nomination).Equals(Progression.IndividualAssessment));
-            Assert.True(ServiceUtil.NextProgression(Progression.IndividualAssessment).Equals(Progression.Preparation));
+            Assert.True(ServiceUtil.NextProgression(Progression.Nomination).Equals(Progression.Individual));
+            Assert.True(ServiceUtil.NextProgression(Progression.Individual).Equals(Progression.Preparation));
             Assert.True(ServiceUtil.NextProgression(Progression.Preparation).Equals(Progression.Workshop));
             Assert.True(ServiceUtil.NextProgression(Progression.Workshop).Equals(Progression.FollowUp));
 
