@@ -22,6 +22,7 @@
         "@apollo/client": "^3.2.5",
         "@equinor/eds-core-react": "^0.8.3",
         "@equinor/eds-icons": "^0.6.0",
+        "@equinor/eds-tokens": "^0.5.4",
         "@equinor/fusion-components": "^1.4.19",
         "@material-ui/core": "^4.11.0",
         "@microsoft/applicationinsights-react-js": "^3.0.5",
