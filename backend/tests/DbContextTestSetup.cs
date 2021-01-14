@@ -41,8 +41,7 @@ namespace tests
         }
         public void AssertIsFacilitator(string evaluationId)
         {
-            // Not implementet in the mock beacuse we dont need it
-            throw new NotSupportedException();
+            // Do nothing
         }
     }
 }
