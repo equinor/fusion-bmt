@@ -35,7 +35,7 @@ describe('Test QuestionAndAnswerUtils', () => {
             id: '',
             name: '',
             participants: [],
-            progression: Progression.Alignment,
+            progression: Progression.Preparation,
             project: {
                 createDate: new Date(),
                 evaluations: [],
@@ -74,14 +74,14 @@ describe('Test QuestionAndAnswerUtils', () => {
             evaluationId: evaluation.id,
             id: '',
             organization: Organization.All,
-            progression: Progression.Alignment,
+            progression: Progression.Preparation,
             role: Role.OrganizationLead,
         }
 
         const answer1: Answer = {
             createDate: new Date(),
             id: '',
-            progression: Progression.Alignment,
+            progression: Progression.Preparation,
             question,
             questionId: '',
             severity: Severity.High,
@@ -92,7 +92,7 @@ describe('Test QuestionAndAnswerUtils', () => {
         const answer2: Answer = {
             createDate: new Date(),
             id: '',
-            progression: Progression.Preparation,
+            progression: Progression.Individual,
             question,
             questionId: '',
             severity: Severity.High,
@@ -102,7 +102,7 @@ describe('Test QuestionAndAnswerUtils', () => {
 
         question.answers = [answer1, answer2]
 
-        const answers = getFilledUserAnswersForProgression([question], Progression.Alignment, participant.azureUniqueId)
+        const answers = getFilledUserAnswersForProgression([question], Progression.Preparation, participant.azureUniqueId)
 
         expect(answers.length).toBe(1)
     })
