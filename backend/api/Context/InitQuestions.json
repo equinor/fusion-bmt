@@ -14,6 +14,20 @@
         "Organization":"Engineering"
     },
     {
+        "Barrier":"General matters",
+        "Checkpoint":"Management",
+        "Text":"Is the process open?",
+        "SupportNotes":"Open",
+        "Organization":"Engineering"
+    },
+    {
+        "Barrier":"General matters",
+        "Checkpoint":"Management",
+        "Text":"Are you caring for the people involved?",
+        "SupportNotes":"Caring",
+        "Organization":"Engineering"
+    },
+    {
         "Barrier":"PS1 Containment",
         "Checkpoint":"Management",
         "Text":"Is there an ongoing contract negotiation?",
@@ -21,10 +35,24 @@
         "Organization":"Construction"
     },
     {
+        "Barrier":"PS1 Containment",
+        "Checkpoint":"Management",
+        "Text":"How is the collaboration?",
+        "SupportNotes":"Collaborative",
+        "Organization":"Construction"
+    },
+    {
         "Barrier":"PS2 HVAC",
         "Checkpoint":"Management",
         "Text":"Do we have a plan?",
         "SupportNotes":"Following a plan < responding to change",
+        "Organization":"Preparing for operation"
+    },
+    {
+        "Barrier":"PS2 HVAC",
+        "Checkpoint":"Management",
+        "Text":"Is the project courageous?",
+        "SupportNotes":"Courageous",
         "Organization":"Preparing for operation"
     },
     {

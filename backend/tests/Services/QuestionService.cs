@@ -53,7 +53,7 @@ namespace tests
             questionService.CreateBulk(questionTemplates, evaluation);
             int nQuestionsAfter = questionService.GetAll().Count();
 
-            Assert.Equal(nQuestionBefore + 11, nQuestionsAfter);
+            Assert.Equal(nQuestionBefore + 15, nQuestionsAfter);
         }
 
         [Fact]
