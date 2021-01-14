@@ -27,7 +27,7 @@ namespace tests
         {
             List<QuestionTemplate> questions = InitContent.QuestionTemplates;
 
-            Assert.Equal(11, questions.Count());
+            Assert.Equal(15, questions.Count());
         }
 
         [Fact]

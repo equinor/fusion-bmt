@@ -27,7 +27,7 @@ namespace tests
 
             List<QuestionTemplate> questionTemplates = questionTemplateService.ActiveQuestions();
 
-            Assert.Equal(11, questionTemplates.Count);
+            Assert.Equal(15, questionTemplates.Count);
             foreach (QuestionTemplate qt in questionTemplates)
             {
                 Assert.True(qt.Status.Equals(Status.Active));
