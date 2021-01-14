@@ -5,9 +5,9 @@ export const checkIfAnswerFilled = (answer: Answer): boolean => {
 }
 
 export const getFilledUserAnswersForProgression = (questions: Question[], progression: Progression, azureUniqueId: string): Answer[] => {
-    const orgAnswers = questions.reduce((acc: Answer[], cur: Question) => {
-        return acc.filter((a: Answer) => a.progression == progression).concat(cur.answers)
+    const progressionAnswers = questions.reduce((acc: Answer[], cur: Question) => {
+        return acc.concat(cur.answers.filter((a: Answer) => a.progression === progression))
     }, [] as Answer[])
-    const participantAnswers = orgAnswers.filter(a => a.answeredBy?.azureUniqueId === azureUniqueId)
+    const participantAnswers = progressionAnswers.filter(a => a.answeredBy?.azureUniqueId === azureUniqueId)
     return participantAnswers.filter(a => checkIfAnswerFilled(a))
 }

@@ -1,4 +1,4 @@
-import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
+import { ApolloError, gql, useMutation, useQuery, useApolloClient } from '@apollo/client'
 import {
     ACTION_FIELDS_FRAGMENT,
     ANSWER_FIELDS_FRAGMENT,
@@ -17,6 +17,8 @@ interface ProgressEvaluationMutationProps {
 }
 
 export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps => {
+    const apolloClient = useApolloClient()
+
     const PROGRESS_EVALUATION = gql`
         mutation ProgessEvaluation($evaluationId: String!, $newProgression: Progression!) {
             progressEvaluation(evaluationId: $evaluationId, newProgression: $newProgression){
@@ -31,17 +33,7 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
     const [progressEvaluationApolloFunc, { loading, data, error }] = useMutation(
         PROGRESS_EVALUATION, {
             update(cache, { data: { progressEvaluation } }) {
-                cache.modify({
-                    fields: {
-                        evaluations(existingEvaluations = []) {
-                            cache.writeFragment({
-                                data: progressEvaluation,
-                                fragment: EVALUATION_FIELDS_FRAGMENT
-                            })
-                            return existingEvaluations
-                        }
-                    }
-                })
+                apolloClient.resetStore()
             }
         }
     )
