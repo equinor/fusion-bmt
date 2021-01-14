@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 using api.Context;
 using api.Models;
@@ -83,7 +85,12 @@ namespace api.Services
 
         public IQueryable<Answer> CreateFollowUpAnswers(Evaluation evaluation)
         {
-            IQueryable<Answer> answers = GetAll().Where(a => (a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation)));
+            List<Answer> answers = _context.Answers.Include(
+                a => a.Question
+            ).Where(
+                a => (a.Progression.Equals(Progression.Workshop)
+                    && a.Question.Evaluation.Equals(evaluation))
+            ).ToList();
             foreach (Answer a in answers)
             {
                 Create(a.AnsweredBy, a.Question, a.Severity, a.Text, Progression.FollowUp);
