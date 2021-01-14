@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { PersonDetails } from '@equinor/fusion'
 import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
@@ -11,6 +11,8 @@ import { barrierToString } from '../../utils/EnumToString'
 import { DataToCreateAction } from '../../api/mutations'
 import styled from 'styled-components'
 import ActionNotesList from './ActionNotesList'
+
+const WRITE_DELAY_MS = 1000
 
 const RightOrientedDate = styled(Typography)`
     float: right;
@@ -40,10 +42,21 @@ interface Props {
     possibleAssignees: Participant[]
     possibleAssigneesDetails: PersonDetails[]
     onActionCreate: (action: DataToCreateAction) => void
+    onActionEdit: (action: Action) => void
+    onNoteCreate: (actionId: string, text: string) => void
     onCancelClick: () => void
 }
 
-const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssigneesDetails, onActionCreate, onCancelClick }: Props) => {
+const ActionForm = ({
+    action,
+    connectedQuestion,
+    possibleAssignees,
+    possibleAssigneesDetails,
+    onActionCreate,
+    onActionEdit,
+    onNoteCreate,
+    onCancelClick,
+}: Props) => {
     const [title, setTitle] = useState<string>((action && action.title) || '')
     const [titleValidity, setTitleValidity] = useState<Validity>('default')
     const [assignedToId, setAssignedToId] = useState<string | undefined>(
@@ -52,10 +65,11 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
     const assignedTo: Participant | undefined = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
     const [assignedToValidity, setAssignedToValidity] = useState<Validity>('default')
 
-    const [dueDate, setDueDate] = useState<Date>((action && action.dueDate) || new Date())
-    const [priority, setPriority] = useState<Priority>((action && action.priority) || Priority.High)
-    const [description, setDescription] = useState<string>((action && action.description) || '')
-    const [onHold, setOnHold] = useState<boolean>(false)
+    const [dueDate, setDueDate] = useState<Date>((action && new Date(action.dueDate)) || new Date())
+    const [priority, setPriority] = useState<Priority>(action?.priority || Priority.High)
+    const [description, setDescription] = useState<string>(action?.description || '')
+    const [onHold, setOnHold] = useState<boolean>(action?.onHold || false)
+    const [completed, setCompleted] = useState<boolean>(action?.completed || false)
     const [noteInProgress, setNoteInProgress] = useState<string>('')
 
     const assigneesOptions: SearchableDropdownOption[] = possibleAssigneesDetails.map(personDetails => ({
@@ -66,6 +80,40 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
 
     const createdDateString = new Date(action?.createDate).toLocaleDateString()
     const isEditMode = action !== undefined
+
+    const autosaveChanges = () => {
+        if (action) {
+            const valid = setFormValidity()
+            if (valid) {
+                const editedAction: Action = {
+                    ...action,
+                    title,
+                    onHold,
+                    dueDate,
+                    priority,
+                    completed,
+                    description,
+                    assignedTo,
+                }
+                onActionEdit(editedAction)
+            }
+        }
+    }
+
+    const firstUpdate = useRef(true)
+    useEffect(() => {
+        if (firstUpdate.current === true) {
+            firstUpdate.current = false
+            return
+        }
+
+        const timeout = setTimeout(() => {
+            autosaveChanges()
+        }, WRITE_DELAY_MS)
+        return () => {
+            clearTimeout(timeout)
+        }
+    }, [title, description, assignedTo, onHold, dueDate, priority, completed])
 
     useEffect(() => {
         if (titleValidity === 'error') {
@@ -91,7 +139,7 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
         }
     }, [assignedTo])
 
-    const onLocalCreateClick = () => {
+    const setFormValidity = () => {
         const isTitleValid = checkIfTitleValid(title)
         const isParticipantValid = checkIfParticipantValid(assignedTo)
         if (!isTitleValid || !isParticipantValid) {
@@ -101,8 +149,15 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
             if (!isParticipantValid) {
                 setAssignedToValidity('error')
             }
-        } else {
-            const actionData: DataToCreateAction = {
+            return false
+        }
+        return true
+    }
+
+    const onLocalCreateClick = () => {
+        const valid = setFormValidity()
+        if (valid) {
+            const newAction: DataToCreateAction = {
                 title,
                 dueDate,
                 priority,
@@ -110,7 +165,14 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
                 assignedToId: assignedTo!.id,
                 questionId: connectedQuestion.id,
             }
-            onActionCreate(actionData)
+            onActionCreate(newAction)
+        }
+    }
+
+    const addNote = () => {
+        if (noteInProgress.length > 0 && action) {
+            onNoteCreate(action.id, noteInProgress)
+            setNoteInProgress('')
         }
     }
 
@@ -119,18 +181,27 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
             <Grid container spacing={3}>
                 {isEditMode && (
                     <>
-                        <Grid item xs={8}>
-                            <Button onClick={() => {}}>Complete</Button>
+                        <Grid item xs={6}>
+                            <Switch
+                                checked={completed}
+                                onChange={() => {}} // This is required to avoid an error
+                                onClick={() => setCompleted(!completed)}
+                                disabled={false}
+                                label="Completed"
+                                enterKeyHint="" // This is required to avoid an error
+                            />
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={6} justify={'flex-end'}>
                             <RightOrientedSwitch
                                 checked={onHold}
                                 onChange={() => {}} // This is required to avoid an error
                                 onClick={() => setOnHold(!onHold)}
                                 disabled={false}
                                 label="On hold"
-                                enterKeyHint=""
+                                enterKeyHint="" // This is required to avoid an error
                             />
+                        </Grid>
+                        <Grid item xs={12}>
                             <RightOrientedDate>Created: {createdDateString}</RightOrientedDate>
                         </Grid>
                     </>
@@ -209,22 +280,30 @@ const ActionForm = ({ action, connectedQuestion, possibleAssignees, possibleAssi
                 </Grid>
                 {isEditMode && (
                     <>
-                        <Grid item xs={11}>
+                        <Grid item xs={10}>
                             <TextField
                                 id="noteInProgress"
                                 value={noteInProgress}
                                 multiline
                                 label="Notes"
                                 onChange={(event: TextFieldChangeEvent) => setNoteInProgress(event.target.value)}
+                                onKeyPress={(e: any) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault()
+                                        addNote()
+                                    }
+                                }}
                                 variant="default"
                                 style={{ height: 75 }}
                             />
                         </Grid>
-                        <Grid item xs={1} container={true} alignItems="center">
-                            <Icon data={add} color="color-primary"></Icon>
+                        <Grid item xs={2} container={true} alignItems="center">
+                            <Button variant="ghost" onClick={addNote}>
+                                <Icon data={add}></Icon>
+                            </Button>
                         </Grid>
                         <Grid item xs={12}>
-                            <ActionNotesList />
+                            <ActionNotesList notes={action!.notes} participantsDetails={possibleAssigneesDetails} />
                         </Grid>
                     </>
                 )}

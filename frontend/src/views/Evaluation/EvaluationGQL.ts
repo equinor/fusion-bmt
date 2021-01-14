@@ -5,7 +5,8 @@ import {
     EVALUATION_FIELDS_FRAGMENT,
     PARTICIPANTS_ARRAY_FRAGMENT,
     PARTICIPANT_FIELDS_FRAGMENT,
-    QUESTION_FIELDS_FRAGMENT
+    QUESTION_FIELDS_FRAGMENT,
+    NOTE_FIELDS_FRAGMENT,
 } from '../../api/fragments'
 import { Evaluation, Participant, Progression } from '../../api/models'
 
@@ -21,7 +22,7 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
 
     const PROGRESS_EVALUATION = gql`
         mutation ProgessEvaluation($evaluationId: String!, $newProgression: Progression!) {
-            progressEvaluation(evaluationId: $evaluationId, newProgression: $newProgression){
+            progressEvaluation(evaluationId: $evaluationId, newProgression: $newProgression) {
                 ...EvaluationFields
                 ...ParticipantsArray
             }
@@ -46,7 +47,7 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
         progressEvaluation: progressEvaluation,
         loading,
         evaluation: data?.progressEvaluation,
-        error
+        error,
     }
 }
 
@@ -59,27 +60,22 @@ interface ProgressParticipantMutationProps {
 
 export const useProgressParticipantMutation = (): ProgressParticipantMutationProps => {
     const PROGRESS_PARTICIPANT = gql`
-        mutation ProgressParticipant($evaluationId: String!, $newProgression: Progression!){
-            progressParticipant(
-                evaluationId: $evaluationId,
-                newProgression: $newProgression
-            ){
+        mutation ProgressParticipant($evaluationId: String!, $newProgression: Progression!) {
+            progressParticipant(evaluationId: $evaluationId, newProgression: $newProgression) {
                 ...ParticipantFields
             }
         }
         ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
-    const [progressParticipantApolloFunc, { loading, data, error }] = useMutation(
-        PROGRESS_PARTICIPANT, {
-            update(cache, { data: { progressParticipant } }) {
-                cache.writeFragment({
-                    data: progressParticipant,
-                    fragment: PARTICIPANT_FIELDS_FRAGMENT
-                })
-            }
-        }
-    )
+    const [progressParticipantApolloFunc, { loading, data, error }] = useMutation(PROGRESS_PARTICIPANT, {
+        update(cache, { data: { progressParticipant } }) {
+            cache.writeFragment({
+                data: progressParticipant,
+                fragment: PARTICIPANT_FIELDS_FRAGMENT,
+            })
+        },
+    })
 
     const progressParticipant = (evaluationId: string, newProgression: Progression) => {
         progressParticipantApolloFunc({ variables: { evaluationId, newProgression } })
@@ -89,7 +85,7 @@ export const useProgressParticipantMutation = (): ProgressParticipantMutationPro
         progressParticipant: progressParticipant,
         loading,
         participant: data?.progressParticipant,
-        error
+        error,
     }
 }
 
@@ -102,7 +98,7 @@ interface EvaluationQueryProps {
 export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
     const GET_EVALUATION = gql`
         query($evaluationId: String!) {
-            evaluations(where:{id: {eq: $evaluationId}}) {
+            evaluations(where: { id: { eq: $evaluationId } }) {
                 ...EvaluationFields
                 ...ParticipantsArray
                 questions {
@@ -115,6 +111,9 @@ export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps =
                     }
                     actions {
                         ...ActionFields
+                        notes {
+                            ...NoteFields
+                        }
                     }
                 }
             }
@@ -124,18 +123,16 @@ export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps =
         ${QUESTION_FIELDS_FRAGMENT}
         ${ANSWER_FIELDS_FRAGMENT}
         ${ACTION_FIELDS_FRAGMENT}
+        ${NOTE_FIELDS_FRAGMENT}
     `
 
-    const { loading, data, error } = useQuery<{evaluations: Evaluation[]}>(
-        GET_EVALUATION,
-        {
-            variables: { evaluationId }
-        }
-    )
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATION, {
+        variables: { evaluationId },
+    })
 
     return {
         loading,
         evaluation: data?.evaluations.find(evaluation => evaluation.id === evaluationId),
-        error
+        error,
     }
 }
