@@ -10,9 +10,9 @@ namespace tests
         [Fact]
         public void NextProgression()
         {
-            Assert.True(ServiceUtil.NextProgression(Progression.Nomination).Equals(Progression.Preparation));
-            Assert.True(ServiceUtil.NextProgression(Progression.Preparation).Equals(Progression.Alignment));
-            Assert.True(ServiceUtil.NextProgression(Progression.Alignment).Equals(Progression.Workshop));
+            Assert.True(ServiceUtil.NextProgression(Progression.Nomination).Equals(Progression.Individual));
+            Assert.True(ServiceUtil.NextProgression(Progression.Individual).Equals(Progression.Preparation));
+            Assert.True(ServiceUtil.NextProgression(Progression.Preparation).Equals(Progression.Workshop));
             Assert.True(ServiceUtil.NextProgression(Progression.Workshop).Equals(Progression.FollowUp));
 
             Assert.Throws<ProgressionTransitionException>(() => ServiceUtil.NextProgression(Progression.FollowUp));

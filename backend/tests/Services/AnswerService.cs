@@ -90,7 +90,7 @@ namespace tests
         {
             AnswerService answerService = new AnswerService(_context);
 
-            Assert.Throws<ArgumentNullException>(() => answerService.GetAnswer(null, null, Progression.Alignment));
+            Assert.Throws<ArgumentNullException>(() => answerService.GetAnswer(null, null, Progression.Preparation));
         }
 
         [Fact]

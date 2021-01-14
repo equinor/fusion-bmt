@@ -32,6 +32,8 @@ namespace api.Models
         [Required]
         public Progression Progression { get; set; }
         [Required]
+        public Status Status { get; set; }
+        [Required]
         public virtual ICollection<Participant> Participants { get; private set; }
         [Required]
         public virtual ICollection<Question> Questions { get; private set; }
@@ -184,7 +186,7 @@ namespace api.Models
 
     public enum Progression
     {
-        Nomination, Preparation, Alignment, Workshop, FollowUp
+        Nomination, Individual, Preparation, Workshop, FollowUp
     }
 
     public enum Barrier

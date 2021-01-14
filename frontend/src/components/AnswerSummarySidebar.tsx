@@ -18,8 +18,8 @@ interface AnswerSummarySidebarProps
 const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, viewProgression }: AnswerSummarySidebarProps) => {
     const answers = question.answers.filter(answer => progressionLessThan(answer.progression, viewProgression))
 
+    const individualAnswers = answers.filter(a => a.progression === Progression.Individual)
     const preparationAnswers = answers.filter(a => a.progression === Progression.Preparation)
-    const alignmentAnswers = answers.filter(a => a.progression === Progression.Alignment)
     const workshopAnswers = answers.filter(a => a.progression === Progression.Workshop)
 
     return <Sticky>
@@ -41,18 +41,18 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
             {workshopAnswers.map((answer) => {
                 return <SingleAnswerSummary answer={answer} key={answer.id} />
             })}
-            {alignmentAnswers.length !== 0 && <>
-                <Divider />
-                <Typography variant="h5">Alignment</Typography>
-            </>}
-            {alignmentAnswers.map((answer) => {
-                return <SingleAnswerSummary answer={answer} key={answer.id} />
-            })}
             {preparationAnswers.length !== 0 && <>
                 <Divider />
                 <Typography variant="h5">Preparation</Typography>
             </>}
             {preparationAnswers.map((answer) => {
+                return <SingleAnswerSummary answer={answer} key={answer.id} />
+            })}
+            {individualAnswers.length !== 0 && <>
+                <Divider />
+                <Typography variant="h5">Individual</Typography>
+            </>}
+            {individualAnswers.map((answer) => {
                 return <SingleAnswerSummary answer={answer} key={answer.id} />
             })}
         </SideSheet>

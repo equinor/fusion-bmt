@@ -159,7 +159,7 @@ namespace tests
                 ")
                 .SetVariableValue("questionId", questionId)
                 .SetVariableValue("severity", Severity.High)
-                .SetVariableValue("progression", Progression.Preparation)
+                .SetVariableValue("progression", Progression.Individual)
                 .SetServices(serviceProvider)
                 .Create();
 

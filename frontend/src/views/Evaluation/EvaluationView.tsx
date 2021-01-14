@@ -3,11 +3,12 @@ import React from 'react'
 import { Evaluation, Progression, Role } from '../../api/models'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 import NominationView from './Nomination/NominationView'
+import IndividualView from './Individual/IndividualView'
 import PreparationView from './Preparation/PreparationView'
-import AlignmentView from './Alignment/AlignmentView'
 import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
 import FollowUpView from './FollowUp/FollowUpView'
+import { progressionToString } from '../../utils/EnumToString'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -24,7 +25,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
             hideNavButtons={true}
         >
             <Step
-                title="Nomination"
+                title={progressionToString(Progression.Nomination)}
                 description={calcProgressionStatus(evaluation.progression, Progression.Nomination)}
                 stepKey={Progression.Nomination}
             >
@@ -34,11 +35,24 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 />
             </Step>
             <Step
-                title="Preparation"
+                title={progressionToString(Progression.Individual)}
+                description={calcProgressionStatus(evaluation.progression, Progression.Individual)}
+                stepKey={Progression.Individual}
+            >
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Individual} allowedRoles={allowedRoles}>
+                    <IndividualView
+                        evaluation={evaluation}
+                        onNextStepClick={() => onProgressEvaluationClick()}
+                        onProgressParticipant={onProgressParticipant}
+                    />
+                </QuestionnaireStatusTabs>
+            </Step>
+            <Step
+                title={progressionToString(Progression.Preparation)}
                 description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
                 stepKey={Progression.Preparation}
             >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation} allowedRoles={allowedRoles}>
+                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Preparation} allowedRoles={[Role.OrganizationLead]}>
                     <PreparationView
                         evaluation={evaluation}
                         onNextStepClick={() => onProgressEvaluationClick()}
@@ -47,20 +61,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 </QuestionnaireStatusTabs>
             </Step>
             <Step
-                title="Alignment"
-                description={calcProgressionStatus(evaluation.progression, Progression.Alignment)}
-                stepKey={Progression.Alignment}
-            >
-                <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Alignment} allowedRoles={[Role.OrganizationLead]}>
-                    <AlignmentView
-                        evaluation={evaluation}
-                        onNextStepClick={() => onProgressEvaluationClick()}
-                        onProgressParticipant={onProgressParticipant}
-                    />
-                </QuestionnaireStatusTabs>
-            </Step>
-            <Step
-                title="Workshop"
+                title={progressionToString(Progression.Workshop)}
                 description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                 stepKey={Progression.Workshop}
             >
@@ -74,7 +75,7 @@ const EvaluationView = ({evaluation, onProgressEvaluationClick, onProgressPartic
                 </div>
             </Step>
             <Step
-                title="Follow-up"
+                title={progressionToString(Progression.FollowUp)}
                 description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                 stepKey={Progression.FollowUp}
             >

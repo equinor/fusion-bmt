@@ -3,7 +3,7 @@ import { checkIfAnswerFilled } from './QuestionAndAnswerUtils'
 
 const dummyAnswer: Answer = {
     id: '',
-    progression: Progression.Preparation,
+    progression: Progression.Individual,
     severity: Severity.Na,
     text: '',
     createDate: '',

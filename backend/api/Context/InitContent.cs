@@ -91,7 +91,7 @@ namespace api.Context
         {
             var answer1 = new Answer
             {
-                Progression = Progression.Preparation,
+                Progression = Progression.Individual,
                 Severity = Severity.High,
                 Text = "Answer1",
                 CreateDate = DateTime.UtcNow,
@@ -109,7 +109,7 @@ namespace api.Context
             };
             var answer3 = new Answer
             {
-                Progression = Progression.Alignment,
+                Progression = Progression.Preparation,
                 Severity = Severity.Low,
                 Text = "Answer3",
                 CreateDate = DateTime.UtcNow,
@@ -146,28 +146,32 @@ namespace api.Context
                 Name = "Evaluation1",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Nomination,
-                Project = Projects[0]
+                Project = Projects[0],
+                Status = Status.Active
             };
             var evaluation2 = new Evaluation
             {
                 Name = "Evaluation2",
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Preparation,
-                Project = Projects[0]
+                Progression = Progression.Individual,
+                Project = Projects[0],
+                Status = Status.Active
             };
             var evaluation3 = new Evaluation
             {
                 Name = "Evaluation3",
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Alignment,
-                Project = Projects[1]
+                Progression = Progression.Preparation,
+                Project = Projects[1],
+                Status = Status.Active
             };
             var evaluation4 = new Evaluation
             {
                 Name = "Evaluation4",
                 CreateDate = DateTime.UtcNow,
                 Progression = Progression.Workshop,
-                Project = Projects[1]
+                Project = Projects[1],
+                Status = Status.Active
             };
 
             return new List<Evaluation>(new Evaluation[] { evaluation1, evaluation2, evaluation3, evaluation4 });
@@ -190,7 +194,7 @@ namespace api.Context
                 Organization = Organization.Engineering,
                 Role = Role.Facilitator,
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Preparation,
+                Progression = Progression.Individual,
                 Evaluation = Evaluations[1]
             };
             var participant3 = new Participant
@@ -199,7 +203,7 @@ namespace api.Context
                 Organization = Organization.Construction,
                 Role = Role.Participant,
                 CreateDate = DateTime.UtcNow,
-                Progression = Progression.Preparation,
+                Progression = Progression.Individual,
                 Evaluation = Evaluations[1]
             };
             return new List<Participant>(new Participant[] { participant1, participant2, participant3 });

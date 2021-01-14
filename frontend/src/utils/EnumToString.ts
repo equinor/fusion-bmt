@@ -57,9 +57,9 @@ export const roleToString = (role: Role): string => {
 export const progressionToString = (progression: Progression): string => {
     switch(progression) {
     case Progression.Nomination: return "Nomination"
+    case Progression.Individual: return "Individual Assessment"
     case Progression.Preparation: return "Preparation"
-    case Progression.Alignment: return "Alignment"
-    case Progression.Workshop: return "Workshop"
+    case Progression.Workshop: return "Workshop Assessment"
     case Progression.FollowUp: return "Follow-up"
     }
 }
