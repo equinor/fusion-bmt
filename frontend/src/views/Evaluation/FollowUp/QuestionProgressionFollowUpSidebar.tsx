@@ -2,20 +2,30 @@ import * as React from 'react'
 
 import { NavigationStructure, NavigationDrawer } from '@equinor/fusion-components'
 
-import { Barrier, Answer } from '../../../api/models'
+import { Barrier, Question, Progression } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import Sticky from '../../../components/Sticky'
 import SeveritySummary from '../../../components/SeveritySummary'
 import { countSeverities } from '../../../utils/Severity'
 
 interface Props {
-    followUpBarrierAnswers: (Answer | null)[]
+    questions: Question[]
     selectedBarrier: Barrier
     onSelectBarrier: (barrier: Barrier) => void
 }
 
-const QuestionProgressionFollowUpSidebar = ({ followUpBarrierAnswers, selectedBarrier, onSelectBarrier }: Props) => {
+const QuestionProgressionFollowUpSidebar = ({ questions, selectedBarrier, onSelectBarrier }: Props) => {
     const structure: NavigationStructure[] = Object.entries(Barrier).map(([_, b]) => {
+        const followUpBarrierAnswers = questions
+            .filter(q => q.barrier === b)
+            .map(q => {
+                const answers = q.answers.filter(a => a.progression === Progression.FollowUp)
+                const length = answers.length
+                if (length === 0) {
+                    return null
+                }
+                return answers[0]
+            })
         return {
             id: b,
             type: 'grouping',

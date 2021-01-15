@@ -67,7 +67,7 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
             <Box display="flex" height={1}>
                 <Box>
                     <QuestionProgressionFollowUpSidebar
-                        followUpBarrierAnswers={followUpBarrierAnswers}
+                        questions={questions}
                         selectedBarrier={selectedBarrier}
                         onSelectBarrier={onBarrierSelected}
                     />
