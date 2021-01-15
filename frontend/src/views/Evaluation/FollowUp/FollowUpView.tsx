@@ -7,7 +7,7 @@ import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/m
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useParticipant } from '../../../globals/contexts'
-import { progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
+import { progressionLessThan } from '../../../utils/ProgressionStatus'
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import QuestionActionsListWithApi from '../../../components/Action/QuestionActionsListWithApi'
 import SeveritySummary from '../../../components/SeveritySummary'
@@ -36,12 +36,12 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
     const viewProgression = Progression.FollowUp
     const allowedRoles = [Role.Facilitator]
 
+    const isEvaluationAtThisProgression = evaluation.progression == viewProgression
     const participantAllowed = allowedRoles.includes(participantRole)
     const isParticipantCompleted = progressionLessThan(viewProgression, participantProgression)
     const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
-    const hasParticipantBeenHere = progressionGreaterThanOrEqual(participantProgression, viewProgression)
 
-    const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !hasParticipantBeenHere
+    const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !isEvaluationAtThisProgression
 
     const closeAnswerSummarySidebar = () => {
         setSelectedQuestion(undefined)
