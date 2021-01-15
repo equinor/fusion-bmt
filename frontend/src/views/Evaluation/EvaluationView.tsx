@@ -7,8 +7,8 @@ import IndividualView from './Individual/IndividualView'
 import PreparationView from './Preparation/PreparationView'
 import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
-import FollowUpView from './FollowUp/FollowUpView'
 import { progressionToString } from '../../utils/EnumToString'
+import FollowUpStepView from './FollowUp/FollowUpStepView'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -77,10 +77,7 @@ const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParti
                     description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                     stepKey={Progression.FollowUp}
                 >
-                    <div>
-                        {/* Div added to make position: sticky work for deeper components */}
-                        <FollowUpView evaluation={evaluation} />
-                    </div>
+                    <FollowUpStepView evaluation={evaluation} />
                 </Step>
             </Stepper>
         </>
