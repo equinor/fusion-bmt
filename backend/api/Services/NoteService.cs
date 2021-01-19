@@ -22,7 +22,7 @@ namespace api.Services
             Action action
         )
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Note newNote = new Note
             {

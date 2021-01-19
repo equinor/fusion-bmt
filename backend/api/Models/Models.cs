@@ -14,7 +14,7 @@ namespace api.Models
         [Required]
         public string FusionProjectId { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         [Required]
         public virtual ICollection<Evaluation> Evaluations { get; private set; }
     }
@@ -28,7 +28,7 @@ namespace api.Models
         [Required]
         public string Name { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         [Required]
         public Progression Progression { get; set; }
         [Required]
@@ -56,7 +56,7 @@ namespace api.Models
         [Required]
         public Progression Progression { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         [Required]
         public string EvaluationId { get; set; }
         [Required]
@@ -79,7 +79,7 @@ namespace api.Models
         [Required]
         public Barrier Barrier { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         [Required]
         public virtual ICollection<Answer> Answers { get; private set; }
         [Required]
@@ -107,7 +107,7 @@ namespace api.Models
         [Required]
         public Barrier Barrier { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         [Required]
         public virtual ICollection<Question> Questions { get; private set; }
     }
@@ -125,7 +125,7 @@ namespace api.Models
         [Required]
         public string Text { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         public string AnsweredById { get; set; }
         [ForeignKey("AnsweredById")]
         public Participant AnsweredBy { get; set; }
@@ -154,9 +154,9 @@ namespace api.Models
         [Required]
         public bool Completed { get; set; }
         [Required]
-        public DateTime DueDate { get; set; }
+        public DateTimeOffset DueDate { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         public virtual Participant CreatedBy { get; set; }
         [Required]
         public virtual ICollection<Note> Notes { get; private set; }
@@ -174,7 +174,7 @@ namespace api.Models
         public string Text { get; set; }
         public Participant CreatedBy { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
         [Required]
         public virtual Action Action { get; set; }
     }

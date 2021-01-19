@@ -31,7 +31,7 @@ namespace api.Context
             }
             foreach (QuestionTemplate q in questions)
             {
-                q.CreateDate = DateTime.UtcNow;
+                q.CreateDate = DateTimeOffset.UtcNow;
                 q.Status = Status.Active;
             }
             return questions;
@@ -42,14 +42,14 @@ namespace api.Context
             var note1 = new Note
             {
                 Text = "Note1",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Action = Actions[0],
                 CreatedBy = Participants[0]
             };
             var note2 = new Note
             {
                 Text = "Note2",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Action = Actions[0],
                 CreatedBy = Participants[0]
             };
@@ -65,8 +65,8 @@ namespace api.Context
                 Priority = Priority.High,
                 OnHold = false,
                 Completed = false,
-                DueDate = DateTime.UtcNow,
-                CreateDate = DateTime.UtcNow,
+                DueDate = DateTimeOffset.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 AssignedTo = Participants[0],
                 CreatedBy = Participants[0],
                 Question = Questions[0]
@@ -78,8 +78,8 @@ namespace api.Context
                 Priority = Priority.Medium,
                 OnHold = false,
                 Completed = false,
-                DueDate = DateTime.UtcNow,
-                CreateDate = DateTime.UtcNow,
+                DueDate = DateTimeOffset.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 AssignedTo = Participants[0],
                 CreatedBy = Participants[0],
                 Question = Questions[0]
@@ -94,7 +94,7 @@ namespace api.Context
                 Progression = Progression.Individual,
                 Severity = Severity.High,
                 Text = "Answer1",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Question = Questions[1],
                 AnsweredBy = Participants[0]
             };
@@ -103,7 +103,7 @@ namespace api.Context
                 Progression = Progression.FollowUp,
                 Severity = Severity.Limited,
                 Text = "Answer2",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Question = Questions[2],
                 AnsweredBy = Participants[0]
             };
@@ -112,7 +112,7 @@ namespace api.Context
                 Progression = Progression.Preparation,
                 Severity = Severity.Low,
                 Text = "Answer3",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Question = Questions[3],
                 AnsweredBy = Participants[0]
             };
@@ -131,7 +131,7 @@ namespace api.Context
                     SupportNotes = questionTemplate.SupportNotes,
                     Organization = questionTemplate.Organization,
                     QuestionTemplate = questionTemplate,
-                    CreateDate = DateTime.UtcNow,
+                    CreateDate = DateTimeOffset.UtcNow,
                     Evaluation = Evaluations[0]
                 });
             }
@@ -144,7 +144,7 @@ namespace api.Context
             var evaluation1 = new Evaluation
             {
                 Name = "Evaluation1",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Progression = Progression.Nomination,
                 Project = Projects[0],
                 Status = Status.Active
@@ -152,7 +152,7 @@ namespace api.Context
             var evaluation2 = new Evaluation
             {
                 Name = "Evaluation2",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Progression = Progression.Individual,
                 Project = Projects[0],
                 Status = Status.Active
@@ -160,7 +160,7 @@ namespace api.Context
             var evaluation3 = new Evaluation
             {
                 Name = "Evaluation3",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Progression = Progression.Preparation,
                 Project = Projects[1],
                 Status = Status.Active
@@ -168,7 +168,7 @@ namespace api.Context
             var evaluation4 = new Evaluation
             {
                 Name = "Evaluation4",
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Progression = Progression.Workshop,
                 Project = Projects[1],
                 Status = Status.Active
@@ -184,7 +184,7 @@ namespace api.Context
                 AzureUniqueId = "1",
                 Organization = Organization.Construction,
                 Role = Role.Participant,
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Progression = Progression.Nomination,
                 Evaluation = Evaluations[0]
             };
@@ -193,7 +193,7 @@ namespace api.Context
                 AzureUniqueId = "2",
                 Organization = Organization.Engineering,
                 Role = Role.Facilitator,
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Progression = Progression.Individual,
                 Evaluation = Evaluations[1]
             };
@@ -202,7 +202,7 @@ namespace api.Context
                 AzureUniqueId = "3",
                 Organization = Organization.Construction,
                 Role = Role.Participant,
-                CreateDate = DateTime.UtcNow,
+                CreateDate = DateTimeOffset.UtcNow,
                 Progression = Progression.Individual,
                 Evaluation = Evaluations[1]
             };
@@ -214,12 +214,12 @@ namespace api.Context
             var project1 = new Project
             {
                 FusionProjectId = "1",
-                CreateDate = DateTime.UtcNow
+                CreateDate = DateTimeOffset.UtcNow
             };
             var project2 = new Project
             {
                 FusionProjectId = "2",
-                CreateDate = DateTime.UtcNow
+                CreateDate = DateTimeOffset.UtcNow
             };
 
             List<Project> projects = new List<Project>(new Project[] { project1, project2 });

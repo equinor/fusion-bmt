@@ -37,7 +37,7 @@ namespace api.Services
             string supportNotes
         )
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             QuestionTemplate newQuestionTemplate = new QuestionTemplate
             {

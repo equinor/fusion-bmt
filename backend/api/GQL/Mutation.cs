@@ -119,7 +119,7 @@ namespace api.GQL
             return answer;
         }
 
-        public Action CreateAction(string questionId, string assignedToId, string description, DateTime dueDate, Priority priority, string title)
+        public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate, Priority priority, string title)
         {
             IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
             Question question = queryableQuestion.First();
@@ -130,7 +130,7 @@ namespace api.GQL
             return _actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority, question);
         }
 
-        public Action EditAction(string actionId, string assignedToId, string description, DateTime dueDate, string title, bool onHold, bool completed, Priority priority)
+        public Action EditAction(string actionId, string assignedToId, string description, DateTimeOffset dueDate, string title, bool onHold, bool completed, Priority priority)
         {
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
             Action action = queryableAction.First();
