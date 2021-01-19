@@ -9,7 +9,7 @@ export const ProjectContext = createContext<Project | undefined>(undefined)
 export const useParticipant = (): Participant => {
     const participant = useContext(CurrentParticipantContext)
     if(participant === undefined){
-        throw new Error(`No participant provided for context`)
+        throw new Error(`You might not be a participant on this evaluation. No participant provided for context. `)
     }
     return participant
 }
