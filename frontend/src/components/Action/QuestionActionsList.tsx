@@ -34,35 +34,37 @@ const QuestionActionsList = ({ question, participants, onActionCreate }: Props) 
 
     return (
         <>
-            <Box display="flex" alignItems="center" paddingLeft="9rem">
-                <Box flexGrow={1}>
-                    <Typography variant="body_short" bold>
-                        Actions
-                    </Typography>
+            <Box paddingLeft="9rem">
+                <Box display="flex" alignItems="center">
+                    <Box flexGrow={1}>
+                        <Typography variant="body_short" bold>
+                            Actions
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Button variant="ghost" onClick={() => setIsSidebarOpen(true)}>
+                            <Icon data={add}></Icon>
+                            Add action
+                        </Button>
+                    </Box>
                 </Box>
-                <Box>
-                    <Button variant="ghost" onClick={() => setIsSidebarOpen(true)}>
-                        <Icon data={add}></Icon>
-                        Add action
-                    </Button>
-                </Box>
+                {actions.map(action => {
+                    return (
+                        <div key={action.id}>
+                            <Box display="flex">
+                                <Box p="0.3rem">
+                                    <PriorityIndicator priority={action.priority} />
+                                </Box>
+                                <Box display="flex" alignItems="center">
+                                    <Typography link onClick={() => editAction(action)}>
+                                        {action.title}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </div>
+                    )
+                })}
             </Box>
-            {actions.map(action => {
-                return (
-                    <div key={action.id}>
-                        <Box display="flex" paddingLeft="9rem">
-                            <Box p="0.3rem">
-                                <PriorityIndicator priority={action.priority} />
-                            </Box>
-                            <Box display="flex" alignItems="center">
-                                <Typography link onClick={() => editAction(action)}>
-                                    {action.title}
-                                </Typography>
-                            </Box>
-                        </Box>
-                    </div>
-                )
-            })}
             {actions.length === 0 && <Typography italic>No actions added</Typography>}
             <ActionSidebar
                 action={actionToEdit}

@@ -78,7 +78,6 @@ interface QuestionAndAnswerFormWithApiProps {
     answer: Answer | undefined
     disabled: boolean
     viewProgression: Progression
-    onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
 }
 
 const QuestionAndAnswerFormWithApi = ({
@@ -87,7 +86,6 @@ const QuestionAndAnswerFormWithApi = ({
     answer,
     disabled,
     viewProgression,
-    onQuestionSummarySelected
 }: QuestionAndAnswerFormWithApiProps) => {
     const {setAnswer, error: errorSettingAnswer} = useSetAnswerMutation()
 
@@ -117,7 +115,6 @@ const QuestionAndAnswerFormWithApi = ({
             answer={answer ?? emptyAnswer}
             onAnswerChange={(answer) => setAnswer(question.id, answer.severity, answer.text, viewProgression)}
             disabled={disabled}
-            onQuestionSummarySelected={onQuestionSummarySelected}
         />
     </>
 }

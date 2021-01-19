@@ -11,35 +11,33 @@ import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSw
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
+import AnswerSummaryButton from '../../../components/AnswerSummaryButton'
 
-interface PreparationViewProps
-{
+interface PreparationViewProps {
     evaluation: Evaluation
     onNextStepClick: () => void
     onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: PreparationViewProps) => {
+const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }: PreparationViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
 
     const questions = evaluation.questions
 
-    const {role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId} = useParticipant()
+    const { role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId } = useParticipant()
 
     const viewProgression = Progression.Preparation
     const allowedRoles = [Role.Facilitator, Role.OrganizationLead]
 
     const isEvaluationAtThisProgression = evaluation.progression == viewProgression
     const participantAllowed = allowedRoles.includes(participantRole)
-    const isParticipantCompleted= progressionLessThan(viewProgression, participantProgression)
+    const isParticipantCompleted = progressionLessThan(viewProgression, participantProgression)
     const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
     const hasParticipantBeenHere = progressionGreaterThanOrEqual(participantProgression, viewProgression)
 
-    const disableAllUserInput = isEvaluationFinishedHere
-                                || !participantAllowed
-                                || !hasParticipantBeenHere
+    const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !hasParticipantBeenHere
 
     const onQuestionSummarySelected = (question: Question, questionNumber: number) => {
         setSelectedQuestion(question)
@@ -92,36 +90,39 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
                         <Box>
                             <Button
                                 onClick={onNextStepClick}
-                                disabled={
-                                    participantRole !== Role.Facilitator
-                                    || !isEvaluationAtThisProgression
-                                }
+                                disabled={participantRole !== Role.Facilitator || !isEvaluationAtThisProgression}
                             >
-                                Finish { progressionToString(viewProgression) }
+                                Finish {progressionToString(viewProgression)}
                             </Button>
                         </Box>
                     </Box>
-                    {questions.filter(q => q.barrier === selectedBarrier).map((question, idx) => {
-                        const answer = question.answers
-                            .filter(a => a.progression === viewProgression)
-                            .find(a => a.answeredBy?.azureUniqueId === participantUniqueId)
-                        return (
-                            <div key={question.id}>
-                                <Divider />
-                                <QuestionAndAnswerFormWithApi
-                                    questionNumber={idx+1}
-                                    question={question}
-                                    answer={answer}
-                                    disabled={disableAllUserInput || isParticipantCompleted}
-                                    onQuestionSummarySelected={ onQuestionSummarySelected }
-                                    viewProgression={viewProgression}
-                                />
-                            </div>
-                        )
-                    })}
+                    {questions
+                        .filter(q => q.barrier === selectedBarrier)
+                        .map((question, idx) => {
+                            const answer = question.answers
+                                .filter(a => a.progression === viewProgression)
+                                .find(a => a.answeredBy?.azureUniqueId === participantUniqueId)
+                            return (
+                                <div key={question.id}>
+                                    <Divider />
+                                    <Box display="flex">
+                                        <QuestionAndAnswerFormWithApi
+                                            questionNumber={idx + 1}
+                                            question={question}
+                                            answer={answer}
+                                            disabled={disableAllUserInput || isParticipantCompleted}
+                                            viewProgression={viewProgression}
+                                        />
+                                        <Box>
+                                            <AnswerSummaryButton onClick={() => onQuestionSummarySelected(question, idx + 1)} />
+                                        </Box>
+                                    </Box>
+                                </div>
+                            )
+                        })}
                 </Box>
                 <Box>
-                    { selectedQuestion && selectedQuestionNumber &&
+                    {selectedQuestion && selectedQuestionNumber && (
                         <AnswerSummarySidebar
                             open={selectedQuestion !== undefined}
                             onCloseClick={closeAnswerSummarySidebar}
@@ -129,7 +130,7 @@ const PreparationView = ({evaluation, onNextStepClick, onProgressParticipant}: P
                             questionNumber={selectedQuestionNumber}
                             viewProgression={Progression.Preparation}
                         />
-                    }
+                    )}
                 </Box>
             </Box>
         </>

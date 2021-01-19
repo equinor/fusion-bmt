@@ -13,6 +13,7 @@ import QuestionActionsListWithApi from '../../../components/Action/QuestionActio
 import SeveritySummary from '../../../components/SeveritySummary'
 import QuestionProgressionFollowUpSidebar from './QuestionProgressionFollowUpSidebar'
 import { countSeverities } from '../../../utils/Severity'
+import AnswerSummaryButton from '../../../components/AnswerSummaryButton'
 
 interface FollowUpViewProps {
     evaluation: Evaluation
@@ -88,15 +89,21 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                         return (
                             <div key={question.id}>
                                 <Divider />
-                                <QuestionAndAnswerFormWithApi
-                                    questionNumber={idx + 1}
-                                    question={question}
-                                    answer={answer}
-                                    disabled={disableAllUserInput || isParticipantCompleted}
-                                    onQuestionSummarySelected={onQuestionSummarySelected}
-                                    viewProgression={viewProgression}
-                                />
-                                <QuestionActionsListWithApi question={question} />
+                                <Box display="flex">
+                                    <Box>
+                                        <QuestionAndAnswerFormWithApi
+                                            questionNumber={idx + 1}
+                                            question={question}
+                                            answer={answer}
+                                            disabled={disableAllUserInput || isParticipantCompleted}
+                                            viewProgression={viewProgression}
+                                        />
+                                        <QuestionActionsListWithApi question={question} />
+                                    </Box>
+                                    <Box>
+                                        <AnswerSummaryButton onClick={() => onQuestionSummarySelected(question, idx + 1)} />
+                                    </Box>
+                                </Box>
                             </div>
                         )
                     })}
