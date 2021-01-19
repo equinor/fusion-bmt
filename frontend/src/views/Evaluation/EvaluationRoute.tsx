@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import { TextArea } from '@equinor/fusion-components'
+import { ErrorBoundary, TextArea } from '@equinor/fusion-components'
 
 import { Participant, Progression } from '../../api/models'
 import { useEvaluationQuery, useProgressEvaluationMutation, useProgressParticipantMutation } from './EvaluationGQL'
@@ -16,13 +16,13 @@ interface Params {
     evaluationId: string
 }
 
-const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
+const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
     const evaluationId: string = match.params.evaluationId
     const azureUniqueId = getAzureUniqueId()
 
-    const {loading, evaluation, error: errorLoadingEvaluation} = useEvaluationQuery(evaluationId)
-    const {progressEvaluation, error: errorProgressEvaluation} = useProgressEvaluationMutation()
-    const {progressParticipant, error: errorProgressingParticipant} = useProgressParticipantMutation()
+    const { loading, evaluation, error: errorLoadingEvaluation } = useEvaluationQuery(evaluationId)
+    const { progressEvaluation, error: errorProgressEvaluation } = useProgressEvaluationMutation()
+    const { progressParticipant, error: errorProgressingParticipant } = useProgressParticipantMutation()
 
     const [isProgressDialogOpen, setIsProgressDialogOpen] = useState<boolean>(false)
 
@@ -38,46 +38,40 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
         setIsProgressDialogOpen(true)
     }
 
-    if(loading){
-        return <>
-            Loading...
-        </>
+    if (loading) {
+        return <>Loading...</>
     }
 
-    if(errorProgressingParticipant !== undefined){
-        return <div>
-            <TextArea
-                value={`Error progressing participant: ${JSON.stringify(errorProgressingParticipant)}`}
-                onChange={() => { }}
-            />
-        </div>
+    if (errorProgressingParticipant !== undefined) {
+        return (
+            <div>
+                <TextArea value={`Error progressing participant: ${JSON.stringify(errorProgressingParticipant)}`} onChange={() => {}} />
+            </div>
+        )
     }
 
-    if(errorLoadingEvaluation !== undefined){
-        return <div>
-            <TextArea
-                value={`Error loading evaluation: ${JSON.stringify(errorLoadingEvaluation)}`}
-                onChange={() => {}}
-            />
-        </div>
+    if (errorLoadingEvaluation !== undefined) {
+        return (
+            <div>
+                <TextArea value={`Error loading evaluation: ${JSON.stringify(errorLoadingEvaluation)}`} onChange={() => {}} />
+            </div>
+        )
     }
 
-    if(errorProgressEvaluation !== undefined){
-        return <div>
-            <TextArea
-                value={`Error progressing evaluation: ${JSON.stringify(errorProgressEvaluation)}`}
-                onChange={() => {}}
-            />
-        </div>
+    if (errorProgressEvaluation !== undefined) {
+        return (
+            <div>
+                <TextArea value={`Error progressing evaluation: ${JSON.stringify(errorProgressEvaluation)}`} onChange={() => {}} />
+            </div>
+        )
     }
 
-    if(evaluation === undefined){
-        return <div>
-            <TextArea
-                value={`Error: evaluation is undefined`}
-                onChange={() => {}}
-            />
-        </div>
+    if (evaluation === undefined) {
+        return (
+            <div>
+                <TextArea value={`Error: evaluation is undefined`} onChange={() => {}} />
+            </div>
+        )
     }
 
     const onProgressParticipant = (newProgressions: Progression) => {
@@ -88,21 +82,23 @@ const EvaluationRoute = ({match}: RouteComponentProps<Params>) => {
 
     return (
         <>
-            <CurrentParticipantContext.Provider value={participant}>
-                <EvaluationContext.Provider value={evaluation}>
-                    <EvaluationView
-                        evaluation={evaluation}
-                        onProgressEvaluationClick={onProgressEvaluationClick}
-                        onProgressParticipant={onProgressParticipant}
-                    />
-                    <ProgressEvaluationDialog
-                        isOpen={isProgressDialogOpen}
-                        currentProgression={evaluation.progression}
-                        onConfirmClick={onConfirmProgressEvaluationClick}
-                        onCancelClick={onCancelProgressEvaluation}
-                    />
-                </EvaluationContext.Provider>
-            </CurrentParticipantContext.Provider>
+            <ErrorBoundary>
+                <CurrentParticipantContext.Provider value={participant}>
+                    <EvaluationContext.Provider value={evaluation}>
+                        <EvaluationView
+                            evaluation={evaluation}
+                            onProgressEvaluationClick={onProgressEvaluationClick}
+                            onProgressParticipant={onProgressParticipant}
+                        />
+                        <ProgressEvaluationDialog
+                            isOpen={isProgressDialogOpen}
+                            currentProgression={evaluation.progression}
+                            onConfirmClick={onConfirmProgressEvaluationClick}
+                            onCancelClick={onCancelProgressEvaluation}
+                        />
+                    </EvaluationContext.Provider>
+                </CurrentParticipantContext.Provider>
+            </ErrorBoundary>
         </>
     )
 }
