@@ -61,13 +61,13 @@ const SeveritySummary = ({ severityCount, compact = false }: Props) => {
         <>
             <Box display="flex">
                 <Box flexGrow={1} mx={spacing / 2}>
-                    <SeveritySummaryField num={nLow} severity={Severity.Low} compact={compact} />
+                    <SeveritySummaryField num={nHigh} severity={Severity.High} compact={compact} />
                 </Box>
                 <Box flexGrow={1} mx={spacing / 2}>
                     <SeveritySummaryField num={nLimited} severity={Severity.Limited} compact={compact} />
                 </Box>
                 <Box flexGrow={1} mx={spacing / 2}>
-                    <SeveritySummaryField num={nHigh} severity={Severity.High} compact={compact} />
+                    <SeveritySummaryField num={nLow} severity={Severity.Low} compact={compact} />
                 </Box>
                 <Box flexGrow={1} mx={spacing / 2}>
                     <SeveritySummaryField num={nNA} severity={Severity.Na} compact={compact} />
