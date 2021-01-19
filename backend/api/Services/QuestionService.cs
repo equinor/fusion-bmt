@@ -34,7 +34,7 @@ namespace api.Services
             Evaluation evaluation
         )
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             return new Question
             {

@@ -32,7 +32,7 @@ namespace scripts
             }
             foreach (QuestionTemplate q in questions)
             {
-                q.CreateDate = DateTime.UtcNow;
+                q.CreateDate = DateTimeOffset.UtcNow;
                 q.Status = Status.Active;
             }
 

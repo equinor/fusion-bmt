@@ -17,7 +17,7 @@ namespace api.Services
 
         public Evaluation Create(string name, Project project)
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Evaluation newEvaluation = new Evaluation
             {

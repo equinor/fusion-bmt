@@ -16,7 +16,7 @@ namespace api.Services
         }
         public Project Create(string fusionProjectID)
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Project newProject = new Project
             {

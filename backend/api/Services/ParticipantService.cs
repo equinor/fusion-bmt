@@ -17,7 +17,7 @@ namespace api.Services
 
         public Participant Create(string azureUniqueId, Evaluation evaluation, Organization organization, Role role)
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Participant newParticipant = new Participant
             {
@@ -81,7 +81,7 @@ namespace api.Services
         public IQueryable<Participant> ProgressAllParticipants(Evaluation evaluation, Progression newProgression)
         {
             IQueryable<Participant> participants = _context.Participants.Where(p => p.Evaluation.Equals(evaluation));
-            foreach(Participant p in participants)
+            foreach (Participant p in participants)
             {
                 p.Progression = newProgression;
             }

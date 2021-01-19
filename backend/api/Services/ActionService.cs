@@ -20,13 +20,13 @@ namespace api.Services
             Participant assignedTo,
             Participant createdBy,
             string description,
-            DateTime dueDate,
+            DateTimeOffset dueDate,
             string title,
             Priority priority,
             Question question
         )
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Action newAction = new Action
             {
@@ -52,7 +52,7 @@ namespace api.Services
             Action action,
             Participant assignedTo,
             string description,
-            DateTime dueDate,
+            DateTimeOffset dueDate,
             string title,
             bool onHold,
             bool completed,

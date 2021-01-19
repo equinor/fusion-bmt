@@ -25,7 +25,7 @@ namespace api.Services
             Progression progression
         )
         {
-            DateTime createDate = DateTime.UtcNow;
+            DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Answer newAnswer = new Answer
             {
