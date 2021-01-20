@@ -62,19 +62,6 @@ cd backend/api
 dotnet run
 ```
 
-
-### BMT in Radix
-* [dev frontend](https://frontend-fusion-bmt-dev.radix.equinor.com)
-* [dev backend](https://backend-fusion-bmt-dev.radix.equinor.com/swagger/index.html)
-* [demo frontend](https://frontend-fusion-bmt-prod.radix.equinor.com/)
-* [Radix console](https://console.radix.equinor.com/applications/pia)
-
-
-### Etc
-* [Figma drawings](https://www.figma.com/proto/wAzF4PAx9OPOoMGtsaju06/BMT?node-id=1%3A3110&viewport=650%2C493%2C0.052038900554180145&scaling=min-zoom)
-* [Microsoft Teams gruppe](https://teams.microsoft.com/_#/conversations/Generelt?threadId=19:bfb40c49b3e2494fa69763c4bcf642a9@thread.tacv2&ctx=channel)
-
-
 ## Configuration
 
 ### Database configuration
@@ -118,6 +105,40 @@ make sure your `Database__ConnectionString` is set and run
     </tr>
 </table>
 
-### Model overview
+## Deploy
+
+We have 3 different environments in use; dev, pr, test and prod. Dev is the
+environment that runs when pushing to master. Pr, test and prod will run when
+pushing to the specific branches. Dev and Pr will only deploy to Radix environment,
+but Test and Prod will deploy the frontend to both Radix and Fusion.
+
+Deploy to a specific environment is done by pushing a branch to the following
+branch:
+```
+git push upstream master:prod -f
+```
+This deploys the local master to prod environment. Remember to pull from upstream
+before performing this.
+
+### Dev
+* [dev frontend](https://frontend-fusion-bmt-dev.radix.equinor.com)
+* [dev backend](https://backend-fusion-bmt-dev.radix.equinor.com/swagger/index.html)
+### Pr
+* [pr frontend](https://frontend-fusion-bmt-pr.radix.equinor.com)
+### Test
+* [test radix](https://frontend-fusion-bmt-dev.radix.equinor.com)
+* [test fusion](https://pro-s-portal-ci.azurewebsites.net/apps/bmt)
+### Prod
+* [prod radix](https://fusion-bmt.app.radix.equinor.com/)
+* [prod fusion](https://fusion.equinor.com/apps/bmt)
+
+## Model overview
 
 ![alt text](docs/model.png?raw=true "Simple domain model diagram")
+
+### Etc
+* [Radix console](https://console.radix.equinor.com/applications/pia)
+* [Fusion console](https://admin.ci.fusion-dev.net/apps)
+* [Figma drawings](https://www.figma.com/proto/wAzF4PAx9OPOoMGtsaju06/BMT?node-id=1%3A3110&viewport=650%2C493%2C0.052038900554180145&scaling=min-zoom)
+* [Microsoft Teams gruppe](https://teams.microsoft.com/_#/conversations/Generelt?threadId=19:bfb40c49b3e2494fa69763c4bcf642a9@thread.tacv2&ctx=channel)
+

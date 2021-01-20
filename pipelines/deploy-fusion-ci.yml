@@ -2,7 +2,7 @@
 # Use `/azp run` to execute directly from comment in PR
 
 trigger:
-- deploy-fusion-ci
+- test
 
 pool:
   vmImage: 'ubuntu-latest'
