@@ -5,6 +5,7 @@ frontend/out/
 # .NET
 backend/*/bin
 backend/*/obj
+backend/scripts/InitQuestions.json
 
 # Python
 venv

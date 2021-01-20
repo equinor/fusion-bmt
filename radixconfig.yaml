@@ -7,12 +7,12 @@ spec:
     - name: dev
       build:
         from: master
+    - name: test
+      build:
+        from: test
     - name: prod
       build:
         from: prod
-    - name: pr
-      build:
-        from: pr
 
   components:
     - name: frontend
@@ -29,27 +29,27 @@ spec:
           resources:
             requests:
               memory: "300Mi"
-              cpu: "100m"
+              cpu: "50m"
             limits:
               memory: "3000Mi"
               cpu: "1000m"
           variables:
             API_URL: 'https://backend-fusion-bmt-dev.radix.equinor.com'
-        - environment: pr
+        - environment: test
           resources:
             requests:
               memory: "300Mi"
-              cpu: "100m"
+              cpu: "50m"
             limits:
               memory: "3000Mi"
               cpu: "1000m"
           variables:
-            API_URL: 'https://backend-fusion-bmt-pr.radix.equinor.com'
+            API_URL: 'https://backend-fusion-bmt-test.radix.equinor.com'
         - environment: prod
           resources:
             requests:
               memory: "500Mi"
-              cpu: "500m"
+              cpu: "100m"
             limits:
               memory: "3000Mi"
               cpu: "1000m"
@@ -72,23 +72,23 @@ spec:
           resources:
             requests:
               memory: "500Mi"
-              cpu: "200m"
+              cpu: "100m"
             limits:
               memory: "1000Mi"
               cpu: "1000m"
           variables:
             ASPNETCORE_ENVIRONMENT: 'Development'
             HTTPONLY: 'True'
-        - environment: pr
+        - environment: test
           resources:
             requests:
               memory: "500Mi"
-              cpu: "200m"
+              cpu: "100m"
             limits:
               memory: "1000Mi"
               cpu: "1000m"
           variables:
-            ASPNETCORE_ENVIRONMENT: 'Development'
+            ASPNETCORE_ENVIRONMENT: 'Production'
             HTTPONLY: 'True'
         - environment: prod
           resources:
