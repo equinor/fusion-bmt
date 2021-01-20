@@ -8,11 +8,22 @@ pool:
   vmImage: 'ubuntu-latest'
 
 jobs:
-  - deployment: DeployApp
-    environment: fusion
-
   - job: 'Deploy_Fusion_BMT'
     steps:
+
+      - task: UseDotNet@2
+        displayName: 'Install Dotnet'
+        inputs:
+          packageType: 'sdk'
+          version: '5.0.x'
+
+      - task: DotNetCoreCLI@2
+        displayName: Install dotnet-ef
+        inputs:
+          command: 'custom'
+          custom: 'tool'
+          arguments: 'install --global dotnet-ef'
+
       - task: Npm@1
         displayName: 'Install frontend'
         inputs:
@@ -38,7 +49,6 @@ jobs:
           ignoreVersionConflict: true
           forceReplaceExisting: true
 
-
       - task: FusionApp@2
         displayName: 'Publish frontend'
         inputs:
@@ -48,3 +58,11 @@ jobs:
           appKey: 'bmt'
           tokenResource: '5a842df8-3238-415d-b168-9f16a6a6031b'
           forceReplaceExisting: true
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Apply DB migrations'
+        inputs:
+          command: 'custom'
+          custom: 'ef'
+          arguments: 'database update --verbose'
+          workingDirectory: 'backend/api'

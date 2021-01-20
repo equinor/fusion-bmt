@@ -2,7 +2,7 @@
 # Use `/azp run` to execute directly from comment in PR
 
 trigger:
-- pr
+- prod
 
 pool:
   vmImage: 'ubuntu-latest'
