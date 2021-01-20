@@ -2,7 +2,7 @@
 # Use `/azp run` to execute directly from comment in PR
 
 trigger:
-- prod
+- pr
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -13,6 +13,18 @@ jobs:
 
   - job: 'Deploy_Fusion_BMT'
     steps:
+      - task: UseDotNet@2
+        displayName: 'Install Dotnet'
+        inputs:
+          packageType: 'sdk'
+          version: '5.0.x'
+      - task: DotNetCoreCLI@2
+        displayName: 'Apply migrations'
+        inputs:
+          command: 'custom'
+          custom: 'ef database update'
+          arguments: '--context $dbContext'
+          workingDirectory: 'backend/api'
       - task: Npm@1
         displayName: 'Install frontend'
         inputs:
