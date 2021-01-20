@@ -106,7 +106,7 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                                 <div key={question.id}>
                                     <Divider />
                                     <Box display="flex">
-                                        <Box>
+                                        <Box flexGrow={1}>
                                             <QuestionAndAnswerFormWithApi
                                                 questionNumber={idx + 1}
                                                 question={question}
