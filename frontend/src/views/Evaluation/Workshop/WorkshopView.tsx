@@ -11,15 +11,15 @@ import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import QuestionActionsListWithApi from '../../../components/Action/QuestionActionsListWithApi'
+import AnswerSummaryButton from '../../../components/AnswerSummaryButton'
 
-interface WorkshopViewProps
-{
+interface WorkshopViewProps {
     evaluation: Evaluation
     onNextStepClick: () => void
     onProgressParticipant: (newProgressions: Progression) => void
 }
 
-const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: WorkshopViewProps) => {
+const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: WorkshopViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
@@ -31,20 +31,18 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
         setSelectedQuestionNumber(questionNumber)
     }
 
-    const {role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId} = useParticipant()
+    const { role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId } = useParticipant()
 
     const viewProgression = Progression.Workshop
     const allowedRoles = [Role.Facilitator]
 
     const isEvaluationAtThisProgression = evaluation.progression == viewProgression
     const participantAllowed = allowedRoles.includes(participantRole)
-    const isParticipantCompleted= progressionLessThan(viewProgression, participantProgression)
+    const isParticipantCompleted = progressionLessThan(viewProgression, participantProgression)
     const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
     const hasParticipantBeenHere = progressionGreaterThanOrEqual(participantProgression, viewProgression)
 
-    const disableAllUserInput = isEvaluationFinishedHere
-                                || !participantAllowed
-                                || !hasParticipantBeenHere
+    const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !hasParticipantBeenHere
 
     const localOnClompleteClick = () => {
         const nextProgression = getNextProgression(participantProgression)
@@ -92,39 +90,42 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                         <Box>
                             <Button
                                 onClick={onNextStepClick}
-                                disabled={
-                                    participantRole !== Role.Facilitator
-                                    || !isEvaluationAtThisProgression
-                                }
+                                disabled={participantRole !== Role.Facilitator || !isEvaluationAtThisProgression}
                             >
-                                Finish { progressionToString(viewProgression) }
+                                Finish {progressionToString(viewProgression)}
                             </Button>
                         </Box>
                     </Box>
-                    {questions.filter(q => q.barrier === selectedBarrier).map((question, idx) => {
-                        const answer = question.answers
-                            .filter(a => a.progression === viewProgression)
-                            .find(a => a.answeredBy?.azureUniqueId === participantUniqueId)
-                        return (
-                            <div key={question.id}>
-                                <Divider />
-                                <QuestionAndAnswerFormWithApi
-                                    questionNumber={idx+1}
-                                    question={question}
-                                    answer={answer}
-                                    disabled={disableAllUserInput || isParticipantCompleted}
-                                    onQuestionSummarySelected={ onQuestionSummarySelected }
-                                    viewProgression={viewProgression}
-                                />
-                                <QuestionActionsListWithApi
-                                    question={question}
-                                />
-                            </div>
-                        )
-                    })}
+                    {questions
+                        .filter(q => q.barrier === selectedBarrier)
+                        .map((question, idx) => {
+                            const answer = question.answers
+                                .filter(a => a.progression === viewProgression)
+                                .find(a => a.answeredBy?.azureUniqueId === participantUniqueId)
+                            return (
+                                <div key={question.id}>
+                                    <Divider />
+                                    <Box display="flex">
+                                        <Box flexGrow={1}>
+                                            <QuestionAndAnswerFormWithApi
+                                                questionNumber={idx + 1}
+                                                question={question}
+                                                answer={answer}
+                                                disabled={disableAllUserInput || isParticipantCompleted}
+                                                viewProgression={viewProgression}
+                                            />
+                                            <QuestionActionsListWithApi question={question} />
+                                        </Box>
+                                        <Box>
+                                            <AnswerSummaryButton onClick={() => onQuestionSummarySelected(question, idx + 1)} />
+                                        </Box>
+                                    </Box>
+                                </div>
+                            )
+                        })}
                 </Box>
                 <Box>
-                    { selectedQuestion && selectedQuestionNumber &&
+                    {selectedQuestion && selectedQuestionNumber && (
                         <AnswerSummarySidebar
                             open={selectedQuestion != undefined}
                             onCloseClick={closeAnswerSummarySidebar}
@@ -132,7 +133,7 @@ const WorkshopView = ({evaluation, onNextStepClick, onProgressParticipant}: Work
                             questionNumber={selectedQuestionNumber}
                             viewProgression={Progression.Workshop}
                         />
-                    }
+                    )}
                 </Box>
             </Box>
         </>
