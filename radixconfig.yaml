@@ -7,9 +7,6 @@ spec:
     - name: dev
       build:
         from: master
-    - name: pr
-      build:
-        from: pr
     - name: test
       build:
         from: test

@@ -23,7 +23,7 @@ npm start
 ```
 
 ### Formatting
-We use [Prettier](frontend/.prettierrc.json). Remember to set this up. 
+We use [Prettier](frontend/.prettierrc.json). Remember to set this up.
 
 VSCode settings:
 ```
@@ -109,7 +109,7 @@ make sure your `Database__ConnectionString` is set and run
 
 We have 3 different environments in use; dev, test and prod. Dev is the
 environment that runs when pushing to master. Test and prod will run when
-pushing to the specific branches. Dev and Pr will only deploy to Radix environment,
+pushing to the specific branches. Dev will only deploy to Radix environment,
 but Test and Prod will deploy the frontend to both Radix and Fusion.
 
 Deploy to a specific environment is done by pushing a branch to the following
