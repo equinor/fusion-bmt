@@ -67,11 +67,24 @@ export const ACTION_FIELDS_FRAGMENT = gql`
     fragment ActionFields on Action {
         id
         title
-        priority
+        onHold
         dueDate
+        priority
+        completed
         createDate
         description
         assignedTo {
+            azureUniqueId
+        }
+    }
+`
+
+export const NOTE_FIELDS_FRAGMENT = gql`
+    fragment NoteFields on Note {
+        id
+        text
+        createDate
+        createdBy {
             azureUniqueId
         }
     }
@@ -84,4 +97,13 @@ export const QUESTION_ACTIONS_FRAGMENT = gql`
         }
     }
     ${ACTION_FIELDS_FRAGMENT}
+`
+
+export const ACTION_NOTES_FRAGMENT = gql`
+    fragment ActionNotes on Action {
+        notes {
+            ...NoteFields
+        }
+    }
+    ${NOTE_FIELDS_FRAGMENT}
 `

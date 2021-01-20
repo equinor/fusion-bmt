@@ -1,33 +1,51 @@
 import React from 'react'
 import { Box } from '@material-ui/core'
+import { Note } from '../../api/models'
+import { PersonDetails } from '@equinor/fusion'
 
-const notes = [
-    {
-        id: 'hfjkhfkf78f6s9fhj',
-        writerName: 'Anna Therese Asheim',
-        message: 'Kan du se på dette Andreas Rønning?',
-        date: '2021-01-10T11:27:08.024+01:00',
-    },
-]
+interface Props {
+    notes: Note[]
+    participantsDetails: PersonDetails[]
+}
 
-const ActionNotesList = () => {
+const ActionNotesList = ({ notes, participantsDetails }: Props) => {
+    const sortedNotes = notes.slice().sort((a, b) => {
+        const aDate = new Date(a.createDate)
+        const bDate = new Date(b.createDate)
+
+        if (aDate < bDate) {
+            return 1
+        }
+
+        if (aDate > bDate) {
+            return -1
+        }
+
+        return 0
+    })
+
     return (
         <Box mt={2}>
-            {notes.map(note => {
-                const dateAndTime = note && note.date && new Date(note.date).toLocaleString('en-GB').split(',')
-                const date = dateAndTime[0]
-                const hours = dateAndTime[1].split(':')[0]
-                const minutes = dateAndTime[1].split(':')[1]
+            {sortedNotes.map(note => {
+                const createrDetails: PersonDetails | undefined = participantsDetails.find(
+                    p => p.azureUniqueId === note.createdBy!.azureUniqueId
+                )
+                const date = new Date(note.createDate)
+                const dateString = date.toLocaleDateString()
+                const hours = date.getHours()
+                const minutes = date.getMinutes()
+                const hoursPadded = (hours < 10 ? '0' : '') + hours
+                const minutesPadded = (minutes < 10 ? '0' : '') + minutes
 
                 return (
-                    <Box key={note.id} display="flex" flexDirection="column" fontSize="fontSize">
+                    <Box key={note.id} display="flex" flexDirection="column" fontSize="fontSize" mb={2}>
                         <Box display="flex" flexDirection="row" fontWeight="fontWeightMedium">
-                            <Box flexGrow={1}>{note.writerName} wrote</Box>
+                            <Box flexGrow={1}>{createrDetails?.name || 'Unknown user'} wrote</Box>
                             <Box>
-                                {hours}:{minutes} - {date}
+                                {hoursPadded}:{minutesPadded} - {dateString}
                             </Box>
                         </Box>
-                        <Box mt={1}>{note.message}</Box>
+                        <Box mt={1}>{note.text}</Box>
                     </Box>
                 )
             })}

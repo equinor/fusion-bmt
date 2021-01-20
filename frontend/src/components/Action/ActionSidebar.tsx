@@ -14,10 +14,21 @@ interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
     onActionCreate: (action: DataToCreateAction) => void
+    onActionEdit: (action: Action) => void
+    onNoteCreate: (actionId: string, text: string) => void
     onClose: () => void
 }
 
-const ActionSidebar = ({ action, open, connectedQuestion, possibleAssignees, onActionCreate, onClose }: Props) => {
+const ActionSidebar = ({
+    action,
+    open,
+    connectedQuestion,
+    possibleAssignees,
+    onActionCreate,
+    onActionEdit,
+    onNoteCreate,
+    onClose,
+}: Props) => {
     const apiClients = useApiClients()
     const [personDetailsList, setPersonDetailsList] = useState<PersonDetails[]>([])
 
@@ -64,6 +75,8 @@ const ActionSidebar = ({ action, open, connectedQuestion, possibleAssignees, onA
                         possibleAssignees={possibleAssignees}
                         possibleAssigneesDetails={personDetailsList}
                         onActionCreate={onActionCreate}
+                        onActionEdit={onActionEdit}
+                        onNoteCreate={onNoteCreate}
                         onCancelClick={onClose}
                     />
                 </div>

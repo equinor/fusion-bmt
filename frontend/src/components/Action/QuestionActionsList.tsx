@@ -13,23 +13,23 @@ interface Props {
     question: Question
     participants: Participant[]
     onActionCreate: (action: DataToCreateAction) => void
+    onActionEdit: (action: Action) => void
+    onNoteCreate: (actionId: string, text: string) => void
 }
 
-const QuestionActionsList = ({ question, participants, onActionCreate }: Props) => {
+const QuestionActionsList = ({ question, participants, onActionCreate, onActionEdit, onNoteCreate }: Props) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
-    const [actionToEdit, setActionToEdit] = useState<Action>()
+    const [actionToEditId, setActionToEditId] = useState<string>()
     const actions = question.actions
 
     const editAction = (action: Action) => {
         setIsSidebarOpen(true)
-        setActionToEdit(action)
+        setActionToEditId(action.id)
     }
 
     const onClose = () => {
         setIsSidebarOpen(false)
-        if (actionToEdit) {
-            setActionToEdit(undefined)
-        }
+        setActionToEditId(undefined)
     }
 
     return (
@@ -59,6 +59,11 @@ const QuestionActionsList = ({ question, participants, onActionCreate }: Props) 
                                     <Typography link onClick={() => editAction(action)}>
                                         {action.title}
                                     </Typography>
+                                    {action.completed && (
+                                        <Typography bold italic>
+                                            &nbsp;{'- Completed'}
+                                        </Typography>
+                                    )}
                                 </Box>
                             </Box>
                         </div>
@@ -67,7 +72,7 @@ const QuestionActionsList = ({ question, participants, onActionCreate }: Props) 
             </Box>
             {actions.length === 0 && <Typography italic>No actions added</Typography>}
             <ActionSidebar
-                action={actionToEdit}
+                action={actions.find(a => a.id === actionToEditId)}
                 open={isSidebarOpen}
                 onClose={onClose}
                 connectedQuestion={question}
@@ -75,6 +80,12 @@ const QuestionActionsList = ({ question, participants, onActionCreate }: Props) 
                 onActionCreate={action => {
                     setIsSidebarOpen(false)
                     onActionCreate(action)
+                }}
+                onActionEdit={action => {
+                    onActionEdit(action)
+                }}
+                onNoteCreate={(actionId: string, text: string) => {
+                    onNoteCreate(actionId, text)
                 }}
             />
         </>
