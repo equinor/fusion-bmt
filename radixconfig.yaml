@@ -38,16 +38,6 @@ spec:
               cpu: "1000m"
           variables:
             API_URL: 'https://backend-fusion-bmt-dev.radix.equinor.com'
-        - environment: pr
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
-          variables:
-            API_URL: 'https://backend-fusion-bmt-pr.radix.equinor.com'
         - environment: test
           resources:
             requests:
@@ -82,17 +72,6 @@ spec:
         ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
       environmentConfig:
         - environment: dev
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "100m"
-            limits:
-              memory: "1000Mi"
-              cpu: "1000m"
-          variables:
-            ASPNETCORE_ENVIRONMENT: 'Development'
-            HTTPONLY: 'True'
-        - environment: pr
           resources:
             requests:
               memory: "500Mi"

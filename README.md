@@ -107,8 +107,8 @@ make sure your `Database__ConnectionString` is set and run
 
 ## Deploy
 
-We have 3 different environments in use; dev, pr, test and prod. Dev is the
-environment that runs when pushing to master. Pr, test and prod will run when
+We have 3 different environments in use; dev, test and prod. Dev is the
+environment that runs when pushing to master. Test and prod will run when
 pushing to the specific branches. Dev and Pr will only deploy to Radix environment,
 but Test and Prod will deploy the frontend to both Radix and Fusion.
 
@@ -123,8 +123,6 @@ before performing this.
 ### Dev
 * [dev frontend](https://frontend-fusion-bmt-dev.radix.equinor.com)
 * [dev backend](https://backend-fusion-bmt-dev.radix.equinor.com/swagger/index.html)
-### Pr
-* [pr frontend](https://frontend-fusion-bmt-pr.radix.equinor.com)
 ### Test
 * [test radix](https://frontend-fusion-bmt-dev.radix.equinor.com)
 * [test fusion](https://pro-s-portal-ci.azurewebsites.net/apps/bmt)
