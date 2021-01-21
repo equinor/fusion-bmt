@@ -10,6 +10,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
 COPY --from=build /app ./
 
-ENTRYPOINT ["dotnet", "api.dll", "--urls=http://0.0.0.0:5000"]
-
 EXPOSE 5000
+
+# Runtime user change to non-root for added security
+USER 1001
+
+ENTRYPOINT ["dotnet", "api.dll", "--urls=http://0.0.0.0:5000"]

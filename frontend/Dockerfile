@@ -8,4 +8,8 @@ WORKDIR /app/frontend
 RUN npm install
 
 EXPOSE 3000
+
+# Runtime user change to non-root for added security
+USER 1001
+
 ENTRYPOINT npm start
