@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { PersonDetails } from '@equinor/fusion'
 import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
@@ -11,6 +11,7 @@ import { barrierToString } from '../../utils/EnumToString'
 import { DataToCreateAction } from '../../api/mutations'
 import styled from 'styled-components'
 import ActionNotesList from './ActionNotesList'
+import { useEffectNotOnMount } from '../../utils/hooks'
 
 const WRITE_DELAY_MS = 1000
 
@@ -100,13 +101,7 @@ const ActionForm = ({
         }
     }
 
-    const firstUpdate = useRef(true)
-    useEffect(() => {
-        if (firstUpdate.current === true) {
-            firstUpdate.current = false
-            return
-        }
-
+    useEffectNotOnMount(() => {
         const timeout = setTimeout(() => {
             autosaveChanges()
         }, WRITE_DELAY_MS)
