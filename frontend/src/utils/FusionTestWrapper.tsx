@@ -1,9 +1,4 @@
-import {
-    AuthContainer,
-    createFusionContext,
-    FusionContext,
-    ServiceResolver
-} from '@equinor/fusion'
+import { AuthContainer, createFusionContext, FusionContext, ServiceResolver } from '@equinor/fusion'
 import { render } from '@testing-library/react'
 import * as React from 'react'
 import { HashRouter } from 'react-router-dom'
@@ -21,7 +16,8 @@ const serviceResolver: ServiceResolver = {
     getReportsBaseUrl: () => 'https://pro-s-reports-ci.azurewebsites.net',
     getPowerBiApiBaseUrl: () => 'https://api.powerbi.com/v1.0/myorg',
     getNotificationBaseUrl: () => 'https://pro-s-notification-ci.azurewebsites.net',
-    getInfoUrl: () => 'https://pro-s-info-app-CI.azurewebsites.net'
+    getInfoUrl: () => 'https://pro-s-info-app-CI.azurewebsites.net',
+    getFusionTasksBaseUrl: () => 'https://pro-s-tasks-ci.azurewebsites.net',
 }
 
 export const FusionTestWrapper: React.FC = ({ children }) => {
@@ -31,7 +27,7 @@ export const FusionTestWrapper: React.FC = ({ children }) => {
     const fusionContext = createFusionContext(new AuthContainer(), serviceResolver, {
         overlay,
         root,
-        headerContent
+        headerContent,
     })
     return (
         <FusionContext.Provider value={fusionContext}>
@@ -40,5 +36,4 @@ export const FusionTestWrapper: React.FC = ({ children }) => {
     )
 }
 
-export const renderWithContext = (children: any) =>
-    render(<FusionTestWrapper>{children}</FusionTestWrapper>)
+export const renderWithContext = (children: any) => render(<FusionTestWrapper>{children}</FusionTestWrapper>)
