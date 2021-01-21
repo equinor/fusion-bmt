@@ -119,6 +119,9 @@ namespace api
 
             services.AddControllers();
 
+            services.AddApplicationInsightsTelemetry();
+            services.AddHealthChecks().AddDbContextCheck<BmtDbContext>();
+
             services.AddSwaggerGen(c =>
             {
                 c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -190,6 +193,10 @@ namespace api
                 c.OAuthClientId(Configuration["AzureAd:ClientId"]);
                 c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>
                     { { "resource", $"{Configuration["AzureAd:ClientId"]}" } });
+            });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/health");
             });
 
             // Comment out to use locally without authentication
