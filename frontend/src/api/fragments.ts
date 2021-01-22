@@ -74,9 +74,10 @@ export const ACTION_FIELDS_FRAGMENT = gql`
         createDate
         description
         assignedTo {
-            azureUniqueId
+            ...ParticipantFields
         }
     }
+    ${PARTICIPANT_FIELDS_FRAGMENT}
 `
 
 export const NOTE_FIELDS_FRAGMENT = gql`
@@ -85,18 +86,10 @@ export const NOTE_FIELDS_FRAGMENT = gql`
         text
         createDate
         createdBy {
-            azureUniqueId
+            ...ParticipantFields
         }
     }
-`
-
-export const QUESTION_ACTIONS_FRAGMENT = gql`
-    fragment QuestionActions on Question {
-        actions {
-            ...ActionFields
-        }
-    }
-    ${ACTION_FIELDS_FRAGMENT}
+    ${PARTICIPANT_FIELDS_FRAGMENT}
 `
 
 export const ACTION_NOTES_FRAGMENT = gql`
