@@ -88,12 +88,12 @@ namespace api
             if (!string.IsNullOrEmpty(_sqlConnectionString))
             {
                 // Setting splitting behavior explicitly to avoid warning
-                services.AddDbContext<BmtDbContext>(options => options.UseSqlServer(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)), ServiceLifetime.Transient);
+                services.AddDbContext<BmtDbContext>(options => options.UseSqlServer(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)));
             }
             else
             {
                 // Setting splitting behavior explicitly to avoid warning
-                services.AddDbContext<BmtDbContext>(options => options.UseSqlite(_connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)), ServiceLifetime.Transient);
+                services.AddDbContext<BmtDbContext>(options => options.UseSqlite(_connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)));
             }
 
             services.AddErrorFilter<ErrorFilter>();
@@ -121,7 +121,6 @@ namespace api
 
             services.AddApplicationInsightsTelemetry();
             services.AddHealthChecks().AddCheck<EvaluationService>("ModelsFromDB");
-            services.AddHealthChecks().AddDbContextCheck<BmtDbContext>();
 
             services.AddSwaggerGen(c =>
             {
