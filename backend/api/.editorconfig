@@ -11,3 +11,6 @@ dotnet_diagnostic.IDE0044.severity = none
 
 # IDE0039: Use local function instead of lambda
 dotnet_diagnostic.IDE0039.severity = none
+
+# ASP0001: Call UseAuthorization before app.UseEndpoints
+dotnet_diagnostic.ASP0001.severity = none
