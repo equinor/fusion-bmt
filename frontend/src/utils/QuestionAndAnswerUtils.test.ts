@@ -1,4 +1,4 @@
-import { Answer, Barrier, Evaluation, Organization, Participant, Progression, Question, Role, Severity, Status } from "../api/models"
+import { Answer, Barrier, Evaluation, Organization, Participant, Progression, Question, Role, Severity, Status } from '../api/models'
 import { checkIfAnswerFilled, getFilledUserAnswersForProgression } from './QuestionAndAnswerUtils'
 
 const dummyAnswer: Answer = {
@@ -7,8 +7,8 @@ const dummyAnswer: Answer = {
     severity: Severity.Na,
     text: '',
     createDate: '',
-    question: {} as unknown as Question,
-    questionId: ''
+    question: ({} as unknown) as Question,
+    questionId: '',
 }
 
 describe('Test QuestionAndAnswerUtils', () => {
@@ -20,15 +20,14 @@ describe('Test QuestionAndAnswerUtils', () => {
 
         expect(isFilledOut).toBe(false)
     }),
+        it('Check if answer is filled out when something written', () => {
+            const answer = dummyAnswer
+            answer.text = 'This is some valid answer text!'
 
-    it('Check if answer is filled out when something written', () => {
-        const answer = dummyAnswer
-        answer.text = 'This is some valid answer text!'
+            const isFilledOut = checkIfAnswerFilled(answer)
 
-        const isFilledOut = checkIfAnswerFilled(answer)
-
-        expect(isFilledOut).toBe(true)
-    })
+            expect(isFilledOut).toBe(true)
+        })
     it('Check if getFilledUserAnswersForProgression gets correct answers', () => {
         const evaluation: Evaluation = {
             createDate: new Date(),
@@ -40,9 +39,9 @@ describe('Test QuestionAndAnswerUtils', () => {
                 createDate: new Date(),
                 evaluations: [],
                 fusionProjectId: '',
-                id: ''
+                id: '',
             },
-            questions: []
+            questions: [],
         }
 
         const question: Question = {
@@ -61,7 +60,7 @@ describe('Test QuestionAndAnswerUtils', () => {
                 questions: [],
                 status: Status.Active,
                 supportNotes: '',
-                text: ''
+                text: '',
             },
             supportNotes: '',
             text: '',
@@ -86,7 +85,7 @@ describe('Test QuestionAndAnswerUtils', () => {
             questionId: '',
             severity: Severity.High,
             text: 'answer1',
-            answeredBy: participant
+            answeredBy: participant,
         }
 
         const answer2: Answer = {
@@ -97,7 +96,7 @@ describe('Test QuestionAndAnswerUtils', () => {
             questionId: '',
             severity: Severity.High,
             text: 'answer2',
-            answeredBy: participant
+            answeredBy: participant,
         }
 
         question.answers = [answer1, answer2]

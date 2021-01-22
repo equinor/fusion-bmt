@@ -10,11 +10,7 @@ describe('AnswerMarkdownForm', () => {
         const onMarkdownChange = jest.fn()
 
         const { getByText } = renderWithContext(
-            <AnswerMarkdownForm
-                markdown='Some text'
-                disabled={false}
-                onMarkdownChange={onMarkdownChange}
-            />
+            <AnswerMarkdownForm markdown="Some text" disabled={false} onMarkdownChange={onMarkdownChange} />
         )
 
         const markdownTextField = getByText('Some text')
@@ -27,11 +23,7 @@ describe('AnswerMarkdownForm', () => {
         const onMarkdownChange = jest.fn()
 
         const { getByText } = renderWithContext(
-            <AnswerMarkdownForm
-                markdown='Some text'
-                disabled={true}
-                onMarkdownChange={onMarkdownChange}
-            />
+            <AnswerMarkdownForm markdown="Some text" disabled={true} onMarkdownChange={onMarkdownChange} />
         )
 
         const markdownTextField = getByText('Some text')

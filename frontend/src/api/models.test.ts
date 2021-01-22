@@ -8,7 +8,7 @@ describe('Test models', () => {
     })
 
     test('Organization from string', () => {
-        const orgString: string = "ENGINEERING"
+        const orgString: string = 'ENGINEERING'
         const enumValue: Organization = orgString as Organization
         expect(enumValue).toBe(Organization.Engineering)
     })

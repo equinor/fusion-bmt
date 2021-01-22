@@ -10,16 +10,20 @@ interface EvaluationListItemProps {
     evaluation: Evaluation
 }
 
-const EvaluationListItem = ({evaluation}: EvaluationListItemProps) => {
+const EvaluationListItem = ({ evaluation }: EvaluationListItemProps) => {
     const project = useProject()
 
     return (
-        <Link to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} style={{textDecoration: "none"}}>
+        <Link to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}>
             <Box display="flex" flexDirection="row" alignItems="center" marginY="0.7rem">
                 <Box width="200px">
-                    <Typography color="primary" variant="body_short" token={{
-                        fontSize: '1.2rem',
-                    }}>
+                    <Typography
+                        color="primary"
+                        variant="body_short"
+                        token={{
+                            fontSize: '1.2rem',
+                        }}
+                    >
                         {evaluation.name}
                     </Typography>
                 </Box>
@@ -30,7 +34,6 @@ const EvaluationListItem = ({evaluation}: EvaluationListItemProps) => {
                 <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.Workshop} />
                 <ProgressStatusIcon progression={evaluation.progression} compareProgression={Progression.FollowUp} />
             </Box>
-
         </Link>
     )
 }

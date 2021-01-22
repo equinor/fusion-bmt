@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from 'react'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)

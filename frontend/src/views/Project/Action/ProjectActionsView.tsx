@@ -1,9 +1,7 @@
-import * as React from 'react';
+import * as React from 'react'
 
 const ProjectActionsView = () => {
-    return (
-        <h3>Actions</h3>
-    )
-};
+    return <h3>Actions</h3>
+}
 
-export default ProjectActionsView;
+export default ProjectActionsView

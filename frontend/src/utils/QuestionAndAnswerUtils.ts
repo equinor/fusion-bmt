@@ -1,7 +1,7 @@
 import { Answer, Progression, Question } from '../api/models'
 
 export const checkIfAnswerFilled = (answer: Answer): boolean => {
-    return answer.text !== ""
+    return answer.text !== ''
 }
 
 export const getFilledUserAnswersForProgression = (questions: Question[], progression: Progression, azureUniqueId: string): Answer[] => {

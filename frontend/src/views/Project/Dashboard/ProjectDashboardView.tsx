@@ -13,61 +13,58 @@ interface ProjectDashboardViewProps {
     project: Project
 }
 
-const ProjectDashboardView = ({project}: ProjectDashboardViewProps) => {
-    const {loading: loadingQuery, evaluations, error: errorQuery} = useEvaluationsQuery(project.id)
+const ProjectDashboardView = ({ project }: ProjectDashboardViewProps) => {
+    const { loading: loadingQuery, evaluations, error: errorQuery } = useEvaluationsQuery(project.id)
 
     const currentUser = useCurrentUser()
-    if(!currentUser){
+    if (!currentUser) {
         return <p>Please log in.</p>
     }
 
-    if (loadingQuery){
-        return <>
-            Loading...
-        </>
+    if (loadingQuery) {
+        return <>Loading...</>
     }
 
     if (errorQuery !== undefined) {
-        return <div>
-            <TextArea
-                value={`Error in loading evaluations: ${JSON.stringify(errorQuery)}`}
-                onChange={() => { }}
-            />
-        </div>
+        return (
+            <div>
+                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorQuery)}`} onChange={() => {}} />
+            </div>
+        )
     }
 
-    if (evaluations === undefined){
-        return <div>
-            <TextArea
-                value={`Error in loading evaluations(undefined): ${JSON.stringify(evaluations)}`}
-                onChange={() => { }}
-            />
-        </div>
+    if (evaluations === undefined) {
+        return (
+            <div>
+                <TextArea value={`Error in loading evaluations(undefined): ${JSON.stringify(evaluations)}`} onChange={() => {}} />
+            </div>
+        )
     }
 
     return (
-        <div style={{margin: 20}}>
-            <CreateEvaluationButton projectId={project.id}/>
+        <div style={{ margin: 20 }}>
+            <CreateEvaluationButton projectId={project.id} />
 
-            {evaluations.length > 0 &&
+            {evaluations.length > 0 && (
                 <>
                     <Box marginY={2}>
                         <Typography variant="h2">Evaluations in progress</Typography>
                     </Box>
-                    {evaluations &&
+                    {evaluations && (
                         <Box display="flex" flexDirection="column">
-                            {evaluations.filter(e => e.participants.map(p => p.azureUniqueId).includes(currentUser.id)).map(e => {
-                                return (
-                                    <Box key={e.id}>
-                                        <EvaluationListItem evaluation={e}/>
-                                    </Box>
-                                )
-                            })}
+                            {evaluations
+                                .filter(e => e.participants.map(p => p.azureUniqueId).includes(currentUser.id))
+                                .map(e => {
+                                    return (
+                                        <Box key={e.id}>
+                                            <EvaluationListItem evaluation={e} />
+                                        </Box>
+                                    )
+                                })}
                         </Box>
-                    }
+                    )}
                 </>
-            }
-
+            )}
         </div>
     )
 }

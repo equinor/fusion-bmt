@@ -7,14 +7,13 @@ import { useFusionContext } from '@equinor/fusion'
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
-import { createBrowserHistory } from "history"
+import { createBrowserHistory } from 'history'
 
 import { client } from './api/graphql'
 import App from './App'
 import { config } from './config'
 
 import './styles.css'
-
 
 const browserHistory = createBrowserHistory({ basename: '' })
 const reactPlugin = new ReactPlugin()
@@ -23,9 +22,9 @@ const appInsights = new ApplicationInsights({
         instrumentationKey: config.APP_INSIGHTS,
         extensions: [reactPlugin],
         extensionConfig: {
-            [reactPlugin.identifier]: {history: browserHistory}
-        }
-    }
+            [reactPlugin.identifier]: { history: browserHistory },
+        },
+    },
 })
 
 appInsights.loadAppInsights()
@@ -36,11 +35,9 @@ const Start = () => {
 
     const [hasLoggedIn, setHasLoggedIn] = React.useState(false)
     const login = async () => {
-        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [
-            new URL(config.API_URL).origin,
-        ])
+        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [new URL(config.API_URL).origin])
 
-        if(!isLoggedIn) {
+        if (!isLoggedIn) {
             await fusionContext.auth.container.loginAsync(config.AD_APP_ID)
             return
         }
@@ -52,17 +49,18 @@ const Start = () => {
         login()
     }, [])
 
-
-    return <>
-        <ApolloProvider client={client}>
-            <App />
-        </ApolloProvider>
-    </>
+    return (
+        <>
+            <ApolloProvider client={client}>
+                <App />
+            </ApolloProvider>
+        </>
+    )
 }
 
 registerApp('bmt', {
     AppComponent: Start,
-    name: "Barrier Management Tool",
+    name: 'Barrier Management Tool',
     context: {
         types: [ContextTypes.Project],
         buildUrl: (context: Context | null, url: string) => {
