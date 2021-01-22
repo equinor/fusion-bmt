@@ -7,9 +7,12 @@ import { Action, Participant, Question } from '../../api/models'
 import ActionForm from './ActionForm'
 import { CircularProgress } from '@equinor/eds-core-react'
 import { DataToCreateAction } from '../../api/mutations'
+import SaveIndicator from '../SaveIndicator'
+import { SavingState } from '../../utils/Variables'
 
 interface Props {
     action: Action | undefined
+    isActionSaving: boolean
     open: boolean
     connectedQuestion: Question
     possibleAssignees: Participant[]
@@ -21,6 +24,7 @@ interface Props {
 
 const ActionSidebar = ({
     action,
+    isActionSaving,
     open,
     connectedQuestion,
     possibleAssignees,
@@ -31,9 +35,22 @@ const ActionSidebar = ({
 }: Props) => {
     const apiClients = useApiClients()
     const [personDetailsList, setPersonDetailsList] = useState<PersonDetails[]>([])
+    const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
 
     const isLoading = personDetailsList.length !== possibleAssignees.length
     const actionExists = action && action.id !== undefined
+
+    useEffect(() => {
+        if (isActionSaving) {
+            setSavingState(SavingState.Saving)
+        } else {
+            if (savingState === SavingState.Saving) {
+                setSavingState(SavingState.Saved)
+            } else {
+                setSavingState(SavingState.None)
+            }
+        }
+    }, [isActionSaving])
 
     const getAllPersonDetails = (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
         const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
@@ -61,7 +78,14 @@ const ActionSidebar = ({
     }, [possibleAssignees])
 
     return (
-        <ModalSideSheet header={`${actionExists ? 'Edit' : 'Add'} Action`} show={open} size="large" onClose={onClose} isResizable={false}>
+        <ModalSideSheet
+            header={`${actionExists ? 'Edit' : 'Add'} Action`}
+            show={open}
+            size="large"
+            onClose={onClose}
+            isResizable={false}
+            headerIcons={[<SaveIndicator savingState={savingState} />]}
+        >
             {isLoading && (
                 <div style={{ textAlign: 'center' }}>
                     <CircularProgress />
@@ -71,6 +95,7 @@ const ActionSidebar = ({
                 <div style={{ margin: 20 }}>
                     <ActionForm
                         action={action}
+                        setSavingState={setSavingState}
                         connectedQuestion={connectedQuestion}
                         possibleAssignees={possibleAssignees}
                         possibleAssigneesDetails={personDetailsList}

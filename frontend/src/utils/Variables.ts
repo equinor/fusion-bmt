@@ -5,3 +5,9 @@ export const getAzureUniqueId = (): string => {
     const azureUniqueId: string = user?.id as string
     return azureUniqueId
 }
+
+export enum SavingState {
+    Saving,
+    Saved,
+    None,
+}

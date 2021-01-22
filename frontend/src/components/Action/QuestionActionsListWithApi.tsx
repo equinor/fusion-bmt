@@ -13,7 +13,7 @@ interface Props {
 const QuestionActionsListWithApi = ({ question }: Props) => {
     const evaluation = useEvaluation()
     const { createAction, error: errorCreatingAction } = useCreateActionMutation()
-    const { editAction, error: errorEditingAction } = useEditActionMutation()
+    const { editAction, loading, error: errorEditingAction } = useEditActionMutation()
     const { createNote, error: errorCreatingNote } = useCreateNoteMutation()
 
     if (errorCreatingAction !== undefined) {
@@ -44,6 +44,7 @@ const QuestionActionsListWithApi = ({ question }: Props) => {
         <>
             <QuestionActionsList
                 question={question}
+                isActionSaving={loading}
                 participants={evaluation.participants}
                 onActionCreate={createAction}
                 onActionEdit={editAction}

@@ -132,6 +132,7 @@ export const useEditActionMutation = (): EditActionMutationProps => {
             cache.writeFragment({
                 id: actionFragmentId,
                 data: action,
+                fragmentName: 'ActionFields',
                 fragment: ACTION_FIELDS_FRAGMENT,
             })
         },
