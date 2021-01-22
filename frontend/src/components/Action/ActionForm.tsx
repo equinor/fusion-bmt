@@ -85,7 +85,7 @@ const ActionForm = ({
     const createdDateString = new Date(action?.createDate).toLocaleDateString()
     const isEditMode = action !== undefined
 
-    const autosaveChanges = () => {
+    const saveChanges = () => {
         if (action) {
             const valid = setFormValidity()
             if (valid) {
@@ -105,16 +105,22 @@ const ActionForm = ({
     }
 
     useEffectNotOnMount(() => {
-        const timeout = setTimeout(() => {
-            autosaveChanges()
-        }, WRITE_DELAY_MS)
-        return () => {
-            clearTimeout(timeout)
+        if (action !== undefined) {
+            setSavingState(SavingState.Saving)
+            const timeout = setTimeout(() => {
+                saveChanges()
+            }, WRITE_DELAY_MS)
+            return () => {
+                clearTimeout(timeout)
+            }
         }
     }, [title, description])
 
     useEffectNotOnMount(() => {
-        autosaveChanges()
+        if (action !== undefined) {
+            setSavingState(SavingState.Saving)
+            saveChanges()
+        }
     }, [assignedTo, onHold, dueDate, priority, completed])
 
     useEffect(() => {
@@ -216,7 +222,6 @@ const ActionForm = ({
                         autoFocus={true}
                         label="Title"
                         onChange={(event: TextFieldChangeEvent) => {
-                            setSavingState(SavingState.Saving)
                             setTitle(event.target.value)
                         }}
                         variant={titleValidity}
@@ -280,7 +285,6 @@ const ActionForm = ({
                         multiline
                         label="Description"
                         onChange={(event: TextFieldChangeEvent) => {
-                            setSavingState(SavingState.Saving)
                             setDescription(event.target.value)
                         }}
                         variant="default"
