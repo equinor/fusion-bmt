@@ -80,8 +80,8 @@ const QuestionActionsList = ({ question, participants, onActionCreate, onActionE
                             </div>
                         )
                     })}
+                {actions.length === 0 && <Typography italic>No actions added</Typography>}
             </Box>
-            {actions.length === 0 && <Typography italic>No actions added</Typography>}
             <ActionSidebar
                 action={actions.find(a => a.id === actionToEditId)}
                 isActionSaving={isActionSaving}
