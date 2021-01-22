@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Chip } from '@equinor/fusion-components'
 import { Typography } from '@equinor/eds-core-react'
 
@@ -9,6 +9,7 @@ import AnswerSeverityForm from './AnswerSeverityForm'
 import AnswerMarkdownForm from './AnswerMarkdownForm'
 import { organizationToString } from '../../utils/EnumToString'
 import Disabler from '../Disabler'
+import { useEffectNotOnMount } from '../../utils/hooks'
 
 const WRITE_DELAY_MS = 1000
 
@@ -23,13 +24,7 @@ interface QuestionAndAnswerFormProps {
 const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange}: QuestionAndAnswerFormProps) => {
     const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
-    const firstUpdate = useRef(true)
-    useEffect(() => {
-        if(firstUpdate.current === true){
-            firstUpdate.current = false
-            return
-        }
-
+    useEffectNotOnMount(() => {
         const timeout = setTimeout(() => {
             onAnswerChange(localAnswer)
         }, WRITE_DELAY_MS)

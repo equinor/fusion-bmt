@@ -1,6 +1,6 @@
 import { ApolloError, gql, useMutation } from '@apollo/client'
 
-import { ACTION_FIELDS_FRAGMENT, QUESTION_ACTIONS_FRAGMENT, NOTE_FIELDS_FRAGMENT, ACTION_NOTES_FRAGMENT } from './fragments'
+import { ACTION_FIELDS_FRAGMENT, NOTE_FIELDS_FRAGMENT, ACTION_NOTES_FRAGMENT } from './fragments'
 import { Action, Note, Priority, Question } from './models'
 
 export interface DataToCreateAction {
@@ -16,20 +16,6 @@ interface CreateActionMutationProps {
     createAction: (data: DataToCreateAction) => void
     loading: boolean
     action: Action | undefined
-    error: ApolloError | undefined
-}
-
-interface EditActionMutationProps {
-    editAction: (action: Action) => void
-    loading: boolean
-    action: Action | undefined
-    error: ApolloError | undefined
-}
-
-interface CreateNoteMutationProps {
-    createNote: (actionId: string, text: string) => void
-    loading: boolean
-    note: Note | undefined
     error: ApolloError | undefined
 }
 
@@ -60,6 +46,18 @@ export const useCreateActionMutation = (): CreateActionMutationProps => {
         ${ACTION_FIELDS_FRAGMENT}
     `
 
+    const QUESTION_ACTIONS_FRAGMENT = gql`
+        fragment QuestionActions on Question {
+            actions {
+                ...ActionFields
+                notes {
+                    id
+                }
+            }
+        }
+        ${ACTION_FIELDS_FRAGMENT}
+    `
+
     const [createActionApolloFunc, { loading, data, error }] = useMutation(CREATE_ACTION, {
         update(cache, { data: { createAction: action } }) {
             const questionId: string = action.question.id
@@ -70,7 +68,7 @@ export const useCreateActionMutation = (): CreateActionMutationProps => {
                 fragment: QUESTION_ACTIONS_FRAGMENT,
             })
             const newData = {
-                actions: [...oldFragment!.actions.filter(a => a.id !== action.id), action],
+                actions: [...oldFragment!.actions.filter(a => a.id !== action.id), { ...action, notes: [] }],
             }
             cache.writeFragment({
                 id: questionFragmentId,
@@ -91,6 +89,13 @@ export const useCreateActionMutation = (): CreateActionMutationProps => {
         action: data?.createAction,
         error,
     }
+}
+
+interface EditActionMutationProps {
+    editAction: (action: Action) => void
+    loading: boolean
+    action: Action | undefined
+    error: ApolloError | undefined
 }
 
 export const useEditActionMutation = (): EditActionMutationProps => {
@@ -142,6 +147,13 @@ export const useEditActionMutation = (): EditActionMutationProps => {
         action: data?.editAction,
         error,
     }
+}
+
+interface CreateNoteMutationProps {
+    createNote: (actionId: string, text: string) => void
+    loading: boolean
+    note: Note | undefined
+    error: ApolloError | undefined
 }
 
 export const useCreateNoteMutation = (): CreateNoteMutationProps => {

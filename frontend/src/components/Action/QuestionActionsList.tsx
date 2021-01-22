@@ -20,7 +20,7 @@ interface Props {
 const QuestionActionsList = ({ question, participants, onActionCreate, onActionEdit, onNoteCreate }: Props) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
     const [actionToEditId, setActionToEditId] = useState<string>()
-    const actions = question.actions
+    const actions = [...question.actions]
 
     const editAction = (action: Action) => {
         setIsSidebarOpen(true)
@@ -48,27 +48,37 @@ const QuestionActionsList = ({ question, participants, onActionCreate, onActionE
                         </Button>
                     </Box>
                 </Box>
-                {actions.map(action => {
-                    return (
-                        <div key={action.id}>
-                            <Box display="flex">
-                                <Box p="0.3rem">
-                                    <PriorityIndicator priority={action.priority} />
-                                </Box>
-                                <Box display="flex" alignItems="center">
-                                    <Typography link onClick={() => editAction(action)}>
-                                        {action.title}
-                                    </Typography>
-                                    {action.completed && (
-                                        <Typography bold italic>
-                                            &nbsp;{'- Completed'}
+                {actions
+                    .sort((a1, a2) => {
+                        if (a1.createDate < a2.createDate) {
+                            return -1
+                        }
+                        if (a1.createDate > a2.createDate) {
+                            return 1
+                        }
+                        return 0
+                    })
+                    .map(action => {
+                        return (
+                            <div key={action.id}>
+                                <Box display="flex">
+                                    <Box p="0.3rem">
+                                        <PriorityIndicator priority={action.priority} />
+                                    </Box>
+                                    <Box display="flex" alignItems="center">
+                                        <Typography link onClick={() => editAction(action)}>
+                                            {action.title}
                                         </Typography>
-                                    )}
+                                        {action.completed && (
+                                            <Typography bold italic>
+                                                &nbsp;{'- Completed'}
+                                            </Typography>
+                                        )}
+                                    </Box>
                                 </Box>
-                            </Box>
-                        </div>
-                    )
-                })}
+                            </div>
+                        )
+                    })}
             </Box>
             {actions.length === 0 && <Typography italic>No actions added</Typography>}
             <ActionSidebar
