@@ -8,10 +8,14 @@ interface EvaluationQueryProps {
     error: ApolloError | undefined
 }
 
-export const useEvaluationsQuery = (projectId: string): EvaluationQueryProps => {
+export const useEvaluationsQuery = (projectId: string, azureUniqueId: string): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
-        query {
-            evaluations(where: {project: {id: {eq: "${projectId}"}}}) {
+        query($projectId: String!, $azureUniqueId: String!) {
+            evaluations(
+                where: {
+                    and: [{ project: { id: { eq: $projectId } } }, { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } } }]
+                }
+            ) {
                 ...EvaluationFields
                 participants {
                     ...ParticipantFields
@@ -22,7 +26,7 @@ export const useEvaluationsQuery = (projectId: string): EvaluationQueryProps => 
         ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS)
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId, azureUniqueId } })
 
     return {
         loading,

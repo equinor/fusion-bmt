@@ -14,12 +14,12 @@ interface ProjectDashboardViewProps {
 }
 
 const ProjectDashboardView = ({ project }: ProjectDashboardViewProps) => {
-    const { loading: loadingQuery, evaluations, error: errorQuery } = useEvaluationsQuery(project.id)
-
     const currentUser = useCurrentUser()
     if (!currentUser) {
         return <p>Please log in.</p>
     }
+
+    const { loading: loadingQuery, evaluations, error: errorQuery } = useEvaluationsQuery(project.id, currentUser.id)
 
     if (loadingQuery) {
         return <>Loading...</>
