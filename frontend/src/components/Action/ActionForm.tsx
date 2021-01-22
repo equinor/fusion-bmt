@@ -194,7 +194,7 @@ const ActionForm = ({
                                 enterKeyHint="" // This is required to avoid an error
                             />
                         </Grid>
-                        <Grid item xs={6} justify={'flex-end'}>
+                        <Grid item xs={6}>
                             <RightOrientedSwitch
                                 checked={onHold}
                                 onChange={() => {}} // This is required to avoid an error
