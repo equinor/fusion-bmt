@@ -11,13 +11,14 @@ import { DataToCreateAction } from '../../api/mutations'
 
 interface Props {
     question: Question
+    isActionSaving: boolean
     participants: Participant[]
     onActionCreate: (action: DataToCreateAction) => void
     onActionEdit: (action: Action) => void
     onNoteCreate: (actionId: string, text: string) => void
 }
 
-const QuestionActionsList = ({ question, participants, onActionCreate, onActionEdit, onNoteCreate }: Props) => {
+const QuestionActionsList = ({ question, participants, onActionCreate, onActionEdit, onNoteCreate, isActionSaving }: Props) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
     const [actionToEditId, setActionToEditId] = useState<string>()
     const actions = [...question.actions]
@@ -83,6 +84,7 @@ const QuestionActionsList = ({ question, participants, onActionCreate, onActionE
             {actions.length === 0 && <Typography italic>No actions added</Typography>}
             <ActionSidebar
                 action={actions.find(a => a.id === actionToEditId)}
+                isActionSaving={isActionSaving}
                 open={isSidebarOpen}
                 onClose={onClose}
                 connectedQuestion={question}

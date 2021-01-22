@@ -11,6 +11,7 @@ import { barrierToString } from '../../utils/EnumToString'
 import { DataToCreateAction } from '../../api/mutations'
 import styled from 'styled-components'
 import ActionNotesList from './ActionNotesList'
+import { SavingState } from '../../utils/Variables'
 import { useEffectNotOnMount } from '../../utils/hooks'
 
 const WRITE_DELAY_MS = 1000
@@ -46,6 +47,7 @@ interface Props {
     onActionEdit: (action: Action) => void
     onNoteCreate: (actionId: string, text: string) => void
     onCancelClick: () => void
+    setSavingState: (savingState: SavingState) => void
 }
 
 const ActionForm = ({
@@ -57,6 +59,7 @@ const ActionForm = ({
     onActionEdit,
     onNoteCreate,
     onCancelClick,
+    setSavingState,
 }: Props) => {
     const [title, setTitle] = useState<string>((action && action.title) || '')
     const [titleValidity, setTitleValidity] = useState<Validity>('default')
@@ -108,7 +111,11 @@ const ActionForm = ({
         return () => {
             clearTimeout(timeout)
         }
-    }, [title, description, assignedTo, onHold, dueDate, priority, completed])
+    }, [title, description])
+
+    useEffectNotOnMount(() => {
+        autosaveChanges()
+    }, [assignedTo, onHold, dueDate, priority, completed])
 
     useEffect(() => {
         if (titleValidity === 'error') {
@@ -144,6 +151,7 @@ const ActionForm = ({
             if (!isParticipantValid) {
                 setAssignedToValidity('error')
             }
+            setSavingState(SavingState.None)
             return false
         }
         return true
@@ -207,7 +215,10 @@ const ActionForm = ({
                         value={title}
                         autoFocus={true}
                         label="Title"
-                        onChange={(event: TextFieldChangeEvent) => setTitle(event.target.value)}
+                        onChange={(event: TextFieldChangeEvent) => {
+                            setSavingState(SavingState.Saving)
+                            setTitle(event.target.value)
+                        }}
                         variant={titleValidity}
                         helperText={titleValidity === 'error' ? 'required' : ''}
                         helperIcon={titleValidity === 'error' ? ErrorIcon : <></>}
@@ -268,7 +279,10 @@ const ActionForm = ({
                         value={description}
                         multiline
                         label="Description"
-                        onChange={(event: TextFieldChangeEvent) => setDescription(event.target.value)}
+                        onChange={(event: TextFieldChangeEvent) => {
+                            setSavingState(SavingState.Saving)
+                            setDescription(event.target.value)
+                        }}
                         variant="default"
                         style={{ height: 150 }}
                     />
