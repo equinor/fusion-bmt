@@ -4,9 +4,13 @@ using System.Linq;
 using api.Context;
 using api.Models;
 
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+
 namespace api.Services
 {
-    public class EvaluationService
+    public class EvaluationService : IHealthCheck
     {
         private readonly BmtDbContext _context;
 
@@ -55,6 +59,19 @@ namespace api.Services
                 throw new NotFoundInDBException($"Evaluation not found: {evaluationId}");
             }
             return evaluation;
+        }
+        public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                GetAll().OrderBy(e => e.CreateDate).FirstOrDefault();
+
+                return Task.FromResult(HealthCheckResult.Healthy("Query DB successful"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(HealthCheckResult.Unhealthy("Failed to query DB", ex));
+            }
         }
     }
 }
