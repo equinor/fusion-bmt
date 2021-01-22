@@ -2,7 +2,7 @@ import * as React from 'react'
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
 
 import { Barrier, Question, Progression } from '../../api/models'
-import { getAzureUniqueId } from '../../utils/Variables'
+import { useAzureUniqueId } from '../../utils/Variables'
 import { barrierToString } from '../../utils/EnumToString'
 import { getFilledUserAnswersForProgression } from '../../utils/QuestionAndAnswerUtils'
 import Sticky from '../../components/Sticky'
@@ -15,7 +15,7 @@ interface EvaluationSidebarProps {
 }
 
 const EvaluationSidebar = ({ questions, barrier, viewProgression, onBarrierSelected }: EvaluationSidebarProps) => {
-    const azureUniqueId: string = getAzureUniqueId()
+    const azureUniqueId: string = useAzureUniqueId()
 
     const selectBarrier = (barrier: Barrier) => {
         onBarrierSelected(barrier)
