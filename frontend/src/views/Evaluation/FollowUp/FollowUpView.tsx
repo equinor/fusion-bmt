@@ -83,9 +83,8 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                         </Box>
                     </Box>
                     {barrierQuestions.map((question, idx) => {
-                        const answer = question.answers
-                            .filter(a => a.progression === viewProgression)
-                            .find(a => a.answeredBy?.azureUniqueId === participantUniqueId)
+                        const answers = question.answers.filter(a => a.progression === viewProgression)
+                        const firstAnswer = answers.find(a => !!a)
                         return (
                             <div key={question.id}>
                                 <Divider />
@@ -94,7 +93,7 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                                         <QuestionAndAnswerFormWithApi
                                             questionNumber={idx + 1}
                                             question={question}
-                                            answer={answer}
+                                            answer={firstAnswer}
                                             disabled={disableAllUserInput || isParticipantCompleted}
                                             viewProgression={viewProgression}
                                         />
