@@ -2,7 +2,7 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, Divider, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/models'
+import { Barrier, Evaluation, Progression, Question, Role } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
