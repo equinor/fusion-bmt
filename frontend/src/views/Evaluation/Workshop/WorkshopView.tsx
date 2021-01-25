@@ -24,6 +24,8 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
 
+    const headerRef = React.useRef<HTMLElement>(null)
+
     const questions = evaluation.questions
 
     const onQuestionSummarySelected = (question: Question, questionNumber: number) => {
@@ -61,6 +63,9 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
     const onBarrierSelected = (barrier: Barrier) => {
         closeAnswerSummarySidebar()
         setSelectedBarrier(barrier)
+        if (headerRef !== null && headerRef.current) {
+            headerRef.current.scrollIntoView()
+        }
     }
 
     return (
@@ -77,7 +82,9 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                 <Box p="20px" width="1">
                     <Box display="flex" flexDirection="row">
                         <Box flexGrow={1}>
-                            <Typography variant="h2">{barrierToString(selectedBarrier)}</Typography>
+                            <Typography variant="h2" ref={headerRef}>
+                                {barrierToString(selectedBarrier)}
+                            </Typography>
                         </Box>
                         <Box mr={2}>
                             <ProgressionCompleteSwitch

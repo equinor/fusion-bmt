@@ -19,6 +19,7 @@ interface IndividualViewProps {
 
 const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: IndividualViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
+    const headerRef = React.useRef<HTMLElement>(null)
 
     const questions = evaluation.questions
 
@@ -44,6 +45,14 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
         onProgressParticipant(viewProgression)
     }
 
+    const onBarrierSelected = (barrier: Barrier) => {
+        setSelectedBarrier(barrier)
+
+        if (headerRef !== null && headerRef.current) {
+            headerRef.current.scrollIntoView()
+        }
+    }
+
     return (
         <>
             <Box display="flex" height={1}>
@@ -52,14 +61,15 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         questions={questions}
                         barrier={selectedBarrier}
                         viewProgression={Progression.Individual}
-                        onBarrierSelected={barrier => setSelectedBarrier(barrier)}
+                        onBarrierSelected={onBarrierSelected}
                     />
                 </Box>
                 <Box p="20px" width="1">
                     <Box display="flex" flexDirection="row">
                         <Box flexGrow={1}>
-                            <Typography variant="h2">{barrierToString(selectedBarrier)}</Typography>
-                        </Box>
+                            <Typography variant="h2" ref={headerRef}>
+                                {barrierToString(selectedBarrier)}
+                            </Typography></Box>
                         <Box mr={2}>
                             <ProgressionCompleteSwitch
                                 isCheckedInitially={isParticipantCompleted}
