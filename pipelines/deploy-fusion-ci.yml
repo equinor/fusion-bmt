@@ -64,5 +64,5 @@ jobs:
         inputs:
           command: 'custom'
           custom: 'ef'
-          arguments: 'database update --verbose'
+          arguments: 'database update --connection $(Database__ConnectionString) --verbose'
           workingDirectory: 'backend/api'

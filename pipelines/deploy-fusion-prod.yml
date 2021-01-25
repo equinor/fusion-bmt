@@ -48,20 +48,10 @@ jobs:
           ignoreVersionConflict: true
           forceReplaceExisting: true
 
-      - task: FusionApp@2
-        displayName: 'Publish frontend'
-        inputs:
-          fusionCredentials: 'Fusion BMT'
-          portalUrl: 'https://pro-s-portal-fprd.azurewebsites.net'
-          action: 'Publish'
-          appKey: 'bmt'
-          tokenResource: '97978493-9777-4d48-b38a-67b0b9cd88d2'
-          forceReplaceExisting: true
-
       - task: DotNetCoreCLI@2
         displayName: 'Apply DB migrations'
         inputs:
           command: 'custom'
           custom: 'ef'
-          arguments: 'database update --verbose'
+          arguments: 'database update --connection $(Database__ConnectionString) --verbose'
           workingDirectory: 'backend/api'
