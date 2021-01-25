@@ -6,7 +6,6 @@ import { renderWithContext } from '../utils/FusionTestWrapper'
 import ProgressEvaluationDialog from './ProgressEvaluationDialog'
 import { Progression } from '../api/models'
 
-
 afterEach(cleanup)
 
 describe('ProgressEvaluationDialog', () => {

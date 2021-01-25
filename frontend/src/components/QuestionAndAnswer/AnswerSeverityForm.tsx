@@ -11,17 +11,14 @@ interface RadioButtonWrapperProps {
 }
 
 const RadioButtonWrapper = ({ label, color, disabled, onClick, isSelected }: RadioButtonWrapperProps) => {
-    return <>
-        <label style={{ display: 'flex', alignItems: 'center' }}>
-            <RadioButton
-                color={color}
-                onChange={onClick}
-                selected={isSelected}
-                disabled={disabled}
-            />
-            {label}
-        </label>
-    </>
+    return (
+        <>
+            <label style={{ display: 'flex', alignItems: 'center' }}>
+                <RadioButton color={color} onChange={onClick} selected={isSelected} disabled={disabled} />
+                {label}
+            </label>
+        </>
+    )
 }
 
 interface AnswerSeverityFormProps {
@@ -31,36 +28,38 @@ interface AnswerSeverityFormProps {
 }
 
 const AnswerSeverityForm = ({ severity, disabled, onSeveritySelected }: AnswerSeverityFormProps) => {
-    return <>
-        <RadioButtonWrapper
-            label="High"
-            color="green"
-            onClick={() => onSeveritySelected(Severity.High)}
-            isSelected={severity === Severity.High}
-            disabled={disabled}
-        />
-        <RadioButtonWrapper
-            label="Limited"
-            color="orange"
-            onClick={() => onSeveritySelected(Severity.Limited)}
-            isSelected={severity === Severity.Limited}
-            disabled={disabled}
-        />
-        <RadioButtonWrapper
-            label="Low"
-            color="red"
-            onClick={() => onSeveritySelected(Severity.Low)}
-            isSelected={severity === Severity.Low}
-            disabled={disabled}
-        />
-        <RadioButtonWrapper
-            label="N/A"
-            color="gray"
-            onClick={() => onSeveritySelected(Severity.Na)}
-            isSelected={severity === Severity.Na}
-            disabled={disabled}
-        />
-    </>
+    return (
+        <>
+            <RadioButtonWrapper
+                label="High"
+                color="green"
+                onClick={() => onSeveritySelected(Severity.High)}
+                isSelected={severity === Severity.High}
+                disabled={disabled}
+            />
+            <RadioButtonWrapper
+                label="Limited"
+                color="orange"
+                onClick={() => onSeveritySelected(Severity.Limited)}
+                isSelected={severity === Severity.Limited}
+                disabled={disabled}
+            />
+            <RadioButtonWrapper
+                label="Low"
+                color="red"
+                onClick={() => onSeveritySelected(Severity.Low)}
+                isSelected={severity === Severity.Low}
+                disabled={disabled}
+            />
+            <RadioButtonWrapper
+                label="N/A"
+                color="gray"
+                onClick={() => onSeveritySelected(Severity.Na)}
+                isSelected={severity === Severity.Na}
+                disabled={disabled}
+            />
+        </>
+    )
 }
 
 export default AnswerSeverityForm

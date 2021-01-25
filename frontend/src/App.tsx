@@ -10,22 +10,26 @@ const App = () => {
 
     const currentUser = useCurrentUser()
 
-    if(!currentUser){
+    if (!currentUser) {
         return <p>Please log in.</p>
     }
 
-    if(!currentProject){
-        return <>
-            <p>Please select a project.</p>
-        </>
+    if (!currentProject) {
+        return (
+            <>
+                <p>Please select a project.</p>
+            </>
+        )
     }
 
-    return <>
-        <Switch>
-            <Route path="/:fusionProjectId" exact component={ProjectRoute} />
-            <Route path="/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationRoute} />
-        </Switch>
-    </>
+    return (
+        <>
+            <Switch>
+                <Route path="/:fusionProjectId" exact component={ProjectRoute} />
+                <Route path="/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationRoute} />
+            </Switch>
+        </>
+    )
 }
 
 export default App

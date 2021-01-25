@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react'
 import { Chip } from '@equinor/fusion-components'
 import { Typography } from '@equinor/eds-core-react'
@@ -21,7 +20,7 @@ interface QuestionAndAnswerFormProps {
     onAnswerChange: (answer: Answer) => void
 }
 
-const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAnswerChange}: QuestionAndAnswerFormProps) => {
+const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onAnswerChange }: QuestionAndAnswerFormProps) => {
     const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
 
     useEffectNotOnMount(() => {
@@ -33,48 +32,50 @@ const QuestionAndAnswerForm = ({questionNumber, question, answer, disabled, onAn
         }
     }, [localAnswer])
 
-    return <>
-        <Grid container>
-            <Grid item xs={12}>
-                <Box display="flex" flexDirection="row-reverse">
-                    <Chip primary title={organizationToString(question.organization)}/>
-                </Box>
-            </Grid>
-            <Grid item xs={12}>
-                <Box display="flex" mb={3}>
-                    <Box ml={2} mr={1}>
-                        <Typography variant="h3">{questionNumber}.</Typography>
+    return (
+        <>
+            <Grid container>
+                <Grid item xs={12}>
+                    <Box display="flex" flexDirection="row-reverse">
+                        <Chip primary title={organizationToString(question.organization)} />
                     </Box>
-                    <Box>
-                        <Typography variant="h3">{question.text}</Typography>
-                        {question.supportNotes.split('\n').map(supportNotePart => {
-                            return <Typography key={question.id + supportNotePart}>{supportNotePart}</Typography>
-                        })}
-                    </Box>
-                </Box>
-            </Grid>
-            <Grid item xs={12}>
-                <Disabler disable={disabled}>
-                    <Box display="flex">
-                        <Box mr={5}>
-                            <AnswerSeverityForm
-                                severity={localAnswer.severity}
-                                onSeveritySelected={(severity) => setLocalAnswer((oldAnswer) => ({...oldAnswer, severity: severity}))}
-                                disabled={disabled}
-                            />
+                </Grid>
+                <Grid item xs={12}>
+                    <Box display="flex" mb={3}>
+                        <Box ml={2} mr={1}>
+                            <Typography variant="h3">{questionNumber}.</Typography>
                         </Box>
-                        <Box width="85%">
-                            <AnswerMarkdownForm
-                                markdown={localAnswer.text}
-                                disabled={disabled}
-                                onMarkdownChange={(text) => setLocalAnswer((oldAnswer) => ({...oldAnswer, text: text}))}
-                            />
+                        <Box>
+                            <Typography variant="h3">{question.text}</Typography>
+                            {question.supportNotes.split('\n').map(supportNotePart => {
+                                return <Typography key={question.id + supportNotePart}>{supportNotePart}</Typography>
+                            })}
                         </Box>
                     </Box>
-                </Disabler>
+                </Grid>
+                <Grid item xs={12}>
+                    <Disabler disable={disabled}>
+                        <Box display="flex">
+                            <Box mr={5}>
+                                <AnswerSeverityForm
+                                    severity={localAnswer.severity}
+                                    onSeveritySelected={severity => setLocalAnswer(oldAnswer => ({ ...oldAnswer, severity: severity }))}
+                                    disabled={disabled}
+                                />
+                            </Box>
+                            <Box width="85%">
+                                <AnswerMarkdownForm
+                                    markdown={localAnswer.text}
+                                    disabled={disabled}
+                                    onMarkdownChange={text => setLocalAnswer(oldAnswer => ({ ...oldAnswer, text: text }))}
+                                />
+                            </Box>
+                        </Box>
+                    </Disabler>
+                </Grid>
             </Grid>
-        </Grid>
-    </>
+        </>
+    )
 }
 
 export default QuestionAndAnswerForm

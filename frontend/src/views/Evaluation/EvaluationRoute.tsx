@@ -7,7 +7,7 @@ import { Participant, Progression } from '../../api/models'
 import { useEvaluationQuery, useProgressEvaluationMutation, useProgressParticipantMutation } from './EvaluationGQL'
 import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
 import EvaluationView from './EvaluationView'
-import { getAzureUniqueId } from '../../utils/Variables'
+import { useAzureUniqueId } from '../../utils/Variables'
 import { getNextProgression } from '../../utils/ProgressionStatus'
 import { CurrentParticipantContext, EvaluationContext } from '../../globals/contexts'
 
@@ -18,7 +18,7 @@ interface Params {
 
 const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
     const evaluationId: string = match.params.evaluationId
-    const azureUniqueId = getAzureUniqueId()
+    const azureUniqueId = useAzureUniqueId()
 
     const { loading, evaluation, error: errorLoadingEvaluation } = useEvaluationQuery(evaluationId)
     const { progressEvaluation, error: errorProgressEvaluation } = useProgressEvaluationMutation()

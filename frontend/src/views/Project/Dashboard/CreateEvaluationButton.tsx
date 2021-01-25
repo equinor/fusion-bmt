@@ -10,9 +10,9 @@ interface CreateEvaluationButtonProps {
     projectId: string
 }
 
-const CreateEvaluationButton = ({projectId}: CreateEvaluationButtonProps) => {
+const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     const [showDialog, setShowDialog] = useState<boolean>(false)
-    const {createEvaluation, loading, evaluation, error} = useCreateEvaluationMutation()
+    const { createEvaluation, loading, evaluation, error } = useCreateEvaluationMutation()
 
     const project = useProject()
 
@@ -28,36 +28,36 @@ const CreateEvaluationButton = ({projectId}: CreateEvaluationButtonProps) => {
     }
 
     if (error !== undefined) {
-        return <div>
-            <TextArea
-                value={JSON.stringify(error)}
-                onChange={() => { }}
-            />
-        </div>
+        return (
+            <div>
+                <TextArea value={JSON.stringify(error)} onChange={() => {}} />
+            </div>
+        )
     }
 
-    if(evaluation === undefined){
-        return <>
-            <Button
-                onClick={onCreateEvaluationButtonClick}
-                disabled={loading}
-            >
-                Create evaluation
-            </Button>
+    if (evaluation === undefined) {
+        return (
+            <>
+                <Button onClick={onCreateEvaluationButtonClick} disabled={loading}>
+                    Create evaluation
+                </Button>
 
-            {showDialog &&
-                <CreateEvaluationDialog
-                    open={showDialog}
-                    onCreate={onCreateEvaluationDialogSureClick}
-                    onCancelClick={onCreateEvaluationDialogCancelClick}
-                />
-            }
+                {showDialog && (
+                    <CreateEvaluationDialog
+                        open={showDialog}
+                        onCreate={onCreateEvaluationDialogSureClick}
+                        onCancelClick={onCreateEvaluationDialogCancelClick}
+                    />
+                )}
+            </>
+        )
+    }
+
+    return (
+        <>
+            <Redirect push to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} />
         </>
-    }
-
-    return <>
-        <Redirect push to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} />
-    </>
+    )
 }
 
 export default CreateEvaluationButton

@@ -1,24 +1,22 @@
 import { Progression } from '../api/models'
-import { calcProgressionStatus, progressionGreaterThan, progressionLessThan, ProgressionStatus } from "./ProgressionStatus"
+import { calcProgressionStatus, progressionGreaterThan, progressionLessThan, ProgressionStatus } from './ProgressionStatus'
 
 describe('Test Progression status', () => {
     it('Same', () => {
         expect(calcProgressionStatus(Progression.Nomination, Progression.Nomination)).toBe(ProgressionStatus.InProgress)
     }),
-
-    it('Correct order awaiting', () => {
-        expect(calcProgressionStatus(Progression.Nomination, Progression.Individual)).toBe(ProgressionStatus.Awaiting)
-        expect(calcProgressionStatus(Progression.Individual, Progression.Preparation)).toBe(ProgressionStatus.Awaiting)
-        expect(calcProgressionStatus(Progression.Preparation, Progression.Workshop)).toBe(ProgressionStatus.Awaiting)
-        expect(calcProgressionStatus(Progression.Workshop, Progression.FollowUp)).toBe(ProgressionStatus.Awaiting)
-    }),
-
-    it('Correct order complete', () => {
-        expect(calcProgressionStatus(Progression.Individual, Progression.Nomination)).toBe(ProgressionStatus.Complete)
-        expect(calcProgressionStatus(Progression.Preparation, Progression.Individual)).toBe(ProgressionStatus.Complete)
-        expect(calcProgressionStatus(Progression.Workshop, Progression.Preparation)).toBe(ProgressionStatus.Complete)
-        expect(calcProgressionStatus(Progression.FollowUp, Progression.Workshop)).toBe(ProgressionStatus.Complete)
-    })
+        it('Correct order awaiting', () => {
+            expect(calcProgressionStatus(Progression.Nomination, Progression.Individual)).toBe(ProgressionStatus.Awaiting)
+            expect(calcProgressionStatus(Progression.Individual, Progression.Preparation)).toBe(ProgressionStatus.Awaiting)
+            expect(calcProgressionStatus(Progression.Preparation, Progression.Workshop)).toBe(ProgressionStatus.Awaiting)
+            expect(calcProgressionStatus(Progression.Workshop, Progression.FollowUp)).toBe(ProgressionStatus.Awaiting)
+        }),
+        it('Correct order complete', () => {
+            expect(calcProgressionStatus(Progression.Individual, Progression.Nomination)).toBe(ProgressionStatus.Complete)
+            expect(calcProgressionStatus(Progression.Preparation, Progression.Individual)).toBe(ProgressionStatus.Complete)
+            expect(calcProgressionStatus(Progression.Workshop, Progression.Preparation)).toBe(ProgressionStatus.Complete)
+            expect(calcProgressionStatus(Progression.FollowUp, Progression.Workshop)).toBe(ProgressionStatus.Complete)
+        })
 })
 
 describe('Test Progression', () => {

@@ -6,8 +6,7 @@ import SingleAnswerSummary from './SingleAnswerSummary'
 import { progressionLessThan } from '../utils/ProgressionStatus'
 import Sticky from './Sticky'
 
-interface AnswerSummarySidebarProps
-{
+interface AnswerSummarySidebarProps {
     open: boolean
     onCloseClick: () => void
     question: Question
@@ -22,41 +21,49 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
     const preparationAnswers = answers.filter(a => a.progression === Progression.Preparation)
     const workshopAnswers = answers.filter(a => a.progression === Progression.Workshop)
 
-    return <Sticky>
-        <SideSheet
-            title={ barrierToString(question.barrier) }
-            open={open}
-            variant='large'
-            onClose={onCloseClick}
-            style={{position: 'relative'}}
-        >
-            <Typography variant="h4">{questionNumber}. {question.text}</Typography>
-            { answers.length === 0 &&
-                <p>No submitted answers</p>
-            }
-            {workshopAnswers.length !== 0 && <>
-                <Divider />
-                <Typography variant="h5">Workshop</Typography>
-            </>}
-            {workshopAnswers.map((answer) => {
-                return <SingleAnswerSummary answer={answer} key={answer.id} />
-            })}
-            {preparationAnswers.length !== 0 && <>
-                <Divider />
-                <Typography variant="h5">Preparation</Typography>
-            </>}
-            {preparationAnswers.map((answer) => {
-                return <SingleAnswerSummary answer={answer} key={answer.id} />
-            })}
-            {individualAnswers.length !== 0 && <>
-                <Divider />
-                <Typography variant="h5">Individual</Typography>
-            </>}
-            {individualAnswers.map((answer) => {
-                return <SingleAnswerSummary answer={answer} key={answer.id} />
-            })}
-        </SideSheet>
-    </Sticky>
+    return (
+        <Sticky>
+            <SideSheet
+                title={barrierToString(question.barrier)}
+                open={open}
+                variant="large"
+                onClose={onCloseClick}
+                style={{ position: 'relative' }}
+            >
+                <Typography variant="h4">
+                    {questionNumber}. {question.text}
+                </Typography>
+                {answers.length === 0 && <p>No submitted answers</p>}
+                {workshopAnswers.length !== 0 && (
+                    <>
+                        <Divider />
+                        <Typography variant="h5">Workshop</Typography>
+                    </>
+                )}
+                {workshopAnswers.map(answer => {
+                    return <SingleAnswerSummary answer={answer} key={answer.id} />
+                })}
+                {preparationAnswers.length !== 0 && (
+                    <>
+                        <Divider />
+                        <Typography variant="h5">Preparation</Typography>
+                    </>
+                )}
+                {preparationAnswers.map(answer => {
+                    return <SingleAnswerSummary answer={answer} key={answer.id} />
+                })}
+                {individualAnswers.length !== 0 && (
+                    <>
+                        <Divider />
+                        <Typography variant="h5">Individual</Typography>
+                    </>
+                )}
+                {individualAnswers.map(answer => {
+                    return <SingleAnswerSummary answer={answer} key={answer.id} />
+                })}
+            </SideSheet>
+        </Sticky>
+    )
 }
 
 export default AnswerSummarySidebar

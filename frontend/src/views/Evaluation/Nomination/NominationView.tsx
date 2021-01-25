@@ -16,8 +16,8 @@ interface NominationViewProps {
 
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const [panelOpen, setPanelOpen] = React.useState(false)
-    const {createParticipant, error: errorMutation} = useCreateParticipantMutation()
-    const {loading: loadingQuery, participants, error: errorQuery} = useParticipantsQuery(evaluation.id)
+    const { createParticipant, error: errorMutation } = useCreateParticipantMutation()
+    const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
 
     const onNextStepClick = () => {
         onNextStep()
@@ -27,48 +27,40 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         createParticipant(azureUniqueId, evaluation.id, organization, role)
     }
 
-    if (loadingQuery){
-        return <>
-            Loading...
-        </>
+    if (loadingQuery) {
+        return <>Loading...</>
     }
 
     if (errorMutation !== undefined) {
-        return <div>
-            <TextArea
-                value={`Error in creating participant: ${JSON.stringify(errorMutation)}`}
-                onChange={() => { }}
-            />
-        </div>
+        return (
+            <div>
+                <TextArea value={`Error in creating participant: ${JSON.stringify(errorMutation)}`} onChange={() => {}} />
+            </div>
+        )
     }
     if (errorQuery !== undefined) {
-        return <div>
-            <TextArea
-                value={`Error in loading participants: ${JSON.stringify(errorQuery)}`}
-                onChange={() => { }}
-            />
-        </div>
+        return (
+            <div>
+                <TextArea value={`Error in loading participants: ${JSON.stringify(errorQuery)}`} onChange={() => {}} />
+            </div>
+        )
     }
-    if (participants === undefined){
-        return <div>
-            <TextArea
-                value={`Error in loading participants(undefined): ${JSON.stringify(participants)}`}
-                onChange={() => { }}
-            />
-        </div>
+    if (participants === undefined) {
+        return (
+            <div>
+                <TextArea value={`Error in loading participants(undefined): ${JSON.stringify(participants)}`} onChange={() => {}} />
+            </div>
+        )
     }
 
     return (
-        <div style={{margin: 20}}>
+        <div style={{ margin: 20 }}>
             <Box display="flex" flexDirection="row">
                 <Box flexGrow={1}>
                     <h2>{evaluation.name}</h2>
                 </Box>
                 <Box>
-                    <Button
-                        onClick={onNextStepClick}
-                        disabled={evaluation.progression !== Progression.Nomination}
-                    >
+                    <Button onClick={onNextStepClick} disabled={evaluation.progression !== Progression.Nomination}>
                         Finish Nomination
                     </Button>
                 </Box>

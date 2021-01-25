@@ -15,18 +15,8 @@ interface SetAnswerMutationProps {
 
 export const useSetAnswerMutation = (): SetAnswerMutationProps => {
     const SET_ANSWER = gql`
-        mutation SetAnswer(
-            $questionId: String,
-            $severity: Severity!,
-            $text: String,
-            $progression: Progression!
-        ) {
-            setAnswer(
-                questionId: $questionId,
-                severity: $severity,
-                text: $text,
-                progression: $progression
-            ){
+        mutation SetAnswer($questionId: String, $severity: Severity!, $text: String, $progression: Progression!) {
+            setAnswer(questionId: $questionId, severity: $severity, text: $text, progression: $progression) {
                 ...AnswerFields
                 question {
                     id
@@ -36,29 +26,26 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
         ${ANSWER_FIELDS_FRAGMENT}
     `
 
-    const [setAnswerApolloFunc, { loading, data, error }] = useMutation(
-        SET_ANSWER, {
-            update(cache, { data: { setAnswer: answer } }) {
-                const questionId: string = answer.question.id
-                const questionFragmentId: string = `Question:${questionId}`
-                const oldFragment: Question | null = cache.readFragment({
-                    id: questionFragmentId,
-                    fragmentName: 'QuestionAnswers',
-                    fragment: QUESTION_ANSWERS_FRAGMENT
-                })
-                const newData = {
-                    answers: [...oldFragment!.answers.filter(a => a.id !== answer.id), answer]
-                }
-                cache.writeFragment({
-                    id: questionFragmentId,
-                    data: newData,
-                    fragmentName: 'QuestionAnswers',
-                    fragment: QUESTION_ANSWERS_FRAGMENT
-                })
-            },
-
-        }
-    )
+    const [setAnswerApolloFunc, { loading, data, error }] = useMutation(SET_ANSWER, {
+        update(cache, { data: { setAnswer: answer } }) {
+            const questionId: string = answer.question.id
+            const questionFragmentId: string = `Question:${questionId}`
+            const oldFragment: Question | null = cache.readFragment({
+                id: questionFragmentId,
+                fragmentName: 'QuestionAnswers',
+                fragment: QUESTION_ANSWERS_FRAGMENT,
+            })
+            const newData = {
+                answers: [...oldFragment!.answers.filter(a => a.id !== answer.id), answer],
+            }
+            cache.writeFragment({
+                id: questionFragmentId,
+                data: newData,
+                fragmentName: 'QuestionAnswers',
+                fragment: QUESTION_ANSWERS_FRAGMENT,
+            })
+        },
+    })
 
     const setAnswer = (questionId: string, severity: Severity, text: string, progression: Progression) => {
         setAnswerApolloFunc({ variables: { questionId, severity, text, progression } })
@@ -68,7 +55,7 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
         setAnswer: setAnswer,
         loading,
         answer: data?.setAnswer,
-        error
+        error,
     }
 }
 
@@ -87,36 +74,37 @@ const QuestionAndAnswerFormWithApi = ({
     disabled,
     viewProgression,
 }: QuestionAndAnswerFormWithApiProps) => {
-    const {setAnswer, error: errorSettingAnswer} = useSetAnswerMutation()
+    const { setAnswer, error: errorSettingAnswer } = useSetAnswerMutation()
 
     const emptyAnswer: Answer = {
-        id: "",
+        id: '',
         progression: Progression.Nomination,
         severity: Severity.Na,
-        text: "",
-        createDate: "",
+        text: '',
+        createDate: '',
         question: question,
-        questionId: question.id
+        questionId: question.id,
     }
 
-    if(errorSettingAnswer !== undefined){
-        return <div>
-            <TextArea
-                value={`Error setting answer: ${JSON.stringify(errorSettingAnswer)}`}
-                onChange={() => { }}
+    if (errorSettingAnswer !== undefined) {
+        return (
+            <div>
+                <TextArea value={`Error setting answer: ${JSON.stringify(errorSettingAnswer)}`} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    return (
+        <>
+            <QuestionAndAnswerForm
+                questionNumber={questionNumber}
+                question={question}
+                answer={answer ?? emptyAnswer}
+                onAnswerChange={answer => setAnswer(question.id, answer.severity, answer.text, viewProgression)}
+                disabled={disabled}
             />
-        </div>
-    }
-
-    return <>
-        <QuestionAndAnswerForm
-            questionNumber={questionNumber}
-            question={question}
-            answer={answer ?? emptyAnswer}
-            onAnswerChange={(answer) => setAnswer(question.id, answer.severity, answer.text, viewProgression)}
-            disabled={disabled}
-        />
-    </>
+        </>
+    )
 }
 
 export default QuestionAndAnswerFormWithApi

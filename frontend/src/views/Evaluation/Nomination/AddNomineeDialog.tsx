@@ -11,7 +11,7 @@ interface AddNomineeDialogProps {
     currentNominees: Array<Participant>
     open: boolean
     onCloseClick: () => void
-    onNomineeSelected: (azureUniqueId: string, role: Role, organization: Organization) => void;
+    onNomineeSelected: (azureUniqueId: string, role: Role, organization: Organization) => void
 }
 
 const WRITE_DELAY_MS = 1000
@@ -19,7 +19,7 @@ const WRITE_DELAY_MS = 1000
 const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelected }: AddNomineeDialogProps) => {
     const apiClients = useApiClients()
 
-    const [searchQuery, setSearchQuery] = React.useState<string>("")
+    const [searchQuery, setSearchQuery] = React.useState<string>('')
     const [searchResults, setSearchResults] = React.useState<PersonDetails[]>([])
 
     const [selectedRole, setSelectedRole] = React.useState<Role>(Role.Participant)
@@ -32,7 +32,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             return {
                 key: key,
                 title: organizationToString(org),
-                isSelected: (selectedOrg === org)
+                isSelected: selectedOrg === org,
             }
         })
     )
@@ -42,7 +42,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             return {
                 key: key,
                 title: roleToString(role),
-                isSelected: (selectedRole === role)
+                isSelected: selectedRole === role,
             }
         })
     )
@@ -57,23 +57,28 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
     }, [searchQuery])
 
     const updateOrgOptions = (item: SearchableDropdownOption) =>
-        setOrgOptions((oldOptions) => oldOptions.map(option => {
-            return {
-                ...option,
-                isSelected: item.key === option.key
-            }
-        }))
+        setOrgOptions(oldOptions =>
+            oldOptions.map(option => {
+                return {
+                    ...option,
+                    isSelected: item.key === option.key,
+                }
+            })
+        )
 
     const updateRoleOptions = (item: SearchableDropdownOption) =>
-        setRoleOptions((oldOptions) => oldOptions.map(option => {
-            return { ...option, isSelected: item.key === option.key }
-        }))
+        setRoleOptions(oldOptions =>
+            oldOptions.map(option => {
+                return { ...option, isSelected: item.key === option.key }
+            })
+        )
 
     const searchPersons = () => {
         if (searchQuery) {
             setIsSearching(true)
-            apiClients.people.searchPersons(searchQuery)
-                .then((res) => {
+            apiClients.people
+                .searchPersons(searchQuery)
+                .then(res => {
                     setSearchResults(res.data)
                 })
                 .finally(() => {
@@ -88,14 +93,8 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
     }
 
     return (
-        <ModalSideSheet
-            header="Add Person"
-            show={open}
-            size='medium'
-            onClose={onCloseClick}
-            isResizable={false}
-        >
-            <div style={{margin: 20}}>
+        <ModalSideSheet header="Add Person" show={open} size="medium" onClose={onCloseClick} isResizable={false}>
+            <div style={{ margin: 20 }}>
                 <SearchableDropdown
                     options={orgOptions}
                     label="Orgnization"
@@ -104,7 +103,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                         setSelectedOrg(Organization[item.key as keyof typeof Organization])
                     }}
                 />
-                <br/>
+                <br />
                 <SearchableDropdown
                     options={roleOptions}
                     label="Role"
@@ -113,9 +112,9 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                         setSelectedRole(Role[item.key as keyof typeof Role])
                     }}
                 />
-                <br/>
+                <br />
                 <TextField
-                    id='' // avoids error
+                    id="" // avoids error
                     autoFocus={true}
                     onChange={(e: any) => {
                         setSearchQuery(e.target.value)
@@ -123,25 +122,31 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     type="search"
                     placeholder="Search for person..."
                 />
-                <br/>
-                { isSearching &&
-                    <div style={{justifyContent: "center"}}>
+                <br />
+                {isSearching && (
+                    <div style={{ justifyContent: 'center' }}>
                         <Spinner />
                     </div>
-                }
-                { !isSearching &&
-                    searchResults.filter(p => p.azureUniqueId !== null).map((p) => {
-                        return (
-                            <div style={{marginBottom: 10}} key={p.azureUniqueId}>
-                                <PersonCard person={p} />
-                                <Button onClick={() => {
-                                    onNomineeSelected(p.azureUniqueId, selectedRole, selectedOrg)
-                                }} disabled={isParticipantNominated(p.azureUniqueId)}>Add</Button>
-                                <Divider />
-                            </div>
-                        )
-                    })
-                }
+                )}
+                {!isSearching &&
+                    searchResults
+                        .filter(p => p.azureUniqueId !== null)
+                        .map(p => {
+                            return (
+                                <div style={{ marginBottom: 10 }} key={p.azureUniqueId}>
+                                    <PersonCard person={p} />
+                                    <Button
+                                        onClick={() => {
+                                            onNomineeSelected(p.azureUniqueId, selectedRole, selectedOrg)
+                                        }}
+                                        disabled={isParticipantNominated(p.azureUniqueId)}
+                                    >
+                                        Add
+                                    </Button>
+                                    <Divider />
+                                </div>
+                            )
+                        })}
             </div>
         </ModalSideSheet>
     )

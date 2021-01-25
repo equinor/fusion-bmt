@@ -8,31 +8,31 @@ interface Props {
     onUncompleteClick: () => void
 }
 
-const ProgressionCompleteSwitch = ({isCheckedInitially, disabled, onCompleteClick, onUncompleteClick}: Props) => {
+const ProgressionCompleteSwitch = ({ isCheckedInitially, disabled, onCompleteClick, onUncompleteClick }: Props) => {
     const [isChecked, setIsChecked] = useState<boolean>(isCheckedInitially)
 
     const onLocalClick = () => {
-        if(!isChecked){
+        if (!isChecked) {
             setIsChecked(true)
             onCompleteClick()
-        }
-        else{
+        } else {
             setIsChecked(false)
             onUncompleteClick()
         }
     }
 
-    return <>
-        <Switch
-            checked={isChecked}
-            onChange={() => {}} // This is required to avoid an error
-            onClick={onLocalClick}
-            disabled={disabled}
-            label="Complete"
-            enterKeyHint=""
-        />
-    </>
+    return (
+        <>
+            <Switch
+                checked={isChecked}
+                onChange={() => {}} // This is required to avoid an error
+                onClick={onLocalClick}
+                disabled={disabled}
+                label="Complete"
+                enterKeyHint=""
+            />
+        </>
+    )
 }
-
 
 export default ProgressionCompleteSwitch

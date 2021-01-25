@@ -17,28 +17,26 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     useEffect(() => {
         let isMounted = true
 
-        apiClients.people.getPersonDetailsAsync(participant.azureUniqueId)
-            .then(response => {
-                const personDetails = response.data
-                if(isMounted){
-                    setPersonDetails(personDetails)
-                    setIsFetchingPerson(false)
-                }
-            })
+        apiClients.people.getPersonDetailsAsync(participant.azureUniqueId).then(response => {
+            const personDetails = response.data
+            if (isMounted) {
+                setPersonDetails(personDetails)
+                setIsFetchingPerson(false)
+            }
+        })
 
         return () => {
             isMounted = false
         }
     }, [])
 
-    return <>
-        <Box p="4px">
-            <PersonCard
-                isFetchingPerson={isFetchingPerson}
-                person={personDetails}
-            />
-        </Box>
-    </>
+    return (
+        <>
+            <Box p="4px">
+                <PersonCard isFetchingPerson={isFetchingPerson} person={personDetails} />
+            </Box>
+        </>
+    )
 }
 
 export default ParticipantCard

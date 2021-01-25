@@ -20,31 +20,28 @@ interface DataTableRowProps {
     rowIndex: number
 }
 
-const ParticipantRenderer: React.FC<DataTableRowProps> = ({ item }) => (
-    <ParticipantCard participant={item.participant} />
-)
+const ParticipantRenderer: React.FC<DataTableRowProps> = ({ item }) => <ParticipantCard participant={item.participant} />
 
 const DeleteColumnItemRenderer: React.FC<DataTableRowProps> = ({ item }) => {
     if (item.role === Role.Facilitator) return <></>
 
-    const {deleteParticipant, loading} = useDeleteParticipantMutation()
+    const { deleteParticipant, loading } = useDeleteParticipantMutation()
 
     return (
-        <Button onClick={() => {
-            deleteParticipant(item.participant.id)
-        }}
-        disabled={item.progressionStatus !== ProgressionStatus.InProgress || loading}
-        >Delete</Button>
+        <Button
+            onClick={() => {
+                deleteParticipant(item.participant.id)
+            }}
+            disabled={item.progressionStatus !== ProgressionStatus.InProgress || loading}
+        >
+            Delete
+        </Button>
     )
 }
 
-const RoleRenderer: React.FC<DataTableRowProps> = ({ item }) => (
-    <>{roleToString(item.role)}</>
-)
+const RoleRenderer: React.FC<DataTableRowProps> = ({ item }) => <>{roleToString(item.role)}</>
 
-const OrganizationRenderer: React.FC<DataTableRowProps> = ({ item }) => (
-    <>{organizationToString(item.organization)}</>
-)
+const OrganizationRenderer: React.FC<DataTableRowProps> = ({ item }) => <>{organizationToString(item.organization)}</>
 
 const columns: DataTableColumn<DataTableItem>[] = [
     {
@@ -52,7 +49,7 @@ const columns: DataTableColumn<DataTableItem>[] = [
         accessor: 'participant',
         label: 'Details',
         sortable: false,
-        component: ParticipantRenderer
+        component: ParticipantRenderer,
     },
     {
         key: 'role',
@@ -82,22 +79,19 @@ interface NominationTableProps {
     currentProgressionStatus: ProgressionStatus
 }
 
-const NominationTable = ({participants, currentProgressionStatus}: NominationTableProps) => {
+const NominationTable = ({ participants, currentProgressionStatus }: NominationTableProps) => {
     const data: DataTableItem[] = participants.map(participant => ({
         participant,
         organization: participant.organization,
         role: participant.role,
         progressionStatus: currentProgressionStatus,
-        rowIdentifier: participant.id
+        rowIdentifier: participant.id,
     }))
-    return <>
-        <DataTable
-            columns={columns}
-            data={data}
-            isFetching={false}
-            rowIdentifier={'rowIdentifier'}
-        />
-    </>
+    return (
+        <>
+            <DataTable columns={columns} data={data} isFetching={false} rowIdentifier={'rowIdentifier'} />
+        </>
+    )
 }
 
 export default NominationTable

@@ -9,20 +9,18 @@ import { Answer } from '../api/models'
 import { organizationToString } from '../utils/EnumToString'
 import SeverityIndicator from './SeverityIndicator'
 
-interface SingleAnswerSummaryProps
-{
+interface SingleAnswerSummaryProps {
     answer: Answer
 }
 
 const SingleAnswerSummary = ({ answer }: SingleAnswerSummaryProps) => {
     const apiClients = useApiClients()
-    const [username, setUsername] = useState<string>("")
+    const [username, setUsername] = useState<string>('')
 
     useEffect(() => {
-        apiClients.people.getPersonDetailsAsync(answer.answeredBy!.azureUniqueId)
-            .then((details) => {
-                setUsername(details.data.name)
-            })
+        apiClients.people.getPersonDetailsAsync(answer.answeredBy!.azureUniqueId).then(details => {
+            setUsername(details.data.name)
+        })
     }, [])
 
     return (

@@ -31,13 +31,11 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
         ${PARTICIPANTS_ARRAY_FRAGMENT}
     `
 
-    const [progressEvaluationApolloFunc, { loading, data, error }] = useMutation(
-        PROGRESS_EVALUATION, {
-            update(cache, { data: { progressEvaluation } }) {
-                apolloClient.resetStore()
-            }
-        }
-    )
+    const [progressEvaluationApolloFunc, { loading, data, error }] = useMutation(PROGRESS_EVALUATION, {
+        update(cache, { data: { progressEvaluation } }) {
+            apolloClient.resetStore()
+        },
+    })
 
     const progressEvaluation = (evaluationId: string, newProgression: Progression) => {
         progressEvaluationApolloFunc({ variables: { evaluationId, newProgression } })

@@ -1,6 +1,6 @@
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
-import { Organization, Participant, Role } from "../../../api/models"
+import { Organization, Participant, Role } from '../../../api/models'
 
 interface ParticipantQueryProps {
     loading: boolean
@@ -18,14 +18,12 @@ export const useParticipantsQuery = (evaluationId: string): ParticipantQueryProp
         ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
-    const { loading, data, error } = useQuery<{participants: Participant[]}>(
-        GET_PARTICIPANTS
-    )
+    const { loading, data, error } = useQuery<{ participants: Participant[] }>(GET_PARTICIPANTS)
 
     return {
         loading,
         participants: data?.participants,
-        error
+        error,
     }
 }
 
@@ -38,47 +36,40 @@ interface CreateParticipantMutationProps {
 
 export const useCreateParticipantMutation = (): CreateParticipantMutationProps => {
     const CREATE_PARTICIPANT = gql`
-        mutation CreateParticipant($azureUniqueId: String!, $evaluationId: String!, $organization: Organization!, $role: Role!){
-            createParticipant(
-                azureUniqueId: $azureUniqueId
-                evaluationId: $evaluationId
-                organization: $organization
-                role: $role
-            ){
+        mutation CreateParticipant($azureUniqueId: String!, $evaluationId: String!, $organization: Organization!, $role: Role!) {
+            createParticipant(azureUniqueId: $azureUniqueId, evaluationId: $evaluationId, organization: $organization, role: $role) {
                 ...ParticipantFields
             }
         }
         ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
-    const [createParticipantApolloFunc, { loading, data, error }] = useMutation(
-        CREATE_PARTICIPANT, {
-            update(cache, { data: { createParticipant } }) {
-                cache.modify({
-                    fields: {
-                        participants(existingParticipants = []) {
-                            const newParticipantRef = cache.writeFragment({
-                                id: createParticipant.id,
-                                data: createParticipant,
-                                fragment: PARTICIPANT_FIELDS_FRAGMENT
-                            })
-                            return [...existingParticipants, newParticipantRef]
-                        }
-                    }
-                })
-            }
-        }
-    )
+    const [createParticipantApolloFunc, { loading, data, error }] = useMutation(CREATE_PARTICIPANT, {
+        update(cache, { data: { createParticipant } }) {
+            cache.modify({
+                fields: {
+                    participants(existingParticipants = []) {
+                        const newParticipantRef = cache.writeFragment({
+                            id: createParticipant.id,
+                            data: createParticipant,
+                            fragment: PARTICIPANT_FIELDS_FRAGMENT,
+                        })
+                        return [...existingParticipants, newParticipantRef]
+                    },
+                },
+            })
+        },
+    })
 
     const createParticipant = (azureUniqueId: string, evaluationId: string, organization: Organization, role: Role) => {
-        createParticipantApolloFunc({ variables: { azureUniqueId, evaluationId, organization, role} })
+        createParticipantApolloFunc({ variables: { azureUniqueId, evaluationId, organization, role } })
     }
 
     return {
         createParticipant: createParticipant,
         loading,
         participant: data?.createParticipant,
-        error
+        error,
     }
 }
 
@@ -91,35 +82,27 @@ interface DeleteParticipantMutationProps {
 
 export const useDeleteParticipantMutation = (): DeleteParticipantMutationProps => {
     const DELETE_PARTICIPANT = gql`
-        mutation DeleteParticipant($id: String!){
-            deleteParticipant(
-                participantId: $id
-            ){
+        mutation DeleteParticipant($id: String!) {
+            deleteParticipant(participantId: $id) {
                 ...ParticipantFields
             }
         }
         ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
-    const [deleteParticipantApolloFunc, { loading, data, error }] = useMutation(
-        DELETE_PARTICIPANT, {
-            update(cache, { data: { deleteParticipant } }) {
-                cache.modify({
-                    fields: {
-                        participants(existingParticipantRefs, { readField }) {
-                            return existingParticipantRefs.filter(
-                                (participantRef: any) => {
-                                    return (
-                                        deleteParticipant.id !== readField('id', participantRef)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                })
-            }
-        }
-    )
+    const [deleteParticipantApolloFunc, { loading, data, error }] = useMutation(DELETE_PARTICIPANT, {
+        update(cache, { data: { deleteParticipant } }) {
+            cache.modify({
+                fields: {
+                    participants(existingParticipantRefs, { readField }) {
+                        return existingParticipantRefs.filter((participantRef: any) => {
+                            return deleteParticipant.id !== readField('id', participantRef)
+                        })
+                    },
+                },
+            })
+        },
+    })
 
     const deleteParticipant = (id: string) => {
         deleteParticipantApolloFunc({ variables: { id } })
@@ -129,6 +112,6 @@ export const useDeleteParticipantMutation = (): DeleteParticipantMutationProps =
         deleteParticipant: deleteParticipant,
         loading,
         participant: data?.deleteParticipant,
-        error
+        error,
     }
 }
