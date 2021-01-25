@@ -46,11 +46,13 @@ const ActionSidebar = ({
         } else {
             if (savingState === SavingState.Saving) {
                 setSavingState(SavingState.Saved)
+            } else if (actionExists) {
+                setSavingState(SavingState.Saved)
             } else {
                 setSavingState(SavingState.None)
             }
         }
-    }, [isActionSaving])
+    }, [isActionSaving, open])
 
     const getAllPersonDetails = (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
         const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
