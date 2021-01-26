@@ -13,6 +13,7 @@ import { SavingState } from '../../utils/Variables'
 interface Props {
     action: Action | undefined
     isActionSaving: boolean
+    isNoteSaving: boolean
     open: boolean
     connectedQuestion: Question
     possibleAssignees: Participant[]
@@ -25,6 +26,7 @@ interface Props {
 const ActionSidebar = ({
     action,
     isActionSaving,
+    isNoteSaving,
     open,
     connectedQuestion,
     possibleAssignees,
@@ -41,7 +43,7 @@ const ActionSidebar = ({
     const actionExists = action && action.id !== undefined
 
     useEffect(() => {
-        if (isActionSaving) {
+        if (isActionSaving || isNoteSaving) {
             setSavingState(SavingState.Saving)
         } else {
             if (savingState === SavingState.Saving) {
@@ -50,7 +52,7 @@ const ActionSidebar = ({
                 setSavingState(SavingState.None)
             }
         }
-    }, [isActionSaving])
+    }, [isActionSaving, isNoteSaving])
 
     const getAllPersonDetails = (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
         const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {

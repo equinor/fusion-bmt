@@ -14,7 +14,7 @@ const QuestionActionsListWithApi = ({ question }: Props) => {
     const evaluation = useEvaluation()
     const { createAction, error: errorCreatingAction } = useCreateActionMutation()
     const { editAction, loading, error: errorEditingAction } = useEditActionMutation()
-    const { createNote, error: errorCreatingNote } = useCreateNoteMutation()
+    const { createNote, loading: isNoteSaving, error: errorCreatingNote } = useCreateNoteMutation()
 
     if (errorCreatingAction !== undefined) {
         return (
@@ -45,6 +45,7 @@ const QuestionActionsListWithApi = ({ question }: Props) => {
             <QuestionActionsList
                 question={question}
                 isActionSaving={loading}
+                isNoteSaving={isNoteSaving}
                 participants={evaluation.participants}
                 onActionCreate={createAction}
                 onActionEdit={editAction}
