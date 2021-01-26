@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Chip } from '@equinor/fusion-components'
 import { Typography } from '@equinor/eds-core-react'
 
@@ -8,9 +8,8 @@ import AnswerSeverityForm from './AnswerSeverityForm'
 import AnswerMarkdownForm from './AnswerMarkdownForm'
 import { organizationToString } from '../../utils/EnumToString'
 import Disabler from '../Disabler'
-import { useEffectNotOnMount } from '../../utils/hooks'
-
-const WRITE_DELAY_MS = 1000
+import SaveIndicator from '../SaveIndicator'
+import { SavingState } from '../../utils/Variables'
 
 interface QuestionAndAnswerFormProps {
     questionNumber: number
@@ -18,25 +17,18 @@ interface QuestionAndAnswerFormProps {
     answer: Answer
     disabled: boolean
     onAnswerChange: (answer: Answer) => void
+    savingState: SavingState
 }
 
-const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onAnswerChange }: QuestionAndAnswerFormProps) => {
-    const [localAnswer, setLocalAnswer] = useState<Answer>(answer)
-
-    useEffectNotOnMount(() => {
-        const timeout = setTimeout(() => {
-            onAnswerChange(localAnswer)
-        }, WRITE_DELAY_MS)
-        return () => {
-            clearTimeout(timeout)
-        }
-    }, [localAnswer])
-
+const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onAnswerChange, savingState }: QuestionAndAnswerFormProps) => {
     return (
         <>
             <Grid container>
                 <Grid item xs={12}>
-                    <Box display="flex" flexDirection="row-reverse">
+                    <Box display="flex" justifyContent="flex-end" alignItems="center">
+                        <Box mr={2}>
+                            <SaveIndicator savingState={savingState} />
+                        </Box>
                         <Chip primary title={organizationToString(question.organization)} />
                     </Box>
                 </Grid>
@@ -58,16 +50,18 @@ const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onA
                         <Box display="flex">
                             <Box mr={5}>
                                 <AnswerSeverityForm
-                                    severity={localAnswer.severity}
-                                    onSeveritySelected={severity => setLocalAnswer(oldAnswer => ({ ...oldAnswer, severity: severity }))}
+                                    severity={answer.severity}
+                                    onSeveritySelected={severity => onAnswerChange({ ...answer, severity: severity })}
                                     disabled={disabled}
                                 />
                             </Box>
                             <Box width="85%">
                                 <AnswerMarkdownForm
-                                    markdown={localAnswer.text}
+                                    markdown={answer.text}
                                     disabled={disabled}
-                                    onMarkdownChange={text => setLocalAnswer(oldAnswer => ({ ...oldAnswer, text: text }))}
+                                    onMarkdownChange={text => {
+                                        onAnswerChange({ ...answer, text: text })
+                                    }}
                                 />
                             </Box>
                         </Box>

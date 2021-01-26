@@ -1,10 +1,12 @@
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ANSWER_FIELDS_FRAGMENT, QUESTION_ANSWERS_FRAGMENT } from '../../api/fragments'
 
 import { Answer, Progression, Question, Severity } from '../../api/models'
 import QuestionAndAnswerForm from './QuestionAndAnswerForm'
+import { SavingState } from '../../utils/Variables'
+import { useEffectNotOnMount } from '../../utils/hooks'
 
 interface SetAnswerMutationProps {
     setAnswer: (questionId: string, severity: Severity, text: string, progression: Progression) => void
@@ -67,6 +69,8 @@ interface QuestionAndAnswerFormWithApiProps {
     viewProgression: Progression
 }
 
+const WRITE_DELAY_MS = 1000
+
 const QuestionAndAnswerFormWithApi = ({
     questionNumber,
     question,
@@ -74,8 +78,6 @@ const QuestionAndAnswerFormWithApi = ({
     disabled,
     viewProgression,
 }: QuestionAndAnswerFormWithApiProps) => {
-    const { setAnswer, error: errorSettingAnswer } = useSetAnswerMutation()
-
     const emptyAnswer: Answer = {
         id: '',
         progression: Progression.Nomination,
@@ -85,6 +87,31 @@ const QuestionAndAnswerFormWithApi = ({
         question: question,
         questionId: question.id,
     }
+
+    const { setAnswer, loading, error: errorSettingAnswer } = useSetAnswerMutation()
+    const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
+    const [localAnswer, setLocalAnswer] = useState<Answer>(answer ?? emptyAnswer)
+
+    useEffect(() => {
+        if (loading) {
+            setSavingState(SavingState.Saving)
+        } else {
+            if (savingState === SavingState.Saving) {
+                setSavingState(SavingState.Saved)
+            } else {
+                setSavingState(SavingState.None)
+            }
+        }
+    }, [loading])
+
+    useEffectNotOnMount(() => {
+        const timeout = setTimeout(() => {
+            setAnswer(question.id, localAnswer.severity, localAnswer.text, viewProgression)
+        }, WRITE_DELAY_MS)
+        return () => {
+            clearTimeout(timeout)
+        }
+    }, [localAnswer])
 
     if (errorSettingAnswer !== undefined) {
         return (
@@ -99,9 +126,13 @@ const QuestionAndAnswerFormWithApi = ({
             <QuestionAndAnswerForm
                 questionNumber={questionNumber}
                 question={question}
-                answer={answer ?? emptyAnswer}
-                onAnswerChange={answer => setAnswer(question.id, answer.severity, answer.text, viewProgression)}
+                answer={localAnswer}
+                onAnswerChange={answer => {
+                    setSavingState(SavingState.Saving)
+                    setLocalAnswer(answer)
+                }}
                 disabled={disabled}
+                savingState={savingState}
             />
         </>
     )
