@@ -127,9 +127,9 @@ const QuestionAndAnswerFormWithApi = ({
                 questionNumber={questionNumber}
                 question={question}
                 answer={localAnswer}
-                onAnswerChange={answer => {
+                onAnswerChange={answerParts => {
                     setSavingState(SavingState.Saving)
-                    setLocalAnswer(answer)
+                    setLocalAnswer(oldLocalAnswer => ({...oldLocalAnswer, ...answerParts}))
                 }}
                 disabled={disabled}
                 savingState={savingState}

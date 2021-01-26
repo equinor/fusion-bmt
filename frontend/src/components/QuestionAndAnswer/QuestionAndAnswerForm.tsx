@@ -16,7 +16,7 @@ interface QuestionAndAnswerFormProps {
     question: Question
     answer: Answer
     disabled: boolean
-    onAnswerChange: (answer: Answer) => void
+    onAnswerChange: (answerParts: Partial<Answer>) => void
     savingState: SavingState
 }
 
@@ -51,7 +51,7 @@ const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onA
                             <Box mr={5}>
                                 <AnswerSeverityForm
                                     severity={answer.severity}
-                                    onSeveritySelected={severity => onAnswerChange({ ...answer, severity: severity })}
+                                    onSeveritySelected={severity => onAnswerChange({ severity: severity })}
                                     disabled={disabled}
                                 />
                             </Box>
@@ -60,7 +60,7 @@ const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onA
                                     markdown={answer.text}
                                     disabled={disabled}
                                     onMarkdownChange={text => {
-                                        onAnswerChange({ ...answer, text: text })
+                                        onAnswerChange({ text: text })
                                     }}
                                 />
                             </Box>
