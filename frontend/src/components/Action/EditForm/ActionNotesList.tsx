@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box } from '@material-ui/core'
-import { Note } from '../../api/models'
+import { Note } from '../../../api/models'
 import { PersonDetails } from '@equinor/fusion'
 
 interface Props {

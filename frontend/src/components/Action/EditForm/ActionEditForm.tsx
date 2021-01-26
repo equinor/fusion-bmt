@@ -4,15 +4,15 @@ import { PersonDetails } from '@equinor/fusion'
 import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
 import { Button, Icon, Switch, TextField, TextFieldProps, Typography } from '@equinor/eds-core-react'
 import { add, error_filled } from '@equinor/eds-icons'
-
-import { Action, Participant, Priority, Question } from '../../api/models'
 import { Grid } from '@material-ui/core'
-import { barrierToString } from '../../utils/EnumToString'
-import { DataToCreateAction } from '../../api/mutations'
 import styled from 'styled-components'
+
+import { Action, Participant, Priority, Question } from '../../../api/models'
+import { barrierToString } from '../../../utils/EnumToString'
+import { DataToCreateAction } from '../../../api/mutations'
 import ActionNotesList from './ActionNotesList'
-import { SavingState } from '../../utils/Variables'
-import { useEffectNotOnMount } from '../../utils/hooks'
+import { SavingState } from '../../../utils/Variables'
+import { useEffectNotOnMount } from '../../../utils/hooks'
 
 const WRITE_DELAY_MS = 1000
 

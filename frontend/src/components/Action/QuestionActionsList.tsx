@@ -5,7 +5,7 @@ import { Button, Typography, Icon } from '@equinor/eds-core-react'
 import { add } from '@equinor/eds-icons'
 
 import { Action, Participant, Question } from '../../api/models'
-import ActionSidebar from './ActionSidebar'
+import ActionSidebar from './EditForm/ActionEditSidebar'
 import PriorityIndicator from './PriorityIndicator'
 import { DataToCreateAction } from '../../api/mutations'
 

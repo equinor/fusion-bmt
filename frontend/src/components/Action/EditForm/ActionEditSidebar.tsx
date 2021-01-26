@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { PersonDetails, useApiClients } from '@equinor/fusion'
 import { ModalSideSheet } from '@equinor/fusion-components'
 
-import { Action, Participant, Question } from '../../api/models'
-import ActionForm from './ActionForm'
+import { Action, Participant, Question } from '../../../api/models'
+import ActionForm from './ActionEditForm'
 import { CircularProgress } from '@equinor/eds-core-react'
-import { DataToCreateAction } from '../../api/mutations'
-import SaveIndicator from '../SaveIndicator'
-import { SavingState } from '../../utils/Variables'
+import { DataToCreateAction } from '../../../api/mutations'
+import SaveIndicator from '../../SaveIndicator'
+import { SavingState } from '../../../utils/Variables'
 
 interface Props {
     action: Action | undefined
