@@ -8,6 +8,7 @@ import { Action, Participant, Question } from '../../api/models'
 import ActionSidebar from './EditForm/ActionEditSidebar'
 import PriorityIndicator from './PriorityIndicator'
 import { DataToCreateAction } from '../../api/mutations'
+import ActionCreateSidebar from './CreateForm/ActionCreateSidebar'
 
 interface Props {
     question: Question
@@ -28,17 +29,19 @@ const QuestionActionsList = ({
     isActionSaving,
     isNoteSaving,
 }: Props) => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
+    const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
+    const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState<boolean>(false)
     const [actionToEditId, setActionToEditId] = useState<string>()
     const actions = [...question.actions]
 
-    const editAction = (action: Action) => {
-        setIsSidebarOpen(true)
+    const openActionEditSidebar = (action: Action) => {
+        setIsEditSidebarOpen(true)
         setActionToEditId(action.id)
     }
 
     const onClose = () => {
-        setIsSidebarOpen(false)
+        setIsEditSidebarOpen(false)
+        setIsCreateSidebarOpen(false)
         setActionToEditId(undefined)
     }
 
@@ -52,7 +55,7 @@ const QuestionActionsList = ({
                         </Typography>
                     </Box>
                     <Box>
-                        <Button variant="ghost" onClick={() => setIsSidebarOpen(true)}>
+                        <Button variant="ghost" onClick={() => setIsCreateSidebarOpen(true)}>
                             <Icon data={add}></Icon>
                             Add action
                         </Button>
@@ -76,7 +79,7 @@ const QuestionActionsList = ({
                                         <PriorityIndicator priority={action.priority} />
                                     </Box>
                                     <Box display="flex" alignItems="center">
-                                        <Typography link onClick={() => editAction(action)}>
+                                        <Typography link onClick={() => openActionEditSidebar(action)}>
                                             {action.title}
                                         </Typography>
                                         {action.completed && (
@@ -95,12 +98,12 @@ const QuestionActionsList = ({
                 action={actions.find(a => a.id === actionToEditId)}
                 isActionSaving={isActionSaving}
                 isNoteSaving={isNoteSaving}
-                open={isSidebarOpen}
+                open={isEditSidebarOpen}
                 onClose={onClose}
                 connectedQuestion={question}
                 possibleAssignees={participants}
                 onActionCreate={action => {
-                    setIsSidebarOpen(false)
+                    setIsEditSidebarOpen(false)
                     onActionCreate(action)
                 }}
                 onActionEdit={action => {
@@ -108,6 +111,16 @@ const QuestionActionsList = ({
                 }}
                 onNoteCreate={(actionId: string, text: string) => {
                     onNoteCreate(actionId, text)
+                }}
+            />
+            <ActionCreateSidebar
+                open={isCreateSidebarOpen}
+                onClose={onClose}
+                connectedQuestion={question}
+                possibleAssignees={participants}
+                onActionCreate={action => {
+                    onClose()
+                    onActionCreate(action)
                 }}
             />
         </>
