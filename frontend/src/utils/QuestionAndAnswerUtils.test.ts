@@ -35,6 +35,7 @@ describe('Test QuestionAndAnswerUtils', () => {
             name: '',
             participants: [],
             progression: Progression.Preparation,
+            status: Status.Active,
             project: {
                 createDate: new Date(),
                 evaluations: [],
