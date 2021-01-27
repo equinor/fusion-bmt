@@ -23,7 +23,14 @@ const CompactSeveritySummaryField = ({ num, severity }: SeveritySummaryFieldProp
 const LargeSeveritySummaryField = ({ num, severity }: SeveritySummaryFieldProps) => {
     return (
         <>
-            <Box display="flex" alignItems="center" bgcolor={getBGColor(severity)} p={1} borderRadius={4} width="fit-content">
+            <Box
+                display="flex"
+                alignItems="center"
+                bgcolor={getBGColor(severity)}
+                p={1}
+                borderRadius={4}
+                width="50px"
+            >
                 <Box mr={0.5}>
                     <SeverityIndicator severity={severity} />
                 </Box>
