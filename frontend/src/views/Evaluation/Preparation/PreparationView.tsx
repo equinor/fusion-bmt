@@ -42,6 +42,11 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
     const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !hasParticipantBeenHere
 
     const onQuestionSummarySelected = (question: Question, questionNumber: number) => {
+        if (selectedQuestion && question.id === selectedQuestion.id) {
+            setSelectedQuestion(undefined)
+            setSelectedQuestionNumber(undefined)
+            return
+        }
         setSelectedQuestion(question)
         setSelectedQuestionNumber(questionNumber)
     }

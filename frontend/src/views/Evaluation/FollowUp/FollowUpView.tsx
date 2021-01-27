@@ -30,6 +30,11 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
     const barrierQuestions = questions.filter(q => q.barrier === selectedBarrier)
 
     const onQuestionSummarySelected = (question: Question, questionNumber: number) => {
+        if (selectedQuestion && question.id === selectedQuestion.id) {
+            setSelectedQuestion(undefined)
+            setSelectedQuestionNumber(undefined)
+            return
+        }
         setSelectedQuestion(question)
         setSelectedQuestionNumber(questionNumber)
     }
