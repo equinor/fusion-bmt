@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import { ErrorBoundary, TextArea } from '@equinor/fusion-components'
+import { TextArea } from '@equinor/fusion-components'
 
 import { Participant, Progression } from '../../api/models'
 import { useEvaluationQuery, useProgressEvaluationMutation, useProgressParticipantMutation } from './EvaluationGQL'
@@ -82,23 +82,21 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
 
     return (
         <>
-            <ErrorBoundary>
-                <CurrentParticipantContext.Provider value={participant}>
-                    <EvaluationContext.Provider value={evaluation}>
-                        <EvaluationView
-                            evaluation={evaluation}
-                            onProgressEvaluationClick={onProgressEvaluationClick}
-                            onProgressParticipant={onProgressParticipant}
-                        />
-                        <ProgressEvaluationDialog
-                            isOpen={isProgressDialogOpen}
-                            currentProgression={evaluation.progression}
-                            onConfirmClick={onConfirmProgressEvaluationClick}
-                            onCancelClick={onCancelProgressEvaluation}
-                        />
-                    </EvaluationContext.Provider>
-                </CurrentParticipantContext.Provider>
-            </ErrorBoundary>
+            <CurrentParticipantContext.Provider value={participant}>
+                <EvaluationContext.Provider value={evaluation}>
+                    <EvaluationView
+                        evaluation={evaluation}
+                        onProgressEvaluationClick={onProgressEvaluationClick}
+                        onProgressParticipant={onProgressParticipant}
+                    />
+                    <ProgressEvaluationDialog
+                        isOpen={isProgressDialogOpen}
+                        currentProgression={evaluation.progression}
+                        onConfirmClick={onConfirmProgressEvaluationClick}
+                        onCancelClick={onCancelProgressEvaluation}
+                    />
+                </EvaluationContext.Provider>
+            </CurrentParticipantContext.Provider>
         </>
     )
 }
