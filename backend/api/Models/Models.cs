@@ -75,6 +75,8 @@ namespace api.Models
         [Required]
         public string Text { get; set; }
         [Required]
+        public int Order { get; set; }
+        [Required]
         public string SupportNotes { get; set; }
         [Required]
         public Barrier Barrier { get; set; }
@@ -103,6 +105,8 @@ namespace api.Models
         [Required]
         public string Text { get; set; }
         [Required]
+        public int Order { get; set; }
+        [Required]
         public string SupportNotes { get; set; }
         [Required]
         public Barrier Barrier { get; set; }
@@ -110,6 +114,7 @@ namespace api.Models
         public DateTimeOffset CreateDate { get; set; }
         [Required]
         public virtual ICollection<Question> Questions { get; private set; }
+        public QuestionTemplate previous { get; set; }
     }
 
     public class Answer

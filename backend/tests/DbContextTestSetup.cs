@@ -20,7 +20,7 @@ namespace tests
             string connectionString = new SqliteConnectionStringBuilder { DataSource = "file::memory:", Cache = SqliteCacheMode.Shared }.ToString();
             _connection = new SqliteConnection(connectionString);
             _connection.Open();
-
+            builder.EnableSensitiveDataLogging();
             builder.UseSqlite(_connection);
             _context = new BmtDbContext(builder.Options);
             _context.Database.EnsureCreated();

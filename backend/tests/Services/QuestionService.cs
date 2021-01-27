@@ -26,8 +26,10 @@ namespace tests
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
             QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.Create("QuestionService_Create");
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.GetAll().First();
+            Evaluation evaluation = evaluationService.Create("QuestionService_Create", project);
 
             QuestionService questionService = new QuestionService(_context);
 
@@ -44,8 +46,10 @@ namespace tests
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
             List<QuestionTemplate> questionTemplates = questionTemplateService.GetAll().ToList();
 
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.Create("QuestionService_CreateBulk");
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.GetAll().First();
+            Evaluation evaluation = evaluationService.Create("QuestionService_CreateBulk", project);
 
             QuestionService questionService = new QuestionService(_context);
 
@@ -70,8 +74,10 @@ namespace tests
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
             QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.Create("QuestionService_GetExists");
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.GetAll().First();
+            Evaluation evaluation = evaluationService.Create("QuestionService_GetExists", project);
 
             QuestionService questionService = new QuestionService(_context);
             Question questionCreate = questionService.Create(questionTemplate, evaluation);
