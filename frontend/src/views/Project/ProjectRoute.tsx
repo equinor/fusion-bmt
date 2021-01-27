@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { RouteComponentProps } from 'react-router-dom'
-import { Tabs, Tab, TextArea, ErrorBoundary } from '@equinor/fusion-components'
+import { Tabs, Tab, TextArea } from '@equinor/fusion-components'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import ProjectDashboardView from './Dashboard/ProjectDashboardView'
@@ -59,21 +59,19 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
     }
 
     return (
-        <ErrorBoundary>
-            <ProjectContext.Provider value={project}>
-                <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
-                    <Tab tabKey="dashboard" title="Dashboard">
-                        <ProjectDashboardView project={project} />
-                    </Tab>
-                    <Tab tabKey="actions" title="Actions">
-                        <ProjectActionsView />
-                    </Tab>
-                    <Tab tabKey="archive" title="Archive">
-                        <h1>Archive</h1>
-                    </Tab>
-                </Tabs>
-            </ProjectContext.Provider>
-        </ErrorBoundary>
+        <ProjectContext.Provider value={project}>
+            <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
+                <Tab tabKey="dashboard" title="Dashboard">
+                    <ProjectDashboardView project={project} />
+                </Tab>
+                <Tab tabKey="actions" title="Actions">
+                    <ProjectActionsView />
+                </Tab>
+                <Tab tabKey="archive" title="Archive">
+                    <h1>Archive</h1>
+                </Tab>
+            </Tabs>
+        </ProjectContext.Provider>
     )
 }
 

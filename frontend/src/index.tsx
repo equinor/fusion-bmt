@@ -3,7 +3,7 @@ import { registerApp, ContextTypes, Context } from '@equinor/fusion'
 
 import { ApolloProvider } from '@apollo/client'
 
-import { useFusionContext } from '@equinor/fusion'
+import { useFusionContext, useCurrentUser } from '@equinor/fusion'
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
@@ -32,8 +32,10 @@ appInsights.trackPageView()
 
 const Start = () => {
     const fusionContext = useFusionContext()
+    const currentUser = useCurrentUser()
 
     const [hasLoggedIn, setHasLoggedIn] = React.useState(false)
+
     const login = async () => {
         const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [new URL(config.API_URL).origin])
 
@@ -48,6 +50,10 @@ const Start = () => {
     React.useEffect(() => {
         login()
     }, [])
+
+    if (!currentUser || !hasLoggedIn) {
+        return <p>Please log in.</p>
+    }
 
     return (
         <>
