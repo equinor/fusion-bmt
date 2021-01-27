@@ -235,6 +235,9 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
                     b.Property<int>("Organization")
                         .HasColumnType("int");
 
@@ -271,6 +274,9 @@ namespace api.Migrations
                     b.Property<DateTimeOffset>("CreateDate")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
                     b.Property<int>("Organization")
                         .HasColumnType("int");
 
@@ -285,7 +291,12 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("previousId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("previousId");
 
                     b.ToTable("QuestionTemplates");
                 });
@@ -386,6 +397,15 @@ namespace api.Migrations
                     b.Navigation("Evaluation");
 
                     b.Navigation("QuestionTemplate");
+                });
+
+            modelBuilder.Entity("api.Models.QuestionTemplate", b =>
+                {
+                    b.HasOne("api.Models.QuestionTemplate", "previous")
+                        .WithMany()
+                        .HasForeignKey("previousId");
+
+                    b.Navigation("previous");
                 });
 
             modelBuilder.Entity("api.Models.Action", b =>

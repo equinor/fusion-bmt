@@ -99,6 +99,42 @@ namespace api.GQL
             return _participantService.Remove(participantId);
         }
 
+        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
+        {
+            return _questionTemplateService.Create(barrier, organization, text, supportNotes);
+        }
+
+        public QuestionTemplate EditQuestionTemplate(
+            string questionTemplateId,
+            Barrier barrier,
+            Organization organization,
+            string text,
+            string supportNotes,
+            Status status
+        )
+        {
+            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
+            return _questionTemplateService.Edit(questionTemplate, barrier, organization, text, supportNotes, status);
+        }
+
+        public QuestionTemplate ReorderQuestionTemplate(
+            string questionTemplateId,
+            string newNextQuestionTemplateId
+        )
+        {
+            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
+            if (string.IsNullOrEmpty(newNextQuestionTemplateId))
+            {
+                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate);
+            }
+            else
+            {
+                QuestionTemplate newNextQuestionTemplate = _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
+                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
+            }
+        }
+
+
         public Answer SetAnswer(string questionId, Severity severity, string text, Progression progression)
         {
             IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);

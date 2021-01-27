@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace api.Migrations
 {
-    public partial class DateTimeOffset : Migration
+    public partial class DateTimeOffsetAndOrderQuestion : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,6 +15,19 @@ namespace api.Migrations
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");
 
+            migrationBuilder.AddColumn<int>(
+                name: "Order",
+                table: "QuestionTemplates",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<string>(
+                name: "previousId",
+                table: "QuestionTemplates",
+                type: "nvarchar(450)",
+                nullable: true);
+
             migrationBuilder.AlterColumn<DateTimeOffset>(
                 name: "CreateDate",
                 table: "Questions",
@@ -22,6 +35,13 @@ namespace api.Migrations
                 nullable: false,
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");
+
+            migrationBuilder.AddColumn<int>(
+                name: "Order",
+                table: "Questions",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.AlterColumn<DateTimeOffset>(
                 name: "CreateDate",
@@ -78,10 +98,43 @@ namespace api.Migrations
                 nullable: false,
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuestionTemplates_previousId",
+                table: "QuestionTemplates",
+                column: "previousId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_QuestionTemplates_QuestionTemplates_previousId",
+                table: "QuestionTemplates",
+                column: "previousId",
+                principalTable: "QuestionTemplates",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_QuestionTemplates_QuestionTemplates_previousId",
+                table: "QuestionTemplates");
+
+            migrationBuilder.DropIndex(
+                name: "IX_QuestionTemplates_previousId",
+                table: "QuestionTemplates");
+
+            migrationBuilder.DropColumn(
+                name: "Order",
+                table: "QuestionTemplates");
+
+            migrationBuilder.DropColumn(
+                name: "previousId",
+                table: "QuestionTemplates");
+
+            migrationBuilder.DropColumn(
+                name: "Order",
+                table: "Questions");
+
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreateDate",
                 table: "QuestionTemplates",

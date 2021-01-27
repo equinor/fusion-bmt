@@ -29,10 +29,13 @@ namespace api.Context
                 string json = reader.ReadToEnd();
                 questions = JsonSerializer.Deserialize<List<QuestionTemplate>>(json, JsonUtils.SerializerOptions);
             }
+            int order = 0;
             foreach (QuestionTemplate q in questions)
             {
                 q.CreateDate = DateTimeOffset.UtcNow;
                 q.Status = Status.Active;
+                q.Order = order;
+                order += 1;
             }
             return questions;
         }
@@ -128,6 +131,7 @@ namespace api.Context
                 {
                     Barrier = questionTemplate.Barrier,
                     Text = questionTemplate.Text,
+                    Order = questionTemplate.Order,
                     SupportNotes = questionTemplate.SupportNotes,
                     Organization = questionTemplate.Organization,
                     QuestionTemplate = questionTemplate,

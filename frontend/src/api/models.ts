@@ -1,7 +1,5 @@
 export type Maybe<T> = T;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -77,6 +75,9 @@ export type Mutation = {
   progressParticipant?: Maybe<Participant>;
   createParticipant?: Maybe<Participant>;
   deleteParticipant?: Maybe<Participant>;
+  createQuestionTemplate?: Maybe<QuestionTemplate>;
+  editQuestionTemplate?: Maybe<QuestionTemplate>;
+  reorderQuestionTemplate?: Maybe<QuestionTemplate>;
   setAnswer?: Maybe<Answer>;
   createAction?: Maybe<Action>;
   editAction?: Maybe<Action>;
@@ -113,6 +114,30 @@ export type MutationCreateParticipantArgs = {
 
 export type MutationDeleteParticipantArgs = {
   participantId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCreateQuestionTemplateArgs = {
+  barrier: Barrier;
+  organization: Organization;
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationEditQuestionTemplateArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  barrier: Barrier;
+  organization: Organization;
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+  status: Status;
+};
+
+
+export type MutationReorderQuestionTemplateArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  newNextQuestionTemplateId?: Maybe<Scalars['String']>;
 };
 
 
@@ -198,6 +223,7 @@ export type QuestionFilterInput = {
   id?: Maybe<StringOperationFilterInput>;
   organization?: Maybe<OrganizationOperationFilterInput>;
   text?: Maybe<StringOperationFilterInput>;
+  order?: Maybe<ComparableInt32OperationFilterInput>;
   supportNotes?: Maybe<StringOperationFilterInput>;
   barrier?: Maybe<BarrierOperationFilterInput>;
   createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
@@ -327,6 +353,21 @@ export type RoleOperationFilterInput = {
   nin?: Maybe<Array<Role>>;
 };
 
+export type ComparableInt32OperationFilterInput = {
+  eq?: Maybe<Scalars['Int']>;
+  neq?: Maybe<Scalars['Int']>;
+  in?: Maybe<Array<Scalars['Int']>>;
+  nin?: Maybe<Array<Scalars['Int']>>;
+  gt?: Maybe<Scalars['Int']>;
+  ngt?: Maybe<Scalars['Int']>;
+  gte?: Maybe<Scalars['Int']>;
+  ngte?: Maybe<Scalars['Int']>;
+  lt?: Maybe<Scalars['Int']>;
+  nlt?: Maybe<Scalars['Int']>;
+  lte?: Maybe<Scalars['Int']>;
+  nlte?: Maybe<Scalars['Int']>;
+};
+
 export type BarrierOperationFilterInput = {
   eq?: Maybe<Barrier>;
   neq?: Maybe<Barrier>;
@@ -355,10 +396,12 @@ export type QuestionTemplateFilterInput = {
   status?: Maybe<StatusOperationFilterInput>;
   organization?: Maybe<OrganizationOperationFilterInput>;
   text?: Maybe<StringOperationFilterInput>;
+  order?: Maybe<ComparableInt32OperationFilterInput>;
   supportNotes?: Maybe<StringOperationFilterInput>;
   barrier?: Maybe<BarrierOperationFilterInput>;
   createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
   questions?: Maybe<ListFilterInputTypeOfQuestionFilterInput>;
+  previous?: Maybe<QuestionTemplateFilterInput>;
 };
 
 export type SeverityOperationFilterInput = {
@@ -424,6 +467,7 @@ export type Question = {
   id: Scalars['String'];
   organization: Organization;
   text: Scalars['String'];
+  order: Scalars['Int'];
   supportNotes: Scalars['String'];
   barrier: Barrier;
   createDate: Scalars['DateTime'];
@@ -471,6 +515,20 @@ export type Note = {
   action: Action;
 };
 
+export type QuestionTemplate = {
+  __typename?: 'QuestionTemplate';
+  id: Scalars['String'];
+  status: Status;
+  organization: Organization;
+  text: Scalars['String'];
+  order: Scalars['Int'];
+  supportNotes: Scalars['String'];
+  barrier: Barrier;
+  createDate: Scalars['DateTime'];
+  questions: Array<Maybe<Question>>;
+  previous?: Maybe<QuestionTemplate>;
+};
+
 export enum Progression {
   Nomination = 'NOMINATION',
   Individual = 'INDIVIDUAL',
@@ -494,25 +552,6 @@ export enum Role {
   ReadOnly = 'READ_ONLY'
 }
 
-export enum Severity {
-  Low = 'LOW',
-  Limited = 'LIMITED',
-  High = 'HIGH',
-  Na = 'NA'
-}
-
-
-export enum Priority {
-  Low = 'LOW',
-  Medium = 'MEDIUM',
-  High = 'HIGH'
-}
-
-export enum Status {
-  Active = 'ACTIVE',
-  Inactive = 'INACTIVE'
-}
-
 export enum Barrier {
   Gm = 'GM',
   Ps1 = 'PS1',
@@ -526,14 +565,21 @@ export enum Barrier {
   Ps22 = 'PS22'
 }
 
-export type QuestionTemplate = {
-  __typename?: 'QuestionTemplate';
-  id: Scalars['String'];
-  status: Status;
-  organization: Organization;
-  text: Scalars['String'];
-  supportNotes: Scalars['String'];
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  questions: Array<Maybe<Question>>;
-};
+export enum Status {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE'
+}
+
+export enum Severity {
+  Low = 'LOW',
+  Limited = 'LIMITED',
+  High = 'HIGH',
+  Na = 'NA'
+}
+
+
+export enum Priority {
+  Low = 'LOW',
+  Medium = 'MEDIUM',
+  High = 'HIGH'
+}

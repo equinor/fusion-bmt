@@ -43,6 +43,7 @@ namespace api.Services
                 Evaluation = evaluation,
                 Organization = template.Organization,
                 Text = template.Text,
+                Order = template.Order,
                 SupportNotes = template.SupportNotes,
                 QuestionTemplate = template,
             };

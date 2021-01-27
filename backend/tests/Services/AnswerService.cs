@@ -68,8 +68,10 @@ namespace tests
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
             QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.Create("AnswerService_GetFromQuestionExists");
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.GetAll().First();
+            Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project);
 
             ParticipantService participantService = new ParticipantService(_context);
             Participant participant = participantService.GetAll().ToList()[0];
@@ -134,12 +136,15 @@ namespace tests
         [Fact]
         public void CreateFollowUpAnswers()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
             ParticipantService participantService = new ParticipantService(_context);
             QuestionService questionService = new QuestionService(_context);
             AnswerService answerService = new AnswerService(_context);
 
-            Evaluation evaluation = evaluationService.GetAll().First();
+            ProjectService projectService = new ProjectService(_context);
+            Project project = projectService.Create("AnswerService_GetFromQuestionExists");
+            EvaluationService evaluationService = new EvaluationService(_context);
+            Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project);
+
             Participant participant = participantService.Create("CreateFollowUpAnswers_id", evaluation, Organization.All, Role.Facilitator);
             QuestionTemplateService qts = new QuestionTemplateService(_context);
             List<Question> questions = questionService.CreateBulk(qts.GetAll().ToList(), evaluation);
