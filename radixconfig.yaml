@@ -109,5 +109,5 @@ spec:
         - Database__ConnectionString
 
   dnsAppAlias:
-    environment: prod
+    environment: test
     component: frontend
