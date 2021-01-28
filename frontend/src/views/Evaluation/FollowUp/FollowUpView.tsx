@@ -1,19 +1,17 @@
 import React from 'react'
 
 import { Box } from '@material-ui/core'
-import { Divider, Typography } from '@equinor/eds-core-react'
+import { Typography } from '@equinor/eds-core-react'
 
 import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/models'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useParticipant } from '../../../globals/contexts'
 import { progressionLessThan } from '../../../utils/ProgressionStatus'
-import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
-import QuestionActionsListWithApi from '../../../components/Action/QuestionActionsListWithApi'
 import SeveritySummary from '../../../components/SeveritySummary'
 import QuestionProgressionFollowUpSidebar from './QuestionProgressionFollowUpSidebar'
 import { countSeverities } from '../../../utils/Severity'
-import AnswerSummaryButton from '../../../components/AnswerSummaryButton'
+import QuestionsList from '../../../components/QuestionsList'
 
 interface FollowUpViewProps {
     evaluation: Evaluation
@@ -95,30 +93,14 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                             <SeveritySummary severityCount={countSeverities(followUpBarrierAnswers)} />
                         </Box>
                     </Box>
-                    {barrierQuestions.map((question, idx) => {
-                        const answers = question.answers.filter(a => a.progression === viewProgression)
-                        const firstAnswer = answers.find(a => !!a)
-                        return (
-                            <div key={question.id}>
-                                <Divider />
-                                <Box display="flex">
-                                    <Box flexGrow={1}>
-                                        <QuestionAndAnswerFormWithApi
-                                            questionNumber={idx + 1}
-                                            question={question}
-                                            answer={firstAnswer}
-                                            disabled={disableAllUserInput || isParticipantCompleted}
-                                            viewProgression={viewProgression}
-                                        />
-                                        <QuestionActionsListWithApi question={question} />
-                                    </Box>
-                                    <Box>
-                                        <AnswerSummaryButton onClick={() => onQuestionSummarySelected(question, idx + 1)} />
-                                    </Box>
-                                </Box>
-                            </div>
-                        )
-                    })}
+                    <QuestionsList
+                        displayActions
+                        useOnlyFacilitatorAnswer
+                        questions={barrierQuestions}
+                        viewProgression={viewProgression}
+                        disable={disableAllUserInput || isParticipantCompleted}
+                        onQuestionSummarySelected={onQuestionSummarySelected}
+                    />
                 </Box>
                 <Box>
                     {selectedQuestion && selectedQuestionNumber && (
