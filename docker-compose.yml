@@ -10,7 +10,7 @@ services:
       - '3000:3000'
     environment:
       - API_URL=http://localhost:5000
-      - ApplicationInsights__InstrumentationKey
+      - APP_INSIGHTS_KEY
   backend:
     build: backend
     ports:
