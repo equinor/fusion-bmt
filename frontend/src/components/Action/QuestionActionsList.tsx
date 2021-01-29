@@ -5,30 +5,16 @@ import { Button, Typography, Icon } from '@equinor/eds-core-react'
 import { add } from '@equinor/eds-icons'
 
 import { Action, Participant, Question } from '../../api/models'
-import ActionEditSidebar from './EditForm/ActionEditSidebar'
 import PriorityIndicator from './PriorityIndicator'
-import { DataToCreateAction } from '../../api/mutations'
-import ActionCreateSidebar from './CreateForm/ActionCreateSidebar'
+import ActionEditSidebarWithApi from './EditForm/ActionEditSidebarWithApi'
+import ActionCreateSidebarWithApi from './CreateForm/ActionCreateSidebarWithApi'
 
 interface Props {
     question: Question
-    isActionSaving: boolean
-    isNoteSaving: boolean
     participants: Participant[]
-    onActionCreate: (action: DataToCreateAction) => void
-    onActionEdit: (action: Action) => void
-    onNoteCreate: (actionId: string, text: string) => void
 }
 
-const QuestionActionsList = ({
-    question,
-    participants,
-    onActionCreate,
-    onActionEdit,
-    onNoteCreate,
-    isActionSaving,
-    isNoteSaving,
-}: Props) => {
+const QuestionActionsList = ({ question, participants }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState<boolean>(false)
     const [actionToEditId, setActionToEditId] = useState<string | undefined>()
@@ -94,32 +80,20 @@ const QuestionActionsList = ({
                     })}
                 {actions.length === 0 && <Typography italic>No actions added</Typography>}
             </Box>
-            {actionToEditId !== undefined &&
-                <ActionEditSidebar
+            {actionToEditId !== undefined && (
+                <ActionEditSidebarWithApi
                     action={actions.find(a => a.id === actionToEditId)!}
-                    isActionSaving={isActionSaving}
-                    isNoteSaving={isNoteSaving}
-                    open={isEditSidebarOpen}
+                    isOpen={isEditSidebarOpen}
                     onClose={onClose}
                     connectedQuestion={question}
                     possibleAssignees={participants}
-                    onActionEdit={action => {
-                        onActionEdit(action)
-                    }}
-                    onNoteCreate={(actionId: string, text: string) => {
-                        onNoteCreate(actionId, text)
-                    }}
                 />
-            }
-            <ActionCreateSidebar
-                open={isCreateSidebarOpen}
+            )}
+            <ActionCreateSidebarWithApi
+                isOpen={isCreateSidebarOpen}
                 onClose={onClose}
                 connectedQuestion={question}
                 possibleAssignees={participants}
-                onActionCreate={action => {
-                    onClose()
-                    onActionCreate(action)
-                }}
             />
         </>
     )

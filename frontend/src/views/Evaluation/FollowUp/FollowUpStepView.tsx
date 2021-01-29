@@ -6,6 +6,7 @@ import { Evaluation } from '../../../api/models'
 import FollowUpView from './FollowUpView'
 import WorkshopSummaryView from './WorkshopSummary/WorkshopSymmaryView'
 import { StyledTabPanel } from '../../../components/StyledTabs'
+import ActionTableWithApi from '../../../components/ActionTable/ActionTableWithApi'
 
 const { TabList, Tab, TabPanels } = Tabs
 
@@ -22,6 +23,7 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
                 <TabList>
                     <Tab>Follow-up</Tab>
                     <Tab>Workshop Summary</Tab>
+                    <Tab>Actions</Tab>
                 </TabList>
                 <TabPanels>
                     <StyledTabPanel>
@@ -29,6 +31,9 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
                     </StyledTabPanel>
                     <StyledTabPanel>
                         <WorkshopSummaryView evaluation={evaluation} />
+                    </StyledTabPanel>
+                    <StyledTabPanel>
+                        <ActionTableWithApi evaluations={[evaluation]} />
                     </StyledTabPanel>
                 </TabPanels>
             </Tabs>
