@@ -1,46 +1,45 @@
 import React, { useEffect, useState } from 'react'
 
-import { PersonDetails, useApiClients } from '@equinor/fusion'
 import { ModalSideSheet } from '@equinor/fusion-components'
+import { CircularProgress } from '@equinor/eds-core-react'
 
 import { Action, Participant, Question } from '../../../api/models'
-import ActionForm from './ActionEditForm'
-import { CircularProgress } from '@equinor/eds-core-react'
-import { DataToCreateAction } from '../../../api/mutations'
+import ActionEditForm from './ActionEditForm'
 import SaveIndicator from '../../SaveIndicator'
 import { SavingState } from '../../../utils/Variables'
+import { useAllPersonDetails } from '../utils'
+import { useEffectNotOnMount } from '../../../utils/hooks'
+import NotesList from './NotesList'
+import NoteCreateForm from './NoteCreateForm'
+
+const WRITE_DELAY_MS = 1000
 
 interface Props {
-    action: Action | undefined
+    action: Action
     isActionSaving: boolean
     isNoteSaving: boolean
     open: boolean
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    onActionCreate: (action: DataToCreateAction) => void
     onActionEdit: (action: Action) => void
     onNoteCreate: (actionId: string, text: string) => void
     onClose: () => void
 }
 
-const ActionSidebar = ({
+const ActionEditSidebar = ({
     action,
     isActionSaving,
     isNoteSaving,
     open,
     connectedQuestion,
     possibleAssignees,
-    onActionCreate,
     onActionEdit,
     onNoteCreate,
     onClose,
 }: Props) => {
-    const apiClients = useApiClients()
-    const [personDetailsList, setPersonDetailsList] = useState<PersonDetails[]>([])
+    const { isLoading: isLoadingPersonDetails, allPersonDetails: personDetailsList } = useAllPersonDetails(possibleAssignees)
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
-
-    const isLoading = personDetailsList.length !== possibleAssignees.length
-    const actionExists = action && action.id !== undefined
+    const [delayedAction, setDelayedAction] = useState<Action | undefined>(undefined)
 
     useEffect(() => {
         if (isActionSaving || isNoteSaving) {
@@ -54,62 +53,68 @@ const ActionSidebar = ({
         }
     }, [isActionSaving, isNoteSaving])
 
-    const getAllPersonDetails = (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
-        const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
-            return apiClients.people.getPersonDetailsAsync(azureUniqueId).then(response => {
-                return response.data
-            })
-        })
-
-        return Promise.all(manyPromises)
+    const onEditWithoutDelay = (action: Action, isValid: boolean) => {
+        if (isValid) {
+            setSavingState(SavingState.Saving)
+            setDelayedAction(undefined)
+            onActionEdit(action)
+        } else {
+            setSavingState(SavingState.NotSaved)
+            setDelayedAction(undefined)
+        }
     }
 
-    useEffect(() => {
-        let shouldUpdate = true
-
-        const azureUniqueIds = possibleAssignees.map(a => a.azureUniqueId)
-        getAllPersonDetails(azureUniqueIds).then(fetchedPersonDetailsList => {
-            if (shouldUpdate) {
-                setPersonDetailsList(fetchedPersonDetailsList)
-            }
-        })
-
-        return () => {
-            shouldUpdate = false
+    const onEditWithDelay = (action: Action, isValid: boolean) => {
+        if (isValid) {
+            setSavingState(SavingState.Saving)
+            setDelayedAction(action)
+        } else {
+            setSavingState(SavingState.NotSaved)
+            setDelayedAction(undefined)
         }
-    }, [possibleAssignees])
+    }
+
+    useEffectNotOnMount(() => {
+        if (delayedAction !== undefined) {
+            const timeout = setTimeout(() => {
+                onActionEdit(delayedAction)
+            }, WRITE_DELAY_MS)
+            return () => {
+                clearTimeout(timeout)
+            }
+        }
+    }, [delayedAction])
 
     return (
         <ModalSideSheet
-            header={`${actionExists ? 'Edit' : 'Add'} Action`}
+            header={`Edit Action`}
             show={open}
             size="large"
             onClose={onClose}
             isResizable={false}
             headerIcons={[<SaveIndicator savingState={savingState} />]}
         >
-            {isLoading && (
+            {isLoadingPersonDetails && (
                 <div style={{ textAlign: 'center' }}>
                     <CircularProgress />
                 </div>
             )}
-            {!isLoading && (
+            {!isLoadingPersonDetails && (
                 <div style={{ margin: 20 }}>
-                    <ActionForm
+                    <ActionEditForm
                         action={action}
-                        setSavingState={setSavingState}
                         connectedQuestion={connectedQuestion}
                         possibleAssignees={possibleAssignees}
                         possibleAssigneesDetails={personDetailsList}
-                        onActionCreate={onActionCreate}
-                        onActionEdit={onActionEdit}
-                        onNoteCreate={onNoteCreate}
-                        onCancelClick={onClose}
+                        onEditShouldDelay={onEditWithDelay}
+                        onEditShouldNotDelay={onEditWithoutDelay}
                     />
+                    <NoteCreateForm onCreateClick={(text: string) => onNoteCreate(action.id, text)} />
+                    <NotesList notes={action.notes} participantsDetails={personDetailsList} />
                 </div>
             )}
         </ModalSideSheet>
     )
 }
 
-export default ActionSidebar
+export default ActionEditSidebar

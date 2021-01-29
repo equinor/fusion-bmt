@@ -8,7 +8,7 @@ interface Props {
     participantsDetails: PersonDetails[]
 }
 
-const ActionNotesList = ({ notes, participantsDetails }: Props) => {
+const NotesList = ({ notes, participantsDetails }: Props) => {
     const sortedNotes = notes.slice().sort((a, b) => {
         const aDate = new Date(a.createDate)
         const bDate = new Date(b.createDate)
@@ -25,7 +25,7 @@ const ActionNotesList = ({ notes, participantsDetails }: Props) => {
     })
 
     return (
-        <Box mt={2}>
+        <Box mt={5}>
             {sortedNotes.map(note => {
                 const createrDetails: PersonDetails | undefined = participantsDetails.find(
                     p => p.azureUniqueId === note.createdBy!.azureUniqueId
@@ -53,4 +53,4 @@ const ActionNotesList = ({ notes, participantsDetails }: Props) => {
     )
 }
 
-export default ActionNotesList
+export default NotesList

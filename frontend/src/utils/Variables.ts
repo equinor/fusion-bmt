@@ -9,5 +9,6 @@ export const useAzureUniqueId = (): string => {
 export enum SavingState {
     Saving,
     Saved,
+    NotSaved,
     None,
 }

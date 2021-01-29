@@ -2,27 +2,13 @@ import React, { useEffect, useState } from 'react'
 
 import { PersonDetails } from '@equinor/fusion'
 import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
-import { Button, Icon, TextField, TextFieldProps, Typography } from '@equinor/eds-core-react'
-import { error_filled } from '@equinor/eds-icons'
+import { Button, TextField, Typography } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
 
 import { Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { DataToCreateAction } from '../../../api/mutations'
-
-type TextFieldChangeEvent = React.ChangeEvent<HTMLTextAreaElement> & React.ChangeEvent<HTMLInputElement>
-
-type Validity = Exclude<TextFieldProps['variant'], undefined | 'warning'>
-
-const ErrorIcon = <Icon size={16} data={error_filled} color="danger" />
-
-const checkIfTitleValid = (title: string) => {
-    return title.length > 0
-}
-
-const checkIfParticipantValid = (participant: Participant | undefined) => {
-    return participant !== undefined
-}
+import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 
 interface Props {
     connectedQuestion: Question
