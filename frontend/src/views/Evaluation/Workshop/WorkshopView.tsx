@@ -29,6 +29,11 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
     const questions = evaluation.questions
 
     const onQuestionSummarySelected = (question: Question, questionNumber: number) => {
+        if (selectedQuestion && question.id === selectedQuestion.id) {
+            setSelectedQuestion(undefined)
+            setSelectedQuestionNumber(undefined)
+            return
+        }
         setSelectedQuestion(question)
         setSelectedQuestionNumber(questionNumber)
     }
