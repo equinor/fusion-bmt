@@ -10,6 +10,7 @@ import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSw
 import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import { useParticipant } from '../../../globals/contexts'
+import QuestionsList from '../../../components/QuestionsList'
 
 interface IndividualViewProps {
     evaluation: Evaluation
@@ -69,7 +70,8 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         <Box flexGrow={1}>
                             <Typography variant="h2" ref={headerRef}>
                                 {barrierToString(selectedBarrier)}
-                            </Typography></Box>
+                            </Typography>
+                        </Box>
                         <Box mr={2}>
                             <ProgressionCompleteSwitch
                                 isCheckedInitially={isParticipantCompleted}
@@ -87,25 +89,11 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                             </Button>
                         </Box>
                     </Box>
-                    {questions
-                        .filter(q => q.barrier === selectedBarrier)
-                        .map((question, idx) => {
-                            const answer = question.answers
-                                .filter(a => a.progression === viewProgression)
-                                .find(a => a.answeredBy?.azureUniqueId === participantUniqueId)
-                            return (
-                                <div key={question.id}>
-                                    <Divider />
-                                    <QuestionAndAnswerFormWithApi
-                                        questionNumber={idx + 1}
-                                        question={question}
-                                        answer={answer}
-                                        disabled={disableAllUserInput || isParticipantCompleted}
-                                        viewProgression={viewProgression}
-                                    />
-                                </div>
-                            )
-                        })}
+                    <QuestionsList
+                        questions={questions.filter(q => q.barrier === selectedBarrier)}
+                        viewProgression={viewProgression}
+                        disable={disableAllUserInput || isParticipantCompleted}
+                    />
                 </Box>
             </Box>
         </>

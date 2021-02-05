@@ -12,6 +12,7 @@ import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/
 import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import AnswerSummaryButton from '../../../components/AnswerSummaryButton'
+import QuestionsList from '../../../components/QuestionsList'
 
 interface PreparationViewProps {
     evaluation: Evaluation
@@ -109,30 +110,12 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                             </Button>
                         </Box>
                     </Box>
-                    {questions
-                        .filter(q => q.barrier === selectedBarrier)
-                        .map((question, idx) => {
-                            const answer = question.answers
-                                .filter(a => a.progression === viewProgression)
-                                .find(a => a.answeredBy?.azureUniqueId === participantUniqueId)
-                            return (
-                                <div key={question.id}>
-                                    <Divider />
-                                    <Box display="flex">
-                                        <QuestionAndAnswerFormWithApi
-                                            questionNumber={idx + 1}
-                                            question={question}
-                                            answer={answer}
-                                            disabled={disableAllUserInput || isParticipantCompleted}
-                                            viewProgression={viewProgression}
-                                        />
-                                        <Box>
-                                            <AnswerSummaryButton onClick={() => onQuestionSummarySelected(question, idx + 1)} />
-                                        </Box>
-                                    </Box>
-                                </div>
-                            )
-                        })}
+                    <QuestionsList
+                        questions={questions.filter(q => q.barrier === selectedBarrier)}
+                        viewProgression={viewProgression}
+                        disable={disableAllUserInput || isParticipantCompleted}
+                        onQuestionSummarySelected={onQuestionSummarySelected}
+                    />
                 </Box>
                 <Box>
                     {selectedQuestion && selectedQuestionNumber && (
