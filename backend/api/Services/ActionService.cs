@@ -17,8 +17,8 @@ namespace api.Services
         }
 
         public Action Create(
-            Participant assignedTo,
             Participant createdBy,
+            Participant assignedTo,
             string description,
             DateTimeOffset dueDate,
             string title,
