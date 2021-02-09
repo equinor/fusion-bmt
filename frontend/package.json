@@ -25,7 +25,7 @@
         "@equinor/eds-core-react": "^0.8.4",
         "@equinor/eds-icons": "^0.6.2",
         "@equinor/eds-tokens": "^0.5.4",
-        "@equinor/fusion-components": "^1.4.19",
+        "@equinor/fusion-components": "^1.4.27",
         "@material-ui/core": "^4.11.3",
         "@microsoft/applicationinsights-react-js": "^3.0.5",
         "@microsoft/applicationinsights-web": "^2.5.11",
