@@ -1,6 +1,6 @@
 import { AuthContainer, createFusionContext, FusionContext, ServiceResolver } from '@equinor/fusion'
 import { render } from '@testing-library/react'
-import * as React from 'react'
+import React from 'react'
 import { HashRouter } from 'react-router-dom'
 
 const serviceResolver: ServiceResolver = {

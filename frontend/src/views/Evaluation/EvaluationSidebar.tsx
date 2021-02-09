@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
 
 import { Barrier, Question, Progression } from '../../api/models'
