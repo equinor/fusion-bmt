@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 
 import { RouteComponentProps } from 'react-router-dom'
 import { Tabs, Tab, TextArea } from '@equinor/fusion-components'

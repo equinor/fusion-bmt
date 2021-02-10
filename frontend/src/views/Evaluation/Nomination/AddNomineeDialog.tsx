@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
 import { PersonCard, Button, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
 

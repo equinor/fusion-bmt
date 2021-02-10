@@ -129,7 +129,6 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
                         onClick={() => setCompleted(!completed)}
                         disabled={false}
                         label="Completed"
-                        enterKeyHint="" // This is required to avoid an error
                     />
                 </Grid>
                 <Grid item xs={6}>
@@ -139,7 +138,6 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
                         onClick={() => setOnHold(!onHold)}
                         disabled={false}
                         label="On hold"
-                        enterKeyHint="" // This is required to avoid an error
                     />
                 </Grid>
                 <Grid item xs={12}>

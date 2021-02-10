@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { Evaluation, Progression } from '../../../api/models'
 import { Link } from 'react-router-dom'
 import { Box } from '@material-ui/core'

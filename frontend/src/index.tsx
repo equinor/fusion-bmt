@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { registerApp, ContextTypes, Context } from '@equinor/fusion'
 
 import { ApolloProvider } from '@apollo/client'
@@ -15,7 +15,7 @@ import { config } from './config'
 
 import './styles.css'
 
-const browserHistory = createBrowserHistory({ basename: '' })
+const browserHistory = createBrowserHistory()
 const reactPlugin = new ReactPlugin()
 const appInsights = new ApplicationInsights({
     config: {

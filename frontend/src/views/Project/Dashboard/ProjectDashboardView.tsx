@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 
 import { Project } from '../../../api/models'
 import CreateEvaluationButton from './CreateEvaluationButton'
