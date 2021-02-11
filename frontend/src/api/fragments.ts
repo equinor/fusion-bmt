@@ -49,6 +49,7 @@ export const QUESTION_FIELDS_FRAGMENT = gql`
         text
         supportNotes
         barrier
+        order
         organization
         __typename
     }
