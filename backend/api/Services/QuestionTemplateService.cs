@@ -92,9 +92,9 @@ namespace api.Services
             List<QuestionTemplate> questionTemplates = _context.QuestionTemplates.OrderBy(qt => qt.Order).ToList();
 
             questionTemplates.Remove(questionTemplate);
-            questionTemplates.Insert(newOrder, questionTemplate);
+            questionTemplates.Insert(newOrder - 1, questionTemplate);
 
-            int order = 0;
+            int order = 1;
             foreach (QuestionTemplate qt in questionTemplates)
             {
                 qt.Order = order;

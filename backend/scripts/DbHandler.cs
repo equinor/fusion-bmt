@@ -31,7 +31,7 @@ namespace scripts
                 string json = reader.ReadToEnd();
                 questions = JsonSerializer.Deserialize<List<QuestionTemplate>>(json, JsonUtils.SerializerOptions);
             }
-            int order = 0;
+            int order = 1;
             foreach (QuestionTemplate q in questions)
             {
                 q.CreateDate = DateTimeOffset.UtcNow;
