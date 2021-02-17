@@ -26,9 +26,11 @@ const QuestionsList = ({
 }: Props) => {
     const { azureUniqueId: currentUserAzureUniqueId } = useParticipant()
 
+    const orderedQuestions = questions.sort((q1, q2) => q1.order - q2.order)
+
     return (
         <>
-            {questions.map((question, idx) => {
+            {orderedQuestions.map((question, idx) => {
                 const answers = question.answers.filter(a => a.progression === viewProgression)
                 const answer = useOnlyFacilitatorAnswer
                     ? answers.find(a => !!a)
