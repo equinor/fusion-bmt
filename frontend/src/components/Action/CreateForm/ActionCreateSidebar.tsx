@@ -6,7 +6,7 @@ import { CircularProgress } from '@equinor/eds-core-react'
 import { Participant, Question } from '../../../api/models'
 import { DataToCreateAction } from '../../../api/mutations'
 import ActionCreateForm from './ActionCreateForm'
-import { useAllPersonDetails } from '../utils'
+import { useAllPersonDetailsAsync } from '../../../utils/hooks'
 
 interface Props {
     open: boolean
@@ -17,7 +17,7 @@ interface Props {
 }
 
 const ActionCreateSidebar = ({ open, connectedQuestion, possibleAssignees, onActionCreate, onClose }: Props) => {
-    const { allPersonDetails: personDetailsList, isLoading } = useAllPersonDetails(possibleAssignees)
+    const { personDetailsList, isLoading } = useAllPersonDetailsAsync(possibleAssignees.map(assignee => assignee.azureUniqueId))
 
     return (
         <ModalSideSheet header={`Add Action`} show={open} size="large" onClose={onClose} isResizable={false}>

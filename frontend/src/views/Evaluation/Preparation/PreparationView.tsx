@@ -1,17 +1,15 @@
 import React from 'react'
 
 import { Box } from '@material-ui/core'
-import { Button, Divider, Typography } from '@equinor/eds-core-react'
+import { Button, Typography } from '@equinor/eds-core-react'
 
 import { Barrier, Evaluation, Question, Progression, Role } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
 import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSwitch'
-import QuestionAndAnswerFormWithApi from '../../../components/QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
-import AnswerSummaryButton from '../../../components/AnswerSummaryButton'
 import QuestionsList from '../../../components/QuestionsList'
 
 interface PreparationViewProps {

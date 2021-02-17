@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { PersonDetails, useApiClients } from '@equinor/fusion'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -9,4 +10,35 @@ export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
         }
         return f()
     }, deps)
+}
+
+interface PersonDetailsResult {
+    personDetailsList: PersonDetails[]
+    isLoading: boolean
+}
+
+export const useAllPersonDetailsAsync = (azureUniqueIds: string[]): PersonDetailsResult => {
+    const [personDetailsList, setPersonDetailsList] = useState<PersonDetails[]>([])
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const apiClients = useApiClients()
+
+    const getAllPersonDetails = (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
+        const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
+            return apiClients.people.getPersonDetailsAsync(azureUniqueId).then(response => {
+                return response.data
+            })
+        })
+
+        return Promise.all(manyPromises)
+    }
+
+    useEffect(() => {
+        setIsLoading(true)
+        getAllPersonDetails(azureUniqueIds).then(fetchedPersonDetailsList => {
+            setPersonDetailsList(fetchedPersonDetailsList)
+            setIsLoading(false)
+        })
+    }, [JSON.stringify(azureUniqueIds)])
+
+    return { personDetailsList, isLoading }
 }

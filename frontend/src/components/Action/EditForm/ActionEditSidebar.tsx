@@ -7,8 +7,7 @@ import { Action, Participant, Question } from '../../../api/models'
 import ActionEditForm from './ActionEditForm'
 import SaveIndicator from '../../SaveIndicator'
 import { SavingState } from '../../../utils/Variables'
-import { useAllPersonDetails } from '../utils'
-import { useEffectNotOnMount } from '../../../utils/hooks'
+import { useAllPersonDetailsAsync, useEffectNotOnMount } from '../../../utils/hooks'
 import NotesList from './NotesList'
 import NoteCreateForm from './NoteCreateForm'
 
@@ -37,7 +36,9 @@ const ActionEditSidebar = ({
     onNoteCreate,
     onClose,
 }: Props) => {
-    const { isLoading: isLoadingPersonDetails, allPersonDetails: personDetailsList } = useAllPersonDetails(possibleAssignees)
+    const { personDetailsList, isLoading: isLoadingPersonDetails } = useAllPersonDetailsAsync(
+        possibleAssignees.map(assignee => assignee.azureUniqueId)
+    )
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [delayedAction, setDelayedAction] = useState<Action | undefined>(undefined)
 

@@ -12,6 +12,7 @@ venv
 
 # Editors
 .vscode
+.idea
 
 # Environment variables
 .env
