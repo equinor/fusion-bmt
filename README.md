@@ -77,10 +77,13 @@ dotnet run
 Make sure you have dotnet-ef installed: `dotnet tool install --global dotnet-ef`
 and that you have set your `Database__ConnectionString`.
 
+Check migrations existing in DB: `dotnet ef migrations list`
+
 -   Create initial migration: `dotnet ef migrations add InitialCreate`
 -   Delete database: `dotnet ef database drop`
 -   Apply migrations: `dotnet ef database update`
 -   Remove migrations: `dotnet ef migrations remove`
+-   Roll back to earlier migration: `dotnet ef database update {migragtion-name}`
 
 For populating SQL database with question templates go to `backend/scripts`
 make sure your `Database__ConnectionString` is set and run
