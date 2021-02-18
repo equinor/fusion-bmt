@@ -36,6 +36,7 @@ spec:
           variables:
             API_URL: 'https://backend-fusion-bmt-dev.radix.equinor.com'
         - environment: test
+          replicas: 0
           resources:
             requests:
               memory: "300Mi"
@@ -46,6 +47,7 @@ spec:
           variables:
             API_URL: 'https://backend-fusion-bmt-test.radix.equinor.com'
         - environment: prod
+          replicas: 0
           resources:
             requests:
               memory: "500Mi"
