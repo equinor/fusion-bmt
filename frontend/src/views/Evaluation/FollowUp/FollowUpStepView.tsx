@@ -4,7 +4,7 @@ import { Tabs } from '@equinor/eds-core-react'
 
 import { Evaluation } from '../../../api/models'
 import FollowUpView from './FollowUpView'
-import WorkshopSummaryView from './WorkshopSummary/WorkshopSymmaryView'
+import WorkshopSummaryView from './WorkshopSummary/WorkshopSummaryView'
 import { StyledTabPanel } from '../../../components/StyledTabs'
 import ActionTableWithApi from '../../../components/ActionTable/ActionTableWithApi'
 
