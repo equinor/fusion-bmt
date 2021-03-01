@@ -3,42 +3,31 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Table, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Progression } from '../../../../api/models'
 import SeveritySummary from '../../../../components/SeveritySummary'
 import { countSeverities } from '../../../../utils/Severity'
 import { barrierToString } from '../../../../utils/EnumToString'
+import { AnswersWithBarrier } from '../../../../utils/Variables'
 
 const { Body, Row, Cell } = Table
 
 interface Props {
-    evaluation: Evaluation
+    answersWithBarrier: AnswersWithBarrier[]
 }
 
-const WorkshopSummaryView = ({ evaluation }: Props) => {
-    const questions = evaluation.questions
+const ListView = ({ answersWithBarrier }: Props) => {
     return (
         <>
             <Box p="20px">
                 <Typography variant="h2">List view</Typography>
                 <Table>
                     <Body>
-                        {Object.values(Barrier).map(barrier => {
-                            const followUpBarrierAnswers = questions
-                                .filter(q => q.barrier === barrier)
-                                .map(q => {
-                                    const answers = q.answers.filter(a => a.progression === Progression.Workshop)
-                                    const length = answers.length
-                                    if (length === 0) {
-                                        return null
-                                    }
-                                    return answers[0]
-                                })
+                        {Object.values(answersWithBarrier).map(({ barrier, answers }) => {
                             return (
                                 <Row key={barrier}>
                                     <Cell>{barrier}</Cell>
                                     <Cell>{barrierToString(barrier)}</Cell>
                                     <Cell>
-                                        <SeveritySummary severityCount={countSeverities(followUpBarrierAnswers)} />
+                                        <SeveritySummary severityCount={countSeverities(answers)} />
                                     </Cell>
                                 </Row>
                             )
@@ -50,4 +39,4 @@ const WorkshopSummaryView = ({ evaluation }: Props) => {
     )
 }
 
-export default WorkshopSummaryView
+export default ListView

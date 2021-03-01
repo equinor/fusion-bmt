@@ -1,4 +1,5 @@
 import { useCurrentUser } from '@equinor/fusion'
+import { Answer, Barrier } from '../api/models'
 
 export const useAzureUniqueId = (): string => {
     const user = useCurrentUser()
@@ -11,4 +12,9 @@ export enum SavingState {
     Saved,
     NotSaved,
     None,
+}
+
+export interface AnswersWithBarrier {
+    barrier: Barrier
+    answers: (Answer | null)[]
 }
