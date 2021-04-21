@@ -116,17 +116,17 @@ interface Props {
 const Bowtie = ({ answersWithBarrier }: Props) => {
     const colorGreen = tokens.colors.interactive.primary__selected_highlight.rgba
     const colorRed = tokens.colors.interactive.danger__text.rgba
-    const structureGM = ['GM']
-    const structureBarrier = ['PS15', 'PS16', 'PS18', 'PS19', 'PS20']
-    const containmentBarrier = ['PS1', 'PS12', 'PS17']
-    const safetySystemsBarrier = ['PS3', 'PS4', 'PS7', 'PS22', 'PS23']
-    const ignitionControlBarrier = ['PS2', 'PS6']
-    const protectionSystemBarrier = ['PS5', 'PS8', 'SP9', 'PS10']
-    const powerAndCommunicationBarrier = ['PS11', 'PS13']
-    const lifeSavingBarrier = ['PS14']
+    const GMBarriers = ['GM']
+    const structureBarriers = ['PS15', 'PS16', 'PS18', 'PS19', 'PS20']
+    const containmentBarriers = ['PS1', 'PS12', 'PS17']
+    const safetySystemsBarriers = ['PS3', 'PS4', 'PS7', 'PS22', 'PS23']
+    const ignitionControlBarriers = ['PS2', 'PS6']
+    const protectionSystemBarriers = ['PS5', 'PS8', 'SP9', 'PS10']
+    const powerAndCommunicationBarriers = ['PS11', 'PS13']
+    const lifeSavingBarriers = ['PS14']
 
-    const pickItems = (wantedItems: string[]) => {
-        return answersWithBarrier.filter(obj => wantedItems.includes(obj.barrier))
+    const pickBarriers = (barriers: string[]) => {
+        return answersWithBarrier.filter(obj => barriers.includes(obj.barrier))
     }
 
     return (
@@ -142,16 +142,16 @@ const Bowtie = ({ answersWithBarrier }: Props) => {
             </Background>
             <Foreground>
                 <Left>
-                    <BowtieColumn headline="General Matters" items={pickItems(structureGM)} />
-                    <BowtieColumn headline="Structure" items={pickItems(structureBarrier)} />
-                    <BowtieColumn headline="Containment" items={pickItems(containmentBarrier)} />
-                    <BowtieColumn headline="Instr. Safety Systems" items={pickItems(safetySystemsBarrier)} />
-                    <BowtieColumn headline="Ignition Control" items={pickItems(ignitionControlBarrier)} />
+                    <BowtieColumn headline="General Matters" items={pickBarriers(GMBarriers)} />
+                    <BowtieColumn headline="Structure" items={pickBarriers(structureBarriers)} />
+                    <BowtieColumn headline="Containment" items={pickBarriers(containmentBarriers)} />
+                    <BowtieColumn headline="Instr. Safety Systems" items={pickBarriers(safetySystemsBarriers)} />
+                    <BowtieColumn headline="Ignition Control" items={pickBarriers(ignitionControlBarriers)} />
                 </Left>
                 <Right>
-                    <BowtieColumn headline="Protection system" items={pickItems(protectionSystemBarrier)} />
-                    <BowtieColumn headline="Power and communication" items={pickItems(powerAndCommunicationBarrier)} />
-                    <BowtieColumn headline="Life saving" items={pickItems(lifeSavingBarrier)} />
+                    <BowtieColumn headline="Protection system" items={pickBarriers(protectionSystemBarriers)} />
+                    <BowtieColumn headline="Power and communication" items={pickBarriers(powerAndCommunicationBarriers)} />
+                    <BowtieColumn headline="Life saving" items={pickBarriers(lifeSavingBarriers)} />
                 </Right>
             </Foreground>
         </div>
