@@ -4,9 +4,10 @@ import { Tabs } from '@equinor/eds-core-react'
 
 import { Evaluation } from '../../../api/models'
 import FollowUpView from './FollowUpView'
-import WorkshopSummaryView from './WorkshopSummary/WorkshopSummaryView'
+import WorkshopSummaryView from './Summaries/WorkshopSummaryView'
 import { StyledTabPanel } from '../../../components/StyledTabs'
 import ActionTableWithApi from '../../../components/ActionTable/ActionTableWithApi'
+import FollowUpSummaryView from './Summaries/FollowUpSummaryView'
 
 const { TabList, Tab, TabPanels } = Tabs
 
@@ -23,6 +24,7 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
                 <TabList>
                     <Tab>Follow-up</Tab>
                     <Tab>Workshop Summary</Tab>
+                    <Tab>Follow-up Summary</Tab>
                     <Tab>Actions</Tab>
                 </TabList>
                 <TabPanels>
@@ -31,6 +33,9 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
                     </StyledTabPanel>
                     <StyledTabPanel>
                         <WorkshopSummaryView evaluation={evaluation} />
+                    </StyledTabPanel>
+                    <StyledTabPanel>
+                        <FollowUpSummaryView evaluation={evaluation} />
                     </StyledTabPanel>
                     <StyledTabPanel>
                         <ActionTableWithApi evaluations={[evaluation]} />
