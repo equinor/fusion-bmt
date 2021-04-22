@@ -10,14 +10,16 @@ interface Props {
     barrier: Barrier
 }
 
-const HighSeveritySummary = ({ severityCount, barrier }: Props) => {
+const SeverityColors = ({ severityCount, barrier }: Props) => {
     const hasLowSeverity = severityCount.nLow > 0
     const hasLimitedSeverity = severityCount.nLimited > 0
+    const hasHighSeverity = severityCount.nHigh > 0
 
     return (
         <div style={{ display: 'flex' }}>
-            {hasLowSeverity && <SeverityIndicator severity={Severity.Low} />}
+            {hasHighSeverity && <SeverityIndicator severity={Severity.High} />}
             {hasLimitedSeverity && <SeverityIndicator severity={Severity.Limited} />}
+            {hasLowSeverity && <SeverityIndicator severity={Severity.Low} />}
             <Typography
                 style={{
                     display: 'flex',
@@ -25,10 +27,10 @@ const HighSeveritySummary = ({ severityCount, barrier }: Props) => {
                     paddingLeft: '5px',
                 }}
             >
-                {barrierToString(barrier)}
+                {barrier}
             </Typography>
         </div>
     )
 }
 
-export default HighSeveritySummary
+export default SeverityColors
