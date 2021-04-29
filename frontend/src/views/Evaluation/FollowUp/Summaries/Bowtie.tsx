@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { tokens } from '@equinor/eds-tokens'
 import { AnswersWithBarrier } from '../../../../utils/Variables'
 import BowtieColumn from './BowtieColumn'
+import BarrierSeverity from './BarrierSeverity'
 
 const Background = styled.div`
     display: flex;
@@ -25,16 +26,16 @@ const Foreground = styled.div`
 
 const BowtieSide = styled.div`
     display: grid;
-    grid-template-columns: repeat(5, minmax(150px, 1fr));
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
     align-content: center;
     width: 850px;
     height: 100%;
-    padding-left: 2rem;
+    padding-left: 4rem;
     padding-right: 2rem;
 
     @media (max-width: 2000px) {
         width: 650px;
-        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        grid-template-columns: repeat(4, minmax(150px, 1fr));
     }
 `
 
@@ -42,6 +43,14 @@ const Left = styled(BowtieSide)``
 
 const Right = styled(BowtieSide)`
     margin-left: 12rem;
+`
+
+const MiddleText = styled.div`
+    position: absolute;
+    bottom: 200px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 `
 
 const Arrow = styled.div`
@@ -142,7 +151,6 @@ const Bowtie = ({ answersWithBarrier }: Props) => {
             </Background>
             <Foreground>
                 <Left>
-                    <BowtieColumn headline="General Matters" items={pickBarriers(GMBarriers)} />
                     <BowtieColumn headline="Structure" items={pickBarriers(structureBarriers)} />
                     <BowtieColumn headline="Containment" items={pickBarriers(containmentBarriers)} />
                     <BowtieColumn headline="Instr. Safety Systems" items={pickBarriers(safetySystemsBarriers)} />
@@ -154,6 +162,12 @@ const Bowtie = ({ answersWithBarrier }: Props) => {
                     <BowtieColumn headline="Life saving" items={pickBarriers(lifeSavingBarriers)} />
                 </Right>
             </Foreground>
+            <MiddleText>
+                <div>
+                    <Typography style={{ marginBottom: '5px', width: '120px' }}>General Matters</Typography>
+                    <BarrierSeverity items={pickBarriers(GMBarriers)} />
+                </div>
+            </MiddleText>
         </div>
     )
 }
