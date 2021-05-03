@@ -17,8 +17,8 @@ const SeverityColors = ({ severityCount, barrier }: Props) => {
 
     return (
         <div style={{ display: 'flex' }}>
-            {hasHighSeverity && <SeverityIndicator severity={Severity.High} />}
-            {hasLimitedSeverity && <SeverityIndicator severity={Severity.Limited} />}
+            {!hasLowSeverity && !hasLimitedSeverity && hasHighSeverity && <SeverityIndicator severity={Severity.High} />}
+            {!hasLowSeverity && hasLimitedSeverity && <SeverityIndicator severity={Severity.Limited} />}
             {hasLowSeverity && <SeverityIndicator severity={Severity.Low} />}
             <Typography
                 style={{
@@ -26,6 +26,7 @@ const SeverityColors = ({ severityCount, barrier }: Props) => {
                     alignItems: 'center',
                     paddingLeft: '5px',
                 }}
+                title={barrierToString(barrier)}
             >
                 {barrier}
             </Typography>
