@@ -1,9 +1,9 @@
 import React from 'react'
 import { Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
-import Bowtie from './Bowtie'
 import { AnswersWithBarrier } from '../../../../utils/Variables'
 import styled from 'styled-components'
+import BowtieWithBoxes from './BowtieWithBoxes'
 
 const ScrollableDiv = styled.div`
     justify-content: center;
@@ -24,11 +24,11 @@ const BowtieView = ({ answersWithBarrier }: Props) => {
     return (
         <>
             <Box p="20px">
-                <Typography variant="h2" style={{ marginBottom: '30px' }}>
+                <Typography variant="h2" style={{ marginBottom: '30px', marginLeft: '30px' }}>
                     Bowtie model
                 </Typography>
                 <ScrollableDiv>
-                    <Bowtie answersWithBarrier={answersWithBarrier} />
+                    <BowtieWithBoxes answersWithBarrier={answersWithBarrier} />
                 </ScrollableDiv>
             </Box>
         </>
