@@ -17,8 +17,10 @@ interface Props {
 const ListView = ({ answersWithBarrier }: Props) => {
     return (
         <>
-            <Box p="20px">
-                <Typography variant="h2">List view</Typography>
+            <Box p="20px" style={{ marginLeft: '30px' }}>
+                <Typography variant="h2" style={{ marginBottom: '20px' }}>
+                    List view
+                </Typography>
                 <Table>
                     <Body>
                         {Object.values(answersWithBarrier).map(({ barrier, answers }) => {

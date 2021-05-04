@@ -3,7 +3,7 @@ import { SeverityCount } from '../utils/Severity'
 import SeverityIndicator from './SeverityIndicator'
 import { Barrier, Severity } from '../api/models'
 import { barrierToString } from '../utils/EnumToString'
-import { Typography } from '@equinor/eds-core-react'
+import { Tooltip, Typography } from '@equinor/eds-core-react'
 
 interface Props {
     severityCount: SeverityCount
@@ -20,16 +20,17 @@ const SeverityColors = ({ severityCount, barrier }: Props) => {
             {!hasLowSeverity && !hasLimitedSeverity && hasHighSeverity && <SeverityIndicator severity={Severity.High} />}
             {!hasLowSeverity && hasLimitedSeverity && <SeverityIndicator severity={Severity.Limited} />}
             {hasLowSeverity && <SeverityIndicator severity={Severity.Low} />}
-            <Typography
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    paddingLeft: '5px',
-                }}
-                title={barrierToString(barrier)}
-            >
-                {barrier}
-            </Typography>
+            <Tooltip title={barrierToString(barrier)} placement="bottom">
+                <Typography
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        paddingLeft: '5px',
+                    }}
+                >
+                    {barrier}
+                </Typography>
+            </Tooltip>
         </div>
     )
 }
