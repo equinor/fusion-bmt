@@ -19,12 +19,12 @@ const Bowtie = styled.div`
 
 const MiddleText = styled.div`
     position: relative;
-    left: 810px;
+    left: 790px;
     bottom: 60px;
-    width: 100px;
+    width: 150px;
 
     @media (max-width: 1800px) {
-        left: 720px;
+        left: 700px;
     }
 `
 
@@ -78,8 +78,7 @@ const BowtieWithBoxes = ({ answersWithBarrier }: Props) => {
             </Bowtie>
             <MiddleText>
                 <div>
-                    <Typography style={{ marginBottom: '5px', width: '120px' }}>General Matters</Typography>
-                    <BarrierSeverity items={pickBarriers(GMBarriers)} />
+                    <BarrierSeverity items={pickBarriers(GMBarriers)} alternativeText={'General Matters'} />
                 </div>
             </MiddleText>
             <div style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
