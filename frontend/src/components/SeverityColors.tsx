@@ -8,9 +8,10 @@ import { Tooltip, Typography } from '@equinor/eds-core-react'
 interface Props {
     severityCount: SeverityCount
     barrier: Barrier
+    alternativeText?: string
 }
 
-const SeverityColors = ({ severityCount, barrier }: Props) => {
+const SeverityColors = ({ severityCount, barrier, alternativeText }: Props) => {
     const hasLowSeverity = severityCount.nLow > 0
     const hasLimitedSeverity = severityCount.nLimited > 0
     const hasHighSeverity = severityCount.nHigh > 0
@@ -28,7 +29,7 @@ const SeverityColors = ({ severityCount, barrier }: Props) => {
                         paddingLeft: '5px',
                     }}
                 >
-                    {barrier}
+                    {alternativeText ? alternativeText : barrier}
                 </Typography>
             </Tooltip>
         </div>
