@@ -46,6 +46,9 @@ jobs:
 
   - job: Test_Frontend
     steps:
+      - task: NodeTool@0
+        inputs:
+            versionSpec: "15.x"
       - task: Npm@1
         name: Install
         inputs:
