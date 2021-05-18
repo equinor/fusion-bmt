@@ -52,11 +52,17 @@ const ActionTableWithApi = ({ evaluations }: Props) => {
         setAqeToEdit(newAqeToEdit)
     }
 
-    const actions = actionQuestionAndEvaluations.map(aqe => aqe.action)
+    const actionsWithAdditionalInfo = actionQuestionAndEvaluations.map(aqe => {
+        return { action: aqe.action, barrier: aqe.question.barrier, organization: aqe.question.organization }
+    })
 
     return (
         <Box m={5}>
-            <ActionTable actions={actions} personDetailsList={personDetailsList} onClickAction={openEditActionPanel} />
+            <ActionTable
+                actionsWithAdditionalInfo={actionsWithAdditionalInfo}
+                personDetailsList={personDetailsList}
+                onClickAction={openEditActionPanel}
+            />
             {aqeToEdit !== undefined && (
                 <ActionEditSidebarWithApi
                     action={aqeToEdit.action}
