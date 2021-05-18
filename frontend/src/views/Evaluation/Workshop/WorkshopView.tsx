@@ -44,6 +44,7 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
     const isEvaluationAtThisProgression = evaluation.progression == viewProgression
     const participantAllowed = allowedRoles.includes(participantRole)
     const isParticipantCompleted = progressionLessThan(viewProgression, participantProgression)
+    const isParticipantFacilitator = participantRole === Role.Facilitator
     const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
     const hasParticipantBeenHere = progressionGreaterThanOrEqual(participantProgression, viewProgression)
 
@@ -110,7 +111,7 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                         displayActions
                         questions={questions.filter(q => q.barrier === selectedBarrier)}
                         viewProgression={viewProgression}
-                        disable={disableAllUserInput || isParticipantCompleted}
+                        disable={!isParticipantFacilitator && (disableAllUserInput || isParticipantCompleted)}
                         onQuestionSummarySelected={onQuestionSummarySelected}
                     />
                 </Box>
