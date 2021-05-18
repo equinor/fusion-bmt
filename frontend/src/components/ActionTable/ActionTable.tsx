@@ -3,21 +3,29 @@ import { tokens } from '@equinor/eds-tokens'
 import styled from 'styled-components'
 import { PersonDetails } from '@equinor/fusion'
 import { Icon, Table, Typography } from '@equinor/eds-core-react'
-import { Action, Evaluation, Question } from '../../api/models'
+import { Action, Barrier, Organization } from '../../api/models'
 import { sort, SortDirection, sortPriority } from '../../utils/sort'
 import PriorityIndicator from '../Action/PriorityIndicator'
+import { barrierToString, organizationToString } from '../../utils/EnumToString'
 
 const { Body, Row, Cell, Head } = Table
 
+type ActionWithAdditionalInfo = {
+    action: Action
+    barrier: Barrier
+    organization: Organization
+}
+
 type Column = {
     name: string
-    accessor: keyof Action
+    accessor: keyof Action | 'barrier' | 'organization'
 }
 
 const actionTableColumns: Column[] = [
     { name: 'Title', accessor: 'title' },
+    { name: 'Barrier', accessor: 'barrier' },
+    { name: 'Organization', accessor: 'organization' },
     { name: 'Completed', accessor: 'completed' },
-    { name: 'On hold', accessor: 'onHold' },
     { name: 'Priority', accessor: 'priority' },
     { name: 'Assigned to', accessor: 'assignedTo' },
     { name: 'Due date', accessor: 'dueDate' },
@@ -38,12 +46,12 @@ const SortIcon = styled(Icon)<IconProps>`
 `
 
 interface Props {
-    actions: Action[]
+    actionsWithAdditionalInfo: ActionWithAdditionalInfo[]
     personDetailsList: PersonDetails[]
     onClickAction: (action: Action) => void
 }
 
-const ActionTable = ({ onClickAction, actions, personDetailsList }: Props) => {
+const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList }: Props) => {
     const [sortDirection, setSortDirection] = useState<SortDirection>('none')
     const [columnToSortBy, setColumnToSortBy] = useState<Column>()
 
@@ -54,25 +62,29 @@ const ActionTable = ({ onClickAction, actions, personDetailsList }: Props) => {
 
     const sortedActions = useMemo(() => {
         if (columnToSortBy) {
-            return [...actions].sort((a: Action, b: Action) => {
+            return [...actionsWithAdditionalInfo].sort((a: ActionWithAdditionalInfo, b: ActionWithAdditionalInfo) => {
                 const { accessor } = columnToSortBy
 
                 switch (accessor) {
                     case 'assignedTo': {
-                        const assignedToA = assignedPersonDetails(a)
-                        const assignedToB = assignedPersonDetails(b)
+                        const assignedToA = assignedPersonDetails(a.action)
+                        const assignedToB = assignedPersonDetails(b.action)
 
                         return assignedToA && assignedToB ? sort(assignedToA.name, assignedToB.name, sortDirection) : 0
                     }
                     case 'priority':
-                        return sortPriority(a.priority, b.priority, sortDirection)
+                        return sortPriority(a.action.priority, b.action.priority, sortDirection)
+                    case 'barrier':
+                        return sort(a.barrier, b.barrier, sortDirection)
+                    case 'organization':
+                        return sort(a.organization, b.organization, sortDirection)
                     default:
-                        return sort(a[accessor], b[accessor], sortDirection)
+                        return sort(a.action[accessor], b.action[accessor], sortDirection)
                 }
             })
         }
-        return actions
-    }, [columnToSortBy, sortDirection, actions])
+        return actionsWithAdditionalInfo
+    }, [columnToSortBy, sortDirection, actionsWithAdditionalInfo])
 
     const setSortOn = (selectedColumn: Column) => {
         if (columnToSortBy && selectedColumn.name === columnToSortBy.name) {
@@ -114,7 +126,7 @@ const ActionTable = ({ onClickAction, actions, personDetailsList }: Props) => {
                     </Row>
                 </Head>
                 <Body>
-                    {sortedActions.map(action => {
+                    {sortedActions.map(({ action, barrier, organization }) => {
                         const priority = action.priority
                         const priorityFormatted = priority.substring(0, 1) + priority.substring(1).toLowerCase()
                         const assignedTo = assignedPersonDetails(action)
@@ -127,8 +139,9 @@ const ActionTable = ({ onClickAction, actions, personDetailsList }: Props) => {
                                 >
                                     {action.title}
                                 </Cell>
+                                <Cell>{barrierToString(barrier)}</Cell>
+                                <Cell>{organizationToString(organization)}</Cell>
                                 <Cell>{action.completed ? 'Yes' : 'No'}</Cell>
-                                <Cell>{action.onHold ? 'Yes' : 'No'}</Cell>
                                 <Cell>
                                     <PriorityDisplay>
                                         <PriorityIndicator priority={action.priority} />
