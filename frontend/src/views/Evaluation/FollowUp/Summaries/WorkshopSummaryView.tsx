@@ -16,7 +16,7 @@ const WorkshopSummaryView = ({ evaluation }: Props) => {
 
     return (
         <Box display="flex" flexDirection="column" height={1}>
-            <BowtieView answersWithBarrier={answersWithBarrier} />
+            <BowtieView answersWithBarrier={answersWithBarrier} workshopCompleted={evaluation.createDate} />
             <ListView answersWithBarrier={answersWithBarrier} />
         </Box>
     )
