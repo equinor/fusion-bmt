@@ -2,7 +2,7 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Progression, Question, Role } from '../../../api/models'
+import { Barrier, Evaluation, Organization, Progression, Question, Role } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
@@ -10,6 +10,8 @@ import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSw
 import { useParticipant } from '../../../globals/contexts'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import QuestionsList from '../../../components/QuestionsList'
+import { useFilter } from '../../../utils/hooks'
+import OrganizationFilter from '../../../components/OrganizationFilter'
 
 interface WorkshopViewProps {
     evaluation: Evaluation
@@ -20,20 +22,19 @@ interface WorkshopViewProps {
 const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: WorkshopViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
-    const [selectedQuestionNumber, setSelectedQuestionNumber] = React.useState<number | undefined>(undefined)
+    const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
 
     const headerRef = React.useRef<HTMLElement>(null)
 
     const questions = evaluation.questions
+    const barrierQuestions = questions.filter(q => q.barrier === selectedBarrier)
 
-    const onQuestionSummarySelected = (question: Question, questionNumber: number) => {
+    const onQuestionSummarySelected = (question: Question) => {
         if (selectedQuestion && question.id === selectedQuestion.id) {
             setSelectedQuestion(undefined)
-            setSelectedQuestionNumber(undefined)
             return
         }
         setSelectedQuestion(question)
-        setSelectedQuestionNumber(questionNumber)
     }
 
     const { role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId } = useParticipant()
@@ -61,7 +62,6 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
 
     const closeAnswerSummarySidebar = () => {
         setSelectedQuestion(undefined)
-        setSelectedQuestionNumber(undefined)
     }
 
     const onBarrierSelected = (barrier: Barrier) => {
@@ -89,6 +89,11 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                             <Typography variant="h2" ref={headerRef}>
                                 {barrierToString(selectedBarrier)}
                             </Typography>
+                            <OrganizationFilter
+                                organizationFilter={organizationFilter}
+                                onOrganizationFilterToggled={onOrganizationFilterToggled}
+                                questions={barrierQuestions}
+                            />
                         </Box>
                         <Box mr={2}>
                             <ProgressionCompleteSwitch
@@ -109,19 +114,19 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                     </Box>
                     <QuestionsList
                         displayActions
-                        questions={questions.filter(q => q.barrier === selectedBarrier)}
+                        organizationFilter={organizationFilter}
+                        questions={barrierQuestions}
                         viewProgression={viewProgression}
                         disable={!isParticipantFacilitator && (disableAllUserInput || isParticipantCompleted)}
                         onQuestionSummarySelected={onQuestionSummarySelected}
                     />
                 </Box>
                 <Box>
-                    {selectedQuestion && selectedQuestionNumber && (
+                    {selectedQuestion && (
                         <AnswerSummarySidebar
                             open={selectedQuestion != undefined}
                             onCloseClick={closeAnswerSummarySidebar}
                             question={selectedQuestion}
-                            questionNumber={selectedQuestionNumber}
                             viewProgression={Progression.Workshop}
                         />
                     )}

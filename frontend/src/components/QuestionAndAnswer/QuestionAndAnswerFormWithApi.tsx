@@ -62,7 +62,6 @@ export const useSetAnswerMutation = (): SetAnswerMutationProps => {
 }
 
 interface QuestionAndAnswerFormWithApiProps {
-    questionNumber: number
     question: Question
     answer: Answer | undefined
     disabled: boolean
@@ -71,13 +70,7 @@ interface QuestionAndAnswerFormWithApiProps {
 
 const WRITE_DELAY_MS = 1000
 
-const QuestionAndAnswerFormWithApi = ({
-    questionNumber,
-    question,
-    answer,
-    disabled,
-    viewProgression,
-}: QuestionAndAnswerFormWithApiProps) => {
+const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgression }: QuestionAndAnswerFormWithApiProps) => {
     const emptyAnswer: Answer = {
         id: '',
         progression: Progression.Nomination,
@@ -124,12 +117,11 @@ const QuestionAndAnswerFormWithApi = ({
     return (
         <>
             <QuestionAndAnswerForm
-                questionNumber={questionNumber}
                 question={question}
                 answer={localAnswer}
                 onAnswerChange={answerParts => {
                     setSavingState(SavingState.Saving)
-                    setLocalAnswer(oldLocalAnswer => ({...oldLocalAnswer, ...answerParts}))
+                    setLocalAnswer(oldLocalAnswer => ({ ...oldLocalAnswer, ...answerParts }))
                 }}
                 disabled={disabled}
                 savingState={savingState}
