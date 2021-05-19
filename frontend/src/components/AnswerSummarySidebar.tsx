@@ -10,11 +10,10 @@ interface AnswerSummarySidebarProps {
     open: boolean
     onCloseClick: () => void
     question: Question
-    questionNumber: number
     viewProgression: Progression
 }
 
-const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, viewProgression }: AnswerSummarySidebarProps) => {
+const AnswerSummarySidebar = ({ open, onCloseClick, question, viewProgression }: AnswerSummarySidebarProps) => {
     const answers = question.answers.filter(answer => progressionLessThan(answer.progression, viewProgression))
 
     const individualAnswers = answers.filter(a => a.progression === Progression.Individual)
@@ -31,7 +30,7 @@ const AnswerSummarySidebar = ({ open, onCloseClick, question, questionNumber, vi
                 style={{ position: 'relative' }}
             >
                 <Typography variant="h4">
-                    {questionNumber}. {question.text}
+                    {question.order}. {question.text}
                 </Typography>
                 {answers.length === 0 && <p>No submitted answers</p>}
                 {workshopAnswers.length !== 0 && (

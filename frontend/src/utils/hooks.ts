@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { PersonDetails, useApiClients } from '@equinor/fusion'
+import { Organization } from '../api/models'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -41,4 +42,20 @@ export const useAllPersonDetailsAsync = (azureUniqueIds: string[]): PersonDetail
     }, [JSON.stringify(azureUniqueIds)])
 
     return { personDetailsList, isLoading }
+}
+
+export const useFilter = <Type>() => {
+    const [filter, setFilter] = React.useState<Type[]>([])
+
+    const onFilterToggled = (value: Type) => {
+        let newFilter = [...filter]
+        if (filter.includes(value)) {
+            newFilter = newFilter.filter(val => val !== value)
+        } else {
+            newFilter.push(value)
+        }
+        setFilter(newFilter)
+    }
+
+    return { filter, onFilterToggled }
 }

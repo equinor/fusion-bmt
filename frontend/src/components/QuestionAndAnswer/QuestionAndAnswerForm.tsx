@@ -12,7 +12,6 @@ import SaveIndicator from '../SaveIndicator'
 import { SavingState } from '../../utils/Variables'
 
 interface QuestionAndAnswerFormProps {
-    questionNumber: number
     question: Question
     answer: Answer
     disabled: boolean
@@ -20,7 +19,7 @@ interface QuestionAndAnswerFormProps {
     savingState: SavingState
 }
 
-const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onAnswerChange, savingState }: QuestionAndAnswerFormProps) => {
+const QuestionAndAnswerForm = ({ question, answer, disabled, onAnswerChange, savingState }: QuestionAndAnswerFormProps) => {
     return (
         <>
             <Grid container>
@@ -35,7 +34,7 @@ const QuestionAndAnswerForm = ({ questionNumber, question, answer, disabled, onA
                 <Grid item xs={12}>
                     <Box display="flex" mb={3}>
                         <Box ml={2} mr={1}>
-                            <Typography variant="h3">{questionNumber}.</Typography>
+                            <Typography variant="h3">{question.order}.</Typography>
                         </Box>
                         <Box>
                             <Typography variant="h3">{question.text}</Typography>

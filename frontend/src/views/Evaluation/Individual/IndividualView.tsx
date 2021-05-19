@@ -3,13 +3,15 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Progression, Role } from '../../../api/models'
+import { Barrier, Evaluation, Organization, Progression, Role } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
 import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSwitch'
 import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
 import { useParticipant } from '../../../globals/contexts'
 import QuestionsList from '../../../components/QuestionsList'
+import { useFilter } from '../../../utils/hooks'
+import OrganizationFilter from '../../../components/OrganizationFilter'
 
 interface IndividualViewProps {
     evaluation: Evaluation
@@ -20,8 +22,10 @@ interface IndividualViewProps {
 const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: IndividualViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const headerRef = React.useRef<HTMLElement>(null)
+    const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
 
     const questions = evaluation.questions
+    const barrierQuestions = questions.filter(q => q.barrier === selectedBarrier)
 
     const { role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId } = useParticipant()
 
@@ -70,6 +74,11 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                             <Typography variant="h2" ref={headerRef}>
                                 {barrierToString(selectedBarrier)}
                             </Typography>
+                            <OrganizationFilter
+                                organizationFilter={organizationFilter}
+                                onOrganizationFilterToggled={onOrganizationFilterToggled}
+                                questions={barrierQuestions}
+                            />
                         </Box>
                         <Box mr={2}>
                             <ProgressionCompleteSwitch
@@ -89,7 +98,8 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         </Box>
                     </Box>
                     <QuestionsList
-                        questions={questions.filter(q => q.barrier === selectedBarrier)}
+                        questions={barrierQuestions}
+                        organizationFilter={organizationFilter}
                         viewProgression={viewProgression}
                         disable={disableAllUserInput || isParticipantCompleted}
                     />
