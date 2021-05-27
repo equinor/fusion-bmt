@@ -2,8 +2,9 @@ import React from 'react'
 import { Organization, Progression, Question, Severity } from '../api/models'
 import QuestionItem from './QuestionItem'
 import { useParticipant } from '../globals/contexts'
+import { findCorrectAnswer } from './helpers'
 
-const USE_FACILITATOR_ANSWER = true
+export const USE_FACILITATOR_ANSWER = true
 
 type Props = {
     questions: Question[]
@@ -18,16 +19,11 @@ type Props = {
 const QuestionsList = ({ questions, viewProgression, disable, onQuestionSummarySelected, severityFilter, organizationFilter }: Props) => {
     const { azureUniqueId: currentUserAzureUniqueId } = useParticipant()
 
-    const findCorrectAnswer = (question: Question) => {
-        const answers = question.answers.filter(a => a.progression === viewProgression)
-        return USE_FACILITATOR_ANSWER ? answers.find(a => !!a) : answers.find(a => a.answeredBy?.azureUniqueId === currentUserAzureUniqueId)
-    }
-
     const answerHasSelectedSeverity = (question: Question, severityFilter: Severity[]) => {
         if (severityFilter.length === 0) {
             return true
         } else {
-            const answer = findCorrectAnswer(question)
+            const answer = findCorrectAnswer(question, viewProgression, USE_FACILITATOR_ANSWER, currentUserAzureUniqueId)
             const severity = (answer && answer.severity) || Severity.Na
             return severityFilter.includes(severity)
         }
@@ -57,7 +53,6 @@ const QuestionsList = ({ questions, viewProgression, disable, onQuestionSummaryS
                 return (
                     <QuestionItem
                         question={question}
-                        useFacilitatorAnswer={USE_FACILITATOR_ANSWER}
                         viewProgression={viewProgression}
                         disable={disable}
                         onQuestionSummarySelected={onQuestionSummarySelected}

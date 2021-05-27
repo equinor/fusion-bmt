@@ -4,31 +4,22 @@ import { Box } from '@material-ui/core'
 import QuestionAndAnswerFormWithApi from './QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import QuestionActionsListWithApi from './Action/QuestionActionsListWithApi'
 import AnswerSummaryButton from './AnswerSummaryButton'
-import { Organization, Progression, Question, Severity } from '../api/models'
+import { Progression, Question } from '../api/models'
 import { useParticipant } from '../globals/contexts'
+import { findCorrectAnswer } from './helpers'
+import { USE_FACILITATOR_ANSWER } from './QuestionsList'
 
 interface Props {
     question: Question
     viewProgression: Progression
     disable: boolean
-    useFacilitatorAnswer: boolean
     displayActions?: boolean
     onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
 }
 
-const QuestionItem = ({
-    question,
-    viewProgression,
-    disable,
-    displayActions = false,
-    onQuestionSummarySelected,
-    useFacilitatorAnswer,
-}: Props) => {
+const QuestionItem = ({ question, viewProgression, disable, displayActions = false, onQuestionSummarySelected }: Props) => {
     const { azureUniqueId: currentUserAzureUniqueId } = useParticipant()
-    const answers = question.answers.filter(a => a.progression === viewProgression)
-    const answer = useFacilitatorAnswer
-        ? answers.find(a => !!a)
-        : answers.find(a => a.answeredBy?.azureUniqueId === currentUserAzureUniqueId)
+    const answer = findCorrectAnswer(question, viewProgression, USE_FACILITATOR_ANSWER, currentUserAzureUniqueId)
 
     return (
         <div key={question.id} id={`question-${question.order}`}>
