@@ -21,7 +21,7 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
     return (
         <>
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
-                <TabList>
+                <TabList id="fixed-tablist">
                     <Tab>Follow-up</Tab>
                     <Tab>Workshop Summary</Tab>
                     <Tab>Follow-up Summary</Tab>

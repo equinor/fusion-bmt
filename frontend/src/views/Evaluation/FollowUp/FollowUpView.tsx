@@ -14,6 +14,9 @@ import { countSeverities } from '../../../utils/Severity'
 import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
+import { onScroll } from '../../helpers'
+
+const TOP_POSITION_SCROLL_WINDOW = 200
 
 interface FollowUpViewProps {
     evaluation: Evaluation
@@ -25,6 +28,7 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
     const { filter: severityFilter, onFilterToggled: onSeverityFilterToggled } = useFilter<Severity>()
     const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
     const headerRef = React.useRef<HTMLElement>(null)
+
     const questions = evaluation.questions
     const viewProgression = Progression.FollowUp
     const barrierQuestions = questions.filter(q => q.barrier === selectedBarrier)
@@ -79,7 +83,14 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                         onSelectBarrier={onBarrierSelected}
                     />
                 </Box>
-                <Box p="20px" width="1">
+                <Box
+                    p="20px"
+                    width="1"
+                    onScroll={() => {
+                        onScroll(selectedQuestion, TOP_POSITION_SCROLL_WINDOW, barrierQuestions, onQuestionSummarySelected)
+                    }}
+                    style={{ height: '100vh', overflow: 'scroll' }}
+                >
                     <Box display="flex" flexDirection="row">
                         <Box flexGrow={1}>
                             <Typography variant="h2" ref={headerRef}>

@@ -12,6 +12,9 @@ import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan 
 import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
+import { onScroll } from '../../helpers'
+
+const TOP_POSITION_SCROLL_WINDOW = 150
 
 interface WorkshopViewProps {
     evaluation: Evaluation
@@ -83,7 +86,14 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                         onBarrierSelected={onBarrierSelected}
                     />
                 </Box>
-                <Box p="20px" width="1">
+                <Box
+                    p="20px"
+                    width="1"
+                    onScroll={() => {
+                        onScroll(selectedQuestion, TOP_POSITION_SCROLL_WINDOW, barrierQuestions, onQuestionSummarySelected)
+                    }}
+                    style={{ height: '100vh', overflow: 'scroll' }}
+                >
                     <Box display="flex" flexDirection="row">
                         <Box flexGrow={1}>
                             <Typography variant="h2" ref={headerRef}>

@@ -1,10 +1,6 @@
 import React from 'react'
 import { Organization, Progression, Question, Severity } from '../api/models'
-import { Divider } from '@equinor/eds-core-react'
-import { Box } from '@material-ui/core'
-import QuestionAndAnswerFormWithApi from './QuestionAndAnswer/QuestionAndAnswerFormWithApi'
-import QuestionActionsListWithApi from './Action/QuestionActionsListWithApi'
-import AnswerSummaryButton from './AnswerSummaryButton'
+import QuestionItem from './QuestionItem'
 import { useParticipant } from '../globals/contexts'
 
 const USE_FACILITATOR_ANSWER = true
@@ -19,16 +15,13 @@ type Props = {
     organizationFilter?: Organization[]
 }
 
-const QuestionsList = ({
-    questions,
-    severityFilter,
-    organizationFilter,
-    viewProgression,
-    disable,
-    onQuestionSummarySelected,
-    displayActions = false,
-}: Props) => {
+const QuestionsList = ({ questions, viewProgression, disable, onQuestionSummarySelected, severityFilter, organizationFilter }: Props) => {
     const { azureUniqueId: currentUserAzureUniqueId } = useParticipant()
+
+    const findCorrectAnswer = (question: Question) => {
+        const answers = question.answers.filter(a => a.progression === viewProgression)
+        return USE_FACILITATOR_ANSWER ? answers.find(a => !!a) : answers.find(a => a.answeredBy?.azureUniqueId === currentUserAzureUniqueId)
+    }
 
     const answerHasSelectedSeverity = (question: Question, severityFilter: Severity[]) => {
         if (severityFilter.length === 0) {
@@ -48,11 +41,6 @@ const QuestionsList = ({
         }
     }
 
-    const findCorrectAnswer = (question: Question) => {
-        const answers = question.answers.filter(a => a.progression === viewProgression)
-        return USE_FACILITATOR_ANSWER ? answers.find(a => !!a) : answers.find(a => a.answeredBy?.azureUniqueId === currentUserAzureUniqueId)
-    }
-
     const severityFilteredQuestions =
         severityFilter !== undefined ? questions.filter(q => answerHasSelectedSeverity(q, severityFilter)) : questions
 
@@ -60,36 +48,23 @@ const QuestionsList = ({
         organizationFilter !== undefined
             ? severityFilteredQuestions.filter(q => questionHasSelectedOrganization(q, organizationFilter))
             : severityFilteredQuestions
+
     const orderedQuestions = organizationFilteredQuestions.sort((q1, q2) => q1.order - q2.order)
 
     return (
-        <>
+        <div>
             {orderedQuestions.map(question => {
-                const answer = findCorrectAnswer(question)
-
                 return (
-                    <div key={question.id}>
-                        <Divider />
-                        <Box display="flex">
-                            <Box flexGrow={1}>
-                                <QuestionAndAnswerFormWithApi
-                                    question={question}
-                                    answer={answer}
-                                    disabled={disable}
-                                    viewProgression={viewProgression}
-                                />
-                                {displayActions && <QuestionActionsListWithApi question={question} />}
-                            </Box>
-                            {onQuestionSummarySelected !== undefined && (
-                                <Box>
-                                    <AnswerSummaryButton onClick={() => onQuestionSummarySelected(question)} />
-                                </Box>
-                            )}
-                        </Box>
-                    </div>
+                    <QuestionItem
+                        question={question}
+                        useFacilitatorAnswer={USE_FACILITATOR_ANSWER}
+                        viewProgression={viewProgression}
+                        disable={disable}
+                        onQuestionSummarySelected={onQuestionSummarySelected}
+                    />
                 )
             })}
-        </>
+        </div>
     )
 }
 
