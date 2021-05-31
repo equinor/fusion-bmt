@@ -3,7 +3,7 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Question, Progression, Role, Organization } from '../../../api/models'
+import { Barrier, Evaluation, Question, Progression, Role, Organization, Severity } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
@@ -13,7 +13,9 @@ import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan 
 import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
-import { onScroll } from '../../helpers'
+import { getBarrierAnswers, onScroll } from '../../helpers'
+import SeveritySummary from '../../../components/SeveritySummary'
+import { countSeverities } from '../../../utils/Severity'
 
 const TOP_POSITION_SCROLL_WINDOW = 200
 
@@ -27,6 +29,7 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
+    const { filter: severityFilter, onFilterToggled: onSeverityFilterToggled } = useFilter<Severity>()
 
     const headerRef = React.useRef<HTMLElement>(null)
 
@@ -76,6 +79,8 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
         }
     }
 
+    const barrierAnswers = getBarrierAnswers(barrierQuestions, viewProgression)
+
     return (
         <>
             <Box display="flex" height={1}>
@@ -106,25 +111,34 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                                 questions={barrierQuestions}
                             />
                         </Box>
-                        <Box mr={2}>
-                            <ProgressionCompleteSwitch
-                                isCheckedInitially={isParticipantCompleted}
-                                disabled={disableAllUserInput}
-                                onCompleteClick={localOnClompleteClick}
-                                onUncompleteClick={localOnUncompleteClick}
-                            />
-                        </Box>
-                        <Box>
-                            <Button
-                                onClick={onNextStepClick}
-                                disabled={participantRole !== Role.Facilitator || !isEvaluationAtThisProgression}
-                            >
-                                Finish {progressionToString(viewProgression)}
-                            </Button>
+                        <Box flexDirection="column">
+                            <Box>
+                                <SeveritySummary
+                                    severityCount={countSeverities(barrierAnswers)}
+                                    onClick={severity => onSeverityFilterToggled(severity)}
+                                    severityFilter={severityFilter}
+                                />
+                            </Box>
+                            <Box flexDirection="row" mt={1}>
+                                <ProgressionCompleteSwitch
+                                    isCheckedInitially={isParticipantCompleted}
+                                    disabled={disableAllUserInput}
+                                    onCompleteClick={localOnClompleteClick}
+                                    onUncompleteClick={localOnUncompleteClick}
+                                />
+                                <Button
+                                    style={{ marginLeft: '20px' }}
+                                    onClick={onNextStepClick}
+                                    disabled={participantRole !== Role.Facilitator || !isEvaluationAtThisProgression}
+                                >
+                                    {'Finish ' + progressionToString(viewProgression)}
+                                </Button>
+                            </Box>
                         </Box>
                     </Box>
                     <QuestionsList
                         questions={barrierQuestions}
+                        severityFilter={severityFilter}
                         organizationFilter={organizationFilter}
                         viewProgression={viewProgression}
                         disable={disableAllUserInput || isParticipantCompleted}

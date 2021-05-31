@@ -14,7 +14,7 @@ import { countSeverities } from '../../../utils/Severity'
 import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
-import { onScroll } from '../../helpers'
+import { getBarrierAnswers, onScroll } from '../../helpers'
 
 const TOP_POSITION_SCROLL_WINDOW = 200
 
@@ -64,14 +64,7 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
         }
     }
 
-    const followUpBarrierAnswers = barrierQuestions.map(q => {
-        const answers = q.answers.filter(a => a.progression === viewProgression)
-        const length = answers.length
-        if (length === 0) {
-            return null
-        }
-        return answers[0]
-    })
+    const barrierAnswers = getBarrierAnswers(barrierQuestions, viewProgression)
 
     return (
         <>
@@ -104,7 +97,7 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                         </Box>
                         <Box>
                             <SeveritySummary
-                                severityCount={countSeverities(followUpBarrierAnswers)}
+                                severityCount={countSeverities(barrierAnswers)}
                                 onClick={severity => onSeverityFilterToggled(severity)}
                                 severityFilter={severityFilter}
                             />

@@ -1,4 +1,4 @@
-import { Question } from '../api/models'
+import { Progression, Question } from '../api/models'
 
 export const isQuestionStillInView = (selectedQuestionElement: HTMLElement | null, topPlacementInPixels: number | null) => {
     if (selectedQuestionElement !== null && topPlacementInPixels !== null) {
@@ -51,4 +51,15 @@ export const onScroll = (
             }
         }
     }
+}
+
+export const getBarrierAnswers = (barrierQuestions: Question[], viewProgression: Progression) => {
+    return barrierQuestions.map(q => {
+        const answers = q.answers.filter(a => a.progression === viewProgression)
+        const length = answers.length
+        if (length === 0) {
+            return null
+        }
+        return answers[0]
+    })
 }
