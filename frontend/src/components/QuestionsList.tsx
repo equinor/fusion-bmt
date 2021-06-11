@@ -49,9 +49,10 @@ const QuestionsList = ({ questions, viewProgression, disable, onQuestionSummaryS
 
     return (
         <div>
-            {orderedQuestions.map(question => {
+            {orderedQuestions.map((question, index) => {
                 return (
                     <QuestionItem
+                        key={index}
                         question={question}
                         viewProgression={viewProgression}
                         disable={disable}
