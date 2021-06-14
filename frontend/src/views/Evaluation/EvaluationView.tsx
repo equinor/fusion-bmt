@@ -9,6 +9,7 @@ import WorkshopView from './Workshop/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
 import { progressionToString } from '../../utils/EnumToString'
 import FollowUpStepView from './FollowUp/FollowUpStepView'
+import WorkshopTabs from './Workshop/WorkshopTabs'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -64,14 +65,16 @@ const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParti
                     description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                     stepKey={Progression.Workshop}
                 >
-                    <div>
-                        {/* Div added to make position: sticky work for deeper components */}
+                    <WorkshopTabs
+                        allowedRoles={[Role.Facilitator]}
+                        evaluation={evaluation}
+                    >
                         <WorkshopView
                             evaluation={evaluation}
                             onNextStepClick={() => onProgressEvaluationClick()}
                             onProgressParticipant={onProgressParticipant}
                         />
-                    </div>
+                    </WorkshopTabs>
                 </Step>
                 <Step
                     title={progressionToString(Progression.FollowUp)}
