@@ -9,6 +9,12 @@ namespace tests
     [Collection("UsesDbContext")]
     public class EvaluationServiceTest : DbContextTestSetup
     {
+
+        private Project GetProject() {
+            ProjectService projectService = new ProjectService(_context);
+            return projectService.GetAll().First();
+        }
+
         [Fact]
         public void GetQueryable()
         {
@@ -22,9 +28,7 @@ namespace tests
         [Fact]
         public void Create()
         {
-            ProjectService projectService = new ProjectService(_context);
-            Project project = projectService.GetAll().First();
-
+            Project project = GetProject();
             EvaluationService evaluationService = new EvaluationService(_context);
 
             int nEvaluationsBefore = evaluationService.GetAll().Count();
@@ -37,8 +41,7 @@ namespace tests
         [Fact]
         public void ProgressEvaluation()
         {
-            ProjectService projectService = new ProjectService(_context);
-            Project project = projectService.GetAll().First();
+            Project project = GetProject();
 
             EvaluationService evaluationService = new EvaluationService(_context);
             Evaluation evaluation = evaluationService.Create("some_name", project);
@@ -62,8 +65,7 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            ProjectService projectService = new ProjectService(_context);
-            Project project = projectService.GetAll().First();
+            Project project = GetProject();
 
             EvaluationService evaluationService = new EvaluationService(_context);
             Evaluation evaluationCreate = evaluationService.Create("some_evaluation_name", project);
