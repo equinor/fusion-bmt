@@ -16,7 +16,7 @@ type Props = {
     organizationFilter?: Organization[]
 }
 
-const QuestionsList = ({ questions, viewProgression, disable, onQuestionSummarySelected, severityFilter, organizationFilter }: Props) => {
+const QuestionsList = ({ questions, viewProgression, disable, displayActions, onQuestionSummarySelected, severityFilter, organizationFilter }: Props) => {
     const { azureUniqueId: currentUserAzureUniqueId } = useParticipant()
 
     const answerHasSelectedSeverity = (question: Question, severityFilter: Severity[]) => {
@@ -53,6 +53,7 @@ const QuestionsList = ({ questions, viewProgression, disable, onQuestionSummaryS
                 return (
                     <QuestionItem
                         key={index}
+                        displayActions={displayActions}
                         question={question}
                         viewProgression={viewProgression}
                         disable={disable}
