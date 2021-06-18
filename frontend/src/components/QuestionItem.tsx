@@ -1,4 +1,3 @@
-import React from 'react'
 import { Divider } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 import QuestionAndAnswerFormWithApi from './QuestionAndAnswer/QuestionAndAnswerFormWithApi'

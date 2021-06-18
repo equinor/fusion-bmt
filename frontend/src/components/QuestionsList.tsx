@@ -1,4 +1,3 @@
-import React from 'react'
 import { Organization, Progression, Question, Severity } from '../api/models'
 import QuestionItem from './QuestionItem'
 import { useParticipant } from '../globals/contexts'
