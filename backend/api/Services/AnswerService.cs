@@ -54,20 +54,45 @@ namespace api.Services
                 throw new ArgumentNullException(nameof(participant));
             }
 
-            Answer Answer = _context.Answers.FirstOrDefault(Answer =>
+            IQueryable<Answer> answers = _context.Answers.Where(Answer =>
                 Answer.Question.Equals(question)
-                && Answer.AnsweredBy.Equals(participant)
                 && Answer.Progression.Equals(progression)
             );
 
-            if (Answer == null)
+            Answer answer;
+
+            /* From workshop and onwards, facilitators no longer have individual
+             * answers. Rather they edit the same answer.
+             *
+             * This type of logic is not transparent when implemented inside
+             * this generic GetAnswer method. We should strongly consider adding
+             * a seperate API endpoint for this to avoid confusion.
+             */
+            if (participant.Role == Role.Facilitator &&
+                progression >= Progression.Workshop)
+            {
+                answer = answers.FirstOrDefault(answer =>
+                    answer.AnsweredBy.Role.Equals(Role.Facilitator)
+                );
+            }
+            else
+            {
+                answer = answers.FirstOrDefault(answer =>
+                    answer.AnsweredBy.Equals(participant)
+                );
+            }
+
+            if (answer == null)
             {
                 throw new NotFoundInDBException($"Answer not found for question {question.Id} for participant {participant.Id} and progression {progression}");
             }
-            return Answer;
+            return answer;
         }
 
-        public Answer UpdateAnswer(Answer answer, Severity severity, string text)
+        public Answer UpdateAnswer(Answer answer,
+                                   Severity severity,
+                                   string text,
+                                   Participant author)
         {
             if (answer == null)
             {
@@ -76,6 +101,7 @@ namespace api.Services
 
             answer.Severity = severity;
             answer.Text = text;
+            answer.AnsweredBy = author;
 
             _context.Answers.Update(answer);
             _context.SaveChanges();

@@ -145,7 +145,7 @@ namespace api.GQL
             try
             {
                 answer = _answerService.GetAnswer(question, currentUser, progression);
-                _answerService.UpdateAnswer(answer, severity, text);
+                _answerService.UpdateAnswer(answer, severity, text, currentUser);
             }
             catch (NotFoundInDBException)
             {
