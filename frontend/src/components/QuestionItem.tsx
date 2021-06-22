@@ -1,4 +1,3 @@
-import React from 'react'
 import { Divider } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 import QuestionAndAnswerFormWithApi from './QuestionAndAnswer/QuestionAndAnswerFormWithApi'
@@ -6,8 +5,7 @@ import QuestionActionsListWithApi from './Action/QuestionActionsListWithApi'
 import AnswerSummaryButton from './AnswerSummaryButton'
 import { Progression, Question } from '../api/models'
 import { useParticipant } from '../globals/contexts'
-import { findCorrectAnswer } from './helpers'
-import { USE_FACILITATOR_ANSWER } from './QuestionsList'
+import { useSharedFacilitatorAnswer, findCorrectAnswer } from './helpers'
 
 interface Props {
     question: Question
@@ -17,9 +15,17 @@ interface Props {
     onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
 }
 
+
 const QuestionItem = ({ question, viewProgression, disable, displayActions = false, onQuestionSummarySelected }: Props) => {
-    const { azureUniqueId: currentUserAzureUniqueId } = useParticipant()
-    const answer = findCorrectAnswer(question, viewProgression, USE_FACILITATOR_ANSWER, currentUserAzureUniqueId)
+    const { azureUniqueId } = useParticipant()
+
+    const useSharedAnswer = useSharedFacilitatorAnswer(viewProgression)
+    const answer = findCorrectAnswer(
+        question,
+        viewProgression,
+        useSharedAnswer,
+        azureUniqueId
+    )
 
     return (
         <div key={question.id} id={`question-${question.order}`}>

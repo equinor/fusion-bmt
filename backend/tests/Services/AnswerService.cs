@@ -127,7 +127,7 @@ namespace tests
             string answerId = answer.Id;
 
             string newText = "some different test answer";
-            answerService.UpdateAnswer(answer, Severity.High, newText);
+            answerService.UpdateAnswer(answer, Severity.High, newText, participant);
 
             Answer resultingAnswer = answerService.GetAnswer(answerId);
             Assert.Equal(newText, resultingAnswer.Text);

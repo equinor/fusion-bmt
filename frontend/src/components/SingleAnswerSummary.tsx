@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Grid, Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
 import { useApiClients } from '@equinor/fusion'
 import { MarkdownViewer } from '@equinor/fusion-components'
 
-import { Answer } from '../api/models'
+import { Answer, Role } from '../api/models'
 import { organizationToString } from '../utils/EnumToString'
 import SeverityIndicator from './SeverityIndicator'
+import { useSharedFacilitatorAnswer } from './helpers'
 
 interface SingleAnswerSummaryProps {
     answer: Answer
@@ -16,11 +17,20 @@ interface SingleAnswerSummaryProps {
 const SingleAnswerSummary = ({ answer }: SingleAnswerSummaryProps) => {
     const apiClients = useApiClients()
     const [username, setUsername] = useState<string>('')
+    const useShared = answer.answeredBy!.role === Role.Facilitator &&
+        useSharedFacilitatorAnswer(answer.progression)
+    const organization = organizationToString(answer.answeredBy?.organization!)
 
     useEffect(() => {
-        apiClients.people.getPersonDetailsAsync(answer.answeredBy!.azureUniqueId).then(details => {
-            setUsername(details.data.name)
-        })
+        if (useShared) {
+            setUsername('Facilitators')
+        }
+        else
+        {
+            apiClients.people.getPersonDetailsAsync(
+                answer.answeredBy!.azureUniqueId
+            ).then( details => { setUsername(details.data.name) })
+        }
     }, [])
 
     return (
@@ -32,7 +42,8 @@ const SingleAnswerSummary = ({ answer }: SingleAnswerSummaryProps) => {
                     </Box>
                     <Box width={1}>
                         <Typography variant="h5">
-                            {username}, {organizationToString(answer.answeredBy?.organization!)}
+                            {username}
+                            {useShared ? "" : ", ".concat(organization)}
                         </Typography>
                         <MarkdownViewer markdown={answer.text} />
                     </Box>

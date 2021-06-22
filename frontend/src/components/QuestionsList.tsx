@@ -1,10 +1,7 @@
-import React from 'react'
 import { Organization, Progression, Question, Severity } from '../api/models'
 import QuestionItem from './QuestionItem'
 import { useParticipant } from '../globals/contexts'
-import { findCorrectAnswer } from './helpers'
-
-export const USE_FACILITATOR_ANSWER = true
+import { useSharedFacilitatorAnswer, findCorrectAnswer } from './helpers'
 
 type Props = {
     questions: Question[]
@@ -23,7 +20,13 @@ const QuestionsList = ({ questions, viewProgression, disable, displayActions, on
         if (severityFilter.length === 0) {
             return true
         } else {
-            const answer = findCorrectAnswer(question, viewProgression, USE_FACILITATOR_ANSWER, currentUserAzureUniqueId)
+            const useSharedAnswer = useSharedFacilitatorAnswer(viewProgression)
+            const answer = findCorrectAnswer(
+                question,
+                viewProgression,
+                useSharedAnswer,
+                currentUserAzureUniqueId
+            )
             const severity = (answer && answer.severity) || Severity.Na
             return severityFilter.includes(severity)
         }
