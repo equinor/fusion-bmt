@@ -162,6 +162,7 @@ namespace api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            app.UseRouting();
             app.UseAuthentication();
             app.UseCors(_accessControlPolicyName);
 
@@ -187,8 +188,6 @@ namespace api
                 logger.LogInformation("Configuring for production environment");
             }
 
-            app.UseRouting();
-
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -198,18 +197,21 @@ namespace api
                 c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>
                     { { "resource", $"{Configuration["AzureAd:ClientId"]}" } });
             });
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHealthChecks("/health");
-            });
 
-            // Comment out to use locally without authentication
             app.UseAuthorization();
 
+            /* Run locally without Authorization
+             *
+             * When developing locally it can useful to disable authorization
+             * of the exposed endpoints. This can be done by temporarily
+             * removing 'RequireAuthorization()` for MapGraphQL and
+             * MapControllers.
+             */
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGraphQL();
-                endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health").AllowAnonymous();
+                endpoints.MapGraphQL().RequireAuthorization();
+                endpoints.MapControllers().RequireAuthorization();
             });
         }
     }
