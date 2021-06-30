@@ -16,3 +16,7 @@ venv
 
 # Environment variables
 .env
+
+#Cypress
+frontend/cypress/videos
+frontend/cypress/screenshots
