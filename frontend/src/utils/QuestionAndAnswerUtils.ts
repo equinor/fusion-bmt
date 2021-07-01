@@ -47,3 +47,11 @@ export const hasOrganization = (
         return organizationFilter.includes(question.organization)
     }
 }
+
+export const toggleFilter = <T,>(value: T, filter: T[]) => {
+    if (filter.includes(value)) {
+        return filter.filter(x => x !== value)
+    } else {
+        return [...filter, value]
+    }
+}
