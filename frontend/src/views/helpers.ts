@@ -12,14 +12,45 @@ export const isQuestionStillInView = (selectedQuestionElement: HTMLElement | nul
     return false
 }
 
-const selectNewQuestionInSidebar = (
-    questionNumber: number,
+
+/* Finds the nearest neighboor of the selectedQuestion that is in View - if any
+ */
+const findNewQuestionInView = (
+    selectedQuestion: Question,
     questions: Question[],
-    changeQuestion: (question: Question, questionNumber: number) => void
+    topPlacementInPixels: number | null,
 ) => {
-    const nextQuestion = questions.find(question => question.order === questionNumber)
-    if (nextQuestion !== undefined) {
-        changeQuestion(nextQuestion, questionNumber)
+    const questionIndex =
+        questions.findIndex((q) =>
+        q.order === selectedQuestion.order
+    )
+
+    let up = questionIndex
+    let down = questionIndex
+    while (true) {
+        up   -= 1
+        down += 1
+
+        // Terminate without a result when the search space is exhausted
+        if ((down >= questions.length) && (up < 0)) {
+            return
+        }
+
+        if (up >= 0) {
+            const candidate = questions[up].order
+            const element = document.getElementById(`question-${candidate}`)
+            if (isQuestionStillInView(element, topPlacementInPixels)) {
+                return questions[up]
+            }
+        }
+
+        if (down < questions.length) {
+            const candidate = questions[down].order
+            const element = document.getElementById(`question-${candidate}`)
+            if (isQuestionStillInView(element, topPlacementInPixels)) {
+                return questions[down]
+            }
+        }
     }
 }
 
@@ -34,20 +65,14 @@ export const onScroll = (
         const isStillInView = isQuestionStillInView(selectedQuestionElement, topPlacementInPixels)
 
         if (!isStillInView) {
-            const questionBelowNumber = selectedQuestion.order + 1
-            const questionBelowElement = document.getElementById(`question-${questionBelowNumber}`)
-            const isQuestionBelowInView = isQuestionStillInView(questionBelowElement, topPlacementInPixels)
+            const newQuestion = findNewQuestionInView(
+                selectedQuestion,
+                questions.sort((q1, q2) => q1.order - q2.order),
+                topPlacementInPixels
+            )
 
-            if (isQuestionBelowInView) {
-                selectNewQuestionInSidebar(questionBelowNumber, questions, changeQuestion)
-            } else {
-                const questionAboveNumber = selectedQuestion.order - 1
-                const questionAboveElement = document.getElementById(`question-${questionAboveNumber}`)
-                const isQuestionAboveInView = isQuestionStillInView(questionAboveElement, topPlacementInPixels)
-
-                if (isQuestionAboveInView) {
-                    selectNewQuestionInSidebar(questionAboveNumber, questions, changeQuestion)
-                }
+            if (newQuestion) {
+                changeQuestion(newQuestion, newQuestion.order)
             }
         }
     }
