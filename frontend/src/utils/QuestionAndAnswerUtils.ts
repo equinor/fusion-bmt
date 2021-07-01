@@ -1,4 +1,8 @@
-import { Answer, Progression, Question } from '../api/models'
+import { Answer, Organization, Progression, Question, Severity } from '../api/models'
+import {
+    findCorrectAnswer,
+    useSharedFacilitatorAnswer
+} from '../components/helpers'
 
 export const checkIfAnswerFilled = (answer: Answer): boolean => {
     return answer.text !== ''
@@ -10,4 +14,36 @@ export const getFilledUserAnswersForProgression = (questions: Question[], progre
     }, [] as Answer[])
     const participantAnswers = progressionAnswers.filter(a => a.answeredBy?.azureUniqueId === azureUniqueId)
     return participantAnswers.filter(a => checkIfAnswerFilled(a))
+}
+
+export const hasSeverity = (
+    question: Question,
+    severityFilter: Severity[],
+    AzureUniqueId: string,
+    viewProgression: Progression
+) => {
+    if (severityFilter.length === 0) {
+        return true
+    } else {
+        const useSharedAnswer = useSharedFacilitatorAnswer(viewProgression)
+        const answer = findCorrectAnswer(
+            question,
+            viewProgression,
+            useSharedAnswer,
+            AzureUniqueId
+        )
+        const severity = (answer && answer.severity) || Severity.Na
+        return severityFilter.includes(severity)
+    }
+}
+
+export const hasOrganization = (
+    question: Question,
+    organizationFilter: Organization[]
+) => {
+    if (organizationFilter.length === 0) {
+        return true
+    } else {
+        return organizationFilter.includes(question.organization)
+    }
 }
