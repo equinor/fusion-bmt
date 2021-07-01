@@ -50,6 +50,7 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluat
                                         handleCreateClick()
                                     }
                                 }}
+                                data-testid="create_evaluation_dialog_name_text_field"
                             />
                         </Grid>
                         {inputErrorMessage !== '' && (
@@ -57,7 +58,7 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluat
                                 <Typography color="danger">{inputErrorMessage}</Typography>
                             </Grid>
                         )}
-                        <Grid item xs={12}>
+                        <Grid item xs={12} data-testid="create_evaluation_dialog_create_button_grid">
                             <Button onClick={handleCreateClick}>Create</Button>
                         </Grid>
                     </Grid>

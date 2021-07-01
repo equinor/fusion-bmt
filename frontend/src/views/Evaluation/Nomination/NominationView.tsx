@@ -57,7 +57,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         <div style={{ margin: 20 }}>
             <Box display="flex" flexDirection="row">
                 <Box flexGrow={1}>
-                    <h2>{evaluation.name}</h2>
+                    <h2 data-testid="evaluation_title">{evaluation.name}</h2>
                 </Box>
                 <Box>
                     <Button onClick={onNextStepClick} disabled={evaluation.progression !== Progression.Nomination}>

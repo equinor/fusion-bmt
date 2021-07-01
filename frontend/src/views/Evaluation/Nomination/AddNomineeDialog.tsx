@@ -94,7 +94,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
 
     return (
         <ModalSideSheet header="Add Person" show={open} size="medium" onClose={onCloseClick} isResizable={false}>
-            <div style={{ margin: 20 }}>
+            <div style={{ margin: 20 }} data-testid="nominee_dialog_body">
                 <SearchableDropdown
                     options={orgOptions}
                     label="Orgnization"
@@ -121,6 +121,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     }}
                     type="search"
                     placeholder="Search for person..."
+                    data-testid="nominee_dialog_search_text_field"
                 />
                 <br />
                 {isSearching && (
