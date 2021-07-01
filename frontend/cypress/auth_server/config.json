@@ -1,0 +1,102 @@
+{
+    "interactiveLogin": false,
+    "httpServer": "NettyWrapper",
+    "tokenCallbacks": [
+        {
+            "issuerId": "common",
+            "tokenExpiry": 5000,
+            "requestMappings": [
+                {
+                    "requestParam": "mock_claims_for",
+                    "match": "cat",
+                    "claims": {
+                        "aud": "8829d4ca-93e8-499a-8ce1-bc0ef4840176",
+                        "familyName": "Cat",
+                        "givenName": "Fat",
+                        "name": "Fat Cat",
+                        "oid": "111",
+                        "roles": ["Reader"],
+                        "tid": "common",
+                        "upn": "Fat Cat",
+                        "ver": "1.0"
+                    }
+                },
+                {
+                    "requestParam": "mock_claims_for",
+                    "match": "doggy",
+                    "claims": {
+                        "aud": "8829d4ca-93e8-499a-8ce1-bc0ef4840176",
+                        "familyName": "Cool",
+                        "givenName": "Doggy",
+                        "name": "Cool Doggy",
+                        "oid": "222",
+                        "roles": ["Reader"],
+                        "tid": "common",
+                        "upn": "doggy",
+                        "ver": "1.0"
+                    }
+                },
+                {
+                    "requestParam": "mock_claims_for",
+                    "match": "giraffe",
+                    "claims": {
+                        "aud": "8829d4ca-93e8-499a-8ce1-bc0ef4840176",
+                        "familyName": "Scared",
+                        "givenName": "Giraffe",
+                        "name": "Scared Giraffe",
+                        "oid": "333",
+                        "roles": ["Reader"],
+                        "tid": "common",
+                        "upn": "giraffe",
+                        "ver": "1.0"
+                    }
+                },
+                {
+                    "requestParam": "mock_claims_for",
+                    "match": "unicorn",
+                    "claims": {
+                        "aud": "8829d4ca-93e8-499a-8ce1-bc0ef4840176",
+                        "familyName": "Rainbow",
+                        "givenName": "Unicorn",
+                        "name": "Rainbow Unicorn",
+                        "oid": "444",
+                        "roles": ["Reader"],
+                        "tid": "common",
+                        "upn": "unicorn",
+                        "ver": "1.0"
+                    }
+                },
+                {
+                    "requestParam": "mock_claims_for",
+                    "match": "raccoon",
+                    "claims": {
+                        "aud": "8829d4ca-93e8-499a-8ce1-bc0ef4840176",
+                        "familyName": "Trashy",
+                        "givenName": "Raccoon",
+                        "name": "Trashy Raccoon",
+                        "oid": "555",
+                        "roles": ["Reader"],
+                        "tid": "common",
+                        "upn": "raccoon",
+                        "ver": "1.0"
+                    }
+                },
+                {
+                    "requestParam": "mock_claims_for",
+                    "match": "penguin",
+                    "claims": {
+                        "aud": "8829d4ca-93e8-499a-8ce1-bc0ef4840176",
+                        "familyName": "Dancing",
+                        "givenName": "Penguin",
+                        "name": "Dancing Penguin",
+                        "oid": "666",
+                        "roles": ["Reader"],
+                        "tid": "common",
+                        "upn": "penguin",
+                        "ver": "1.0"
+                    }
+                }
+            ]
+        }
+    ]
+}
