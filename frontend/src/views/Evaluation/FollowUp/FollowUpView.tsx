@@ -15,6 +15,11 @@ import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
 import { getBarrierAnswers, onScroll } from '../../helpers'
+import {
+    hasSeverity,
+    hasOrganization,
+    toggleFilter
+} from '../../../utils/QuestionAndAnswerUtils'
 
 const TOP_POSITION_SCROLL_WINDOW = 200
 
@@ -64,6 +69,40 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
         }
     }
 
+    const setFirstQuestion = (questions: Question[]) => {
+        if (questions.length == 0) {
+            closeAnswerSummarySidebar()
+        } else if (selectedQuestion) {
+            setSelectedQuestion(questions[0])
+        }
+    }
+
+    const filterAndSortQuestions = (
+        organizations: Organization[],
+        severities: Severity[]
+    ) => {
+        return barrierQuestions.filter(q => hasSeverity(q,
+                severities,
+                participantUniqueId,
+                viewProgression
+            )
+        ).filter(q => hasOrganization(q, organizations)
+        ).sort((q1, q2) => q1.order - q2.order)
+    }
+
+    const onSeverityFilterChange = (sev: Severity) => {
+        const severities = toggleFilter(sev, severityFilter)
+        const questions = filterAndSortQuestions(organizationFilter, severities)
+        setFirstQuestion(questions)
+        onSeverityFilterToggled(sev)
+    }
+
+    const onOrganizationFilterChange = (org: Organization) => {
+        const orgs = toggleFilter(org, organizationFilter)
+        const questions = filterAndSortQuestions(orgs, severityFilter)
+        setFirstQuestion(questions)
+        onOrganizationFilterToggled(org)
+    }
     const barrierAnswers = getBarrierAnswers(barrierQuestions, viewProgression)
 
     return (
@@ -91,14 +130,14 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                             </Typography>
                             <OrganizationFilter
                                 organizationFilter={organizationFilter}
-                                onOrganizationFilterToggled={onOrganizationFilterToggled}
+                                onOrganizationFilterToggled={onOrganizationFilterChange}
                                 questions={barrierQuestions}
                             />
                         </Box>
                         <Box>
                             <SeveritySummary
                                 severityCount={countSeverities(barrierAnswers)}
-                                onClick={severity => onSeverityFilterToggled(severity)}
+                                onClick={onSeverityFilterChange}
                                 severityFilter={severityFilter}
                             />
                         </Box>
