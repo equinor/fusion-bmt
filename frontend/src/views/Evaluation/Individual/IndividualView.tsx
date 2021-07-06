@@ -101,7 +101,7 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         questions={barrierQuestions}
                         organizationFilter={organizationFilter}
                         viewProgression={viewProgression}
-                        disable={disableAllUserInput || isParticipantCompleted}
+                        disable={(disableAllUserInput || isParticipantCompleted) && participantRole !== Role.Facilitator}
                     />
                 </Box>
             </Box>
