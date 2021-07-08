@@ -76,7 +76,7 @@ namespace api
                     builder.AllowAnyHeader();
                     builder.AllowAnyMethod();
                     builder.WithOrigins(
-                        "http://localhost:3000",
+                        "http://localhost:" + (Environment.GetEnvironmentVariable("FRONTEND_PORT") ?? "3000"),
                         "https://*.equinor.com",
                         "https://pro-s-portal-ci.azurewebsites.net",
                         "https://pro-s-portal-fqa.azurewebsites.net",
@@ -175,9 +175,9 @@ namespace api
                 logger.LogInformation("Using Sqlite in memory database");
             }
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.EnvironmentName == "Test")
             {
-                logger.LogInformation("Configuring for development environment");
+                logger.LogInformation($"Configuring for {env.EnvironmentName} environment");
                 app.UseDeveloperExceptionPage();
 
                 var option = new RewriteOptions();

@@ -1,0 +1,12 @@
+{
+    "id": "123",
+    "externalId": "M.O0000.00.0.0000",
+    "source": null,
+    "type": { "id": "Project", "isChildType": true, "parentTypeIds": ["ProjectMaster"] },
+    "value": { "wbs": "M.O0000.00.0.0000", "projectMasterId": null, "isValid": true },
+    "title": "Banana Banana",
+    "isActive": true,
+    "isDeleted": false,
+    "created": "2020-09-01T20:20:00.00+00:00",
+    "updated": "2020-10-01T20:20:00.00+00:00"
+}
