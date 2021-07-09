@@ -114,7 +114,7 @@ namespace api.Models
         public DateTimeOffset CreateDate { get; set; }
         [Required]
         public virtual ICollection<Question> Questions { get; private set; }
-        public QuestionTemplate previous { get; set; }
+        public QuestionTemplate previousId { get; set; }
     }
 
     public class Answer
