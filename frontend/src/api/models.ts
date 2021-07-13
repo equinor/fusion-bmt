@@ -136,6 +136,21 @@ export type ComparableInt32OperationFilterInput = {
   nlte?: Maybe<Scalars['Int']>;
 };
 
+export type ComparableNullableOfDateTimeOffsetOperationFilterInput = {
+  eq?: Maybe<Scalars['DateTime']>;
+  neq?: Maybe<Scalars['DateTime']>;
+  in?: Maybe<Array<Maybe<Scalars['DateTime']>>>;
+  nin?: Maybe<Array<Maybe<Scalars['DateTime']>>>;
+  gt?: Maybe<Scalars['DateTime']>;
+  ngt?: Maybe<Scalars['DateTime']>;
+  gte?: Maybe<Scalars['DateTime']>;
+  ngte?: Maybe<Scalars['DateTime']>;
+  lt?: Maybe<Scalars['DateTime']>;
+  nlt?: Maybe<Scalars['DateTime']>;
+  lte?: Maybe<Scalars['DateTime']>;
+  nlte?: Maybe<Scalars['DateTime']>;
+};
+
 
 export type Evaluation = {
   __typename?: 'Evaluation';
@@ -149,6 +164,7 @@ export type Evaluation = {
   project: Project;
   summary?: Maybe<Scalars['String']>;
   previousEvaluationId?: Maybe<Scalars['String']>;
+  workshopCompleteDate?: Maybe<Scalars['DateTime']>;
 };
 
 export type EvaluationFilterInput = {
@@ -164,6 +180,7 @@ export type EvaluationFilterInput = {
   project?: Maybe<ProjectFilterInput>;
   summary?: Maybe<StringOperationFilterInput>;
   previousEvaluationId?: Maybe<StringOperationFilterInput>;
+  workshopCompleteDate?: Maybe<ComparableNullableOfDateTimeOffsetOperationFilterInput>;
 };
 
 export type GraphQuery = {
