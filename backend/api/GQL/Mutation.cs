@@ -75,6 +75,7 @@ namespace api.GQL
 
             if (newProgression.Equals(Progression.FollowUp))
             {
+                _evaluationService.SetWorkshopCompleteDate(evaluation);
                 _answerService.CreateFollowUpAnswers(evaluation);
             }
 

@@ -18,15 +18,21 @@ const ScrollableDiv = styled.div`
 
 interface Props {
     answersWithBarrier: AnswersWithBarrier[]
+    workshopCompleted?: string
 }
 
-const BowtieView = ({ answersWithBarrier }: Props) => {
+const BowtieView = ({ answersWithBarrier, workshopCompleted }: Props) => {
     return (
         <>
             <Box p="20px">
                 <Typography variant="h2" style={{ marginBottom: '30px', marginLeft: '30px' }}>
                     Bowtie model
                 </Typography>
+                {workshopCompleted && (
+                    <Typography style={{ marginTop: '-20px', marginLeft: '30px' }}>
+                        Workshop completed: {new Date(workshopCompleted).toLocaleDateString()}
+                    </Typography>
+                )}
                 <ScrollableDiv>
                     <BowtieWithBoxes answersWithBarrier={answersWithBarrier} />
                 </ScrollableDiv>

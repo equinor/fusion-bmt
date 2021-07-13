@@ -58,6 +58,24 @@ namespace api.Services
             return evaluation;
         }
 
+        public Evaluation SetWorkshopCompleteDate(Evaluation evaluation)
+        {
+            if (evaluation.WorkshopCompleteDate != null)
+            {
+                throw new InvalidOperationException(
+                    $"Completion date already set as: {evaluation.WorkshopCompleteDate}");
+            }
+            if (evaluation.Progression != Progression.FollowUp)
+            {
+                throw new InvalidOperationException(
+                    $"WorkshopCompleteDate requires an evaluation on FollowUp; it is: {evaluation.Progression}");
+            }
+            evaluation.WorkshopCompleteDate = DateTimeOffset.UtcNow;
+            _context.Evaluations.Update(evaluation);
+            _context.SaveChanges();
+            return evaluation;
+        }
+
         public IQueryable<Evaluation> GetAll()
         {
             return _context.Evaluations;

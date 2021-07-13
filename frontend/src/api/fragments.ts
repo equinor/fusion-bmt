@@ -27,6 +27,7 @@ export const EVALUATION_FIELDS_FRAGMENT = gql`
         progression
         summary
         previousEvaluationId
+        workshopCompleteDate
         __typename
     }
 `

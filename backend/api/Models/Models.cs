@@ -43,6 +43,8 @@ namespace api.Models
         public virtual string Summary { get; set; }
 
         public virtual string PreviousEvaluationId { get; set; }
+
+        public DateTimeOffset? WorkshopCompleteDate { get; set; }
     }
 
     public class Participant

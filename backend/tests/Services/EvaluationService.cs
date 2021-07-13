@@ -88,5 +88,33 @@ namespace tests
             service.SetSummary(evaluation, summary);
             Assert.Equal(summary, evaluation.Summary);
         }
+        
+        [Fact]
+        public void SetWorkshopCompleteDate()
+        {
+            Project project           = GetProject();
+            EvaluationService service = new EvaluationService(_context);
+            Evaluation evaluation     = service.Create("eval_name", project, "");
+            System.DateTimeOffset testStartDate = System.DateTimeOffset.UtcNow;
+
+            Assert.Null(evaluation.WorkshopCompleteDate);
+
+            evaluation.Progression = Progression.Workshop;
+            var exceptionProgress = Assert.Throws<System.InvalidOperationException>
+                (() => service.SetWorkshopCompleteDate(evaluation));
+            Assert.Contains(
+                $"WorkshopCompleteDate requires an evaluation on FollowUp; it is: {evaluation.Progression}",
+                exceptionProgress.Message);
+
+            evaluation.Progression = Progression.FollowUp;
+            service.SetWorkshopCompleteDate(evaluation);
+            Assert.True(testStartDate < evaluation.WorkshopCompleteDate);
+
+            var exceptionPreviouslySet = Assert.Throws<System.InvalidOperationException>
+                (() => service.SetWorkshopCompleteDate(evaluation));
+            Assert.Contains(
+                $"Completion date already set as: {evaluation.WorkshopCompleteDate}",
+                exceptionPreviouslySet.Message);
+        }
     }
 }
