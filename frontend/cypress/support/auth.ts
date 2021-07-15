@@ -102,7 +102,7 @@ declare global {
              * Retrieve user token from mock-oauth2-server and store it
              * @example cy.login(extHire1)
              */
-            login(value?: User): void
+            login(value?: User): Cypress.Chainable
         }
     }
 }
