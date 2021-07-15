@@ -14,4 +14,6 @@
 // ***********************************************************
 
 import './auth'
+import './visit'
 import './external'
+import './gql'

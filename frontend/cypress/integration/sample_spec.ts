@@ -5,14 +5,15 @@ import ProjectPage from '../support/project'
 import NominationPage from '../support/nomination'
 import users from '../support/users'
 
-beforeEach(() => {
-    cy.login()
-    const port = Cypress.env('FRONTEND_PORT') || '3000'
-    cy.visit(`http://localhost:${port}/123`)
-    cy.wait(1000) //const wait is not good, but don't know how to make it stable
-})
 
 describe('Sample tests', () => {
+    beforeEach(() => {
+        cy.login()
+        const port = Cypress.env('FRONTEND_PORT') || '3000'
+        cy.visit(`http://localhost:${port}/123`)
+        cy.wait(1000) //const wait is not good, but don't know how to make it stable
+    })
+
     it('User can create evaluation & assign people', () => {
         const evaluationName = 'Evaluation-' + Date.now()
 
@@ -44,3 +45,4 @@ describe('Sample tests', () => {
         })
     })
 })
+
