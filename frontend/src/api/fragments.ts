@@ -25,7 +25,6 @@ export const EVALUATION_FIELDS_FRAGMENT = gql`
         id
         name
         progression
-        summary
         __typename
     }
 `

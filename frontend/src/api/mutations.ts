@@ -202,30 +202,3 @@ export const useCreateNoteMutation = (): CreateNoteMutationProps => {
         error,
     }
 }
-
-export const useSummaryMutation = () => {
-    const SET_SUMMARY = gql`
-        mutation SetSummary($evaluationId: String, $summary: String) {
-            setSummary(evaluationId: $evaluationId, summary: $summary) {
-                id
-                summary
-            }
-        }
-    `
-
-    const [setSummaryApollo, { loading, error }] = useMutation(SET_SUMMARY)
-    const setSummary = (evaluationId: string, summary: string) => {
-        setSummaryApollo({
-            variables: {
-                evaluationId: evaluationId,
-                summary: summary,
-            },
-        })
-    }
-
-    return {
-        setSummary: setSummary,
-        loading,
-        error,
-    }
-}

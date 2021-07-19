@@ -79,7 +79,7 @@ namespace tests
 
             Assert.Equal(newtext, resultingQuestionTemplate.Text);
             Assert.Equal(newBarrier, resultingQuestionTemplate.Barrier);
-            Assert.Equal(questionTemplate, resultingQuestionTemplate.previousId);
+            Assert.Equal(questionTemplate, resultingQuestionTemplate.previous);
         }
 
         [Fact]

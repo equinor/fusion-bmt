@@ -74,19 +74,5 @@ namespace tests
 
             Assert.Equal(evaluationCreate, evaluationGet);
         }
-
-        [Fact]
-        public void SetSummary()
-        {
-            Project project           = GetProject();
-            EvaluationService service = new EvaluationService(_context);
-            Evaluation evaluation     = service.Create("eval_name", project);
-
-            string summary = "Summary";
-
-            Assert.Equal("", evaluation.Summary);
-            service.SetSummary(evaluation, summary);
-            Assert.Equal(summary, evaluation.Summary);
-        }
     }
 }

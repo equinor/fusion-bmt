@@ -77,15 +77,6 @@ namespace api.GQL
             return evaluation;
         }
 
-        public Evaluation SetSummary(string evaluationId, string summary)
-        {
-            _authService.AssertIsFacilitator(evaluationId);
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-
-            _evaluationService.SetSummary(evaluation, summary);
-            return evaluation;
-        }
-
         public Participant ProgressParticipant(string evaluationId, Progression newProgression)
         {
             string azureUniqueId = _authService.GetOID();
