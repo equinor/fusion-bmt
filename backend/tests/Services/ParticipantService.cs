@@ -119,7 +119,7 @@ namespace tests
             ParticipantService participantService = new ParticipantService(_context);
             EvaluationService evaluationService = new EvaluationService(_context);
             Project project = projectService.Create("ProgressAllParticipants");
-            Evaluation evaluation = evaluationService.Create("ProgressAllParticipants", project);
+            Evaluation evaluation = evaluationService.Create("ProgressAllParticipants", project, "");
             Participant participant1 = participantService.Create("ProgressAllParticipants1", evaluation, Organization.All, Role.Facilitator);
             Participant participant2 = participantService.Create("ProgressAllParticipants2", evaluation, Organization.Commissioning, Role.OrganizationLead);
 
@@ -140,7 +140,7 @@ namespace tests
             ParticipantService participantService = new ParticipantService(_context);
             EvaluationService evaluationService = new EvaluationService(_context);
             Project project = projectService.Create("ProgressParticipant");
-            Evaluation evaluation = evaluationService.Create("ProgressParticipant", project);
+            Evaluation evaluation = evaluationService.Create("ProgressParticipant", project, "");
             Participant participant = participantService.Create("ProgressParticipant", evaluation, Organization.All, Role.Facilitator);
 
             Progression progressionBefore = participant.Progression;
