@@ -35,8 +35,36 @@ export const useEvaluationsQuery = (projectId: string, azureUniqueId: string): E
     }
 }
 
+export const useGetAllEvaluationsQuery = (
+    projectId: string
+): EvaluationQueryProps => {
+    const GET_EVALUATIONS = gql`
+        query($projectId: String!) {
+            evaluations(where: { project: { id: { eq: $projectId } } }) {
+                id
+                name
+            }
+        }
+    `
+
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(
+        GET_EVALUATIONS,
+        { variables: { projectId } }
+    )
+
+    return {
+        loading,
+        evaluations: data?.evaluations,
+        error,
+    }
+}
+
 interface CreateEvaluationMutationProps {
-    createEvaluation: (name: string, projectId: string) => void
+    createEvaluation: (
+        name: string,
+        projectId: string,
+        previousEvaluationId?: string
+    ) => void
     loading: boolean
     evaluation: Evaluation | undefined
     error: ApolloError | undefined
@@ -44,8 +72,16 @@ interface CreateEvaluationMutationProps {
 
 export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
     const ADD_EVALUATION = gql`
-        mutation CreateEvaluation($name: String!, $projectId: String!) {
-            createEvaluation(name: $name, projectId: $projectId) {
+        mutation CreateEvaluation(
+            $name: String!
+            $projectId: String!
+            $previousEvaluationId: String
+        ) {
+            createEvaluation(
+                name: $name
+                projectId: $projectId
+                previousEvaluationId: $previousEvaluationId
+            ) {
                 ...EvaluationFields
             }
         }
@@ -68,8 +104,14 @@ export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => 
         },
     })
 
-    const createEvaluation = (name: string, projectId: string) => {
-        createEvaluationApolloFunc({ variables: { name, projectId } })
+    const createEvaluation = (
+        name: string,
+        projectId: string,
+        previousEvaluationId?: string
+    ) => {
+        createEvaluationApolloFunc({
+            variables: { name, projectId, previousEvaluationId },
+        })
     }
 
     return {

@@ -71,7 +71,7 @@ namespace tests
             ProjectService projectService = new ProjectService(_context);
             Project project = projectService.Create("AnswerService_GetFromQuestionExists");
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project);
+            Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project, "");
 
             ParticipantService participantService = new ParticipantService(_context);
             Participant participant = participantService.GetAll().ToList()[0];
@@ -143,7 +143,7 @@ namespace tests
             ProjectService projectService = new ProjectService(_context);
             Project project = projectService.Create("AnswerService_GetFromQuestionExists");
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project);
+            Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project, "");
 
             Participant participant = participantService.Create("CreateFollowUpAnswers_id", evaluation, Organization.All, Role.Facilitator);
             QuestionTemplateService qts = new QuestionTemplateService(_context);

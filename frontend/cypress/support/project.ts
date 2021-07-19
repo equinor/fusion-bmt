@@ -17,5 +17,9 @@ export default class ProjectPage {
              */
             return cy.get('[data-testid=create_evaluation_dialog_create_button_grid]').then($el => cy.wrap($el).find('button'))
         }
+
+        previousEvaluation= () => {
+            return cy.get('.fc--TextInput__inputTextContent--1gUuS')
+        }
     }
 }
