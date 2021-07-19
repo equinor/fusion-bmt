@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import { Button, TextArea } from '@equinor/fusion-components'
+import { Button, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
 import CreateEvaluationDialog from './CreateEvaluationDialog'
-import { useCreateEvaluationMutation } from './ProjectDashboardGQL'
+import { useCreateEvaluationMutation, useGetAllEvaluationsQuery } from './ProjectDashboardGQL'
 import { useProject } from '../../../globals/contexts'
 
 interface CreateEvaluationButtonProps {
@@ -11,26 +11,39 @@ interface CreateEvaluationButtonProps {
 }
 
 const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
-    const [showDialog, setShowDialog] = useState<boolean>(false)
-    const { createEvaluation, loading, evaluation, error } = useCreateEvaluationMutation()
-
     const project = useProject()
+    const [showDialog, setShowDialog] = useState<boolean>(false)
 
-    const onCreateEvaluationDialogSureClick = (name: string) => {
+    const onCreateEvaluationDialogSureClick = (
+        name: string,
+        previousEvaluationId?: string
+    ) => {
         setShowDialog(false)
-        createEvaluation(name, projectId)
+        createEvaluation(name, projectId, previousEvaluationId)
     }
+
     const onCreateEvaluationDialogCancelClick = () => {
         setShowDialog(false)
     }
+
     const onCreateEvaluationButtonClick = () => {
         setShowDialog(true)
     }
 
-    if (error !== undefined) {
+    const {
+        createEvaluation,
+        loading: loadingMutation,
+        evaluation,
+        error: errorMutation
+    } = useCreateEvaluationMutation()
+
+    if (errorMutation !== undefined) {
         return (
             <div>
-                <TextArea value={JSON.stringify(error)} onChange={() => {}} />
+                <TextArea
+                    value={JSON.stringify(errorMutation)}
+                    onChange={() => {}}
+                />
             </div>
         )
     }
@@ -38,7 +51,10 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     if (evaluation === undefined) {
         return (
             <>
-                <Button onClick={onCreateEvaluationButtonClick} disabled={loading}>
+                <Button
+                    onClick={onCreateEvaluationButtonClick}
+                    disabled={loadingMutation}
+                >
                     Create evaluation
                 </Button>
 

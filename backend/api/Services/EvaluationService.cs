@@ -19,7 +19,9 @@ namespace api.Services
             _context = context;
         }
 
-        public Evaluation Create(string name, Project project)
+        public Evaluation Create(string name,
+                                 Project project,
+                                 string previousEvaluationId)
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
@@ -30,7 +32,8 @@ namespace api.Services
                 Progression = Progression.Nomination,
                 Project = project,
                 Status = Status.Active,
-                Summary = ""
+                Summary = "",
+                PreviousEvaluationId = previousEvaluationId
             };
 
             _context.Evaluations.Add(newEvaluation);

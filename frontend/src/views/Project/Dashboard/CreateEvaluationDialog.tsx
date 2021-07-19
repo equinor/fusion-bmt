@@ -1,24 +1,40 @@
 import React, { useState } from 'react'
 
-import { Button, ModalSideSheet } from '@equinor/fusion-components'
+import {
+    Button,
+    ModalSideSheet,
+    SearchableDropdown,
+    SearchableDropdownOption,
+    TextArea,
+} from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
+import { useGetAllEvaluationsQuery } from './ProjectDashboardGQL'
+import { useProject } from '../../../globals/contexts'
 
 interface CreateEvaluationDialogProps {
     open: boolean
-    onCreate: (name: string) => void
+    onCreate: (name: string, previousEvaluationId?: string) => void
     onCancelClick: () => void
 }
 
-const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluationDialogProps) => {
+const CreateEvaluationDialog = ({
+    open,
+    onCreate,
+    onCancelClick,
+}: CreateEvaluationDialogProps) => {
+    const project = useProject()
     const [nameInputValue, setNameInputValue] = useState<string>('')
     const [inputErrorMessage, setInputErrorMessage] = useState<string>('')
+    const [selectedEvaluation, setSelectedEvaluation] = useState<
+        string | undefined
+    >(undefined)
 
     const handleCreateClick = () => {
         if (nameInputValue.length <= 0) {
             setInputErrorMessage(`The evaluation name must be filled out`)
         } else {
-            onCreate(nameInputValue)
+            onCreate(nameInputValue, selectedEvaluation)
         }
     }
 
@@ -26,6 +42,50 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluat
         setInputErrorMessage('')
         setNameInputValue(name)
     }
+
+    const {
+        loading: loadingQuery,
+        evaluations,
+        error: errorQuery,
+    } = useGetAllEvaluationsQuery(project.id)
+
+    if (loadingQuery) {
+        return <>Loading...</>
+    }
+
+    if (errorQuery !== undefined) {
+        return (
+            <div>
+                <TextArea
+                    value={`Error in loading evaluations: ${JSON.stringify(
+                        errorQuery
+                    )}`}
+                    onChange={() => {}}
+                />
+            </div>
+        )
+    }
+
+    if (evaluations === undefined) {
+        return (
+            <div>
+                <TextArea
+                    value={`Error in loading evaluations(undefined): ${JSON.stringify(
+                        evaluations
+                    )}`}
+                    onChange={() => {}}
+                />
+            </div>
+        )
+    }
+
+    const evaluationOptions: SearchableDropdownOption[] = evaluations.map(
+        evaluation => ({
+            title: evaluation.name,
+            key: evaluation.id,
+            isSelected: evaluation.id === selectedEvaluation,
+        })
+    )
 
     return (
         <>
@@ -51,6 +111,16 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluat
                                     }
                                 }}
                                 data-testid="create_evaluation_dialog_name_text_field"
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <SearchableDropdown
+                                label="Previous Evaluation (Optional)"
+                                placeholder="Select previous evaluation"
+                                onSelect={option =>
+                                    setSelectedEvaluation(option.key)
+                                }
+                                options={evaluationOptions}
                             />
                         </Grid>
                         {inputErrorMessage !== '' && (

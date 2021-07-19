@@ -148,6 +148,7 @@ export type Evaluation = {
   questions: Array<Maybe<Question>>;
   project: Project;
   summary?: Maybe<Scalars['String']>;
+  previousEvaluationId?: Maybe<Scalars['String']>;
 };
 
 export type EvaluationFilterInput = {
@@ -162,6 +163,7 @@ export type EvaluationFilterInput = {
   questions?: Maybe<ListFilterInputTypeOfQuestionFilterInput>;
   project?: Maybe<ProjectFilterInput>;
   summary?: Maybe<StringOperationFilterInput>;
+  previousEvaluationId?: Maybe<StringOperationFilterInput>;
 };
 
 export type GraphQuery = {
@@ -280,6 +282,7 @@ export type Mutation = {
 export type MutationCreateEvaluationArgs = {
   name?: Maybe<Scalars['String']>;
   projectId?: Maybe<Scalars['String']>;
+  previousEvaluationId?: Maybe<Scalars['String']>;
 };
 
 
