@@ -272,6 +272,7 @@ export type Mutation = {
   setAnswer?: Maybe<Answer>;
   createAction?: Maybe<Action>;
   editAction?: Maybe<Action>;
+  deleteAction?: Maybe<Action>;
   createNote?: Maybe<Note>;
   editNote?: Maybe<Note>;
 };
@@ -365,6 +366,11 @@ export type MutationEditActionArgs = {
   onHold: Scalars['Boolean'];
   completed: Scalars['Boolean'];
   priority: Priority;
+};
+
+
+export type MutationDeleteActionArgs = {
+  actionId?: Maybe<Scalars['String']>;
 };
 
 
