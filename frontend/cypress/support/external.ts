@@ -69,7 +69,7 @@ Cypress.Commands.add('interceptExternal', () => {
     })
 })
 
-before(() => {
+beforeEach(() => {
     cy.interceptExternal()
     cy.viewport(1800, 1000) //until we decide to test on various resolutions
 })

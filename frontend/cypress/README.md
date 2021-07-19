@@ -55,7 +55,7 @@ API_URL=http://localhost:5009 npm start -- -p 3009
 cypress:
 
 ```
-npm run cyopen -- --env FRONTEND_PORT=3009
+npm run cyopen -- --env FRONTEND_PORT=3009,API_URL=http://localhost:5009
 ```
 
 ## Mock Authentication

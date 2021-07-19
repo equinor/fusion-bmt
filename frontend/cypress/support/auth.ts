@@ -7,6 +7,16 @@ const ISSUER = 'common'
 /* TODO: figure out if we want to retrieve token before each test,
  * or if we are able to store tokens of all users we need (or all users at all)
  */
+export const getToken = (): string => {
+    const fusionStorageJson = localStorage.getItem(`FUSION_AUTH_CACHE`)
+    if (fusionStorageJson === null) {
+        throw new Error('Could not find auth token in local storage')
+    }
+    const fusionStorage = JSON.parse(fusionStorageJson)
+    const token = fusionStorage[`FUSION_AUTH_CACHE:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN`]
+    return token
+}
+
 
 Cypress.Commands.add('login', (user: User = users[0]) => {
     cy.log('Logging with user: ' + user.username)
@@ -102,7 +112,7 @@ declare global {
              * Retrieve user token from mock-oauth2-server and store it
              * @example cy.login(extHire1)
              */
-            login(value?: User): void
+            login(value?: User): Cypress.Chainable
         }
     }
 }
