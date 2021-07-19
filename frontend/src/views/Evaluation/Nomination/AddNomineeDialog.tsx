@@ -97,7 +97,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             <div style={{ margin: 20 }} data-testid="nominee_dialog_body">
                 <SearchableDropdown
                     options={orgOptions}
-                    label="Orgnization"
+                    label="Organization"
                     onSelect={item => {
                         updateOrgOptions(item)
                         setSelectedOrg(Organization[item.key as keyof typeof Organization])
