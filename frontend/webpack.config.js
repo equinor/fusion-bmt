@@ -14,6 +14,7 @@ console.log('--- MODE:', mode, 'API_URL:', API_URL)
 
 module.exports = {
     mode: mode,
+    ...(isProduction ? {} : { devtool: 'eval-source-map' }),
     plugins: [
         new webpack.DefinePlugin({
             API_URL: JSON.stringify(API_URL),
