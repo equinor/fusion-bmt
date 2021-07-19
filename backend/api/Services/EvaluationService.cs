@@ -29,7 +29,8 @@ namespace api.Services
                 Name = name,
                 Progression = Progression.Nomination,
                 Project = project,
-                Status = Status.Active
+                Status = Status.Active,
+                Summary = ""
             };
 
             _context.Evaluations.Add(newEvaluation);
@@ -41,6 +42,14 @@ namespace api.Services
         public Evaluation ProgressEvaluation(Evaluation evaluation, Progression nextProgression)
         {
             evaluation.Progression = nextProgression;
+            _context.Evaluations.Update(evaluation);
+            _context.SaveChanges();
+            return evaluation;
+        }
+
+        public Evaluation SetSummary(Evaluation evaluation, string summary)
+        {
+            evaluation.Summary = summary;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();
             return evaluation;
