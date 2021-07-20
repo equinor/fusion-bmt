@@ -91,6 +91,7 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                                         )}
                                     </Box>
                                     <IconButton
+                                        data-testid={`delete_action_button_${action.id}`}
                                         onClick={() => {
                                             setIsConfirmDeleteDialogOpen(true)
                                             setActionToDelete(action.id)
