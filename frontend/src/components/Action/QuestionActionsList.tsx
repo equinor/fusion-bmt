@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 
 import { Box } from '@material-ui/core'
-import { Button, Typography, Icon } from '@equinor/eds-core-react'
+import { Button, Typography, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add } from '@equinor/eds-icons'
+import { IconButton, DeleteIcon, DoneIcon, TextArea } from '@equinor/fusion-components'
 
 import { Action, Participant, Question } from '../../api/models'
 import PriorityIndicator from './PriorityIndicator'
@@ -60,7 +61,7 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                     .map(action => {
                         return (
                             <div key={action.id}>
-                                <Box display="flex">
+                                <Box display="flex" alignItems="center">
                                     <Box p="0.3rem">
                                         <PriorityIndicator priority={action.priority} />
                                     </Box>
@@ -69,9 +70,11 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                                             {action.title}
                                         </Typography>
                                         {action.completed && (
-                                            <Typography bold italic>
-                                                &nbsp;{'- Completed'}
-                                            </Typography>
+                                            <Box p="0.1rem">
+                                                <Tooltip placement="bottom" title="Completed">
+                                                    <DoneIcon />
+                                                </Tooltip>
+                                            </Box>
                                         )}
                                     </Box>
                                 </Box>
