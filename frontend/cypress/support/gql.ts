@@ -128,6 +128,15 @@ export const CREATE_ACTION = `
         }
     }
 `
+
+export const DELETE_ACTION = `
+mutation DeleteAction($actionId: String) {
+    deleteAction(actionId: $actionId) {
+        id
+    }
+}
+`
+
 export const CREATE_NOTE = `
     mutation CreateNote($text: String, $actionId: String) {
         createNote(text: $text, actionId: $actionId) {

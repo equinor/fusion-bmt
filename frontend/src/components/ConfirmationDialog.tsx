@@ -17,7 +17,7 @@ const ConfirmationDialog = ({ isOpen, title, description, onConfirmClick, onCanc
     return (
         <>
             <Scrim isDismissable={true} onClose={onCancelClick}>
-                <Dialog>
+                <Dialog data-testid="confirmation_dialog">
                     <Dialog.Title>{title}</Dialog.Title>
                     {description && (
                         <Dialog.CustomContent>
@@ -32,10 +32,12 @@ const ConfirmationDialog = ({ isOpen, title, description, onConfirmClick, onCanc
                     >
                         <Box display="flex" flexDirection="row">
                             <Box flexGrow={1}>
-                                <Button onClick={onCancelClick}>No</Button>
+                                <Button data-testid="no_button" onClick={onCancelClick}>
+                                    No
+                                </Button>
                             </Box>
                             <Box>
-                                <Button variant="ghost" onClick={onConfirmClick}>
+                                <Button data-testid="yes_button" variant="ghost" onClick={onConfirmClick}>
                                     Yes
                                 </Button>
                             </Box>
