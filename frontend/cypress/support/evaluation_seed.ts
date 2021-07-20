@@ -13,6 +13,11 @@ import {
     PROGRESS_PARTICIPANT
 } from './gql'
 
+interface IEvaluationSeed {
+    progression?: Progression
+    nParticipants?: number
+    fusionProjectId?: string
+}
 
 /** Setup an arbitrary Evaluation state - and feed it to the backend DB
  *
@@ -113,11 +118,11 @@ export class EvaluationSeed {
     questions: Question[] = []
 
 
-    constructor(
-        progression: Progression,
-        nParticipants: number,
-        fusionProjectId: string = '123')
-    {
+    constructor({
+        progression = Progression.Individual,
+        nParticipants = 1,
+        fusionProjectId = '123'}: IEvaluationSeed
+    ){
         if (progression === undefined) {
             progression = Progression.Individual
         }

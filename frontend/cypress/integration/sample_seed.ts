@@ -3,7 +3,10 @@ import { Organization, Priority, Progression, Severity } from '../../src/api/mod
 import {Action, Answer, Note, Summary} from '../support/mocks'
 
 const exampleSeed = () => {
-    let seed = new EvaluationSeed(Progression.Workshop, 2)
+    let seed = new EvaluationSeed({
+        progression: Progression.Workshop,
+        nParticipants: 2
+    })
 
     let facilitator = seed.participants[0]
     facilitator.progression = Progression.FollowUp
