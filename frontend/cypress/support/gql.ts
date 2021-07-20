@@ -129,6 +129,32 @@ export const CREATE_ACTION = `
     }
 `
 
+export const EDIT_ACTION = `
+    mutation EditAction(
+        $actionId: String
+        $assignedToId: String
+        $description: String
+        $dueDate: DateTime!
+        $priority: Priority!
+        $title: String
+        $completed: Boolean!
+        $onHold: Boolean!
+    ) {
+        editAction(
+            actionId: $actionId
+            assignedToId: $assignedToId
+            description: $description
+            dueDate: $dueDate
+            priority: $priority
+            title: $title
+            completed: $completed
+            onHold: $onHold
+        ) {
+            id
+        }
+    }
+`
+
 export const DELETE_ACTION = `
 mutation DeleteAction($actionId: String) {
     deleteAction(actionId: $actionId) {

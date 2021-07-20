@@ -1,6 +1,7 @@
 import { Progression, Question, Role } from '../../src/api/models'
 import users from './users'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
+import { createAction } from './mocks'
 import {
     GET_PROJECT,
     ADD_EVALUATION,
@@ -8,6 +9,7 @@ import {
     SET_ANSWER,
     ADD_PARTICIPANT,
     CREATE_ACTION,
+    EDIT_ACTION,
     CREATE_NOTE,
     SET_SUMMARY,
     PROGRESS_PARTICIPANT
@@ -168,6 +170,8 @@ export class EvaluationSeed {
         this.summary = summary
         return this
     }
+
+    public createAction = createAction;
 
     findQuestionId(order: number) {
         const question = this.questions.find( x => x.order === order )
@@ -340,6 +344,24 @@ const populateDB = (seed: EvaluationSeed) => {
         }
         ).then( (res) => {
             action.id = res.body.data.createAction.id
+        }).then( () => {
+            cy.log(`EvaluationSeed: Editing Action`)
+            cy.gql(
+                EDIT_ACTION,
+                {
+                    variables: {
+                        actionId: action.id,
+                        completed: action.completed,
+                        onHold: action.onHold,
+                        assignedToId: action.assignedTo.id,
+                        description: action.description,
+                        dueDate: action.dueDate,
+                        priority: action.priority,
+                        title: action.title
+                    }
+
+                }
+            )
         })
     }
     ).then( () => { return seed.notes }

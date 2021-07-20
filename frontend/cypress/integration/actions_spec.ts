@@ -1,38 +1,31 @@
 import { EvaluationSeed } from '../support/evaluation_seed'
-import { Priority, Progression } from '../../src/api/models'
+import { Progression } from '../../src/api/models'
 import { Action } from '../support/mocks'
 import ActionsGrid from '../support/action_grid'
 import { ConfirmationDialog } from '../support/common'
 import { DELETE_ACTION } from '../support/gql'
+import * as faker from 'faker'
 
 describe('Actions', () => {
     context('Delete', () => {
         const createSeed = () => {
-            let seed = new EvaluationSeed(Progression.Workshop, 2)
+            let seed = new EvaluationSeed(
+                faker.random.arrayElement([Progression.Workshop, Progression.FollowUp]),
+                faker.datatype.number({ min: 1, max: 5 })
+            )
 
-            let facilitator = seed.participants[0]
-            let engineer = seed.participants[1]
-
-            const actionToDelete = new Action({
-                questionOrder: 1,
-                assignedTo: engineer,
-                createdBy: facilitator,
-                dueDate: new Date(),
+            const actionToDelete = seed.createAction({
                 title: 'You shall be murdered! 😇',
-                priority: Priority.High,
                 description: 'Naughty, naughty action!',
             })
-
-            const actionToStay = new Action({
-                questionOrder: 1,
-                assignedTo: engineer,
-                createdBy: facilitator,
-                dueDate: new Date(),
+            const actionToStay = seed.createAction({
                 title: 'You have my permission to live 😈',
-                priority: Priority.Low
             })
+            const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 5 }) }, () => {
+                return seed.createAction({})
+            })
+            faker.helpers.shuffle([actionToDelete, actionToStay, ...otherActions]).forEach(a => seed.addAction(a))
 
-            seed.addAction(actionToDelete).addAction(actionToStay)
             return { seed, actionToDelete, actionToStay }
         }
 
