@@ -5,5 +5,5 @@ interface IEvaluationName {
 }
 
 export const evaluationName = ({prefix='Evaluation'}: IEvaluationName) => {
-    return `${prefix}-(${Date.now()}) `
+    return `${prefix}-(${Math.floor(Math.random() * 1000000)})`
 }
