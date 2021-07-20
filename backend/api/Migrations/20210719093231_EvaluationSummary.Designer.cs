@@ -10,8 +10,8 @@ using api.Context;
 namespace api.Migrations
 {
     [DbContext(typeof(BmtDbContext))]
-    [Migration("20210709134613_WorkshopSummary")]
-    partial class WorkshopSummary
+    [Migration("20210719093231_EvaluationSummary")]
+    partial class EvaluationSummary
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -296,12 +296,12 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("previousIdId")
+                    b.Property<string>("previousId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("previousIdId");
+                    b.HasIndex("previousId");
 
                     b.ToTable("QuestionTemplates");
                 });
@@ -406,11 +406,11 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.QuestionTemplate", b =>
                 {
-                    b.HasOne("api.Models.QuestionTemplate", "previousId")
+                    b.HasOne("api.Models.QuestionTemplate", "previous")
                         .WithMany()
-                        .HasForeignKey("previousIdId");
+                        .HasForeignKey("previousId");
 
-                    b.Navigation("previousId");
+                    b.Navigation("previous");
                 });
 
             modelBuilder.Entity("api.Models.Action", b =>

@@ -294,12 +294,12 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("previousIdId")
+                    b.Property<string>("previousId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("previousIdId");
+                    b.HasIndex("previousId");
 
                     b.ToTable("QuestionTemplates");
                 });
@@ -404,11 +404,11 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Models.QuestionTemplate", b =>
                 {
-                    b.HasOne("api.Models.QuestionTemplate", "previousId")
+                    b.HasOne("api.Models.QuestionTemplate", "previous")
                         .WithMany()
-                        .HasForeignKey("previousIdId");
+                        .HasForeignKey("previousId");
 
-                    b.Navigation("previousId");
+                    b.Navigation("previous");
                 });
 
             modelBuilder.Entity("api.Models.Action", b =>

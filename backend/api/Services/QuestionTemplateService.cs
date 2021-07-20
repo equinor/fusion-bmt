@@ -77,7 +77,7 @@ namespace api.Services
                 SupportNotes = supportNotes,
                 Status = status,
                 Order = questionTemplate.Order,
-                previousId = questionTemplate,
+                previous = questionTemplate,
             };
             _context.QuestionTemplates.Add(newQuestionTemplate);
 
