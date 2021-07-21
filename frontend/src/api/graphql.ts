@@ -1,4 +1,5 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client'
+import { onError } from "@apollo/client/link/error";
 import { setContext } from '@apollo/client/link/context'
 import { IFusionContext } from '@equinor/fusion'
 import { TokenRefreshLink } from 'apollo-link-token-refresh'
@@ -25,6 +26,17 @@ const authLink = setContext((_, { headers }) => {
         },
     }
 })
+
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors)
+    graphQLErrors.forEach(({ message, locations, path }) =>
+      console.log(
+        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+      ),
+    );
+
+  if (networkError) console.log(`[Network error]: ${networkError}`);
+});
 
 const getToken = (): string => {
     const fusionStorageJson = localStorage.getItem(`FUSION_AUTH_CACHE`)
@@ -58,6 +70,6 @@ const refreshLink = new TokenRefreshLink({
 })
 
 export const client = new ApolloClient({
-    link: authLink.concat(refreshLink).concat(httpLink),
+    link: authLink.concat(refreshLink).concat(errorLink).concat(httpLink),
     cache: new InMemoryCache(),
 })
