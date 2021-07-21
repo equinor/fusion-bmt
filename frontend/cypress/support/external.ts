@@ -41,6 +41,7 @@ Cypress.Commands.add('interceptExternal', () => {
 
     // TODO: do we want to intercept all the outgoing requests that currently result in errors
     cy.intercept('https://pro-s-portal-ci.azurewebsites.net/api/persons/me/settings/apps/bmt', {})
+    cy.intercept('https://pro-s-portal-ci.azurewebsites.net/log/features', {})
 
     const personsURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)(?:(\?\$.*)|$)/
     cy.intercept(personsURL, req => {

@@ -1,8 +1,6 @@
-import { Button, Dialog, Scrim, Typography } from '@equinor/eds-core-react'
-import { Box } from '@material-ui/core'
-import React from 'react'
 import { Progression } from '../api/models'
 import { progressionToString } from '../utils/EnumToString'
+import ConfirmationDialog from './ConfirmationDialog'
 
 interface ProgressEvaluationDialogProps {
     isOpen: boolean
@@ -13,34 +11,15 @@ interface ProgressEvaluationDialogProps {
 
 const ProgressEvaluationDialog = ({ isOpen, currentProgression, onConfirmClick, onCancelClick }: ProgressEvaluationDialogProps) => {
     if (!isOpen) return <></>
-
     return (
         <>
-            <Scrim isDismissable={true} onClose={onCancelClick}>
-                <Dialog>
-                    <Dialog.Title>Progress to the next step?</Dialog.Title>
-                    <Dialog.CustomContent>
-                        <Typography>{progressionDialogTexts(currentProgression)}</Typography>
-                    </Dialog.CustomContent>
-                    <Dialog.Actions
-                        style={{
-                            boxSizing: 'border-box',
-                            width: '100%',
-                        }}
-                    >
-                        <Box display="flex" flexDirection="row">
-                            <Box flexGrow={1}>
-                                <Button onClick={onCancelClick}>No</Button>
-                            </Box>
-                            <Box>
-                                <Button variant="ghost" onClick={onConfirmClick}>
-                                    Yes
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Dialog.Actions>
-                </Dialog>
-            </Scrim>
+            <ConfirmationDialog
+                isOpen={isOpen}
+                title="Progress to the next step?"
+                description={progressionDialogTexts(currentProgression)}
+                onConfirmClick={onConfirmClick}
+                onCancelClick={onCancelClick}
+            />
         </>
     )
 }
