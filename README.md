@@ -10,7 +10,7 @@ To run the project with docker-compose use:
 ### Prerequisites
 
 -   [.NET 5.0+](https://dotnet.microsoft.com/download/dotnet/5.0)
--   [Node 14+ with npm](https://github.com/nodesource/distributions/blob/master/README.md)
+-   [Node 16+ with npm 7+](https://github.com/nodesource/distributions/blob/master/README.md)
 -   [Docker](https://docs.docker.com/engine/install/)
 
 ## Frontend
