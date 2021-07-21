@@ -32,7 +32,7 @@ namespace tests
             EvaluationService evaluationService = new EvaluationService(_context);
 
             int nEvaluationsBefore = evaluationService.GetAll().Count();
-            evaluationService.Create("some_name", project);
+            evaluationService.Create("some_name", project, "");
             int nEvaluationsAfter = evaluationService.GetAll().Count();
 
             Assert.Equal(nEvaluationsBefore + 1, nEvaluationsAfter);
@@ -44,7 +44,7 @@ namespace tests
             Project project = GetProject();
 
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.Create("some_name", project);
+            Evaluation evaluation = evaluationService.Create("some_name", project, "");
             Progression nextEvaluation = ServiceUtil.NextProgression(evaluation.Progression);
 
             Progression progressionBefore = evaluation.Progression;
@@ -68,7 +68,7 @@ namespace tests
             Project project = GetProject();
 
             EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluationCreate = evaluationService.Create("some_evaluation_name", project);
+            Evaluation evaluationCreate = evaluationService.Create("some__name", project, "");
 
             Evaluation evaluationGet = evaluationService.GetEvaluation(evaluationCreate.Id);
 
@@ -80,7 +80,7 @@ namespace tests
         {
             Project project           = GetProject();
             EvaluationService service = new EvaluationService(_context);
-            Evaluation evaluation     = service.Create("eval_name", project);
+            Evaluation evaluation     = service.Create("eval_name", project, "");
 
             string summary = "Summary";
 

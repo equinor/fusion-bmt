@@ -48,11 +48,15 @@ namespace api.GQL
             _logger = logger;
         }
 
-        public Evaluation CreateEvaluation(string name, string projectId)
+        public Evaluation CreateEvaluation(string name,
+                                           string projectId,
+                                           string previousEvaluationId)
         {
             string azureUniqueId = _authService.GetOID();
             Project project = _projectService.GetProject(projectId);
-            Evaluation evaluation = _evaluationService.Create(name, project);
+            Evaluation evaluation = _evaluationService.Create(
+                name, project, previousEvaluationId
+            );
             _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
 
             _questionService.CreateBulk(_questionTemplateService.ActiveQuestions(), evaluation);

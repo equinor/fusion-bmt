@@ -1,5 +1,6 @@
 import { Progression, Question, Role } from '../../src/api/models'
 import users from './users'
+import { evaluationName } from './helpers'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
 import {
     GET_PROJECT,
@@ -13,6 +14,12 @@ import {
     PROGRESS_PARTICIPANT
 } from './gql'
 
+interface IEvaluationSeed {
+    progression?: Progression
+    nParticipants?: number
+    fusionProjectId?: string
+    namePrefix?: string
+}
 
 /** Setup an arbitrary Evaluation state - and feed it to the backend DB
  *
@@ -113,11 +120,12 @@ export class EvaluationSeed {
     questions: Question[] = []
 
 
-    constructor(
-        progression: Progression,
-        nParticipants: number,
-        fusionProjectId: string = '123')
-    {
+    constructor({
+        progression = Progression.Individual,
+        nParticipants = 1,
+        fusionProjectId = '123',
+        namePrefix = 'Evaluation'}: IEvaluationSeed
+    ) {
         if (progression === undefined) {
             progression = Progression.Individual
         }
@@ -146,7 +154,7 @@ export class EvaluationSeed {
 
         this.progression = progression
         this.fusionProjectId = fusionProjectId
-        this.name = 'Evaluation-' + Date.now()
+        this.name = evaluationName({prefix: namePrefix})
     }
 
     addAnswer(answer: Answer) {
