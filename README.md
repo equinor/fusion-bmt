@@ -1,6 +1,6 @@
 # Barrier Management Tool
 
-[![Build Status](https://dev.azure.com/lambdaville/Fusion-BMT/_apis/build/status/equinor.fusion-bmt?branchName=master)](https://dev.azure.com/lambdaville/Fusion-BMT/_build/latest?definitionId=22&branchName=master)
+[![Build Status](https://dev.azure.com/Shellvis/Fusion-BMT/_apis/build/status/equinor.fusion-bmt?branchName=master)](https://dev.azure.com/Shellvis/Fusion-BMT/_build/latest?definitionId=22&branchName=master)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/45edba07b87447489c54a51867141261)](https://www.codacy.com/gh/equinor/fusion-bmt/dashboard?utm_source=github.com&utm_medium=referral&utm_content=equinor/fusion-bmt&utm_campaign=Badge_Grade)
 
 To run the project with docker-compose use:
@@ -10,7 +10,7 @@ To run the project with docker-compose use:
 ### Prerequisites
 
 -   [.NET 5.0+](https://dotnet.microsoft.com/download/dotnet/5.0)
--   [Node 12+ with npm](https://github.com/nodesource/distributions/blob/master/README.md)
+-   [Node 14+ with npm](https://github.com/nodesource/distributions/blob/master/README.md)
 -   [Docker](https://docs.docker.com/engine/install/)
 
 ## Frontend
