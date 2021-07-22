@@ -53,7 +53,7 @@ namespace tests
         {
             string projectId = _context.Projects.First().Id;
             int evaluationsBefore = _context.Evaluations.Count();
-            _mutation.CreateEvaluation("CreateEvaluation", projectId);
+            _mutation.CreateEvaluation("CreateEvaluation", projectId, "");
             int evaluationsAfter = _context.Evaluations.Count();
 
             Assert.Equal(evaluationsBefore + 1, evaluationsAfter);
@@ -63,7 +63,7 @@ namespace tests
         public void ProgressEvaluationToFollowup()
         {
             Project project = _projectService.Create("ProgressEvaluationToFollowup");
-            Evaluation evaluation = _evaluationService.Create("ProgressEvaluationToFollowup", project);
+            Evaluation evaluation = _evaluationService.Create("ProgressEvaluationToFollowup", project, "");
             Participant participant = _participantService.Create("ProgressEvaluationToFollowup", evaluation, Organization.All, Role.Facilitator);
 
             List<Question> questions = _questionService.CreateBulk(_questionTemplateService.GetAll().ToList(), evaluation);

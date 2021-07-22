@@ -41,6 +41,8 @@ namespace api.Models
         public virtual Project Project { get; set; }
 
         public virtual string Summary { get; set; }
+
+        public virtual string PreviousEvaluationId { get; set; }
     }
 
     public class Participant
