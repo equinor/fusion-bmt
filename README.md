@@ -155,7 +155,7 @@ before performing this.
 
 ### Etc
 
--   [Radix console](https://console.radix.equinor.com/applications/pia)
+-   [Radix console](https://console.radix.equinor.com/applications/fusion-bmt)
 -   [Fusion console](https://admin.ci.fusion-dev.net/apps)
 -   [Figma drawings](https://www.figma.com/proto/wAzF4PAx9OPOoMGtsaju06/BMT?node-id=1%3A3110&viewport=650%2C493%2C0.052038900554180145&scaling=min-zoom)
 -   [Microsoft Teams group](https://teams.microsoft.com/_#/conversations/Generelt?threadId=19:bfb40c49b3e2494fa69763c4bcf642a9@thread.tacv2&ctx=channel)
