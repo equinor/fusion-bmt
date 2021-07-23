@@ -34,7 +34,10 @@ const ActionCreateSidebarWithApi = ({ isOpen, connectedQuestion, possibleAssigne
     return (
         <ActionCreateSidebar
             open={isOpen}
-            onClose={onClose}
+            onClose={ () => {
+                onClose()
+                setError('')
+            }}
             connectedQuestion={connectedQuestion}
             possibleAssignees={possibleAssignees}
             onActionCreate={createAction}
