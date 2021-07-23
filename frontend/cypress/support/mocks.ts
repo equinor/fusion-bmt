@@ -1,6 +1,8 @@
+import * as faker from 'faker'
+
 import { Organization, Priority, Progression, Role, Severity } from '../../src/api/models'
 import { User } from './users'
-
+import { EvaluationSeed } from './evaluation_seed'
 
 interface IParticipant {
     user: User
@@ -16,19 +18,13 @@ export class Participant {
     organization: Organization
     progression: Progression
 
-    constructor ({
-        user,
-        role = Role.Participant,
-        organization =  Organization.All,
-        progression = Progression.Individual
-    }: IParticipant) {
+    constructor({ user, role = Role.Participant, organization = Organization.All, progression = Progression.Individual }: IParticipant) {
         this.user = user
         this.role = role
         this.organization = organization
         this.progression = progression
     }
 }
-
 
 interface IAnswer {
     questionOrder: number
@@ -46,13 +42,7 @@ export class Answer {
     text: string
     severity: Severity
 
-    constructor({
-        questionOrder,
-        answeredBy,
-        progression = answeredBy.progression,
-        text = '',
-        severity = Severity.Na,
-    }: IAnswer) {
+    constructor({ questionOrder, answeredBy, progression = answeredBy.progression, text = '', severity = Severity.Na }: IAnswer) {
         this.questionOrder = questionOrder
         this.answeredBy = answeredBy
         this.progression = progression
@@ -61,8 +51,7 @@ export class Answer {
     }
 }
 
-
-interface IAction {
+type IAction = {
     questionOrder: number
     assignedTo: Participant
     createdBy: Participant
@@ -70,6 +59,26 @@ interface IAction {
     title: string
     priority: Priority
     description?: string
+    completed?: boolean
+    onHold?: boolean
+}
+
+export function createAction(
+    this: EvaluationSeed,
+    {
+        assignedTo = faker.random.arrayElement(this!.participants),
+        createdBy = faker.random.arrayElement(this!.participants),
+        // no access to questions as creation is run before plant. Reconsider?
+        questionOrder = faker.datatype.number({ min: 1, max: 3 }),
+        dueDate = faker.date.future(),
+        title = faker.lorem.sentence(),
+        priority = faker.random.arrayElement(Object.values(Priority)),
+        description = faker.lorem.words(),
+        completed = faker.datatype.boolean(),
+        onHold = faker.datatype.boolean(),
+    }: Partial<IAction>
+) {
+    return new Action({ assignedTo, createdBy, questionOrder, dueDate, title, priority, description, completed, onHold })
 }
 
 export class Action {
@@ -81,6 +90,8 @@ export class Action {
     title: string
     priority: Priority
     description: string
+    completed?: boolean
+    onHold?: boolean
 
     constructor({
         questionOrder,
@@ -90,6 +101,8 @@ export class Action {
         title,
         priority,
         description = '',
+        completed = false,
+        onHold = false,
     }: IAction) {
         this.questionOrder = questionOrder
         this.assignedTo = assignedTo
@@ -98,9 +111,10 @@ export class Action {
         this.title = title
         this.priority = priority
         this.description = description
+        this.completed = completed
+        this.onHold = onHold
     }
 }
-
 
 interface INote {
     text: string
@@ -113,23 +127,18 @@ export class Note {
     action: Action
     createdBy: Participant
 
-    constructor({
-        text,
-        action,
-        createdBy,
-    }: INote) {
+    constructor({ text, action, createdBy }: INote) {
         this.text = text
         this.action = action
         this.createdBy = createdBy
     }
 }
 
-
 export class Summary {
     summary: string
     createdBy: Participant
 
-    constructor (summary: string, createdBy: Participant) {
+    constructor(summary: string, createdBy: Participant) {
         this.summary = summary
         this.createdBy = createdBy
     }
