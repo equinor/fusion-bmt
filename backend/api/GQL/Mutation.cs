@@ -189,6 +189,16 @@ namespace api.GQL
             return _actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed, priority);
         }
 
+        public Action DeleteAction(string actionId)
+        {
+            /* Note that no related fields are loaded */
+            IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
+            Action action = queryableAction.First();
+
+             _actionService.Remove(action);
+             return action;
+        }
+
         public Note CreateNote(string actionId, string text)
         {
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);

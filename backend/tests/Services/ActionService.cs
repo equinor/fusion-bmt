@@ -82,5 +82,20 @@ namespace tests
             Action resultingAction = actionService.GetAction(actionId).First();
             Assert.Equal(newDescription, resultingAction.Description);
         }
+
+        [Fact]
+        public void DeleteAction()
+        {
+            NoteService noteService = new NoteService(_context);
+            ActionService actionService = new ActionService(_context);
+
+            Action action = actionService.GetAll().Where(a => a.Notes.Count() > 0).First();
+            Note note = action.Notes.First();
+
+            Action deleted = actionService.Remove(action);
+
+            Assert.Equal(action.Id, deleted.Id);
+            Assert.Throws<NotFoundInDBException>(() => noteService.GetNote(note.Id));
+        }
     }
 }

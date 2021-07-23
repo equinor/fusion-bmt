@@ -77,6 +77,13 @@ namespace api.Services
             return action;
         }
 
+        public Action Remove(Action action)
+        {
+            _context.Actions.Remove(action);
+            _context.SaveChanges();
+            return action;
+        }
+
         public IQueryable<Action> GetAll()
         {
             return _context.Actions;

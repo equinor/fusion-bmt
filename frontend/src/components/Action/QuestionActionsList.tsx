@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 
 import { Box } from '@material-ui/core'
-import { Button, Typography, Icon } from '@equinor/eds-core-react'
+import { Button, Typography, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add } from '@equinor/eds-icons'
+import { IconButton, DeleteIcon, DoneIcon, TextArea } from '@equinor/fusion-components'
 
 import { Action, Participant, Question } from '../../api/models'
+import { useDeleteActionMutation } from '../../api/mutations'
 import PriorityIndicator from './PriorityIndicator'
 import ActionEditSidebarWithApi from './EditForm/ActionEditSidebarWithApi'
 import ActionCreateSidebarWithApi from './CreateForm/ActionCreateSidebarWithApi'
+import ConfirmationDialog from './../ConfirmationDialog'
 
 interface Props {
     question: Question
@@ -17,8 +20,12 @@ interface Props {
 const QuestionActionsList = ({ question, participants }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState<boolean>(false)
+    const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState<boolean>(false)
     const [actionToEditId, setActionToEditId] = useState<string | undefined>()
+    const [actionToDelete, setActionToDelete] = useState<string | undefined>()
     const actions = [...question.actions]
+
+    const { deleteAction, error: errorDeletingAction } = useDeleteActionMutation(question.id)
 
     const openActionEditSidebar = (action: Action) => {
         setIsEditSidebarOpen(true)
@@ -58,9 +65,16 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                         return 0
                     })
                     .map(action => {
+                        if (errorDeletingAction !== undefined && actionToDelete === action.id) {
+                            return (
+                                <div>
+                                    <TextArea value={`Error deleting action: ${JSON.stringify(errorDeletingAction)}`} onChange={() => {}} />
+                                </div>
+                            )
+                        }
                         return (
                             <div key={action.id}>
-                                <Box display="flex">
+                                <Box display="flex" alignItems="center">
                                     <Box p="0.3rem">
                                         <PriorityIndicator priority={action.priority} />
                                     </Box>
@@ -69,11 +83,22 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                                             {action.title}
                                         </Typography>
                                         {action.completed && (
-                                            <Typography bold italic>
-                                                &nbsp;{'- Completed'}
-                                            </Typography>
+                                            <Box p="0.1rem">
+                                                <Tooltip placement="bottom" title="Completed">
+                                                    <DoneIcon />
+                                                </Tooltip>
+                                            </Box>
                                         )}
                                     </Box>
+                                    <IconButton
+                                        data-testid={`delete_action_button_${action.id}`}
+                                        onClick={() => {
+                                            setIsConfirmDeleteDialogOpen(true)
+                                            setActionToDelete(action.id)
+                                        }}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
                                 </Box>
                             </div>
                         )
@@ -94,6 +119,19 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                 onClose={onClose}
                 connectedQuestion={question}
                 possibleAssignees={participants}
+            />
+            <ConfirmationDialog
+                isOpen={isConfirmDeleteDialogOpen}
+                title="Delete Action?"
+                description="Deleting an action will permanently delete it from evaluation."
+                onConfirmClick={() => {
+                    deleteAction(actionToDelete!)
+                    setIsConfirmDeleteDialogOpen(false)
+                }}
+                onCancelClick={() => {
+                    setIsConfirmDeleteDialogOpen(false)
+                    setActionToDelete(undefined)
+                }}
             />
         </>
     )
