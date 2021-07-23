@@ -54,6 +54,7 @@ export default class NominationPage {
             this.body()
                 .parent()
                 .parent()
+                .parent()
                 .within(() => {
                     cy.get('div[class*="close"]').click()
                 })
