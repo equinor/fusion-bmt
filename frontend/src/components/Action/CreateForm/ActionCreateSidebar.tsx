@@ -26,6 +26,7 @@ const ActionCreateSidebar = ({
     onActionCreate,
     onClose,
     apiError,
+    disableCreate = false,
 }: Props) => {
     const { personDetailsList, isLoading } = useAllPersonDetailsAsync(possibleAssignees.map(assignee => assignee.azureUniqueId))
 
@@ -49,6 +50,7 @@ const ActionCreateSidebar = ({
                         possibleAssigneesDetails={personDetailsList}
                         onActionCreate={onActionCreate}
                         onCancelClick={onClose}
+                        disableCreate={disableCreate}
                     />
                 </div>
             )}

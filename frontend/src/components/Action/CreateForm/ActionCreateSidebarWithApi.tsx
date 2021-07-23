@@ -12,8 +12,15 @@ interface Props {
 }
 
 const ActionCreateSidebarWithApi = ({ isOpen, connectedQuestion, possibleAssignees, onClose }: Props) => {
-    const { createAction, error: errorCreatingAction } = useCreateActionMutation()
+    const { createAction, error: errorCreatingAction, action, loading } = useCreateActionMutation()
     const [error, setError] = useState('')
+
+    // Wait for a response and only close Sideview if mutation was successful
+    useEffect(() => {
+        if (action) {
+            onClose()
+        }
+    }, [action])
 
     useEffect(() => {
         if (errorCreatingAction) {
@@ -30,11 +37,9 @@ const ActionCreateSidebarWithApi = ({ isOpen, connectedQuestion, possibleAssigne
             onClose={onClose}
             connectedQuestion={connectedQuestion}
             possibleAssignees={possibleAssignees}
-            onActionCreate={action => {
-                onClose()
-                createAction(action)
-            }}
+            onActionCreate={createAction}
             apiError={error}
+            disableCreate={loading}
         />
     )
 }

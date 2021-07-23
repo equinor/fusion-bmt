@@ -16,9 +16,17 @@ interface Props {
     possibleAssigneesDetails: PersonDetails[]
     onActionCreate: (action: DataToCreateAction) => void
     onCancelClick: () => void
+    disableCreate: boolean
 }
 
-const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssigneesDetails, onActionCreate, onCancelClick }: Props) => {
+const ActionCreateForm = ({
+    connectedQuestion,
+    possibleAssignees,
+    possibleAssigneesDetails,
+    onActionCreate,
+    onCancelClick,
+    disableCreate,
+}: Props) => {
     const [title, setTitle] = useState<string>('')
     const [titleValidity, setTitleValidity] = useState<Validity>('default')
 
@@ -177,7 +185,9 @@ const ActionCreateForm = ({ connectedQuestion, possibleAssignees, possibleAssign
                     </Button>
                 </Grid>
                 <Grid item>
-                    <Button onClick={onLocalCreateClick}>Create</Button>
+                    <Button onClick={onLocalCreateClick} disabled={disableCreate}>
+                        Create
+                    </Button>
                 </Grid>
             </Grid>
         </>
