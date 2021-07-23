@@ -1,5 +1,6 @@
 import { TextArea } from '@equinor/fusion-components'
 import { useEffect, useState } from 'react'
+import { apiErrorMessage } from '../../../api/error'
 import { Evaluation } from '../../../api/models'
 import { useSummaryMutation } from '../../../api/mutations'
 import { useEffectNotOnMount } from '../../../utils/hooks'
@@ -49,7 +50,7 @@ const WorkshopSummaryContainer = ({
     if (error !== undefined) {
         return (
             <div>
-                <TextArea value={JSON.stringify(error)} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not save summary')} onChange={() => {}} />
             </div>
         )
     }

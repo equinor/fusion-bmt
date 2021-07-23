@@ -10,6 +10,7 @@ import ProjectDashboardView from './Dashboard/ProjectDashboardView'
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
 import { StyledTabPanel } from '../../components/StyledTabs'
+import { apiErrorMessage } from '../../api/error'
 import ActionTableForOneUserWithApi from '../../components/ActionTable/ActionTableForOneUserWithApi'
 
 const { TabList, Tab, TabPanels } = Tabs
@@ -58,7 +59,7 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
     if (error !== undefined || project === undefined) {
         return (
             <div>
-                <TextArea value={JSON.stringify(error)} disabled={false} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not load project')} onChange={() => {}} />
             </div>
         )
     }

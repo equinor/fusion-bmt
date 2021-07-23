@@ -3,6 +3,7 @@ import { Action, Participant, Question } from '../../../api/models'
 import ActionEditSidebar from './ActionEditSidebar'
 import { useCreateNoteMutation, useEditActionMutation } from '../../../api/mutations'
 import { TextArea } from '@equinor/fusion-components'
+import { apiErrorMessage } from '../../../api/error'
 
 interface Props {
     action: Action
@@ -19,7 +20,7 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
     if (errorEditingAction !== undefined) {
         return (
             <div>
-                <TextArea value={`Error editing action: ${JSON.stringify(errorEditingAction)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not save changes to action')} onChange={() => {}} />
             </div>
         )
     }
@@ -27,7 +28,7 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
     if (errorCreatingNote !== undefined) {
         return (
             <div>
-                <TextArea value={`Error creating note: ${JSON.stringify(errorCreatingNote)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not create note')} onChange={() => {}} />
             </div>
         )
     }

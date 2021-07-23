@@ -7,6 +7,7 @@ import { Answer, Progression, Question, Severity } from '../../api/models'
 import QuestionAndAnswerForm from './QuestionAndAnswerForm'
 import { SavingState } from '../../utils/Variables'
 import { useEffectNotOnMount } from '../../utils/hooks'
+import { apiErrorMessage } from '../../api/error'
 
 interface SetAnswerMutationProps {
     setAnswer: (questionId: string, severity: Severity, text: string, progression: Progression) => void
@@ -109,7 +110,7 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
     if (errorSettingAnswer !== undefined) {
         return (
             <div>
-                <TextArea value={`Error setting answer: ${JSON.stringify(errorSettingAnswer)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not save answer')} onChange={() => {}} />
             </div>
         )
     }

@@ -2,6 +2,7 @@ import React from 'react'
 import ActionCreateSidebar from './ActionCreateSidebar'
 import { Participant, Question } from '../../../api/models'
 import { useCreateActionMutation } from '../../../api/mutations'
+import { apiErrorMessage } from '../../../api/error'
 import { TextArea } from '@equinor/fusion-components'
 
 interface Props {
@@ -17,7 +18,7 @@ const ActionCreateSidebarWithApi = ({ isOpen, connectedQuestion, possibleAssigne
     if (errorCreatingAction !== undefined) {
         return (
             <div>
-                <TextArea value={`Error creating action: ${JSON.stringify(errorCreatingAction)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not create action')} onChange={() => {}} />
             </div>
         )
     }

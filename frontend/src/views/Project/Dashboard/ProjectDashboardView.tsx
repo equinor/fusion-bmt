@@ -7,6 +7,7 @@ import { Typography } from '@equinor/eds-core-react'
 import { useEvaluationsQuery } from './ProjectDashboardGQL'
 import { TextArea } from '@equinor/fusion-components'
 import { useCurrentUser } from '@equinor/fusion'
+import { apiErrorMessage } from '../../../api/error'
 import EvaluationsTable from './EvaluationsTable'
 
 interface ProjectDashboardViewProps {
@@ -25,18 +26,10 @@ const ProjectDashboardView = ({ project }: ProjectDashboardViewProps) => {
         return <>Loading...</>
     }
 
-    if (errorQuery !== undefined) {
+    if (errorQuery !== undefined || evaluations === undefined) {
         return (
             <div>
-                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorQuery)}`} onChange={() => {}} />
-            </div>
-        )
-    }
-
-    if (evaluations === undefined) {
-        return (
-            <div>
-                <TextArea value={`Error in loading evaluations(undefined): ${JSON.stringify(evaluations)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not load evaluations')} onChange={() => {}} />
             </div>
         )
     }

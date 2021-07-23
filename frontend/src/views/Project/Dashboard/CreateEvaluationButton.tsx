@@ -5,6 +5,7 @@ import { Button, SearchableDropdownOption, TextArea } from '@equinor/fusion-comp
 import CreateEvaluationDialog from './CreateEvaluationDialog'
 import { useCreateEvaluationMutation, useGetAllEvaluationsQuery } from './ProjectDashboardGQL'
 import { useProject } from '../../../globals/contexts'
+import { apiErrorMessage } from '../../../api/error'
 
 interface CreateEvaluationButtonProps {
     projectId: string
@@ -41,7 +42,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
         return (
             <div>
                 <TextArea
-                    value={JSON.stringify(errorMutation)}
+                    value={apiErrorMessage('Could not create evaluation')}
                     onChange={() => {}}
                 />
             </div>
