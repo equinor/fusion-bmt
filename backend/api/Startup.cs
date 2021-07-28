@@ -29,22 +29,23 @@ namespace api
     public class Startup
     {
         private readonly string _accessControlPolicyName = "AllowSpecificOrigins";
-        private readonly SqliteConnection _connection;
+        private readonly SqliteConnection _connectionToInMemorySqlite;
         private readonly string _sqlConnectionString;
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
 
-            // In-memory sqlite requires an open connection throughout the whole lifetime of the database
             _sqlConnectionString = Configuration.GetSection("Database").GetValue<string>("ConnectionString");
             if (string.IsNullOrEmpty(_sqlConnectionString))
             {
                 DbContextOptionsBuilder<BmtDbContext> builder = new DbContextOptionsBuilder<BmtDbContext>();
-                string connectionString = new SqliteConnectionStringBuilder { DataSource = "file::memory:", Cache = SqliteCacheMode.Shared }.ToString();
-                _connection = new SqliteConnection(connectionString);
-                _connection.Open();
-                builder.UseSqlite(_connection);
+                _sqlConnectionString = new SqliteConnectionStringBuilder { DataSource = "file::memory:", Cache = SqliteCacheMode.Shared }.ToString();
+
+                // In-memory sqlite requires an open connection throughout the whole lifetime of the database
+                _connectionToInMemorySqlite = new SqliteConnection(_sqlConnectionString);
+                _connectionToInMemorySqlite.Open();
+                builder.UseSqlite(_connectionToInMemorySqlite);
 
                 using (BmtDbContext context = new BmtDbContext(builder.Options))
                 {
@@ -85,7 +86,7 @@ namespace api
                 });
             });
 
-            if (!string.IsNullOrEmpty(_sqlConnectionString))
+            if (_connectionToInMemorySqlite == null)
             {
                 // Setting splitting behavior explicitly to avoid warning
                 services.AddDbContext<BmtDbContext>(
@@ -96,7 +97,7 @@ namespace api
             {
                 // Setting splitting behavior explicitly to avoid warning
                 services.AddDbContext<BmtDbContext>(
-                    options => options.UseSqlite(_connection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery))
+                    options => options.UseSqlite(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery))
                 );
             }
 
@@ -166,7 +167,7 @@ namespace api
             app.UseAuthentication();
             app.UseCors(_accessControlPolicyName);
 
-            if (!string.IsNullOrEmpty(_sqlConnectionString))
+            if (_connectionToInMemorySqlite == null)
             {
                 logger.LogInformation("Using SQL database");
             }
