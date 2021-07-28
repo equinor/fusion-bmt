@@ -70,11 +70,6 @@ Cypress.Commands.add('interceptExternal', () => {
     })
 })
 
-beforeEach(() => {
-    cy.interceptExternal()
-    cy.viewport(1800, 1000) //until we decide to test on various resolutions
-})
-
 declare global {
     namespace Cypress {
         interface Chainable {
