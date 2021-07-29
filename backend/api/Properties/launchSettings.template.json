@@ -5,7 +5,10 @@
       "dotnetRunMessages": "true",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ApplicationInsights__InstrumentationKey": "",
+        "AzureAd__ClientSecret": "",
+        "Database__ConnectionString": ""
       }
     }
   }
