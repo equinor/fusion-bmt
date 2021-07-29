@@ -1,0 +1,38 @@
+version: "3.7"
+services:
+    frontend:
+        build: frontend
+        depends_on:
+            - backend
+            - mock-auth
+        ports:
+            - "3000:3000"
+        environment:
+            - API_URL=http://backend:5000
+    backend:
+        build: backend
+        depends_on:
+            - mock-auth
+        ports:
+            - "5000:5000"
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Test
+            - FRONTEND_URL=http://frontend:3000
+            - AzureAd__MetadataAddress=http://mock-auth:8080/common/.well-known/openid-configuration
+            - AzureAd__Authority=http://mock-auth:8080/common
+    mock-auth:
+        image: ghcr.io/navikt/mock-oauth2-server:0.3.4
+        ports:
+            - "8080:8080"
+        environment:
+            - JSON_CONFIG_PATH=/mnt/conf/config.json
+        volumes:
+            - "./frontend/cypress/auth_server:/mnt/conf"
+    cypress:
+        build:
+            context: frontend
+            dockerfile: cypress.Dockerfile
+        depends_on:
+            - frontend
+        environment:
+            - CYPRESS_RECORD_KEY

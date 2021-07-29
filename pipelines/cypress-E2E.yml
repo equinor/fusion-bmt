@@ -1,0 +1,25 @@
+trigger:
+    - master
+    - cypress
+
+pool:
+    vmImage: "ubuntu-latest"
+
+jobs:
+    - job: Cypress_E2E_Tests
+      steps:
+          - task: DockerCompose@0
+            inputs:
+                dockerComposeFile: "docker-compose.cypress.yml"
+                action: "Run a Docker Compose command"
+                dockerComposeCommand: "build"
+
+          - task: DockerCompose@0
+            inputs:
+                dockerComposeFile: "docker-compose.cypress.yml"
+                action: "Run a Docker Compose command"
+                dockerComposeCommand: "up"
+                arguments: "--exit-code-from cypress cypress"
+                dockerComposeFileArgs: |
+                    CYPRESS_RECORD_KEY=$(CYPRESS_RECORD_KEY)
+

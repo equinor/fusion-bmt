@@ -73,6 +73,19 @@ cd backend/api
 dotnet run
 ```
 
+## Testing
+We are using Cypress as a test framework for End to End tests. Details can be found
+in [this section](frontend/cypress/README.md).
+
+Cypress E2E tests can be run locally with:
+`docker-compose -f docker-compose.cypress.yml up cypress`
+
+To run locally provide CYPRESS_RECORD_KEY in docker compose file.
+
+Cypress tests will be run in Azure DevOps when pushing to the upstream branch cypress.
+This can be done with the following command:
+`git push upstream HEAD:cypress -f`
+
 ## Configuration
 
 ### Database configuration
