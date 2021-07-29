@@ -8,10 +8,7 @@ import users from '../support/users'
 
 describe('Sample tests', () => {
     beforeEach(() => {
-        cy.login()
-        const port = Cypress.env('FRONTEND_PORT') || '3000'
-        cy.visit(`http://localhost:${port}/123`)
-        cy.wait(1000) //const wait is not good, but don't know how to make it stable
+        cy.visitProject(users[0])
     })
 
     it('User can create evaluation & assign people', () => {

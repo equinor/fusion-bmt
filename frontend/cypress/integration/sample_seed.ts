@@ -70,11 +70,13 @@ describe('Let each "it" have its own instance of the same eval', () => {
     })
 
     it('First test does something', () => {
-        assert(true)
+        cy.wait(1000) //test must take some time. Otherwise errors will occur
+        cy.contains(seed.actions[0].title).should('be.visible')
     })
 
     it('Second test gets a new instance from same seed', () => {
-        assert(true)
+        cy.wait(1000)
+        cy.contains(seed.answers[0].text, { includeShadowDom: true }).should('exist')
     })
 })
 

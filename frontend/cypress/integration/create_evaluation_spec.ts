@@ -5,13 +5,12 @@ import NominationPage from '../support/nomination'
 import ProjectPage from '../support/project'
 import users, { User } from '../support/users'
 
-
 const evaluationUserIsFacilitator = () => {
     let seed = new EvaluationSeed({
         nParticipants: 3,
-        namePrefix: 'user is Facilitator'
+        namePrefix: 'user is Facilitator',
     })
-    let user  = seed.participants[2]
+    let user = seed.participants[2]
     user.role = Role.Facilitator
     return seed
 }
@@ -19,45 +18,36 @@ const evaluationUserIsFacilitator = () => {
 const evaluationUserIsParticipant = () => {
     return new EvaluationSeed({
         nParticipants: 3,
-        namePrefix: 'user is Participant'
+        namePrefix: 'user is Participant',
     })
 }
 
 const evaluationUserIsNotInIt = () => {
     return new EvaluationSeed({
         nParticipants: 2,
-        namePrefix: 'user is not part of this Evaluation'
+        namePrefix: 'user is not part of this Evaluation',
     })
 }
 
-
 describe('Creating a new Evaluation', () => {
     const user: User = users[2]
-    let userIsFacilitator: EvaluationSeed
-    let userIsParticipant: EvaluationSeed
-    let userIsNotInEvaluation: EvaluationSeed
+    let userIsFacilitator = { seed: evaluationUserIsFacilitator(), name: 'user is Facilitator' }
+    let userIsParticipant = { seed: evaluationUserIsParticipant(), name: 'user is Participant' }
+    let userIsNotInEvaluation = { seed: evaluationUserIsNotInIt(), name: 'user is not in evaluation' }
+    let previousEvaluations = [userIsFacilitator, userIsParticipant, userIsNotInEvaluation]
 
-    before( () => {
-        cy.login()
-        cy.interceptExternal()
-        userIsFacilitator = evaluationUserIsFacilitator()
-        userIsParticipant = evaluationUserIsParticipant()
-        userIsNotInEvaluation = evaluationUserIsNotInIt()
-
-        userIsFacilitator.plant()
-        userIsParticipant.plant()
-        userIsNotInEvaluation.plant()
+    before(() => {
+        userIsFacilitator.seed.plant()
+        userIsParticipant.seed.plant()
+        userIsNotInEvaluation.seed.plant()
     })
 
-    beforeEach( () => {
-        cy.login(user)
-        const port = Cypress.env('FRONTEND_PORT') || '3000'
-        cy.visit(`http://localhost:${port}/123`)
-        cy.wait(1000) //const wait is not good, but don't know how to make it stable
+    beforeEach(() => {
+        cy.visitProject(user)
     })
 
     it('Without setting a previous evaluation', () => {
-        const name = evaluationName({prefix: 'CreatedWithoutPrevLink'})
+        const name = evaluationName({ prefix: 'CreatedWithoutPrevLink' })
 
         const projectPage = new ProjectPage()
         projectPage.createEvaluationButton().click()
@@ -67,44 +57,24 @@ describe('Creating a new Evaluation', () => {
 
         const nominationPage = new NominationPage()
         nominationPage.evaluationTitle().should('have.text', name)
+        nominationPage.assertParticipantAdded(user)
     })
 
-    it('Choosing a previous evaluation where user is Participant', () => {
-        const name = evaluationName({prefix: 'CreatedWithPrevLink'})
+    context('Can create evaluation ', () => {
+        previousEvaluations.forEach(previous => {
+            it(`Choosing a previous evaluation where ${previous.name}`, () => {
+                const name = evaluationName({ prefix: 'CreatedWithPrevLink' })
 
-        const projectPage = new ProjectPage()
-        projectPage.createEvaluationButton().click()
+                const projectPage = new ProjectPage()
+                projectPage.createEvaluationButton().click()
 
-        const dialog = new ProjectPage.CreateEvaluationDialog()
-        dialog.createEvaluation(name, userIsParticipant.name)
+                const dialog = new ProjectPage.CreateEvaluationDialog()
+                dialog.createEvaluation(name, previous.seed.name)
 
-        const nominationPage = new NominationPage()
-        nominationPage.evaluationTitle().should('have.text', name)
-    })
-
-    it('Choosing a previous evaluation where user is Facilitator', () => {
-        const name = evaluationName({prefix: 'CreatedWithPrevLink'})
-
-        const projectPage = new ProjectPage()
-        projectPage.createEvaluationButton().click()
-
-        const dialog = new ProjectPage.CreateEvaluationDialog()
-        dialog.createEvaluation(name, userIsFacilitator.name)
-
-        const nominationPage = new NominationPage()
-        nominationPage.evaluationTitle().should('have.text', name)
-    })
-
-    it('Choosing a previous evaluation that user is not part of', () => {
-        const name = evaluationName({prefix: 'CreatedWithPrevLink'})
-
-        const projectPage = new ProjectPage()
-        projectPage.createEvaluationButton().click()
-
-        const dialog = new ProjectPage.CreateEvaluationDialog()
-        dialog.createEvaluation(name, userIsNotInEvaluation.name)
-
-        const nominationPage = new NominationPage()
-        nominationPage.evaluationTitle().should('have.text', name)
+                const nominationPage = new NominationPage()
+                nominationPage.evaluationTitle().should('have.text', name)
+                nominationPage.assertParticipantAdded(user)
+            })
+        })
     })
 })

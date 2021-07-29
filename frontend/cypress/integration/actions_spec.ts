@@ -63,7 +63,6 @@ describe('Actions', () => {
 
                 cy.testCacheAndDB(
                     () => {
-                        cy.contains(actionToDelete.title).should('not.exist')
                         cy.contains(actionToStay.title).should('exist')
                         cy.contains('Action not found').should('exist')
                     },

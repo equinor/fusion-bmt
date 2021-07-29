@@ -15,9 +15,7 @@ export class ConfirmationDialog {
 
 Cypress.Commands.add('testCacheAndDB', (testCache: Function, testDB: Function = testCache) => {
     testCache()
-    cy.reload()
-    cy.interceptExternal()
-    cy.viewport(1800, 1000)
+    cy.reloadBmt()
     testDB()
 })
 

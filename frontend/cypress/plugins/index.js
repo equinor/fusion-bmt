@@ -17,6 +17,10 @@
  */
 // eslint-disable-next-line no-unused-vars
 module.exports = (on, config) => {
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
+    /* Update if we are not running on localhost in CI */
+    const host = 'http://localhost'
+    const port = config.env.FRONTEND_PORT || '3000'
+    config.baseUrl = `${host}:${port}`
+
+    return config
 }
