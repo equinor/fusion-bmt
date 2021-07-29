@@ -19,7 +19,7 @@ spec:
 
   components:
     - name: frontend
-      src: .
+      src: frontend
       dockerfileName: ./frontend/Dockerfile
       ports:
         - name: http
@@ -82,29 +82,8 @@ spec:
       publicPort: http
       variables:
         ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
+        ASPNETCORE_ENVIRONMENT: 'Development'
       environmentConfig:
-        - environment: dev
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "100m"
-            limits:
-              memory: "1000Mi"
-              cpu: "1000m"
-          variables:
-            ASPNETCORE_ENVIRONMENT: 'Development'
-            HTTPONLY: 'True'
-        - environment: pr
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "100m"
-            limits:
-              memory: "1000Mi"
-              cpu: "1000m"
-          variables:
-            ASPNETCORE_ENVIRONMENT: 'Development'
-            HTTPONLY: 'True'
         - environment: test
           resources:
             requests:
@@ -115,7 +94,6 @@ spec:
               cpu: "1000m"
           variables:
             ASPNETCORE_ENVIRONMENT: 'Production'
-            HTTPONLY: 'True'
         - environment: prod
           resources:
             requests:
@@ -129,7 +107,6 @@ spec:
             maxReplicas: 6
           variables:
             ASPNETCORE_ENVIRONMENT: 'Production'
-            HTTPONLY: 'True'
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString

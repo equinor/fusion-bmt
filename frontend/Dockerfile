@@ -1,11 +1,12 @@
 FROM node:slim
 
-RUN apt-get -y update && apt-get install -y git
-
 WORKDIR /app
-COPY . .
-WORKDIR /app/frontend
+
+COPY package.json package-lock.json tsconfig.json ./
+
 RUN npm install
+
+COPY . .
 
 EXPOSE 3000
 

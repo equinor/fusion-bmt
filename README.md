@@ -49,6 +49,9 @@ The environment variable `Database__ConnectionString` can be a ADO.NET connectio
 string to an existing database. If empty we use an InMemory database which is
 initialized with dummy data.
 
+To start the backend, the file `launchSettings.json` in `backend/api/Properties`
+needs to be created. A sample file `launchSettings.Template.json` is provided.
+
 ### GraphQL schema
 
 When running locally, a playground server for trying out GraphQL queries will be
@@ -89,33 +92,6 @@ For populating SQL database with question templates go to `backend/scripts`
 make sure your `Database__ConnectionString` is set and run
 `dotnet run -t PATH-TO-FILE`. An example file of question templates:
 `backend/api/Context/InitQuestions.json`
-
-## Environment variables
-
-<table>
-    <tr>
-        <th></th>
-        <th>Frontend</th>
-        <th>Backend</th>
-    </tr>
-    <tr>
-        <td>Required</td>
-        <td></td>
-        <td>AzureAd__ClientSecret</td>
-    </tr>
-    <tr>
-        <td>Optional</td>
-        <td>
-            API_URL<br/>
-            AD_APP_ID
-        </td>
-        <td>
-            ASPNETCORE_ENVIRONMENT<br/>
-            HTTPONLY<br/>
-            Database__ConnectionString
-        </td>
-    </tr>
-</table>
 
 ## Deploy
 
