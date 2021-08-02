@@ -4,6 +4,7 @@ import SeverityIndicator from './SeverityIndicator'
 import { Barrier, Severity } from '../api/models'
 import { barrierToString } from '../utils/EnumToString'
 import { Tooltip, Typography } from '@equinor/eds-core-react'
+import { selectSeverity } from './helpers'
 
 interface Props {
     severityCount: SeverityCount
@@ -12,15 +13,11 @@ interface Props {
 }
 
 const SeverityColors = ({ severityCount, barrier, alternativeText }: Props) => {
-    const hasLowSeverity = severityCount.nLow > 0
-    const hasLimitedSeverity = severityCount.nLimited > 0
-    const hasHighSeverity = severityCount.nHigh > 0
+    const severity = selectSeverity(severityCount)
 
     return (
         <div style={{ display: 'flex' }}>
-            {!hasLowSeverity && !hasLimitedSeverity && hasHighSeverity && <SeverityIndicator severity={Severity.High} />}
-            {!hasLowSeverity && hasLimitedSeverity && <SeverityIndicator severity={Severity.Limited} />}
-            {hasLowSeverity && <SeverityIndicator severity={Severity.Low} />}
+            {severity !== Severity.Na && <SeverityIndicator severity={severity} />}
             <Tooltip title={barrierToString(barrier)} placement="bottom">
                 <Typography
                     style={{
