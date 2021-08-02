@@ -1,4 +1,4 @@
-import users, { User } from './users'
+import { User, users } from './users'
 
 function findUserByID(id: string) {
     return users.filter(u => u.id == id)[0]

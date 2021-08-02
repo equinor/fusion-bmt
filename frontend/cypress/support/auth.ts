@@ -1,5 +1,5 @@
 import jwtDecode, { JwtPayload } from 'jwt-decode'
-import users, { User } from './users'
+import { User, users } from './users'
 
 const SERVER_URL = Cypress.env('AUTH_URL') || 'http://localhost:8080'
 const ISSUER = 'common'

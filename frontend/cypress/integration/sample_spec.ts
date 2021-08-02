@@ -3,12 +3,20 @@
 
 import ProjectPage from '../support/project'
 import NominationPage from '../support/nomination'
-import users from '../support/users'
+import {User, users, getUsers} from '../support/users'
 
 
 describe('Sample tests', () => {
+    let allUsers: User[]
+    let mainUser: User
+    let remainingUsers: User[]
+
     beforeEach(() => {
-        cy.visitProject(users[0])
+        allUsers = getUsers(users.length)
+        mainUser = allUsers[0]
+        remainingUsers = allUsers.slice(1)
+
+        cy.visitProject(mainUser)
     })
 
     it('User can create evaluation & assign people', () => {
@@ -32,12 +40,12 @@ describe('Sample tests', () => {
 
         nominationPage.addPersonButton().click()
         const nomineeDialog = new NominationPage.NomineeDialog()
-        users.slice(1).forEach(user => {
+        remainingUsers.forEach(user => {
             nomineeDialog.searchAndAddPerson(user)
         })
 
         nomineeDialog.close()
-        users.forEach(user => {
+        allUsers.forEach(user => {
             nominationPage.assertParticipantAdded(user)
         })
     })

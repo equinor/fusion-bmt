@@ -1,3 +1,5 @@
+import * as faker from 'faker'
+
 const Type = {
     EMPLOYEE: 'Employee',
     CONSULTANT: 'Consultant',
@@ -86,9 +88,20 @@ const local1 = new User({
     jobTitle: 'Local 🐧',
 })
 
-/* TODO: create nice random generator to return next user instead of using users[i]
-    [when test needs several users and doesn't care which ones]
-  */
-const users = [employee1, external1, consultant1, extHire1, unknown1, local1]
+export const users = [employee1, external1, consultant1, extHire1, unknown1, local1]
 
-export default users
+export function getUsers(n: number) : User[]{
+    if (n > users.length) {
+        const msg = `You requested more mocked users (${n})
+            than currently available (${users.length})`
+
+        throw new RangeError(msg)
+    }
+
+    if (n < 0) {
+        throw new RangeError("Requested number of users can't be negative")
+    }
+
+    return faker.helpers.shuffle([...users]).slice(0, n)
+}
+
