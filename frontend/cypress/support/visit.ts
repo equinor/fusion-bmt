@@ -5,13 +5,18 @@ function setupEnvironment() {
     cy.viewport(1800, 1000) //until we decide to test on various resolutions
 }
 
-function waitForFusionPageLoad() {
-    cy.contains('Please select a project.').should('exist')
-}
-
 function waitForProjectPageLoad() {
-    cy.contains('Loading').should('exist')
-    cy.contains('Loading', { timeout: 10000 }).should('not.exist')
+    cy.get('body').then(body => {
+        /**
+         * Two cases possible: either we already are on the Project page
+         * and "Loading" element is long gone, or page didn't even start
+         * loading and element is not there yet.
+         */
+        if (body.find('div:contains(Evaluation)').length === 0) {
+            cy.contains('Loading', { timeout: 10000 }).should('exist')
+        }
+        cy.contains('Loading', { timeout: 20000 }).should('not.exist')
+    })
 }
 
 function waitForEvaluationPageLoad() {
@@ -25,13 +30,26 @@ function waitForEvaluationPageLoad() {
     cy.contains('Workshop Assessment').should('be.visible')
 }
 
+/**
+ * Saves project data in cache the same way fusion does.
+ * At the moment only default project is supported.
+ */
+function setProjectCache() {
+    // project 123 only
+    cy.fixture('project.json').then(json => {
+        const project = {
+            current: json,
+        }
+        window.localStorage.setItem('FUSION_CURRENT_CONTEXT', JSON.stringify(project))
+    })
+}
+
 Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string = '123') => {
     setupEnvironment()
+    setProjectCache()
+
     cy.login(user)
     const port = Cypress.env('FRONTEND_PORT') || '3000'
-
-    cy.visit(`http://localhost:${port}`)
-    waitForFusionPageLoad()
 
     cy.visit(`http://localhost:${port}/${fusionProjectId}`)
     waitForProjectPageLoad()
@@ -39,11 +57,10 @@ Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string = '123
 
 Cypress.Commands.add('visitEvaluation', (evaluationId: string, user: User, fusionProjectId: string = '123') => {
     setupEnvironment()
+    setProjectCache()
+
     cy.login(user)
     const port = Cypress.env('FRONTEND_PORT') || '3000'
-
-    cy.visit(`http://localhost:${port}`)
-    waitForFusionPageLoad()
 
     cy.visit(`http://localhost:${port}/${fusionProjectId}`)
     waitForProjectPageLoad()
