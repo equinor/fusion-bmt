@@ -1,8 +1,5 @@
 import { Answer, Organization, Progression, Question, Severity } from '../api/models'
-import {
-    findCorrectAnswer,
-    useSharedFacilitatorAnswer
-} from '../components/helpers'
+import { findCorrectAnswer, useSharedFacilitatorAnswer } from '../components/helpers'
 
 export const checkIfAnswerFilled = (answer: Answer): boolean => {
     return answer.text !== ''
@@ -12,35 +9,25 @@ export const getFilledUserAnswersForProgression = (questions: Question[], progre
     const progressionAnswers = questions.reduce((acc: Answer[], cur: Question) => {
         return acc.concat(cur.answers.filter((a: Answer) => a.progression === progression))
     }, [] as Answer[])
-    const participantAnswers = progressionAnswers.filter(a => a.answeredBy?.azureUniqueId === azureUniqueId)
+    const participantAnswers =
+        progression === Progression.Workshop
+            ? progressionAnswers
+            : progressionAnswers.filter(a => a.answeredBy?.azureUniqueId === azureUniqueId)
     return participantAnswers.filter(a => checkIfAnswerFilled(a))
 }
 
-export const hasSeverity = (
-    question: Question,
-    severityFilter: Severity[],
-    AzureUniqueId: string,
-    viewProgression: Progression
-) => {
+export const hasSeverity = (question: Question, severityFilter: Severity[], AzureUniqueId: string, viewProgression: Progression) => {
     if (severityFilter.length === 0) {
         return true
     } else {
         const useSharedAnswer = useSharedFacilitatorAnswer(viewProgression)
-        const answer = findCorrectAnswer(
-            question,
-            viewProgression,
-            useSharedAnswer,
-            AzureUniqueId
-        )
+        const answer = findCorrectAnswer(question, viewProgression, useSharedAnswer, AzureUniqueId)
         const severity = (answer && answer.severity) || Severity.Na
         return severityFilter.includes(severity)
     }
 }
 
-export const hasOrganization = (
-    question: Question,
-    organizationFilter: Organization[]
-) => {
+export const hasOrganization = (question: Question, organizationFilter: Organization[]) => {
     if (organizationFilter.length === 0) {
         return true
     } else {
@@ -48,7 +35,7 @@ export const hasOrganization = (
     }
 }
 
-export const toggleFilter = <T,>(value: T, filter: T[]) => {
+export const toggleFilter = <T>(value: T, filter: T[]) => {
     if (filter.includes(value)) {
         return filter.filter(x => x !== value)
     } else {
