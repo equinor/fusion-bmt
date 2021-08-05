@@ -49,9 +49,9 @@ Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string = '123
     setProjectCache()
 
     cy.login(user)
-    const frontend_url = Cypress.env('FRONTEND_URL') || 'http://localhost:3000'
+    const frontendUrl = Cypress.env('FRONTEND_URL') || 'http://localhost:3000'
 
-    cy.visit(`${frontend_url}/${fusionProjectId}`)
+    cy.visit(`${frontendUrl}/${fusionProjectId}`)
     waitForProjectPageLoad()
 })
 
@@ -60,12 +60,12 @@ Cypress.Commands.add('visitEvaluation', (evaluationId: string, user: User, fusio
     setProjectCache()
 
     cy.login(user)
-    const frontend_url = Cypress.env('FRONTEND_URL') || 'http://localhost:3000'
+    const frontendUrl = Cypress.env('FRONTEND_URL') || 'http://localhost:3000'
 
-    cy.visit(`${frontend_url}/${fusionProjectId}`)
+    cy.visit(`${frontendUrl}/${fusionProjectId}`)
     waitForProjectPageLoad()
 
-    cy.visit(`${frontend_url}/${fusionProjectId}/evaluation/${evaluationId}`)
+    cy.visit(`${frontendUrl}/${fusionProjectId}/evaluation/${evaluationId}`)
     waitForEvaluationPageLoad()
 })
 
