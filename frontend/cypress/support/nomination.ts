@@ -9,6 +9,16 @@ export default class NominationPage {
         return cy.contains('Add Person')
     }
 
+    deletePerson = (user: User) => {
+        this.deletePersonDiv(user).within(() => {
+            cy.contains('Delete').click()
+        })
+    }
+
+    deletePersonDiv = (user: User) => {
+        return cy.get(`[data-testid=delete_button_${user.id}]`)
+    }
+
     participantsTable = () => {
         /* fusion doesn't have a property we can use and we also don't have any
          * explicit elements in the code we can grab.
@@ -20,6 +30,12 @@ export default class NominationPage {
     assertParticipantAdded = (user: User) => {
         this.participantsTable().within(() => {
             cy.contains(user.name).should('exist')
+        })
+    }
+
+    assertParticipantNotThere = (user: User) => {
+        this.participantsTable().within(() => {
+            cy.contains(user.name).should('not.exist')
         })
     }
 

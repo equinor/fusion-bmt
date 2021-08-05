@@ -2,6 +2,7 @@ import { DataTable, DataTableColumn, Button } from '@equinor/fusion-components'
 import React from 'react'
 
 import { Organization, Participant, Role } from '../../../api/models'
+import { useAzureUniqueId } from '../../../utils/Variables'
 import ParticipantCard from '../../../components/ParticipantCard'
 import { ProgressionStatus } from '../../../utils/ProgressionStatus'
 import { useDeleteParticipantMutation } from './NominationGQL'
@@ -23,19 +24,23 @@ interface DataTableRowProps {
 const ParticipantRenderer: React.FC<DataTableRowProps> = ({ item }) => <ParticipantCard participant={item.participant} />
 
 const DeleteColumnItemRenderer: React.FC<DataTableRowProps> = ({ item }) => {
-    if (item.role === Role.Facilitator) return <></>
+    const azureUniqueId: string = useAzureUniqueId()
+
+    if (item.participant.azureUniqueId === azureUniqueId) return <></>
 
     const { deleteParticipant, loading } = useDeleteParticipantMutation()
 
     return (
-        <Button
-            onClick={() => {
-                deleteParticipant(item.participant.id)
-            }}
-            disabled={item.progressionStatus !== ProgressionStatus.InProgress || loading}
-        >
-            Delete
-        </Button>
+        <div data-testid={'delete_button_' + item.participant.azureUniqueId}>
+            <Button
+                onClick={() => {
+                    deleteParticipant(item.participant.id)
+                }}
+                disabled={item.progressionStatus !== ProgressionStatus.InProgress || loading}
+            >
+                Delete
+            </Button>
+        </div>
     )
 }
 
