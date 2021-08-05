@@ -21,7 +21,7 @@ export const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps
     const apolloClient = useApolloClient()
 
     const PROGRESS_EVALUATION = gql`
-        mutation ProgessEvaluation($evaluationId: String!, $newProgression: Progression!) {
+        mutation ProgressEvaluation($evaluationId: String!, $newProgression: Progression!) {
             progressEvaluation(evaluationId: $evaluationId, newProgression: $newProgression) {
                 ...EvaluationFields
                 ...ParticipantsArray
