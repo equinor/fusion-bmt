@@ -1,7 +1,7 @@
 import jwtDecode, { JwtPayload } from 'jwt-decode'
 import users, { User } from './users'
 
-const SERVER_URL = 'http://localhost:8080'
+const SERVER_URL = Cypress.env('AUTH_URL') || 'http://localhost:8080'
 const ISSUER = 'common'
 
 /* TODO: figure out if we want to retrieve token before each test,
@@ -16,7 +16,6 @@ export const getToken = (): string => {
     const token = fusionStorage[`FUSION_AUTH_CACHE:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN`]
     return token
 }
-
 
 Cypress.Commands.add('login', (user: User = users[0]) => {
     cy.log('Logging with user: ' + user.username)

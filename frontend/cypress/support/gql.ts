@@ -1,15 +1,13 @@
 import { getToken } from './auth'
-
 const API_URL = Cypress.env('API_URL') || 'http://localhost:5000'
-
 Cypress.Commands.add('gql', (query: string, variables: {}) => {
     return cy.request({
-        url: `${API_URL}/graphql`,
+        url: `${API_URL}/graphql` || 'http://localhost:5000/graphql',
         method: 'POST',
-        body: {query, ...variables},
+        body: { query, ...variables },
         headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
+            Authorization: `Bearer ${getToken()}`,
+        },
     })
 })
 

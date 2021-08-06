@@ -17,10 +17,7 @@
  */
 // eslint-disable-next-line no-unused-vars
 module.exports = (on, config) => {
-    /* Update if we are not running on localhost in CI */
-    const host = 'http://localhost'
-    const port = config.env.FRONTEND_PORT || '3000'
-    config.baseUrl = `${host}:${port}`
+    config.baseUrl = config.env.FRONTEND_URL || 'http://localhost:3000'
 
     return config
 }

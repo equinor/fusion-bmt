@@ -38,12 +38,12 @@ npm run cyrun
 -   `npm run cyrun` to properly run tests
 
 If multiple users/environments are needed, customize bmt commands by providing
-`FRONTEND_PORT` and `API_URL` environment variables:
+`FRONTEND_URL`, `API_URL` and `AUTH_URL` environment variables:
 
 backend:
 
 ```
-FRONTEND_PORT=3009 dotnet run --urls=http://localhost:5009
+FRONTEND_URL=http://localhost:3009 dotnet run --urls=http://localhost:5009
 ```
 
 frontend:
@@ -55,7 +55,7 @@ API_URL=http://localhost:5009 npm start -- -p 3009
 cypress:
 
 ```
-npm run cyopen -- --env FRONTEND_PORT=3009,API_URL=http://localhost:5009
+npm run cyopen -- --env FRONTEND_URL=http://localhost:3009,API_URL=http://localhost:5009,AUTH_URL=http://localhost:8080
 ```
 
 ## Mock Authentication

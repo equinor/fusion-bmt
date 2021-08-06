@@ -77,7 +77,7 @@ namespace api
                     builder.AllowAnyHeader();
                     builder.AllowAnyMethod();
                     builder.WithOrigins(
-                        "http://localhost:" + (Environment.GetEnvironmentVariable("FRONTEND_PORT") ?? "3000"),
+                        (Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000"),
                         "https://*.equinor.com",
                         "https://pro-s-portal-ci.azurewebsites.net",
                         "https://pro-s-portal-fqa.azurewebsites.net",

@@ -2,6 +2,7 @@
 
 [![Build Status](https://dev.azure.com/Shellvis/Fusion-BMT/_apis/build/status/equinor.fusion-bmt?branchName=master)](https://dev.azure.com/Shellvis/Fusion-BMT/_build/latest?definitionId=22&branchName=master)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/45edba07b87447489c54a51867141261)](https://www.codacy.com/gh/equinor/fusion-bmt/dashboard?utm_source=github.com&utm_medium=referral&utm_content=equinor/fusion-bmt&utm_campaign=Badge_Grade)
+[![BMT](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/detailed/ry3x7y&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ry3x7y/runs)
 
 To run the project with docker-compose use:
 
@@ -72,6 +73,20 @@ When the data models in the backend changes, the corresponding models in fronten
 cd backend/api
 dotnet run
 ```
+
+## Testing
+We are using Cypress as a test framework for End to End tests. Details can be found
+in [this section](frontend/cypress/README.md).
+
+Cypress E2E tests can be run locally with:
+`docker-compose -f docker-compose.cypress.yml up cypress`
+
+To run locally the two last lines in frontend/cypress.Dockerfile should be
+commented out.
+
+Cypress tests will be run in Azure DevOps when pushing to the upstream branch cypress.
+This can be done with the following command:
+`git push upstream HEAD:cypress -f`
 
 ## Configuration
 
