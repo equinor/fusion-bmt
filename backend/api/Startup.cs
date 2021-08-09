@@ -199,21 +199,35 @@ namespace api
                     { { "resource", $"{Configuration["AzureAd:ClientId"]}" } });
             });
 
-            app.UseAuthorization();
-
-            /* Run locally without Authorization
-             *
-             * When developing locally it can useful to disable authorization
-             * of the exposed endpoints. This can be done by temporarily
-             * removing 'RequireAuthorization()` for MapGraphQL and
-             * MapControllers.
-             */
-            app.UseEndpoints(endpoints =>
+            if (env.IsDevelopment())
             {
-                endpoints.MapHealthChecks("/health").AllowAnonymous();
-                endpoints.MapGraphQL().RequireAuthorization();
-                endpoints.MapControllers().RequireAuthorization();
-            });
+                /* Disable endpoints authorization for development environment
+                 *
+                 * With authorization enabled we can't easily access graphql
+                 * endpoints or run schema command, so we can disable it by
+                 * default for Development environment.
+                 *
+                 * For Production and Test environments authorization has to
+                 * stay.
+                */
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapHealthChecks("/health").AllowAnonymous();
+                    endpoints.MapGraphQL();
+                    endpoints.MapControllers();
+                });
+                app.UseAuthorization();
+            }
+            else
+            {
+                app.UseAuthorization();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapHealthChecks("/health").AllowAnonymous();
+                    endpoints.MapGraphQL().RequireAuthorization();
+                    endpoints.MapControllers().RequireAuthorization();
+                });
+            }
         }
     }
 }
