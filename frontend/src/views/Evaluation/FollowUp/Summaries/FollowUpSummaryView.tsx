@@ -6,6 +6,7 @@ import ListView from './ListView'
 import BowtieView from './BowtieView'
 import { AnswersWithBarrier } from '../../../../utils/Variables'
 import { assignAnswerToBarrierQuestions } from './helpers'
+import Bowtie from '../../../../components/Bowtie/Bowtie'
 
 interface Props {
     evaluation: Evaluation

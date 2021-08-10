@@ -3,7 +3,7 @@ import { Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
 import { AnswersWithBarrier } from '../../../../utils/Variables'
 import styled from 'styled-components'
-import BowtieWithBoxes from './BowtieWithBoxes'
+import Bowtie from '../../../../components/Bowtie/Bowtie'
 
 const ScrollableDiv = styled.div`
     justify-content: center;
@@ -34,7 +34,7 @@ const BowtieView = ({ answersWithBarrier, workshopCompleted }: Props) => {
                     </Typography>
                 )}
                 <ScrollableDiv>
-                    <BowtieWithBoxes answersWithBarrier={answersWithBarrier} />
+                    <Bowtie answersWithBarrier={answersWithBarrier} />
                 </ScrollableDiv>
             </Box>
         </>

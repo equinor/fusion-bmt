@@ -1,5 +1,5 @@
-import { selectSeverity } from './helpers'
-import { Severity } from '../api/models'
+import { Severity } from '../../api/models'
+import { selectSeverity } from './utils'
 
 describe('selectSeverity', () => {
     test('n/a answers are not counted when calculating percentage of answers per severity', () => {
