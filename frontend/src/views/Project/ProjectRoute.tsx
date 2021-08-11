@@ -1,12 +1,18 @@
 import React from 'react'
 
 import { RouteComponentProps } from 'react-router-dom'
-import { Tabs, Tab, TextArea } from '@equinor/fusion-components'
+import { TextArea } from '@equinor/fusion-components'
+import { Tabs } from '@equinor/eds-core-react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
+import { useCurrentUser } from '@equinor/fusion'
 
 import ProjectDashboardView from './Dashboard/ProjectDashboardView'
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
+import { StyledTabPanel } from '../../components/StyledTabs'
+import ActionTableForOneUserWithApi from '../../components/ActionTable/ActionTableForOneUserWithApi'
+
+const { TabList, Tab, TabPanels } = Tabs
 
 interface ProjectQueryProps {
     loading: boolean
@@ -39,10 +45,10 @@ interface Params {
 }
 
 const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
+    const currentUser = useCurrentUser()
     const fusionProjectId = match.params.fusionProjectId
 
-    const [activeTabKey, setActiveTabKey] = React.useState('dashboard')
-    const changeTabKey = (tabKey: string) => setActiveTabKey(tabKey)
+    const [activeTab, setActiveTab] = React.useState(0)
     const { loading, project, error } = useProjectQuery(fusionProjectId)
 
     if (loading) {
@@ -59,10 +65,18 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
 
     return (
         <ProjectContext.Provider value={project}>
-            <Tabs activeTabKey={activeTabKey} onChange={changeTabKey}>
-                <Tab tabKey="dashboard" title="Dashboard">
-                    <ProjectDashboardView project={project} />
-                </Tab>
+            <Tabs activeTab={activeTab} onChange={setActiveTab}>
+                <TabList>
+                    <Tab>Dashboard</Tab>
+                    <Tab>Actions</Tab>
+                </TabList>
+                <TabPanels>
+                    <StyledTabPanel>
+                        <ProjectDashboardView project={project} />
+                    </StyledTabPanel><StyledTabPanel>
+                        <ActionTableForOneUserWithApi azureUniqueId={currentUser!.id}/>
+                    </StyledTabPanel>
+                </TabPanels>
             </Tabs>
         </ProjectContext.Provider>
     )
