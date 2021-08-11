@@ -20,7 +20,6 @@ spec:
   components:
     - name: frontend
       src: frontend
-      dockerfileName: ./frontend/Dockerfile
       ports:
         - name: http
           port: 3000
