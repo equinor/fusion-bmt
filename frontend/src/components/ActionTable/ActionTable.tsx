@@ -18,11 +18,12 @@ type ActionWithAdditionalInfo = {
 
 type Column = {
     name: string
-    accessor: keyof Action | 'barrier' | 'organization'
+    accessor: keyof Action | 'barrier' | 'organization' | 'evaluation'
 }
 
 const actionTableColumns: Column[] = [
     { name: 'Title', accessor: 'title' },
+    { name: 'Evaluation', accessor: 'evaluation' },
     { name: 'Barrier', accessor: 'barrier' },
     { name: 'Organization', accessor: 'organization' },
     { name: 'Completed', accessor: 'completed' },
@@ -49,9 +50,10 @@ interface Props {
     actionsWithAdditionalInfo: ActionWithAdditionalInfo[]
     personDetailsList: PersonDetails[]
     onClickAction: (action: Action) => void
+    singleUser?: boolean
 }
 
-const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList }: Props) => {
+const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, singleUser = false }: Props) => {
     const [sortDirection, setSortDirection] = useState<SortDirection>('none')
     const [columnToSortBy, setColumnToSortBy] = useState<Column>()
 
@@ -78,6 +80,8 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                         return sort(a.barrier, b.barrier, sortDirection)
                     case 'organization':
                         return sort(a.organization, b.organization, sortDirection)
+                    case 'evaluation':
+                        return sort(a.action.question.evaluation.name, b.action.question.evaluation.name, sortDirection)
                     default:
                         return sort(a.action[accessor], b.action[accessor], sortDirection)
                 }
@@ -105,24 +109,29 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
             <Table style={{ width: '100%' }}>
                 <Head>
                     <Row>
-                        {actionTableColumns.map(column => {
-                            const isSelected = columnToSortBy ? column.name === columnToSortBy.name : false
-                            return (
-                                <Cell
-                                    key={column.name}
-                                    onClick={() => {
-                                        setSortOn(column)
-                                    }}
-                                    sort={isSelected ? sortDirection : 'none'}
-                                >
-                                    {column.name}
-                                    <SortIcon
-                                        name={sortDirection === 'descending' ? 'chevron_up' : 'chevron_down'}
-                                        isSelected={isSelected}
-                                    />
-                                </Cell>
+                        {actionTableColumns
+                            .filter(
+                                col =>
+                                    (col.name === 'Evaluation' && singleUser) || col.name !== 'Evaluation'
                             )
-                        })}
+                            .map(column => {
+                                const isSelected = columnToSortBy ? column.name === columnToSortBy.name : false
+                                return (
+                                    <Cell
+                                        key={column.name}
+                                        onClick={() => {
+                                            setSortOn(column)
+                                        }}
+                                        sort={isSelected ? sortDirection : 'none'}
+                                    >
+                                        {column.name}
+                                        <SortIcon
+                                            name={sortDirection === 'descending' ? 'chevron_up' : 'chevron_down'}
+                                            isSelected={isSelected}
+                                        />
+                                    </Cell>
+                                )
+                            })}
                     </Row>
                 </Head>
                 <Body>
@@ -139,6 +148,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                                 >
                                     {action.title}
                                 </Cell>
+                                {singleUser && <Cell>{action.question.evaluation.name}</Cell>}
                                 <Cell>{barrierToString(barrier)}</Cell>
                                 <Cell>{organizationToString(organization)}</Cell>
                                 <Cell>{action.completed ? 'Yes' : 'No'}</Cell>
