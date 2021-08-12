@@ -1,6 +1,6 @@
 import { Progression, Question, Role } from '../../src/api/models'
-import users from './users'
-import { evaluationName } from './helpers'
+import { User, getUsers } from './users'
+import { evaluationName} from './helpers'
 import { Answer, Action, createAction, Participant, Note, Summary } from './mocks'
 import {
     GET_PROJECT,
@@ -15,12 +15,15 @@ import {
     PROGRESS_PARTICIPANT
 } from './gql'
 
-interface IEvaluationSeed {
+type EvaluationSeedInput = {
     progression?: Progression
-    nParticipants?: number
     fusionProjectId?: string
     namePrefix?: string
-}
+} & (
+    | { nParticipants: number, users?: never }
+    | { users: User[], nParticipants?: never }
+    | { nParticipants?: never, users?: never } // default constructor values
+)
 
 /** Setup an arbitrary Evaluation state - and feed it to the backend DB
  *
@@ -46,7 +49,10 @@ interface IEvaluationSeed {
  *
  * Create an Evaluation at progression 'Individual' with 3 users
  *
- *      const seed = EvaluationSeed(Progression.Individual, 3)
+ *      const seed = new EvaluationSeed({
+ *          progression: Progression.Individual,
+ *          nParticipants: 3
+ *      })
  *
  * 'seed' now contains 3 participants, each backed by a mocked AD user. By
  * default the first user is a Role.Facilitator and will be used to create the
@@ -120,34 +126,34 @@ export class EvaluationSeed {
     actions: Action[] = []
     questions: Question[] = []
 
-
     constructor({
         progression = Progression.Individual,
         nParticipants = 1,
+        users,
         fusionProjectId = '123',
-        namePrefix = 'Evaluation'}: IEvaluationSeed
-    ) {
+        namePrefix = 'Evaluation',
+    }: EvaluationSeedInput)
+    {
         if (progression === undefined) {
             progression = Progression.Individual
         }
 
-        if (nParticipants > users.length) {
-            const msg = `You requested more mocked users (${nParticipants})
-                than currently available (${users.length})`
-
-            throw new RangeError(msg)
+        if (users == null) {
+            users = getUsers(nParticipants)
         }
 
         if (nParticipants < 1) {
             throw new RangeError('Need minimum one participant')
         }
 
-        for (let i: number = 0; i < nParticipants; i++) {
-            this.participants.push( new Participant({
-                user: users[i],
-                progression
-            }))
-        }
+        users.forEach(user => {
+            this.participants.push(
+                new Participant({
+                    user,
+                    progression,
+                })
+            )
+        })
 
         /* The first user will always be a facilitator - and the 'creator' of
          * the Evaluation*/

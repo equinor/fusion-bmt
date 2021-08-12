@@ -3,11 +3,11 @@ import { EvaluationSeed } from '../support/evaluation_seed'
 import { evaluationName } from '../support/helpers'
 import NominationPage from '../support/nomination'
 import ProjectPage from '../support/project'
-import users, { User } from '../support/users'
+import { User, users } from '../support/users'
 
 const evaluationUserIsFacilitator = () => {
     let seed = new EvaluationSeed({
-        nParticipants: 3,
+        users: users.slice(0, 3),
         namePrefix: 'user is Facilitator',
     })
     let user = seed.participants[2]
@@ -17,14 +17,14 @@ const evaluationUserIsFacilitator = () => {
 
 const evaluationUserIsParticipant = () => {
     return new EvaluationSeed({
-        nParticipants: 3,
+        users: users.slice(0, 3),
         namePrefix: 'user is Participant',
     })
 }
 
 const evaluationUserIsNotInIt = () => {
     return new EvaluationSeed({
-        nParticipants: 2,
+        users: users.slice(0, 2),
         namePrefix: 'user is not part of this Evaluation',
     })
 }

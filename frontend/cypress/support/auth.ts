@@ -1,24 +1,31 @@
 import jwtDecode, { JwtPayload } from 'jwt-decode'
-import users, { User } from './users'
+import { User, users } from './users'
 
 const SERVER_URL = Cypress.env('AUTH_URL') || 'http://localhost:8080'
 const ISSUER = 'common'
+const CACHE_ENTRY = 'FUSION_AUTH_CACHE'
 
 /* TODO: figure out if we want to retrieve token before each test,
  * or if we are able to store tokens of all users we need (or all users at all)
  */
 export const getToken = (): string => {
-    const fusionStorageJson = localStorage.getItem(`FUSION_AUTH_CACHE`)
+    const fusionStorageJson = localStorage.getItem(CACHE_ENTRY)
     if (fusionStorageJson === null) {
         throw new Error('Could not find auth token in local storage')
     }
     const fusionStorage = JSON.parse(fusionStorageJson)
-    const token = fusionStorage[`FUSION_AUTH_CACHE:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN`]
+    const token = fusionStorage[`${CACHE_ENTRY}:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN`]
     return token
 }
 
+const tokens = new Map<User, string>()
+
 Cypress.Commands.add('login', (user: User = users[0]) => {
     cy.log('Logging with user: ' + user.username)
+    if (tokens.has(user)) {
+        window.localStorage.setItem(CACHE_ENTRY, tokens.get(user)!)
+        return
+    }
 
     /* Retrieve server endpoints */
     cy.request({
@@ -98,7 +105,8 @@ Cypress.Commands.add('login', (user: User = users[0]) => {
                     'FUSION_AUTH_CACHE:5a842df8-3238-415d-b168-9f16a6a6031b:TOKEN': idToken,
                     'FUSION_AUTH_CACHE:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN': accessToken,
                 }
-                window.localStorage.setItem('FUSION_AUTH_CACHE', JSON.stringify(fusion))
+                tokens.set(user, JSON.stringify(fusion))
+                window.localStorage.setItem(CACHE_ENTRY, tokens.get(user)!)
             })
         })
     })
