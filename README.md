@@ -61,11 +61,21 @@ This will not work properly in production, since the playground server will not 
 bearer token for authentication. For generating a bearer token and try out the
 API, the Swagger URL [localhost:5000/swagger](http://localhost:5000/swagger/index.html) can be used.
 
+If you wish to interact with endpoints directly during development, [disable authorization](#disable-authorization).
+
 The Schema used for the models in the backend can be found [here](https://backend-fusion-bmt-dev.radix.equinor.com/graphql?sdl).
 
 ### Update frontend schema
 
 When the data models in the backend changes, the corresponding models in frontend has to be updated as well. This is done by executing the command `npm run schema` in the fronend directory while the backend server is also running. Then there will be created an updated `models.ts` in the src/api folder which contains the updated models.
+Note that to run this command you also might need to [disable authorization](#disable-authorization).
+
+### Disable authorization
+
+It is sometimes useful to disable authorization for local development.
+This can be done by commenting out `app.UseAuthorization();` line in [`backend/api/Startup.cs`](backend/api/Startup.cs)
+
+Remember to change it back before committing!
 
 ### Run backend
 
@@ -75,6 +85,7 @@ dotnet run
 ```
 
 ## Testing
+
 We are using Cypress as a test framework for End to End tests. Details can be found
 in [this section](frontend/cypress/README.md).
 

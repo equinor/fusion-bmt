@@ -199,15 +199,13 @@ namespace api
                     { { "resource", $"{Configuration["AzureAd:ClientId"]}" } });
             });
 
+            /*
+             * Locally comment this line out to disable authorization. It will
+             * allow you to connect to grahpql endpoints and run "schema"
+             * command.
+             */
             app.UseAuthorization();
 
-            /* Run locally without Authorization
-             *
-             * When developing locally it can useful to disable authorization
-             * of the exposed endpoints. This can be done by temporarily
-             * removing 'RequireAuthorization()` for MapGraphQL and
-             * MapControllers.
-             */
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHealthChecks("/health").AllowAnonymous();
