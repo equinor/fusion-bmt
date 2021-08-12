@@ -211,8 +211,8 @@ namespace api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHealthChecks("/health").AllowAnonymous();
-                endpoints.MapGraphQL().RequireAuthorization();
-                endpoints.MapControllers().RequireAuthorization();
+                endpoints.MapGraphQL();
+                endpoints.MapControllers();
             });
         }
     }
