@@ -2,7 +2,6 @@ import { EvaluationSeed } from '../support/evaluation_seed'
 import { Progression, Role } from '../../src/api/models'
 import { Participant } from '../support/mocks'
 import NominationPage from '../support/nomination'
-import users from '../support/users'
 
 describe('Nomination', () => {
     context('Delete', () => {
@@ -16,30 +15,30 @@ describe('Nomination', () => {
             seed.plant()
         })
 
-        it('Facilitator can delete an other facilitator, but not themself', () => {
-            cy.visitEvaluation(seed.evaluationId, owner.user)
+        function visitEvaluation(visitAs: Participant) {
+            cy.visitEvaluation(seed.evaluationId, visitAs.user)
             cy.contains(owner.user.name).should('exist')
             cy.contains(otherFacilitator.user.name).should('exist')
+        }
 
+        function checkDelete(notPossibleToDelete: Participant, possibleToDelete: Participant) {
             const nominationPage = new NominationPage()
-            nominationPage.deletePersonDiv(owner.user).should('not.exist')
-            nominationPage.deletePerson(otherFacilitator.user)
+            nominationPage.deletePersonDiv(notPossibleToDelete.user).should('not.exist')
+            nominationPage.deletePerson(possibleToDelete.user)
+
             cy.testCacheAndDB(() => {
-                nominationPage.assertParticipantNotThere(otherFacilitator.user)
+                nominationPage.assertParticipantAbsent(possibleToDelete.user)
             })
+        }
+
+        it('Facilitator can delete an other facilitator, but not themself', () => {
+            visitEvaluation(owner)
+            checkDelete(owner, otherFacilitator)
         })
 
         it('Other facilitator who is not owner can delete owner', () => {
-            cy.visitEvaluation(seed.evaluationId, otherFacilitator.user)
-            cy.contains(owner.user.name).should('exist')
-            cy.contains(otherFacilitator.user.name).should('exist')
-
-            const nominationPage = new NominationPage()
-            nominationPage.deletePersonDiv(otherFacilitator.user).should('not.exist')
-            nominationPage.deletePerson(owner.user)
-            cy.testCacheAndDB(() => {
-                nominationPage.assertParticipantNotThere(owner.user)
-            })
+            visitEvaluation(otherFacilitator)
+            checkDelete(otherFacilitator, owner)
             cy.visitProject(owner.user)
             cy.contains(seed.name).should('not.exist')
         })

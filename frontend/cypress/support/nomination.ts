@@ -27,13 +27,13 @@ export default class NominationPage {
         return cy.get('.fc--DataTable__table--2C1Xm')
     }
 
-    assertParticipantAdded = (user: User) => {
+    assertParticipantPresent = (user: User) => {
         this.participantsTable().within(() => {
             cy.contains(user.name).should('exist')
         })
     }
 
-    assertParticipantNotThere = (user: User) => {
+    assertParticipantAbsent = (user: User) => {
         this.participantsTable().within(() => {
             cy.contains(user.name).should('not.exist')
         })
