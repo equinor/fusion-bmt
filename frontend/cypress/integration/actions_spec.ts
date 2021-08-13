@@ -16,7 +16,8 @@ describe('Actions', () => {
             ;({ seed, actionToDelete, actionToStay } = createDeleteSeed())
 
             seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, seed.participants[0].user)
+                const user = faker.random.arrayElement(seed.participants).user
+                cy.visitEvaluation(seed.evaluationId, user)
                 cy.contains(actionToDelete.title).should('exist')
                 cy.contains(actionToStay.title).should('exist')
             })
@@ -30,7 +31,7 @@ describe('Actions', () => {
             confirmationDialog.yesButton().click()
         }
 
-        it('User can delete an action', () => {
+        it('Action can be deleted', () => {
             deleteAction()
             cy.testCacheAndDB(() => {
                 cy.contains(actionToDelete.title).should('not.exist')
@@ -38,7 +39,7 @@ describe('Actions', () => {
             })
         })
 
-        it('User can cancel action delete', () => {
+        it('Action delete may be canceled', () => {
             new ActionsGrid().deleteActionButton(actionToDelete.id).click()
             new ConfirmationDialog().noButton().click()
 
@@ -48,7 +49,7 @@ describe('Actions', () => {
             })
         })
 
-        it('User can not delete deleted action', () => {
+        it('Deleted action can not be deleted again', () => {
             cy.gql(DELETE_ACTION, {
                 variables: {
                     actionId: actionToDelete.id,
