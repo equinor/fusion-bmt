@@ -3,14 +3,18 @@ import { Progression } from '../../src/api/models'
 import { Action } from '../support/mocks'
 import ActionsGrid from '../support/action_grid'
 import { ConfirmationDialog } from '../support/common'
+import { EvaluationPage } from '../support/evaluation'
 import { DELETE_ACTION } from '../support/gql'
 import * as faker from 'faker'
 
 describe('Actions', () => {
+    const evaluationPage = new EvaluationPage()
     context('Delete', () => {
         let seed: EvaluationSeed
         let actionToDelete: Action
         let actionToStay: Action
+
+        const deleteActionFrom = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
 
         beforeEach(() => {
             ;({ seed, actionToDelete, actionToStay } = createDeleteSeed())
@@ -18,6 +22,7 @@ describe('Actions', () => {
             seed.plant().then(() => {
                 const user = faker.random.arrayElement(seed.participants).user
                 cy.visitEvaluation(seed.evaluationId, user)
+                evaluationPage.progressionStepLink(deleteActionFrom).click()
                 cy.contains(actionToDelete.title).should('exist')
                 cy.contains(actionToStay.title).should('exist')
             })
@@ -34,6 +39,7 @@ describe('Actions', () => {
         it('Action can be deleted', () => {
             deleteAction()
             cy.testCacheAndDB(() => {
+                evaluationPage.progressionStepLink(deleteActionFrom).click()
                 cy.contains(actionToDelete.title).should('not.exist')
                 cy.contains(actionToStay.title).should('exist')
             })
@@ -44,6 +50,7 @@ describe('Actions', () => {
             new ConfirmationDialog().noButton().click()
 
             cy.testCacheAndDB(() => {
+                evaluationPage.progressionStepLink(deleteActionFrom).click()
                 cy.contains(actionToDelete.title).should('exist')
                 cy.contains(actionToStay.title).should('exist')
             })
@@ -70,6 +77,7 @@ describe('Actions', () => {
                         cy.contains('Action not found').should('exist')
                     },
                     () => {
+                        evaluationPage.progressionStepLink(deleteActionFrom).click()
                         cy.contains(actionToDelete.title).should('not.exist')
                         cy.contains(actionToStay.title).should('exist')
                         cy.contains('Action not found').should('not.exist')
@@ -82,7 +90,7 @@ describe('Actions', () => {
 
 const createDeleteSeed = () => {
     const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement([Progression.Workshop, Progression.FollowUp]),
+        progression: faker.random.arrayElement(Object.values(Progression)),
         nParticipants: faker.datatype.number({ min: 1, max: 5 }),
     })
 
