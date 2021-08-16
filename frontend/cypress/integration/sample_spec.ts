@@ -46,7 +46,7 @@ describe('Sample tests', () => {
 
         nomineeDialog.close()
         allUsers.forEach(user => {
-            nominationPage.assertParticipantAdded(user)
+            nominationPage.assertParticipantPresent(user)
         })
     })
 })
