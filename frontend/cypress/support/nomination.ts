@@ -28,15 +28,11 @@ export default class NominationPage {
     }
 
     assertParticipantPresent = (user: User) => {
-        this.participantsTable().within(() => {
-            cy.contains(user.name).should('exist')
-        })
+        this.participantsTable().contains(user.name).should('exist')
     }
 
     assertParticipantAbsent = (user: User) => {
-        this.participantsTable().within(() => {
-            cy.contains(user.name).should('not.exist')
-        })
+        this.participantsTable().contains(user.name).should('not.exist')
     }
 
     static NomineeDialog = class {
@@ -55,14 +51,10 @@ export default class NominationPage {
 
         searchAndAddPerson = (user: User) => {
             this.searchPersonTextBox().clear().type(user.username)
-            this.body().within(() => {
-                cy.contains(user.name).should('exist')
-            })
+            this.body().contains(user.name).should('exist')
 
             // relying on the stubbed behavior: only 1 result returned
-            this.body().within(() => {
-                cy.contains('Add').should('exist').click()
-            })
+            this.body().contains('Add').should('exist').click()
         }
 
         close = () => {
