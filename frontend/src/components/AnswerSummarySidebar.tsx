@@ -5,6 +5,8 @@ import { barrierToString } from '../utils/EnumToString'
 import SingleAnswerSummary from './SingleAnswerSummary'
 import { progressionLessThan } from '../utils/ProgressionStatus'
 import Sticky from './Sticky'
+import { useParticipant } from '../globals/contexts'
+import { participantCanReadAnswer } from '../utils/RoleBasedAccess'
 
 interface AnswerSummarySidebarProps {
     open: boolean
@@ -14,7 +16,10 @@ interface AnswerSummarySidebarProps {
 }
 
 const AnswerSummarySidebar = ({ open, onCloseClick, question, viewProgression }: AnswerSummarySidebarProps) => {
-    const answers = question.answers.filter(answer => progressionLessThan(answer.progression, viewProgression))
+    const participant = useParticipant()
+    const answers = question.answers.filter(answer =>
+        progressionLessThan(answer.progression, viewProgression) && participantCanReadAnswer(participant, answer)
+    )
 
     const individualAnswers = answers.filter(a => a.progression === Progression.Individual)
     const preparationAnswers = answers.filter(a => a.progression === Progression.Preparation)
