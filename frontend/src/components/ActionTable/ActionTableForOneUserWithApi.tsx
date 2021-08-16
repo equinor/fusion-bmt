@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box } from '@material-ui/core'
+import { useApiClients, Context } from '@equinor/fusion'
 import { Action, Barrier, Organization } from '../../api/models'
 import ActionTable from './ActionTable'
 import ActionEditSidebarWithApi from '../Action/EditForm/ActionEditSidebarWithApi'
@@ -20,6 +21,9 @@ const useActionsQuery = (currentUserId: string) => {
                     evaluation {
                         name
                         ...ParticipantsArray
+                        project {
+                            fusionProjectId
+                        }
                     }
                 }
             }
@@ -50,14 +54,25 @@ interface Props {
 }
 
 const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
+    const apiClients = useApiClients()
+
     const { actions } = useActionsQuery(azureUniqueId)
     const actionsWithAdditionalInfo = actions.map(action => {
         return { action: action, barrier: action.question.barrier, organization: action.question.organization }
     })
 
     const { personDetailsList } = useAllPersonDetailsAsync([azureUniqueId])
+    const [projects, setProjects] = useState<Context[]>()
+    const [isFetchingProject, setIsFetchingProject] = useState<boolean>(true)
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [actionToEdit, setActionToEdit] = useState<ActionWithAdditionalInfo | undefined>()
+
+    useEffect(() => {
+        apiClients.context.getContextsAsync().then(projects => {
+            setProjects(projects.data)
+            setIsFetchingProject(false)
+        })
+    }, [])
 
     const onClose = () => {
         setIsEditSidebarOpen(false)
@@ -76,7 +91,9 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
                 actionsWithAdditionalInfo={actionsWithAdditionalInfo}
                 personDetailsList={personDetailsList}
                 onClickAction={openEditActionPanel}
-                singleUser={true}
+                showEvaluations={true}
+                projects={projects}
+                isFetchingProjects={isFetchingProject}
             />
             {actionToEdit !== undefined && (
                 <ActionEditSidebarWithApi
