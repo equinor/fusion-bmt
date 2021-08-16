@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react'
 import { tokens } from '@equinor/eds-tokens'
 import styled from 'styled-components'
-import { PersonDetails } from '@equinor/fusion'
+import { PersonDetails, Context } from '@equinor/fusion'
 import { Icon, Table, Typography } from '@equinor/eds-core-react'
 import { Action, Barrier, Organization } from '../../api/models'
 import { sort, SortDirection, sortPriority } from '../../utils/sort'
 import PriorityIndicator from '../Action/PriorityIndicator'
 import { barrierToString, organizationToString } from '../../utils/EnumToString'
+import { getFusionProjectName } from '../helpers'
 
 const { Body, Row, Cell, Head } = Table
 
@@ -18,11 +19,12 @@ type ActionWithAdditionalInfo = {
 
 type Column = {
     name: string
-    accessor: keyof Action | 'barrier' | 'organization' | 'evaluation'
+    accessor: keyof Action | 'barrier' | 'organization' | 'evaluation' | 'project'
 }
 
 const actionTableColumns: Column[] = [
     { name: 'Title', accessor: 'title' },
+    { name: 'Project', accessor: 'project' },
     { name: 'Evaluation', accessor: 'evaluation' },
     { name: 'Barrier', accessor: 'barrier' },
     { name: 'Organization', accessor: 'organization' },
@@ -50,10 +52,12 @@ interface Props {
     actionsWithAdditionalInfo: ActionWithAdditionalInfo[]
     personDetailsList: PersonDetails[]
     onClickAction: (action: Action) => void
-    singleUser?: boolean
+    showEvaluations?: boolean
+    projects?: Context[]
+    isFetchingProjects?: boolean
 }
 
-const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, singleUser = false }: Props) => {
+const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false, projects, isFetchingProjects = false }: Props) => {
     const [sortDirection, setSortDirection] = useState<SortDirection>('none')
     const [columnToSortBy, setColumnToSortBy] = useState<Column>()
 
@@ -81,7 +85,17 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                     case 'organization':
                         return sort(a.organization, b.organization, sortDirection)
                     case 'evaluation':
-                        return sort(a.action.question.evaluation.name, b.action.question.evaluation.name, sortDirection)
+                        if (showEvaluations) {
+                            return sort(a.action.question.evaluation.name, b.action.question.evaluation.name, sortDirection)
+                        }
+                        return 0
+                    case 'project':
+                        if (projects) {
+                            const projectNameA = getFusionProjectName(projects, a.action.question.evaluation.project.fusionProjectId)
+                            const projectNameB = getFusionProjectName(projects, b.action.question.evaluation.project.fusionProjectId)
+                            return projectNameA && projectNameB ? sort(projectNameA, projectNameB, sortDirection) : 0
+                        }
+                        return 0
                     default:
                         return sort(a.action[accessor], b.action[accessor], sortDirection)
                 }
@@ -106,13 +120,15 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
 
     return (
         <>
-            <Table style={{ width: '100%' }}>
+            {!isFetchingProjects && <Table style={{ width: '100%' }}>
                 <Head>
                     <Row>
                         {actionTableColumns
                             .filter(
                                 col =>
-                                    (col.name === 'Evaluation' && singleUser) || col.name !== 'Evaluation'
+                                    (col.name === 'Evaluation' && showEvaluations) || 
+                                    (col.name === 'Project' && projects) || 
+                                    (col.name !== 'Evaluation' && col.name !== 'Project')
                             )
                             .map(column => {
                                 const isSelected = columnToSortBy ? column.name === columnToSortBy.name : false
@@ -148,7 +164,8 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                                 >
                                     {action.title}
                                 </Cell>
-                                {singleUser && <Cell>{action.question.evaluation.name}</Cell>}
+                                {projects && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>}
+                                {showEvaluations && <Cell>{action.question.evaluation.name}</Cell>}
                                 <Cell>{barrierToString(barrier)}</Cell>
                                 <Cell>{organizationToString(organization)}</Cell>
                                 <Cell>{action.completed ? 'Yes' : 'No'}</Cell>
@@ -164,7 +181,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                         )
                     })}
                 </Body>
-            </Table>
+            </Table>}
         </>
     )
 }

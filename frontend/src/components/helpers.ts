@@ -1,3 +1,4 @@
+import { Context } from '@equinor/fusion'
 import { Question, Progression, Role, Severity } from '../api/models'
 import { SeverityCount } from '../utils/Severity'
 
@@ -34,4 +35,9 @@ export const selectSeverity = (severityCount: SeverityCount) => {
     if (!lowSeverityHighEnough && !limitedSeverityHighEnough && highSeverityHighEnough) return Severity.High
 
     return Severity.Na
+}
+
+export const getFusionProjectName = (projects: Context[] | undefined, fusionProjectId: string) => {
+    const fusionProject = projects?.find(project => project.id === fusionProjectId)
+    return fusionProject?.title
 }
