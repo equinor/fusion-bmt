@@ -86,7 +86,11 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                         return sort(a.organization, b.organization, sortDirection)
                     case 'evaluation':
                         if (showEvaluations) {
-                            return sort(a.action.question.evaluation.name, b.action.question.evaluation.name, sortDirection)
+                            return sort(
+                                a.action.question.evaluation.name.toLowerCase(),
+                                b.action.question.evaluation.name.toLowerCase(),
+                                sortDirection
+                            )
                         }
                         return 0
                     case 'project':
@@ -96,6 +100,8 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                             return projectNameA && projectNameB ? sort(projectNameA, projectNameB, sortDirection) : 0
                         }
                         return 0
+                    case 'title':
+                        return sort(a.action.title.toLowerCase(), b.action.title.toLowerCase(), sortDirection)
                     default:
                         return sort(a.action[accessor], b.action[accessor], sortDirection)
                 }
