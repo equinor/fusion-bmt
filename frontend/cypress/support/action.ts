@@ -111,18 +111,6 @@ export class EditActionDialog extends ActionDialog {
         return cy.getByDataTestid('notes_list')
     }
 
-    completedSwitch = () => {
-        return this.body()
-            .contains('Completed')
-            .then($el => cy.wrap($el).find('input'))
-    }
-
-    onHoldSwitch = () => {
-        return this.body()
-            .contains('On hold')
-            .then($el => cy.wrap($el).find('input'))
-    }
-
     assertSaved = () => {
         this.body()
             .parent()
@@ -149,8 +137,6 @@ export class EditActionDialog extends ActionDialog {
             cy.get('@note').contains(note.text).should('exist')
             // TODO: time not checked. Need to figure out if it can be done reasonably
         })
-        this.completedSwitch().should(action.completed ? 'be.checked' : 'be.not.checked')
-        this.onHoldSwitch().should(action.onHold ? 'be.checked' : 'be.not.checked')
     }
 }
 

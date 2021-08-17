@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
 import { PersonDetails } from '@equinor/fusion'
-import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
-import { Switch, TextField, Typography } from '@equinor/eds-core-react'
+import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select, TextArea } from '@equinor/fusion-components'
+import { Button, Icon, TextField, Typography } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
 import styled from 'styled-components'
 
@@ -10,13 +10,11 @@ import { Action, Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useEffectNotOnMount } from '../../../utils/hooks'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
+import { check_circle_outlined } from '@equinor/eds-icons'
 
-const RightOrientedDate = styled(Typography)`
+const StyledDate = styled(Typography)`
     float: right;
-`
-
-const RightOrientedSwitch = styled(Switch)`
-    float: right;
+    margin-top: 10px;
 `
 
 interface Props {
@@ -26,9 +24,24 @@ interface Props {
     possibleAssigneesDetails: PersonDetails[]
     onEditShouldDelay: (action: Action, isValid: boolean) => void
     onEditShouldNotDelay: (action: Action, isValid: boolean) => void
+    createClosingRemark: (text: string) => void
+    isClosingRemarkSaved: boolean
+    apiErrorClosingRemark: string
+    apiErrorAction: string
 }
 
-const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possibleAssigneesDetails, onEditShouldDelay, onEditShouldNotDelay }: Props) => {
+const ActionEditForm = ({
+    action,
+    connectedQuestion,
+    possibleAssignees,
+    possibleAssigneesDetails,
+    onEditShouldDelay,
+    onEditShouldNotDelay,
+    isClosingRemarkSaved,
+    createClosingRemark,
+    apiErrorClosingRemark,
+    apiErrorAction,
+}: Props) => {
     const [title, setTitle] = useState<string>((action && action.title) || '')
     const [titleValidity, setTitleValidity] = useState<Validity>('default')
 
@@ -39,8 +52,9 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
     const [dueDate, setDueDate] = useState<Date>(new Date(action.dueDate))
     const [priority, setPriority] = useState<Priority>(action.priority)
     const [description, setDescription] = useState<string>(action.description)
-    const [onHold, setOnHold] = useState<boolean>(action.onHold)
     const [completed, setCompleted] = useState<boolean>(action.completed)
+    const [completeActionViewOpen, setCompleteActionViewOpen] = useState<boolean>(false)
+    const [completingReason, setCompletingReason] = useState<string>('')
 
     const assigneesOptions: SearchableDropdownOption[] = possibleAssigneesDetails.map(personDetails => ({
         title: personDetails.name,
@@ -70,7 +84,6 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
         const editedAction: Action = {
             ...action,
             title,
-            onHold,
             dueDate,
             priority,
             completed,
@@ -85,7 +98,6 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
         const editedAction: Action = {
             ...action,
             title,
-            onHold,
             dueDate,
             priority,
             completed,
@@ -93,7 +105,7 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
             assignedTo,
         }
         onEditShouldNotDelay(editedAction, isValid)
-    }, [assignedTo, onHold, dueDate, priority, completed])
+    }, [assignedTo, dueDate, priority, completed])
 
     useEffect(() => {
         if (titleValidity === 'error') {
@@ -119,29 +131,39 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
         }
     }, [assignedTo])
 
+    useEffect(() => {
+        if (action.completed && completeActionViewOpen) {
+            createClosingRemark(completingReason)
+        }
+    }, [action.completed])
+
+    useEffect(() => {
+        if (apiErrorAction && completeActionViewOpen) {
+            setCompleteActionViewOpen(false)
+            setCompleted(false)
+        }
+    }, [apiErrorAction])
+
+    useEffect(() => {
+        if (isClosingRemarkSaved && completeActionViewOpen && !apiErrorClosingRemark) {
+            setCompletingReason('')
+            setCompleteActionViewOpen(false)
+        }
+    }, [isClosingRemarkSaved])
+
     return (
         <>
             <Grid container spacing={3}>
-                <Grid item xs={6}>
-                    <Switch
-                        checked={completed}
-                        onChange={() => {}} // This is required to avoid an error
-                        onClick={() => setCompleted(!completed)}
-                        disabled={false}
-                        label="Completed"
-                    />
-                </Grid>
-                <Grid item xs={6}>
-                    <RightOrientedSwitch
-                        checked={onHold}
-                        onChange={() => {}} // This is required to avoid an error
-                        onClick={() => setOnHold(!onHold)}
-                        disabled={false}
-                        label="On hold"
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <RightOrientedDate>Created: {createdDateString}</RightOrientedDate>
+                {action.completed && (
+                    <Grid item xs={6}>
+                        <div style={{ display: 'flex', flexDirection: 'row' }}>
+                            <Icon data={check_circle_outlined} style={{ marginRight: '5px' }} />
+                            <Typography variant="body_short">Completed</Typography>
+                        </div>
+                    </Grid>
+                )}
+                <Grid item xs={action.completed ? 6 : 12}>
+                    <StyledDate>Created: {createdDateString}</StyledDate>
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
@@ -219,6 +241,64 @@ const ActionEditForm = ({ action, connectedQuestion, possibleAssignees, possible
                         style={{ height: 150 }}
                     />
                 </Grid>
+                {!completed && (
+                    <Grid item xs={12}>
+                        <Button
+                            style={{ float: 'right' }}
+                            onClick={() => {
+                                setCompleteActionViewOpen(true)
+                                setCompletingReason('')
+                            }}
+                            disabled={completeActionViewOpen}
+                        >
+                            Complete action
+                        </Button>
+                    </Grid>
+                )}
+                {completeActionViewOpen && (
+                    <>
+                        <Grid item xs={12}>
+                            <Typography variant="h5">Are you sure you want to close the action?</Typography>
+                            <Typography variant="body_short">This cannot be undone.</Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                id="completed-reason"
+                                value={completingReason}
+                                autoFocus={true}
+                                label={'Optional reason for closing action'}
+                                onChange={(event: TextFieldChangeEvent) => {
+                                    setCompletingReason(event.target.value)
+                                }}
+                            />
+                        </Grid>
+                        {apiErrorClosingRemark && (
+                            <Grid item xs={12}>
+                                <div style={{ marginTop: 20 }}>
+                                    <TextArea value={apiErrorClosingRemark} onChange={() => {}} />
+                                </div>
+                            </Grid>
+                        )}
+                        <Grid item xs={12}>
+                            <div style={{ float: 'right' }}>
+                                <Button variant="outlined" style={{ marginRight: '10px' }} onClick={() => setCompleteActionViewOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        if (!apiErrorClosingRemark) {
+                                            setCompleted(true)
+                                        } else {
+                                            createClosingRemark(completingReason)
+                                        }
+                                    }}
+                                >
+                                    {!apiErrorClosingRemark ? 'Confirm' : 'Try again'}
+                                </Button>
+                            </div>
+                        </Grid>
+                    </>
+                )}
             </Grid>
         </>
     )

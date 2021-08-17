@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { TextArea, ModalSideSheet } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
 
-import { Action, Participant, Question } from '../../../api/models'
+import { Action, ClosingRemark, Note, Participant, Question } from '../../../api/models'
 import ActionEditForm from './ActionEditForm'
 import SaveIndicator from '../../SaveIndicator'
 import { SavingState } from '../../../utils/Variables'
 import { useAllPersonDetailsAsync, useEffectNotOnMount } from '../../../utils/hooks'
-import NotesList from './NotesList'
+import NotesAndClosingRemarksList from './NotesAndClosingRemarksList'
 import NoteCreateForm from './NoteCreateForm'
 
 const WRITE_DELAY_MS = 1000
@@ -24,9 +24,12 @@ interface Props {
     note: string
     onChangeNote: (text: string) => void
     onCreateNote: (text: string) => void
+    onCreateClosingRemark: (text: string) => void
+    isClosingRemarkSaved: boolean
     onClose: () => void
     apiErrorAction: string
     apiErrorNote: string
+    apiErrorClosingRemark: string
 }
 
 const ActionEditSidebar = ({
@@ -38,17 +41,27 @@ const ActionEditSidebar = ({
     possibleAssignees,
     onActionEdit,
     note,
+    isClosingRemarkSaved,
     onChangeNote,
     onCreateNote,
+    onCreateClosingRemark,
     onClose,
     apiErrorAction,
     apiErrorNote,
+    apiErrorClosingRemark,
 }: Props) => {
     const { personDetailsList, isLoading: isLoadingPersonDetails } = useAllPersonDetailsAsync(
         possibleAssignees.map(assignee => assignee.azureUniqueId)
     )
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [delayedAction, setDelayedAction] = useState<Action | undefined>(undefined)
+    const notesAndClosingRemarks: (Note | ClosingRemark)[] = action.notes.map(note => note)
+
+    if (action.closingRemarks !== undefined) {
+        action.closingRemarks.forEach(closingRemark => {
+            notesAndClosingRemarks.push(closingRemark)
+        })
+    }
 
     useEffect(() => {
         if (isActionSaving) {
@@ -114,11 +127,6 @@ const ActionEditSidebar = ({
             )}
             {!isLoadingPersonDetails && (
                 <div style={{ margin: 20 }} data-testid="edit_action_dialog_body">
-                    {apiErrorAction && (
-                        <div>
-                            <TextArea value={apiErrorAction} onChange={() => {}} />
-                        </div>
-                    )}
                     <ActionEditForm
                         action={action}
                         connectedQuestion={connectedQuestion}
@@ -126,14 +134,23 @@ const ActionEditSidebar = ({
                         possibleAssigneesDetails={personDetailsList}
                         onEditShouldDelay={onEditWithDelay}
                         onEditShouldNotDelay={onEditWithoutDelay}
+                        createClosingRemark={text => onCreateClosingRemark(text)}
+                        isClosingRemarkSaved={isClosingRemarkSaved}
+                        apiErrorClosingRemark={apiErrorClosingRemark}
+                        apiErrorAction={apiErrorAction}
                     />
+                    {apiErrorAction && (
+                        <div style={{ marginTop: 20 }}>
+                            <TextArea value={apiErrorAction} onChange={() => {}} />
+                        </div>
+                    )}
                     {apiErrorNote && (
                         <div style={{ marginTop: 20 }}>
                             <TextArea value={apiErrorNote} onChange={() => {}} />
                         </div>
                     )}
                     <NoteCreateForm text={note} onChange={onChangeNote} onCreateClick={onCreateNote} disabled={isNoteSaving} />
-                    <NotesList notes={action.notes} participantsDetails={personDetailsList} />
+                    <NotesAndClosingRemarksList notesAndClosingRemarks={notesAndClosingRemarks} participantsDetails={personDetailsList} />
                 </div>
             )}
         </ModalSideSheet>

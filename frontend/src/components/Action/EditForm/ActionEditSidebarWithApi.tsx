@@ -16,11 +16,18 @@ interface Props {
 const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, possibleAssignees }: Props) => {
     const { editAction, loading: isActionSaving, error: errorEditingAction } = useEditActionMutation()
     const { createNote, note, loading: isNoteSaving, error: errorCreatingNote } = useCreateNoteMutation()
+    const {
+        createClosingRemark,
+        closingRemark,
+        loading: isClosingRemarkSaving,
+        error: errorCreatingClosingRemark,
+    } = useCreateClosingRemarkMutation()
     const [actionError, setActionError] = useState('')
     const [noteError, setNoteError] = useState('')
+    const [closingRemarkError, setClosingRemarkError] = useState('')
     const [localNote, setLocalNote] = useState<string>('')
 
-    useEffect(() =>  {
+    useEffect(() => {
         if (errorEditingAction) {
             setActionError(apiErrorMessage('Could not save changes to action'))
         } else {
@@ -28,13 +35,21 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
         }
     }, [errorEditingAction])
 
-    useEffect(() =>  {
+    useEffect(() => {
         if (errorCreatingNote) {
             setNoteError(apiErrorMessage('Could not create note'))
         } else {
             setNoteError('')
         }
     }, [errorCreatingNote])
+
+    useEffect(() => {
+        if (errorCreatingClosingRemark) {
+            setClosingRemarkError(apiErrorMessage('Could not save reason for changing complete-status'))
+        } else {
+            setClosingRemarkError('')
+        }
+    }, [errorCreatingClosingRemark])
 
     const onChangeNote = (value: string) => {
         setLocalNote(value)
@@ -46,7 +61,13 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
         }
     }
 
-    useEffect(() =>  {
+    const onCreateClosingRemark = (text: string) => {
+        if (!isClosingRemarkSaving) {
+            createClosingRemark(action.id, text)
+        }
+    }
+
+    useEffect(() => {
         if (note) {
             setLocalNote('')
         }
@@ -64,9 +85,12 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
             onActionEdit={editAction}
             onCreateNote={onCreateNote}
             onChangeNote={onChangeNote}
+            onCreateClosingRemark={onCreateClosingRemark}
+            isClosingRemarkSaved={closingRemark !== undefined}
             note={localNote}
             apiErrorAction={actionError}
             apiErrorNote={noteError}
+            apiErrorClosingRemark={closingRemarkError}
         />
     )
 }

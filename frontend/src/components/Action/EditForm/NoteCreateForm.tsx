@@ -42,7 +42,7 @@ const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
                     />
                 </Grid>
                 <Grid item xs={2} container={true} alignItems="center">
-                    <Button variant="ghost" onClick={addNote} disabled={disabled} data-testid="add_note_button">
+                    <Button variant="ghost" onClick={addNote} disabled={disabled} style={{ marginTop: '20px' }} data-testid="add_note_button">
                         <Icon data={add}></Icon>
                     </Button>
                 </Grid>

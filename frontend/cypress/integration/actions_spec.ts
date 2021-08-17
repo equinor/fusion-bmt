@@ -106,8 +106,6 @@ describe('Actions', () => {
                 editActionDialog.notesInput().replace(note.text)
                 editActionDialog.addNoteButton().click()
             })
-            editActionDialog.completedSwitch().click({ force: true })
-            editActionDialog.onHoldSwitch().click({ force: true })
 
             editActionDialog.assertSaved()
             editActionDialog.close()
