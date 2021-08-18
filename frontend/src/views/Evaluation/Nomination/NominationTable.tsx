@@ -8,6 +8,7 @@ import { ProgressionStatus } from '../../../utils/ProgressionStatus'
 import { useDeleteParticipantMutation } from './NominationGQL'
 import { roleToString, organizationToString } from '../../../utils/EnumToString'
 import { useEvaluation } from '../../../globals/contexts'
+import { participantCanDeleteParticipant } from '../../../utils/RoleBasedAccess'
 
 interface DataTableItem {
     organization: Organization
@@ -81,10 +82,10 @@ const columns: DataTableColumn<DataTableItem>[] = [
     },
 ]
 
-/** Who can delete users, and when (Progression)
+/** Who (Role) can delete users, and when (Progression)
  *
  * Who:
- *  Participants that are a part of the evaluation
+ *  Facilitators and OrganizationLeads
  *
  * When:
  *  Evaluation is at Nomination stage
@@ -100,7 +101,7 @@ const disableDelete = (evaluation: Evaluation, azureUniqueId: string) => {
         return true
     }
 
-    return false
+    return !participantCanDeleteParticipant(loggedInUser.role)
 }
 
 interface NominationTableProps {

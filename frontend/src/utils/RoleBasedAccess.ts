@@ -22,3 +22,18 @@ export const participantCanReadAnswer = (participant: Participant, answer: Answe
             return false
     }
 }
+
+
+/* Role-based rule for deleting another Participant from the Evaluation */
+export const participantCanDeleteParticipant = (participantRole: Role) => {
+    switch (participantRole) {
+        case Role.Facilitator: // Intentional fall-through
+        case Role.OrganizationLead:
+            return true
+        case Role.Participant: // Intentional fall-through
+        case Role.ReadOnly:
+            return false
+        default:
+            return false
+    }
+}
