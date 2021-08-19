@@ -30,15 +30,15 @@ interface Props {
 const DenseBarrierCard = ({ index, items, isRight = false, extraWidth = 0, headline }: Props) => {
     return (
         <div style={{ position: 'relative' }}>
-            <Box
-                height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
-                width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
-                isRight={isRight}
-            >
-                <Tooltip title={headline} placement="top">
+            <Tooltip title={headline} placement="top">
+                <Box
+                    height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
+                    width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
+                    isRight={isRight}
+                >
                     <SeverityList items={items} isDense />
-                </Tooltip>
-            </Box>
+                </Box>
+            </Tooltip>
         </div>
     )
 }
