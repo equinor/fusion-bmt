@@ -1,12 +1,20 @@
 import { getUserData, findUserByID, findUserByUsername } from './users'
 import { fusionProjects, getFusionProjectData, findFusionProjectByID } from './projects'
 
-Cypress.Commands.add('interceptExternal', () => {
-    // TODO: do we want to intercept all the outgoing requests that currently result in errors
-    cy.intercept('https://pro-s-portal-ci.azurewebsites.net/api/persons/me/settings/apps/bmt', {})
-    cy.intercept('https://pro-s-portal-ci.azurewebsites.net/log/features', {})
+const settingsURL = /https:\/\/pro-s-portal-ci\.azurewebsites\.net\/api\/persons\/me\/settings\/apps\/bmt/
+const featuresURL = /https:\/\/pro-s-portal-ci\.azurewebsites\.net\/log\/features/
+const projectURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts\/(.+)/
+const projectsURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts$/
+const personURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)(?:(\?\$.*)|$)/
+const personPresenceURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)\/presence/
+const searchPersonsURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\?\$search=(.+)/
 
-    const projectURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts\/(.+)/
+const interceptedURLs = [settingsURL, featuresURL, projectURL, projectsURL, personURL, personPresenceURL, searchPersonsURL]
+
+Cypress.Commands.add('interceptExternal', () => {
+    cy.intercept(settingsURL, {})
+    cy.intercept(featuresURL, {})
+
     cy.intercept(projectURL, req => {
         const fusionProjectId = req.url.match(projectURL)![1]
         const project = findFusionProjectByID(fusionProjectId)
@@ -15,7 +23,6 @@ Cypress.Commands.add('interceptExternal', () => {
         })
     })
 
-    const projectsURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts$/
     cy.intercept(projectsURL, req => {
         req.reply({
             body: fusionProjects.map(p => {
@@ -24,24 +31,21 @@ Cypress.Commands.add('interceptExternal', () => {
         })
     })
 
-    const personsURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)(?:(\?\$.*)|$)/
-    cy.intercept(personsURL, req => {
-        const id = req.url.match(personsURL)![1]
+    cy.intercept(personURL, req => {
+        const id = req.url.match(personURL)![1]
         const user = findUserByID(id)
         req.reply({
             body: getUserData(user),
         })
     })
 
-    const personsPresenceURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)\/presence/
-    cy.intercept(personsPresenceURL, req => {
-        const id = req.url.match(personsPresenceURL)![1]
+    cy.intercept(personPresenceURL, req => {
+        const id = req.url.match(personPresenceURL)![1]
         req.reply({
             body: { id: id, availability: 'Available', activity: 'Available' },
         })
     })
 
-    const searchPersonsURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\?\$search=(.+)/
     cy.intercept(searchPersonsURL, req => {
         const username = req.url.match(searchPersonsURL)![1]
         const user = findUserByUsername(username)
@@ -63,3 +67,50 @@ declare global {
         }
     }
 }
+
+Cypress.on('uncaught:exception', (err, runnable, promise) => {
+    /**
+     * Ignore exceptions thrown by fusion
+     * see https://docs.cypress.io/api/events/catalog-of-events#Uncaught-Exceptions
+     */
+    if (promise) {
+        /* As per Cypress, "all intercepts are automatically cleared before
+         * every test." If it happens while external async calls are still being
+         * made, we get get unhandled promises errors. Hence for stability
+         * purpose we will ignore these promises again.
+         */
+        const messageRegex = '> (.+)'
+        const messageMatch = err.message.match(messageRegex)
+
+        if (messageMatch) {
+            const message = messageMatch[1]
+
+            /* It looks like majority of our stability issues fall under this message: */
+            if (message === 'Failed to fetch') {
+                console.log(`Swallowing unhandled "Failed to fetch" promise:\n\n%c${err.message}\n`, 'padding-left: 30px;')
+                return false
+            }
+
+            /* But a certain number falls here */
+            const failingURLRegex = /\[(http.*?)\]/
+            const failingURLMatch = err.message.match(failingURLRegex)
+            if (failingURLMatch) {
+                const failingURL = err.message.match(failingURLRegex)![1]
+                for (const interceptedURL of interceptedURLs) {
+                    if (failingURL.match(interceptedURL)) {
+                        console.log(
+                            `Swallowing unhandled promise:\n\n%c${err.message}%c\n\nas per match for intercepting regex %c${interceptedURL}`,
+                            'padding-left: 30px;',
+                            '',
+                            'font-weight: bold;'
+                        )
+                        return false
+                    }
+                }
+            }
+
+            /* Log remaining unhandled promises as Cypress sometimes doesn't log them fully */
+            console.log('Unhandled promise uncaught: ' + err.message)
+        }
+    }
+})

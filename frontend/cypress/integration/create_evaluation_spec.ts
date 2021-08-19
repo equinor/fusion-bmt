@@ -57,7 +57,6 @@ describe('Creating a new Evaluation', () => {
 
         const nominationPage = new NominationPage()
         nominationPage.evaluationTitle().should('have.text', name)
-        nominationPage.assertParticipantPresent(user)
     })
 
     context('Can create evaluation ', () => {
@@ -73,7 +72,6 @@ describe('Creating a new Evaluation', () => {
 
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)
-                nominationPage.assertParticipantPresent(user)
             })
         })
     })
