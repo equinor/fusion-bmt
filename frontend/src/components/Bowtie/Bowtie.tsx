@@ -2,11 +2,11 @@ import React from 'react'
 import { AnswersWithBarrier } from '../../utils/Variables'
 import styled from 'styled-components'
 import SeverityList from './SeverityList'
-import SimpleBarrierCard from './SimpleBowtie/SimpleBarrierCard'
-import SimpleTopEvent from './SimpleBowtie/SimpleTopEvent'
-import TopEventIllustration from './NormalBowtie/TopEventIllustration'
-import DetailedBarrierCard from './NormalBowtie/DetailedBarrierCard'
-import Arrow from './NormalBowtie/Arrow'
+import DenseBarrierCard from './DenseBowtie/DenseBarrierCard'
+import DenseTopEvent from './DenseBowtie/DenseTopEvent'
+import TopEventIllustration from './DetailedBowtie/TopEventIllustration'
+import DetailedBarrierCard from './DetailedBowtie/DetailedBarrierCard'
+import Arrow from './DetailedBowtie/Arrow'
 
 const EXTRA_CARD_WIDTH_TO_MAKE_SYMMETRIC = 65
 const EXTRA_CARD_WIDTH_TO_MAKE_SYMMETRIC_SMALL = 15
@@ -38,7 +38,7 @@ export const MiddleTextWrapper = styled.div`
 
 export const MiddleDotWrapper = styled.div`
     position: relative;
-    left: 205px;
+    left: 204px;
     bottom: 35px;
     width: 20px;
 `
@@ -72,7 +72,8 @@ const Bowtie = ({ answersWithBarrier, isDense = false }: Props) => {
     const BarrierCard = ({ index, barriers, headline, isRight = false }: BarrierCardProps) => {
         if (isDense) {
             return (
-                <SimpleBarrierCard
+                <DenseBarrierCard
+                    headline={headline}
                     index={index}
                     items={pickBarriers(barriers)}
                     isRight={isRight}
@@ -92,10 +93,7 @@ const Bowtie = ({ answersWithBarrier, isDense = false }: Props) => {
     }
 
     const Middle = () => {
-        if (isDense) {
-            return <SimpleTopEvent />
-        }
-        return <TopEventIllustration />
+        return isDense ? <DenseTopEvent /> : <TopEventIllustration />
     }
 
     const MiddleText = () => {

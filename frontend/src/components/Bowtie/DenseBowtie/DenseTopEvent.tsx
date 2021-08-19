@@ -10,10 +10,10 @@ const Circle = styled.div<{ color: string }>`
     margin-right: 5px;
 `
 
-const SimpleTopEvent = () => {
+const DenseTopEvent = () => {
     const color = tokens.colors.infographic.substitute__blue_ocean.rgba
 
     return <Circle color={color} />
 }
 
-export default SimpleTopEvent
+export default DenseTopEvent

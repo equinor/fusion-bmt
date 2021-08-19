@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { tokens } from '@equinor/eds-tokens'
 import { AnswersWithBarrier } from '../../../utils/Variables'
 import { BowtieBarrierCard } from '../styles'
 import SeverityList from '../SeverityList'
+import { Tooltip } from '@equinor/eds-core-react'
 
 const HEIGHT_FIRST_IN_SERIES = 80
 const WIDTH_FIRST_IN_SERIES = 35
@@ -22,23 +22,25 @@ const Box = styled(BowtieBarrierCard)`
 interface Props {
     index: number
     items: AnswersWithBarrier[]
+    headline: string
     isRight?: boolean
     extraWidth?: number
 }
 
-const SimpleBarrierCard = ({ index, items, isRight = false, extraWidth = 0 }: Props) => {
+const DenseBarrierCard = ({ index, items, isRight = false, extraWidth = 0, headline }: Props) => {
     return (
         <div style={{ position: 'relative' }}>
             <Box
-                backgroundColor={tokens.colors.ui.background__medium.rgba}
                 height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
                 width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
                 isRight={isRight}
             >
-                <SeverityList items={items} isDense />
+                <Tooltip title={headline} placement="top">
+                    <SeverityList items={items} isDense />
+                </Tooltip>
             </Box>
         </div>
     )
 }
 
-export default SimpleBarrierCard
+export default DenseBarrierCard

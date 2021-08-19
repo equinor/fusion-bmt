@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { tokens } from '@equinor/eds-tokens'
 import { BowtieBarrierCard } from '../styles'
 import { AnswersWithBarrier } from '../../../utils/Variables'
 import { Typography } from '@equinor/eds-core-react'
@@ -17,6 +16,7 @@ const Box = styled(BowtieBarrierCard)<{ height: number }>`
     border-radius: 25px;
     margin-right: 20px;
     border: 5px double white;
+    box-shadow: -10px 10px 20px 1px lightgrey;
 
     @media (max-width: 1800px) {
         margin-right: 10px;
@@ -36,7 +36,6 @@ const DetailedBarrierCard = ({ index, headline, items, isRight, extraWidth = 0 }
     return (
         <div style={{ position: 'relative' }}>
             <Box
-                backgroundColor={tokens.colors.ui.background__medium.rgba}
                 height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
                 width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
                 isRight={isRight || false}
