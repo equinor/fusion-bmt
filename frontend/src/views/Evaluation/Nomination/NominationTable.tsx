@@ -1,19 +1,21 @@
 import { DataTable, DataTableColumn, Button } from '@equinor/fusion-components'
 import React from 'react'
 
-import { Organization, Participant, Role } from '../../../api/models'
+import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
 import { useAzureUniqueId } from '../../../utils/Variables'
 import ParticipantCard from '../../../components/ParticipantCard'
 import { ProgressionStatus } from '../../../utils/ProgressionStatus'
 import { useDeleteParticipantMutation } from './NominationGQL'
 import { roleToString, organizationToString } from '../../../utils/EnumToString'
+import { useEvaluation } from '../../../globals/contexts'
+import { participantCanDeleteParticipant } from '../../../utils/RoleBasedAccess'
 
 interface DataTableItem {
     organization: Organization
     role: Role
     participant: Participant
-    progressionStatus: ProgressionStatus
     rowIdentifier: string
+    disableDelete: boolean
 }
 
 interface DataTableRowProps {
@@ -36,7 +38,7 @@ const DeleteColumnItemRenderer: React.FC<DataTableRowProps> = ({ item }) => {
                 onClick={() => {
                     deleteParticipant(item.participant.id)
                 }}
-                disabled={item.progressionStatus !== ProgressionStatus.InProgress || loading}
+                disabled={item.disableDelete || loading}
             >
                 Delete
             </Button>
@@ -79,18 +81,41 @@ const columns: DataTableColumn<DataTableItem>[] = [
     },
 ]
 
-interface NominationTableProps {
-    participants: Participant[]
-    currentProgressionStatus: ProgressionStatus
+/** Who (Role) can delete users, and when (Progression)
+ *
+ * Who:
+ *  Facilitators and OrganizationLeads
+ *
+ * When:
+ *  Evaluation is at Nomination stage
+ */
+const disableDelete = (evaluation: Evaluation, azureUniqueId: string) => {
+    if (evaluation.progression !== Progression.Nomination) {
+        return true
+    }
+
+    const loggedInUser = evaluation.participants.find(p => p.azureUniqueId === azureUniqueId)
+
+    if (!loggedInUser) {
+        return true
+    }
+
+    return !participantCanDeleteParticipant(loggedInUser.role)
 }
 
-const NominationTable = ({ participants, currentProgressionStatus }: NominationTableProps) => {
+interface NominationTableProps {
+    participants: Participant[]
+}
+
+const NominationTable = ({ participants }: NominationTableProps) => {
+    const disable = disableDelete(useEvaluation(), useAzureUniqueId())
+
     const data: DataTableItem[] = participants.map(participant => ({
         participant,
         organization: participant.organization,
         role: participant.role,
-        progressionStatus: currentProgressionStatus,
         rowIdentifier: participant.id,
+        disableDelete: disable
     }))
     return (
         <>

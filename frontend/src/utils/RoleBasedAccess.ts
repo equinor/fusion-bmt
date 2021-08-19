@@ -18,5 +18,44 @@ export const participantCanReadAnswer = (participant: Participant, answer: Answe
                 answer.progression !== Progression.Individual ||
                 participant.id === answer.answeredBy?.id
             )
+        default:
+            return false
+    }
+}
+
+
+/* Role-based rule for adding another Participant to the Evaluation */
+export const participantCanAddParticipant = (participantRole: Role) => {
+    /* Currently this share the same access as for deleting Participants */
+    return participantCanDeleteParticipant(participantRole)
+}
+
+
+/* Role-based rule for deleting another Participant from the Evaluation */
+export const participantCanDeleteParticipant = (participantRole: Role) => {
+    switch (participantRole) {
+        case Role.Facilitator: // Intentional fall-through
+        case Role.OrganizationLead:
+            return true
+        case Role.Participant: // Intentional fall-through
+        case Role.ReadOnly:
+            return false
+        default:
+            return false
+    }
+}
+
+
+/* Role-based rule for progressing an Evaluation */
+export const participantCanProgressEvaluation = (participantRole: Role) => {
+    switch (participantRole) {
+        case Role.Facilitator:
+            return true
+        case Role.OrganizationLead:
+        case Role.Participant: // Intentional fall-through
+        case Role.ReadOnly:
+            return false
+        default:
+            return false
     }
 }
