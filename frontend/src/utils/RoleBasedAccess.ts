@@ -18,5 +18,7 @@ export const participantCanReadAnswer = (participant: Participant, answer: Answe
                 answer.progression !== Progression.Individual ||
                 participant.id === answer.answeredBy?.id
             )
+        default:
+            return false
     }
 }
