@@ -37,3 +37,18 @@ export const participantCanDeleteParticipant = (participantRole: Role) => {
             return false
     }
 }
+
+
+/* Role-based rule for progressing an Evaluation */
+export const participantCanProgressEvaluation = (participantRole: Role) => {
+    switch (participantRole) {
+        case Role.Facilitator:
+            return true
+        case Role.OrganizationLead:
+        case Role.Participant: // Intentional fall-through
+        case Role.ReadOnly:
+            return false
+        default:
+            return false
+    }
+}

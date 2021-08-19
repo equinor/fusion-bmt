@@ -4,14 +4,38 @@ import { Box } from '@material-ui/core'
 import { Button, TextArea } from '@equinor/fusion-components'
 
 import AddNomineeDialog from './AddNomineeDialog'
-import { Evaluation, Organization, Progression, Role } from '../../../api/models'
+import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
 import NominationTable from './NominationTable'
 import { useCreateParticipantMutation, useParticipantsQuery } from './NominationGQL'
 import { calcProgressionStatus } from '../../../utils/ProgressionStatus'
+import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
+import { useAzureUniqueId } from '../../../utils/Variables'
 
 interface NominationViewProps {
     evaluation: Evaluation
     onNextStep: () => void
+}
+
+/** Who (Role) can progress Evaluation past Nomination, and when
+ *
+ * Who:
+ *  Facilitators and OrganizationLeads
+ *
+ * When:
+ *  Evaluation is at Nomination stage
+ */
+const disableProgression = (evaluation: Evaluation, azureUniqueId: string) => {
+    if (evaluation.progression !== Progression.Nomination) {
+        return true
+    }
+
+    const loggedInUser = evaluation.participants.find(p => p.azureUniqueId === azureUniqueId)
+
+    if (!loggedInUser) {
+        return true
+    }
+
+    return !participantCanProgressEvaluation(loggedInUser.role)
 }
 
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
@@ -60,7 +84,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                     <h2 data-testid="evaluation_title">{evaluation.name}</h2>
                 </Box>
                 <Box>
-                    <Button onClick={onNextStepClick} disabled={evaluation.progression !== Progression.Nomination}>
+                    <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, useAzureUniqueId())}>
                         Finish Nomination
                     </Button>
                 </Box>
