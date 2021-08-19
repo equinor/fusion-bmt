@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import {
     Button,
@@ -9,9 +10,9 @@ import {
 } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
-import { useGetAllEvaluationsQuery } from './ProjectDashboardGQL'
 import { useProject } from '../../../globals/contexts'
 import { apiErrorMessage } from '../../../api/error'
+import { Evaluation } from '../../../api/models'
 
 interface CreateEvaluationDialogProps {
     open: boolean
@@ -66,7 +67,7 @@ const CreateEvaluationDialog = ({
     }
 
     const evaluationOptions: SearchableDropdownOption[] = evaluations.map(
-        evaluation => ({
+        (evaluation: Evaluation) => ({
             title: evaluation.name,
             key: evaluation.id,
             isSelected: evaluation.id === selectedEvaluation,
@@ -125,3 +126,31 @@ const CreateEvaluationDialog = ({
 }
 
 export default CreateEvaluationDialog
+
+interface EvaluationsQueryProps {
+    loading: boolean
+    evaluations: Evaluation[] | undefined
+    error: ApolloError | undefined
+}
+
+const useGetAllEvaluationsQuery = (projectId: string): EvaluationsQueryProps => {
+    const GET_EVALUATIONS = gql`
+        query($projectId: String!) {
+            evaluations(where: { project: { id: { eq: $projectId } } }) {
+                id
+                name
+            }
+        }
+    `
+
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(
+        GET_EVALUATIONS,
+        { variables: { projectId } }
+    )
+
+    return {
+        loading,
+        evaluations: data?.evaluations,
+        error,
+    }
+}

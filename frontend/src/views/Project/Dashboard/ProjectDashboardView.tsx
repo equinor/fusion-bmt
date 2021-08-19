@@ -1,13 +1,13 @@
 import React from 'react'
-import { Project } from '../../../api/models'
-import CreateEvaluationButton from './CreateEvaluationButton'
-import { Box } from '@material-ui/core'
 import { CircularProgress, Typography } from '@equinor/eds-core-react'
-import { useGetAllEvaluationsQuery, useUserEvaluationsQuery } from './ProjectDashboardGQL'
+import { ApolloError, gql, useQuery } from '@apollo/client'
+import { Box } from '@material-ui/core'
 import { TextArea } from '@equinor/fusion-components'
 import { Chip } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
-import { apiErrorMessage } from '../../../api/error'
+
+import { Evaluation, Project } from '../../../api/models'
+import CreateEvaluationButton from './CreateEvaluationButton'
 import EvaluationsTable from './EvaluationsTable'
 import styled from 'styled-components'
 
@@ -118,3 +118,79 @@ const ProjectDashboardView = ({ project }: Props) => {
 }
 
 export default ProjectDashboardView
+
+interface EvaluationQueryProps {
+    loading: boolean
+    evaluations: Evaluation[] | undefined
+    error: ApolloError | undefined
+}
+
+export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {
+    const GET_EVALUATIONS = gql`
+        query($azureUniqueId: String!) {
+            evaluations(where: { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } } }) {
+                id
+                name
+                progression
+                createDate
+                questions {
+                    id
+                    barrier
+                    answers {
+                        id
+                        severity
+                        progression
+                    }
+                    actions {
+                        id
+                        dueDate
+                        completed
+                    }
+                }
+            }
+        }
+    `
+
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { azureUniqueId } })
+
+    return {
+        loading,
+        evaluations: data?.evaluations,
+        error,
+    }
+}
+
+export const useGetAllEvaluationsQuery = (projectId: string): EvaluationQueryProps => {
+    const GET_EVALUATIONS = gql`
+        query($projectId: String!) {
+            evaluations(where: { project: { id: { eq: $projectId } } }) {
+                id
+                name
+                progression
+                createDate
+                questions {
+                    id
+                    barrier
+                    answers {
+                        id
+                        severity
+                        progression
+                    }
+                    actions {
+                        id
+                        dueDate
+                        completed
+                    }
+                }
+            }
+        }
+    `
+
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId } })
+
+    return {
+        loading,
+        evaluations: data?.evaluations,
+        error,
+    }
+}

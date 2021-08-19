@@ -1,4 +1,5 @@
 import React from 'react'
+import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 
 import { Box } from '@material-ui/core'
 import { Button, TextArea } from '@equinor/fusion-components'
@@ -6,10 +7,10 @@ import { Button, TextArea } from '@equinor/fusion-components'
 import AddNomineeDialog from './AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
 import NominationTable from './NominationTable'
-import { useCreateParticipantMutation, useParticipantsQuery } from './NominationGQL'
 import { participantCanProgressEvaluation, participantCanAddParticipant } from '../../../utils/RoleBasedAccess'
 import { useAzureUniqueId } from '../../../utils/Variables'
 import { apiErrorMessage } from '../../../api/error'
+import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -127,3 +128,75 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 }
 
 export default NominationView
+
+interface CreateParticipantMutationProps {
+    createParticipant: (azureUniqueId: string, evaluationId: string, organization: Organization, role: Role) => void
+    loading: boolean
+    participant: Participant | undefined
+    error: ApolloError | undefined
+}
+
+const useCreateParticipantMutation = (): CreateParticipantMutationProps => {
+    const CREATE_PARTICIPANT = gql`
+        mutation CreateParticipant($azureUniqueId: String!, $evaluationId: String!, $organization: Organization!, $role: Role!) {
+            createParticipant(azureUniqueId: $azureUniqueId, evaluationId: $evaluationId, organization: $organization, role: $role) {
+                ...ParticipantFields
+            }
+        }
+        ${PARTICIPANT_FIELDS_FRAGMENT}
+    `
+
+    const [createParticipantApolloFunc, { loading, data, error }] = useMutation(CREATE_PARTICIPANT, {
+        update(cache, { data: { createParticipant } }) {
+            cache.modify({
+                fields: {
+                    participants(existingParticipants = []) {
+                        const newParticipantRef = cache.writeFragment({
+                            id: createParticipant.id,
+                            data: createParticipant,
+                            fragment: PARTICIPANT_FIELDS_FRAGMENT,
+                        })
+                        return [...existingParticipants, newParticipantRef]
+                    },
+                },
+            })
+        },
+    })
+
+    const createParticipant = (azureUniqueId: string, evaluationId: string, organization: Organization, role: Role) => {
+        createParticipantApolloFunc({ variables: { azureUniqueId, evaluationId, organization, role } })
+    }
+
+    return {
+        createParticipant: createParticipant,
+        loading,
+        participant: data?.createParticipant,
+        error,
+    }
+}
+
+interface ParticipantQueryProps {
+    loading: boolean
+    participants: Participant[] | undefined
+    error: ApolloError | undefined
+}
+
+const useParticipantsQuery = (evaluationId: string): ParticipantQueryProps => {
+    const GET_PARTICIPANTS = gql`
+        query {
+            participants(where:{evaluation: {id: {eq: "${evaluationId}"}}}) {
+                ...ParticipantFields
+            }
+        }
+        ${PARTICIPANT_FIELDS_FRAGMENT}
+    `
+
+    const { loading, data, error } = useQuery<{ participants: Participant[] }>(GET_PARTICIPANTS)
+
+    return {
+        loading,
+        participants: data?.participants,
+        error,
+    }
+}
+
