@@ -7,8 +7,8 @@ import { Grid } from '@material-ui/core'
 
 import { Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
-import { DataToCreateAction } from '../../../api/mutations'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
+import { DataToCreateAction } from './ActionCreateSidebarWithApi'
 
 interface Props {
     connectedQuestion: Question

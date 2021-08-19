@@ -3,9 +3,11 @@ import { Redirect } from 'react-router-dom'
 
 import { Button, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
 import CreateEvaluationDialog from './CreateEvaluationDialog'
-import { useCreateEvaluationMutation, useGetAllEvaluationsQuery } from './ProjectDashboardGQL'
 import { useProject } from '../../../globals/contexts'
 import { apiErrorMessage } from '../../../api/error'
+import { ApolloError, gql, useMutation } from '@apollo/client'
+import { Evaluation } from '../../../api/models'
+import { EVALUATION_FIELDS_FRAGMENT } from '../../../api/fragments'
 
 interface CreateEvaluationButtonProps {
     projectId: string
@@ -78,3 +80,62 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
 }
 
 export default CreateEvaluationButton
+
+interface CreateEvaluationMutationProps {
+    createEvaluation: (name: string, projectId: string, previousEvaluationId?: string) => void
+    loading: boolean
+    evaluation: Evaluation | undefined
+    error: ApolloError | undefined
+}
+
+const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
+    const ADD_EVALUATION = gql`
+        mutation CreateEvaluation(
+            $name: String!
+            $projectId: String!
+            $previousEvaluationId: String
+        ) {
+            createEvaluation(
+                name: $name
+                projectId: $projectId
+                previousEvaluationId: $previousEvaluationId
+            ) {
+                ...EvaluationFields
+            }
+        }
+        ${EVALUATION_FIELDS_FRAGMENT}
+    `
+
+    const [createEvaluationApolloFunc, { loading, data, error }] = useMutation(ADD_EVALUATION, {
+        update(cache, { data: { createEvaluation } }) {
+            cache.modify({
+                fields: {
+                    evaluations(existingEvaluations = []) {
+                        const newEvaluationRef = cache.writeFragment({
+                            data: createEvaluation,
+                            fragment: EVALUATION_FIELDS_FRAGMENT,
+                        })
+                        return [...existingEvaluations, newEvaluationRef]
+                    },
+                },
+            })
+        },
+    })
+
+    const createEvaluation = (
+        name: string,
+        projectId: string,
+        previousEvaluationId?: string
+    ) => {
+        createEvaluationApolloFunc({
+            variables: { name, projectId, previousEvaluationId },
+        })
+    }
+
+    return {
+        createEvaluation,
+        loading,
+        evaluation: data?.createEvaluation,
+        error,
+    }
+}

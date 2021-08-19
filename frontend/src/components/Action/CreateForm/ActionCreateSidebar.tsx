@@ -5,9 +5,9 @@ import { CircularProgress } from '@equinor/eds-core-react'
 import { TextArea } from '@equinor/fusion-components'
 
 import { Participant, Question } from '../../../api/models'
-import { DataToCreateAction } from '../../../api/mutations'
 import ActionCreateForm from './ActionCreateForm'
 import { useAllPersonDetailsAsync } from '../../../utils/hooks'
+import { DataToCreateAction } from './ActionCreateSidebarWithApi'
 
 interface Props {
     open: boolean

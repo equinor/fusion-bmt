@@ -1,14 +1,15 @@
 import { DataTable, DataTableColumn, Button } from '@equinor/fusion-components'
 import React from 'react'
+import { ApolloError, gql, useMutation } from '@apollo/client'
 
 import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
 import { useAzureUniqueId } from '../../../utils/Variables'
 import ParticipantCard from '../../../components/ParticipantCard'
 import { ProgressionStatus } from '../../../utils/ProgressionStatus'
-import { useDeleteParticipantMutation } from './NominationGQL'
 import { roleToString, organizationToString } from '../../../utils/EnumToString'
 import { useEvaluation } from '../../../globals/contexts'
 import { participantCanDeleteParticipant } from '../../../utils/RoleBasedAccess'
+import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 
 interface DataTableItem {
     organization: Organization
@@ -125,3 +126,46 @@ const NominationTable = ({ participants }: NominationTableProps) => {
 }
 
 export default NominationTable
+
+interface DeleteParticipantMutationProps {
+    deleteParticipant: (id: string) => void
+    loading: boolean
+    participant: Participant | undefined
+    error: ApolloError | undefined
+}
+
+const useDeleteParticipantMutation = (): DeleteParticipantMutationProps => {
+    const DELETE_PARTICIPANT = gql`
+        mutation DeleteParticipant($id: String!) {
+            deleteParticipant(participantId: $id) {
+                ...ParticipantFields
+            }
+        }
+        ${PARTICIPANT_FIELDS_FRAGMENT}
+    `
+
+    const [deleteParticipantApolloFunc, { loading, data, error }] = useMutation(DELETE_PARTICIPANT, {
+        update(cache, { data: { deleteParticipant } }) {
+            cache.modify({
+                fields: {
+                    participants(existingParticipantRefs, { readField }) {
+                        return existingParticipantRefs.filter((participantRef: any) => {
+                            return deleteParticipant.id !== readField('id', participantRef)
+                        })
+                    },
+                },
+            })
+        },
+    })
+
+    const deleteParticipant = (id: string) => {
+        deleteParticipantApolloFunc({ variables: { id } })
+    }
+
+    return {
+        deleteParticipant: deleteParticipant,
+        loading,
+        participant: data?.deleteParticipant,
+        error,
+    }
+}

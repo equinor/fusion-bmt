@@ -4,7 +4,7 @@ import { Tabs } from '@equinor/eds-core-react'
 import { Evaluation, Role } from '../../../api/models'
 import { useParticipant } from '../../../globals/contexts'
 import { StyledTabPanel } from '../../../components/StyledTabs'
-import WorkshopSummaryContainer from './WorkshopSummaryContainer'
+import WorkshopSummaryWithApi from './WorkshopSummaryWithApi'
 
 const { TabList, Tab, TabPanels } = Tabs
 
@@ -31,7 +31,7 @@ const WorkshopTabs = ({
                 <StyledTabPanel>{children}</StyledTabPanel>
                 <StyledTabPanel>
                     {allowedRoles.includes(participant.role) && (
-                        <WorkshopSummaryContainer evaluation={evaluation} />
+                        <WorkshopSummaryWithApi evaluation={evaluation} />
                     )}
                 </StyledTabPanel>
             </TabPanels>

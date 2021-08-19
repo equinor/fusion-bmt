@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { ApolloError } from '@apollo/client'
 
 import { Box } from '@material-ui/core'
 import { Button, Typography, Icon, Tooltip } from '@equinor/eds-core-react'
@@ -6,7 +7,6 @@ import { add } from '@equinor/eds-icons'
 import { IconButton, DeleteIcon, DoneIcon, TextArea } from '@equinor/fusion-components'
 
 import { Action, Participant, Question } from '../../api/models'
-import { useDeleteActionMutation } from '../../api/mutations'
 import PriorityIndicator from './PriorityIndicator'
 import ActionEditSidebarWithApi from './EditForm/ActionEditSidebarWithApi'
 import ActionCreateSidebarWithApi from './CreateForm/ActionCreateSidebarWithApi'
@@ -15,17 +15,17 @@ import ConfirmationDialog from './../ConfirmationDialog'
 interface Props {
     question: Question
     participants: Participant[]
+    deleteAction: (actionId: string) => void
+    errorDeletingAction: ApolloError | undefined
 }
 
-const QuestionActionsList = ({ question, participants }: Props) => {
+const QuestionActionsList = ({ question, participants, deleteAction, errorDeletingAction }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState<boolean>(false)
     const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState<boolean>(false)
     const [actionIdToEdit, setActionIdToEdit] = useState<string | undefined>()
     const [actionToDelete, setActionToDelete] = useState<string | undefined>()
     const actions = [...question.actions]
-
-    const { deleteAction, error: errorDeletingAction } = useDeleteActionMutation(question.id)
 
     const openActionEditSidebar = (action: Action) => {
         setIsEditSidebarOpen(true)

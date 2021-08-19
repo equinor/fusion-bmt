@@ -83,6 +83,17 @@ export const ACTION_FIELDS_FRAGMENT = gql`
     }
     ${PARTICIPANT_FIELDS_FRAGMENT}
 `
+export const QUESTION_ACTIONS_FRAGMENT = gql`
+fragment QuestionActions on Question {
+    actions {
+        ...ActionFields
+        notes {
+            id
+        }
+    }
+}
+${ACTION_FIELDS_FRAGMENT}
+`
 
 export const NOTE_FIELDS_FRAGMENT = gql`
     fragment NoteFields on Note {
