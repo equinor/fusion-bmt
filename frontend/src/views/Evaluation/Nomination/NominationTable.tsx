@@ -14,7 +14,6 @@ interface DataTableItem {
     organization: Organization
     role: Role
     participant: Participant
-    progressionStatus: ProgressionStatus
     rowIdentifier: string
     disableDelete: boolean
 }
@@ -106,17 +105,15 @@ const disableDelete = (evaluation: Evaluation, azureUniqueId: string) => {
 
 interface NominationTableProps {
     participants: Participant[]
-    currentProgressionStatus: ProgressionStatus
 }
 
-const NominationTable = ({ participants, currentProgressionStatus }: NominationTableProps) => {
+const NominationTable = ({ participants }: NominationTableProps) => {
     const disable = disableDelete(useEvaluation(), useAzureUniqueId())
 
     const data: DataTableItem[] = participants.map(participant => ({
         participant,
         organization: participant.organization,
         role: participant.role,
-        progressionStatus: currentProgressionStatus,
         rowIdentifier: participant.id,
         disableDelete: disable
     }))

@@ -7,7 +7,6 @@ import AddNomineeDialog from './AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
 import NominationTable from './NominationTable'
 import { useCreateParticipantMutation, useParticipantsQuery } from './NominationGQL'
-import { calcProgressionStatus } from '../../../utils/ProgressionStatus'
 import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
 import { useAzureUniqueId } from '../../../utils/Variables'
 
@@ -100,7 +99,6 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 
             <NominationTable
                 participants={participants}
-                currentProgressionStatus={calcProgressionStatus(Progression.Nomination, evaluation.progression)}
             />
 
             <AddNomineeDialog
