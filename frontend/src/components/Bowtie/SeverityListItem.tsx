@@ -1,19 +1,11 @@
 import React from 'react'
 import { Tooltip, Typography } from '@equinor/eds-core-react'
-import SeverityIndicator, { getColor } from '../SeverityIndicator'
+import SeverityIndicator, { SmallSeverityIndicator } from '../SeverityIndicator'
 import styled from 'styled-components'
 import { SeverityCount } from '../../utils/Severity'
 import { Barrier, Severity } from '../../api/models'
 import { selectSeverity } from './utils'
 import { barrierToString } from '../../utils/EnumToString'
-
-const SmallSeverityIndicator = styled.div<{ color: string }>`
-    justify-content: center;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: ${props => props.color};
-`
 
 const TooltipText = styled(Typography)`
     display: flex;
@@ -31,7 +23,7 @@ interface Props {
 
 const SeverityListItem = ({ severityCount, barrier, alternativeText, isDense = false }: Props) => {
     const severity = selectSeverity(severityCount)
-    const severityIndicator = isDense ? <SmallSeverityIndicator color={getColor(severity)} /> : <SeverityIndicator severity={severity} />
+    const severityIndicator = isDense ? <SmallSeverityIndicator severity={severity} /> : <SeverityIndicator severity={severity} />
 
     return (
         <div style={{ display: 'flex' }}>

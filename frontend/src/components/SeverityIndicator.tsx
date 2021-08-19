@@ -58,7 +58,11 @@ const SeverityIndicator = ({ severity }: SeverityIndicatorProps) => {
 }
 
 export const SmallSeverityIndicator = ({ severity }: SeverityIndicatorProps) => {
-    return <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: getColor(severity) }}></div>
+    return (
+        <div
+            style={{ justifyContent: 'center', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: getColor(severity) }}
+        ></div>
+    )
 }
 
 interface SeverityIndicatorWithNumberProps {

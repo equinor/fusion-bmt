@@ -14,14 +14,6 @@ interface Props {
 }
 
 const EvaluationsTable = ({ evaluations }: Props) => {
-    const progressions = [
-        Progression.Nomination,
-        Progression.Individual,
-        Progression.Preparation,
-        Progression.Workshop,
-        Progression.FollowUp,
-    ]
-
     return (
         <>
             <Table style={{ width: '100%' }}>
@@ -51,7 +43,7 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                                     </Link>
                                 </Cell>
                                 <Cell>
-                                    {progressions.map(progression => (
+                                    {Object.values(Progression).map(progression => (
                                         <Tooltip
                                             key={index + progression}
                                             placement="bottom"
