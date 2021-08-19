@@ -24,6 +24,13 @@ export const participantCanReadAnswer = (participant: Participant, answer: Answe
 }
 
 
+/* Role-based rule for adding another Participant to the Evaluation */
+export const participantCanAddParticipant = (participantRole: Role) => {
+    /* Currently this share the same access as for deleting Participants */
+    return participantCanDeleteParticipant(participantRole)
+}
+
+
 /* Role-based rule for deleting another Participant from the Evaluation */
 export const participantCanDeleteParticipant = (participantRole: Role) => {
     switch (participantRole) {
