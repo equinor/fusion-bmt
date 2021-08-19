@@ -1,4 +1,5 @@
 import { User, users } from './users'
+import { fusionProjects, getFusionProjectData, findFusionProjectByID } from './projects'
 
 function findUserByID(id: string) {
     return users.filter(u => u.id == id)[0]
@@ -34,14 +35,27 @@ function getUserData(user: User) {
 }
 
 Cypress.Commands.add('interceptExternal', () => {
-    // TODO: maybe more projects needed (interesting isDeleted property)
-    cy.intercept('https://pro-s-context-ci.azurewebsites.net/contexts/123', {
-        fixture: 'project.json',
-    })
-
     // TODO: do we want to intercept all the outgoing requests that currently result in errors
     cy.intercept('https://pro-s-portal-ci.azurewebsites.net/api/persons/me/settings/apps/bmt', {})
     cy.intercept('https://pro-s-portal-ci.azurewebsites.net/log/features', {})
+
+    const projectURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts\/(.+)/
+    cy.intercept(projectURL, req => {
+        const fusionProjectId = req.url.match(projectURL)![1]
+        const project = findFusionProjectByID(fusionProjectId)
+        req.reply({
+            body: getFusionProjectData(project),
+        })
+    })
+
+    const projectsURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts$/
+    cy.intercept(projectsURL, req => {
+        req.reply({
+            body: fusionProjects.map(p => {
+                return getFusionProjectData(p)
+            }),
+        })
+    })
 
     const personsURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)(?:(\?\$.*)|$)/
     cy.intercept(personsURL, req => {

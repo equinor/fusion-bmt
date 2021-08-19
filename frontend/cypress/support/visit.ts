@@ -1,4 +1,5 @@
 import { User } from './users'
+import { getFusionProjectData, findFusionProjectByID } from './projects'
 
 function setupEnvironment() {
     cy.interceptExternal()
@@ -32,21 +33,17 @@ function waitForEvaluationPageLoad() {
 
 /**
  * Saves project data in cache the same way fusion does.
- * At the moment only default project is supported.
  */
-function setProjectCache() {
-    // project 123 only
-    cy.fixture('project.json').then(json => {
-        const project = {
-            current: json,
-        }
-        window.localStorage.setItem('FUSION_CURRENT_CONTEXT', JSON.stringify(project))
-    })
+function setProjectCache(fusionProjectId: string) {
+    const project = {
+        current: getFusionProjectData(findFusionProjectByID(fusionProjectId)),
+    }
+    window.localStorage.setItem('FUSION_CURRENT_CONTEXT', JSON.stringify(project))
 }
 
 Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string = '123') => {
     setupEnvironment()
-    setProjectCache()
+    setProjectCache(fusionProjectId)
 
     cy.login(user)
     const frontendUrl = Cypress.env('FRONTEND_URL') || 'http://localhost:3000'
@@ -57,7 +54,7 @@ Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string = '123
 
 Cypress.Commands.add('visitEvaluation', (evaluationId: string, user: User, fusionProjectId: string = '123') => {
     setupEnvironment()
-    setProjectCache()
+    setProjectCache(fusionProjectId)
 
     cy.login(user)
     const frontendUrl = Cypress.env('FRONTEND_URL') || 'http://localhost:3000'
