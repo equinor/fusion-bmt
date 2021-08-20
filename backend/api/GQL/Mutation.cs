@@ -20,6 +20,7 @@ namespace api.GQL
         private readonly QuestionTemplateService _questionTemplateService;
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
+        private readonly ClosingRemarkService _closingRemarkService;
         private readonly IAuthService _authService;
         private readonly ILogger _logger;
 
@@ -32,6 +33,7 @@ namespace api.GQL
             QuestionTemplateService questionTemplateService,
             ActionService actionService,
             NoteService noteService,
+            ClosingRemarkService closingRemarkService,
             IAuthService authService,
             ILogger<Mutation> logger
         )
@@ -44,6 +46,7 @@ namespace api.GQL
             _questionTemplateService = questionTemplateService;
             _actionService = actionService;
             _noteService = noteService;
+            _closingRemarkService = closingRemarkService;
             _authService = authService;
             _logger = logger;
         }
@@ -213,6 +216,15 @@ namespace api.GQL
         {
             Note note = _noteService.GetNote(noteId);
             return _noteService.EditNote(note, text);
+        }
+
+        public ClosingRemark CreateClosingRemark(string actionId, string text)
+        {
+            IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
+            Action action = queryableAction.First();
+            Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
+
+            return _closingRemarkService.Create(CurrentUser(evaluation), text, action);
         }
 
         private Participant CurrentUser(Evaluation evaluation)

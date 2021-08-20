@@ -29,6 +29,7 @@ export type Action = {
   createDate: Scalars['DateTime'];
   createdBy?: Maybe<Participant>;
   notes: Array<Maybe<Note>>;
+  closingRemarks: Array<Maybe<ClosingRemark>>;
   question: Question;
 };
 
@@ -46,6 +47,7 @@ export type ActionFilterInput = {
   createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
   createdBy?: Maybe<ParticipantFilterInput>;
   notes?: Maybe<ListFilterInputTypeOfNoteFilterInput>;
+  closingRemarks?: Maybe<ListFilterInputTypeOfClosingRemarkFilterInput>;
   question?: Maybe<QuestionFilterInput>;
 };
 
@@ -104,6 +106,25 @@ export type BarrierOperationFilterInput = {
 export type BooleanOperationFilterInput = {
   eq?: Maybe<Scalars['Boolean']>;
   neq?: Maybe<Scalars['Boolean']>;
+};
+
+export type ClosingRemark = {
+  __typename?: 'ClosingRemark';
+  id: Scalars['String'];
+  text: Scalars['String'];
+  createdBy?: Maybe<Participant>;
+  createDate: Scalars['DateTime'];
+  action: Action;
+};
+
+export type ClosingRemarkFilterInput = {
+  and?: Maybe<Array<ClosingRemarkFilterInput>>;
+  or?: Maybe<Array<ClosingRemarkFilterInput>>;
+  id?: Maybe<StringOperationFilterInput>;
+  text?: Maybe<StringOperationFilterInput>;
+  createdBy?: Maybe<ParticipantFilterInput>;
+  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
+  action?: Maybe<ActionFilterInput>;
 };
 
 export type ComparableDateTimeOffsetOperationFilterInput = {
@@ -193,6 +214,7 @@ export type GraphQuery = {
   answers?: Maybe<Array<Maybe<Answer>>>;
   actions?: Maybe<Array<Maybe<Action>>>;
   notes?: Maybe<Array<Maybe<Note>>>;
+  closingRemarks?: Maybe<Array<Maybe<ClosingRemark>>>;
 };
 
 
@@ -235,6 +257,11 @@ export type GraphQueryNotesArgs = {
   where?: Maybe<NoteFilterInput>;
 };
 
+
+export type GraphQueryClosingRemarksArgs = {
+  where?: Maybe<ClosingRemarkFilterInput>;
+};
+
 export type ListFilterInputTypeOfActionFilterInput = {
   all?: Maybe<ActionFilterInput>;
   none?: Maybe<ActionFilterInput>;
@@ -246,6 +273,13 @@ export type ListFilterInputTypeOfAnswerFilterInput = {
   all?: Maybe<AnswerFilterInput>;
   none?: Maybe<AnswerFilterInput>;
   some?: Maybe<AnswerFilterInput>;
+  any?: Maybe<Scalars['Boolean']>;
+};
+
+export type ListFilterInputTypeOfClosingRemarkFilterInput = {
+  all?: Maybe<ClosingRemarkFilterInput>;
+  none?: Maybe<ClosingRemarkFilterInput>;
+  some?: Maybe<ClosingRemarkFilterInput>;
   any?: Maybe<Scalars['Boolean']>;
 };
 
@@ -294,6 +328,7 @@ export type Mutation = {
   deleteAction?: Maybe<Action>;
   createNote?: Maybe<Note>;
   editNote?: Maybe<Note>;
+  createClosingRemark?: Maybe<ClosingRemark>;
 };
 
 
@@ -402,6 +437,12 @@ export type MutationCreateNoteArgs = {
 
 export type MutationEditNoteArgs = {
   noteId?: Maybe<Scalars['String']>;
+  text?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCreateClosingRemarkArgs = {
+  actionId?: Maybe<Scalars['String']>;
   text?: Maybe<Scalars['String']>;
 };
 

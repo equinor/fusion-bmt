@@ -113,6 +113,7 @@ namespace api
             services.AddScoped<QuestionTemplateService>();
             services.AddScoped<ActionService>();
             services.AddScoped<NoteService>();
+            services.AddScoped<ClosingRemarkService>();
             services.AddScoped<IAuthService, AuthService>();
 
             services.AddGraphQLServer()

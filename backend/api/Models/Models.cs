@@ -172,10 +172,27 @@ namespace api.Models
         [Required]
         public virtual ICollection<Note> Notes { get; private set; }
         [Required]
+        public virtual ICollection<ClosingRemark> ClosingRemarks { get; private set; }
+        [Required]
         public virtual Question Question { get; set; }
     }
 
     public class Note
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
+        public string Id { get; set; }
+        [Required]
+        public string Text { get; set; }
+        public Participant CreatedBy { get; set; }
+        [Required]
+        public DateTimeOffset CreateDate { get; set; }
+        [Required]
+        public virtual Action Action { get; set; }
+    }
+
+    public class ClosingRemark
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

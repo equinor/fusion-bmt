@@ -13,6 +13,7 @@ namespace api.Context
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Action> Actions { get; set; }
         public DbSet<Note> Notes { get; set; }
+        public DbSet<ClosingRemark> ClosingRemarks { get; set; }
         public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
 
         public BmtDbContext(DbContextOptions<BmtDbContext> options)

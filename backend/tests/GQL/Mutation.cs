@@ -23,6 +23,7 @@ namespace tests
         private readonly QuestionTemplateService _questionTemplateService;
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
+        private readonly ClosingRemarkService _closingRemarkService;
         public MutationTest()
         {
             ILoggerFactory factory = new NullLoggerFactory();
@@ -34,6 +35,7 @@ namespace tests
             _questionTemplateService = new QuestionTemplateService(_context);
             _actionService = new ActionService(_context);
             _noteService = new NoteService(_context);
+            _closingRemarkService = new ClosingRemarkService(_context);
             _mutation = new Mutation(
                 _projectService,
                 _evaluationService,
@@ -43,6 +45,7 @@ namespace tests
                 _questionTemplateService,
                 _actionService,
                 _noteService,
+                _closingRemarkService,
                 new MockAuthService(),
                 new Logger<Mutation>(factory)
             );
