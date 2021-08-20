@@ -16,6 +16,7 @@ namespace api.GQL
         private readonly AnswerService _answerService;
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
+        private readonly ClosingRemarkService _closingRemarkService;
         private readonly ILogger _logger;
 
         public GraphQuery(
@@ -26,6 +27,7 @@ namespace api.GQL
             AnswerService answerService,
             ActionService actionService,
             NoteService noteService,
+            ClosingRemarkService closingRemarkService,
             ILogger<GraphQuery> logger
         )
         {
@@ -36,6 +38,7 @@ namespace api.GQL
             _answerService = answerService;
             _actionService = actionService;
             _noteService = noteService;
+            _closingRemarkService = closingRemarkService;
             _logger = logger;
         }
 
@@ -101,6 +104,13 @@ namespace api.GQL
         public IQueryable<Note> GetNotes()
         {
             return _noteService.GetAll();
+        }
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<ClosingRemark> GetClosingRemarks()
+        {
+            return _closingRemarkService.GetAll();
         }
     }
 }

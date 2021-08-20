@@ -19,6 +19,7 @@ namespace api.Context
         public static readonly List<Answer> Answers = GetAnswers();
         public static readonly List<Action> Actions = GetActions();
         public static readonly List<Note> Notes = GetNotes();
+        public static readonly List<ClosingRemark> ClosingRemarks = GetClosingRemarks();
 
         private static List<QuestionTemplate> GetQuestionTemplates()
         {
@@ -57,6 +58,25 @@ namespace api.Context
                 CreatedBy = Participants[0]
             };
             return new List<Note>(new Note[] { note1, note2 });
+        }
+
+        private static List<ClosingRemark> GetClosingRemarks()
+        {
+            var closingRemark1 = new ClosingRemark
+            {
+                Text = "ClosingRemark1",
+                CreateDate = DateTimeOffset.UtcNow,
+                Action = Actions[0],
+                CreatedBy = Participants[0]
+            };
+            var closingRemark2 = new ClosingRemark
+            {
+                Text = "ClosingRemark2",
+                CreateDate = DateTimeOffset.UtcNow,
+                Action = Actions[0],
+                CreatedBy = Participants[0]
+            };
+            return new List<ClosingRemark>(new ClosingRemark[] { closingRemark1, closingRemark2 });
         }
 
         private static List<Action> GetActions()
@@ -246,6 +266,7 @@ namespace api.Context
             context.AddRange(Answers);
             context.AddRange(Actions);
             context.AddRange(Notes);
+            context.AddRange(ClosingRemarks);
 
             context.SaveChanges();
         }
