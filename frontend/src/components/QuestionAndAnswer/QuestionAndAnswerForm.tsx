@@ -56,7 +56,7 @@ const QuestionAndAnswerForm = ({ question, answer, disabled, onAnswerChange, sav
                             </Box>
                             <Box width="85%">
                                 <AnswerMarkdownForm
-                                    markdown={answer.text}
+                                    markdown={answer.text === '' ? ' ' : answer.text /*Fixes backspace error in markdown editor*/}
                                     disabled={disabled}
                                     onMarkdownChange={text => {
                                         onAnswerChange({ text: text })
