@@ -22,7 +22,7 @@ const WorkshopSummary = ({
                 the workshop.
             </p>
             <AnswerMarkdownForm
-                markdown={localSummary}
+                markdown={localSummary === '' ? ' ' : localSummary /*Fixes backspace error in markdown editor*/}
                 onMarkdownChange={onChange}
                 disabled={false}
             />
