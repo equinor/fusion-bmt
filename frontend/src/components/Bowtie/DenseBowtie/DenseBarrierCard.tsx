@@ -4,11 +4,13 @@ import { AnswersWithBarrier } from '../../../utils/Variables'
 import { BowtieBarrierCard } from '../styles'
 import SeverityList from '../SeverityList'
 import { Tooltip } from '@equinor/eds-core-react'
+import { tokens } from '@equinor/eds-tokens'
 
-const HEIGHT_FIRST_IN_SERIES = 80
-const WIDTH_FIRST_IN_SERIES = 35
-const DECREASE_HEIGHT_BY = 10
-const DECREASE_WIDTH_BY = 3
+const HEIGHT_FIRST_IN_SERIES = 60
+const WIDTH_FIRST_IN_SERIES = 25
+const DECREASE_HEIGHT_BY = 8
+const DECREASE_WIDTH_BY = 2
+const BACKGROUND_COLOR = tokens.colors.ui.background__light.rgba
 
 const Box = styled(BowtieBarrierCard)`
     align-items: center;
@@ -17,6 +19,7 @@ const Box = styled(BowtieBarrierCard)`
     margin-right: 5px;
     border: 1px solid lightgrey;
     justify-content: center;
+    background-color: ${BACKGROUND_COLOR};
 `
 
 interface Props {
@@ -29,17 +32,15 @@ interface Props {
 
 const DenseBarrierCard = ({ index, items, isRight = false, extraWidth = 0, headline }: Props) => {
     return (
-        <div style={{ position: 'relative' }}>
-            <Tooltip title={headline} placement="top">
-                <Box
-                    height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
-                    width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
-                    isRight={isRight}
-                >
-                    <SeverityList items={items} isDense />
-                </Box>
-            </Tooltip>
-        </div>
+        <Tooltip title={headline} placement="bottom">
+            <Box
+                height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
+                width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
+                isRight={isRight}
+            >
+                <SeverityList items={items} isDense />
+            </Box>
+        </Tooltip>
     )
 }
 

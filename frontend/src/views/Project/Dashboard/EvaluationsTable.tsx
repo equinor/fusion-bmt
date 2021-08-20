@@ -1,67 +1,156 @@
 import React from 'react'
-import { Table, Tooltip, Typography } from '@equinor/eds-core-react'
+import { Icon, Table, Tooltip, Typography } from '@equinor/eds-core-react'
+import { warning_filled } from '@equinor/eds-icons'
 import { Evaluation, Progression } from '../../../api/models'
 import ProgressStatusIcon from '../../../components/ProgressStatusIcon'
 import { Link } from 'react-router-dom'
 import { useProject } from '../../../globals/contexts'
 import { progressionToString } from '../../../utils/EnumToString'
-import { calcProgressionStatus } from '../../../utils/ProgressionStatus'
+import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../utils/ProgressionStatus'
+import { sort, SortDirection } from '../../../utils/sort'
+import SortableTable, { Column } from '../../../components/SortableTable'
+import Bowtie from '../../../components/Bowtie/Bowtie'
+import { assignAnswerToBarrierQuestions } from '../../Evaluation/FollowUp/Summaries/helpers'
+import { getEvaluationActionsByState } from '../../../utils/actionUtils'
+import styled from 'styled-components'
+import { tokens } from '@equinor/eds-tokens'
 
-const { Body, Row, Cell, Head } = Table
+const { Row, Cell } = Table
+
+const WARNING_COLOR = tokens.colors.interactive.danger__resting.rgba
+
+const columns: Column[] = [
+    { name: 'Title', accessor: 'name', sortable: true },
+    { name: 'Workflow', accessor: 'progression', sortable: true },
+    { name: 'Bowtie status', accessor: 'bowtie', sortable: false },
+    { name: 'Overdue actions', accessor: 'overdue_actions', sortable: true },
+    { name: 'Open actions', accessor: 'open_actions', sortable: true },
+    { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
+    { name: 'Date created', accessor: 'createDate', sortable: true },
+]
+
+const Centered = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
+
+const CellWithBorder = styled(Cell)`
+    border-right: 1px solid lightgrey;
+`
 
 interface Props {
     evaluations: Evaluation[]
 }
 
 const EvaluationsTable = ({ evaluations }: Props) => {
+    const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
+        switch (accessor) {
+            case 'name': {
+                return sort(a.name.toLowerCase(), b.name.toLowerCase(), sortDirection)
+            }
+            case 'progression': {
+                const numCompletedA = countProgressionStatus(ProgressionStatus.Complete, a.progression)
+                const numCompletedB = countProgressionStatus(ProgressionStatus.Complete, b.progression)
+                return sort(numCompletedA, numCompletedB, sortDirection)
+            }
+            case 'overdue_actions': {
+                const actionsByStateA = getEvaluationActionsByState(a)
+                const actionsByStateB = getEvaluationActionsByState(b)
+                return sort(actionsByStateA.overdueActions.length, actionsByStateB.overdueActions.length, sortDirection)
+            }
+            case 'open_actions': {
+                const actionsByStateA = getEvaluationActionsByState(a)
+                const actionsByStateB = getEvaluationActionsByState(b)
+                return sort(actionsByStateA.openActions.length, actionsByStateB.openActions.length, sortDirection)
+            }
+            case 'closed_actions': {
+                const actionsByStateA = getEvaluationActionsByState(a)
+                const actionsByStateB = getEvaluationActionsByState(b)
+                return sort(actionsByStateA.closedActions.length, actionsByStateB.closedActions.length, sortDirection)
+            }
+            case 'createDate': {
+                return sort(a.createDate, b.createDate, sortDirection)
+            }
+            default:
+                return sort(a.name, b.name, sortDirection)
+        }
+    }
+    const renderRow = (evaluation: Evaluation, index: number) => {
+        const project = useProject()
+        const isWorkshopOrFollowUp = evaluation.progression === Progression.Workshop || evaluation.progression === Progression.FollowUp
+        const showBowtieContent = evaluation.questions && isWorkshopOrFollowUp
+        const answersWithBarrier = showBowtieContent ? assignAnswerToBarrierQuestions(evaluation.questions, evaluation.progression) : []
+        const actionsByState = getEvaluationActionsByState(evaluation)
+
+        return (
+            <Row key={index}>
+                <CellWithBorder>
+                    <Link to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}>
+                        <Typography
+                            color="primary"
+                            variant="body_short"
+                            token={{
+                                fontSize: '1.2rem',
+                            }}
+                        >
+                            {evaluation.name}
+                        </Typography>
+                    </Link>
+                </CellWithBorder>
+                <CellWithBorder>
+                    <Centered>
+                        {Object.values(Progression).map(progression => (
+                            <Tooltip
+                                key={index + progression}
+                                placement="bottom"
+                                title={
+                                    progressionToString(progression) +
+                                    ' ' +
+                                    calcProgressionStatus(evaluation.progression, progression).toLowerCase()
+                                }
+                            >
+                                <ProgressStatusIcon progression={evaluation.progression} compareProgression={progression} />
+                            </Tooltip>
+                        ))}
+                    </Centered>
+                </CellWithBorder>
+                <CellWithBorder>
+                    <Centered>
+                        <Bowtie answersWithBarrier={answersWithBarrier} isDense />
+                    </Centered>
+                </CellWithBorder>
+                <CellWithBorder>
+                    {actionsByState.overdueActions.length > 0 && (
+                        <Centered>
+                            <span
+                                style={{
+                                    color: WARNING_COLOR,
+                                    paddingRight: '10px',
+                                }}
+                            >
+                                {actionsByState.overdueActions.length}
+                            </span>
+                            <Icon data={warning_filled} color={WARNING_COLOR} />
+                        </Centered>
+                    )}
+                </CellWithBorder>
+                <CellWithBorder>
+                    {actionsByState.openActions.length > 0 && <Centered>{actionsByState.openActions.length}</Centered>}
+                </CellWithBorder>
+                <CellWithBorder>
+                    {actionsByState.closedActions.length > 0 && <Centered>{actionsByState.closedActions.length}</Centered>}
+                </CellWithBorder>
+                <CellWithBorder>
+                    <Centered>{new Date(evaluation.createDate).toLocaleDateString()}</Centered>
+                </CellWithBorder>
+            </Row>
+        )
+    }
+
     return (
         <>
-            <Table style={{ width: '100%' }}>
-                <Head>
-                    <Row>
-                        <Cell>Title</Cell>
-                        <Cell>Workflow</Cell>
-                    </Row>
-                </Head>
-                <Body>
-                    {evaluations.map((evaluation, index) => {
-                        const project = useProject()
-
-                        return (
-                            <Row key={index}>
-                                <Cell>
-                                    <Link to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}>
-                                        <Typography
-                                            color="primary"
-                                            variant="body_short"
-                                            token={{
-                                                fontSize: '1.2rem',
-                                            }}
-                                        >
-                                            {evaluation.name}
-                                        </Typography>
-                                    </Link>
-                                </Cell>
-                                <Cell>
-                                    {Object.values(Progression).map(progression => (
-                                        <Tooltip
-                                            key={index + progression}
-                                            placement="bottom"
-                                            title={
-                                                progressionToString(progression) +
-                                                ' ' +
-                                                calcProgressionStatus(evaluation.progression, progression).toLowerCase()
-                                            }
-                                        >
-                                            <ProgressStatusIcon progression={evaluation.progression} compareProgression={progression} />
-                                        </Tooltip>
-                                    ))}
-                                </Cell>
-                            </Row>
-                        )
-                    })}
-                </Body>
-            </Table>
+            <SortableTable columns={columns} data={evaluations} sortOnAccessor={sortOnAccessor} renderRow={renderRow} />
         </>
     )
 }

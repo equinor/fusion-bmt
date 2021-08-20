@@ -1,29 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { Box } from '@material-ui/core'
-import { Action, Evaluation, Participant, Question } from '../../api/models'
+import { Action, Evaluation } from '../../api/models'
 import { useAllPersonDetailsAsync } from '../../utils/hooks'
 import ActionTable from './ActionTable'
 import ActionEditSidebarWithApi from '../Action/EditForm/ActionEditSidebarWithApi'
-
-const getActionQuestionsAndEvaluations = (evaluations: Evaluation[]): ActionQuestionAndEvaluation[] => {
-    const actionQuestionAndEvaluations: ActionQuestionAndEvaluation[] = []
-
-    evaluations.forEach(evaluation => {
-        evaluation.questions.forEach((question: Question) => {
-            question.actions.forEach(action => {
-                actionQuestionAndEvaluations.push({ action, question, evaluation })
-            })
-        })
-    })
-
-    return actionQuestionAndEvaluations
-}
-
-interface ActionQuestionAndEvaluation {
-    action: Action
-    question: Question
-    evaluation: Evaluation
-}
+import { ActionQuestionAndEvaluation, getActionQuestionsAndEvaluations } from '../../utils/actionUtils'
 
 interface Props {
     evaluations: Evaluation[]
