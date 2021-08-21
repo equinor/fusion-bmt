@@ -2,12 +2,12 @@ import React from 'react'
 
 import { Project } from '../../../api/models'
 import CreateEvaluationButton from './CreateEvaluationButton'
-import EvaluationListItem from './EvaluationListItem'
 import { Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
 import { useEvaluationsQuery } from './ProjectDashboardGQL'
 import { TextArea } from '@equinor/fusion-components'
 import { useCurrentUser } from '@equinor/fusion'
+import EvaluationsTable from './EvaluationsTable'
 
 interface ProjectDashboardViewProps {
     project: Project
@@ -48,19 +48,13 @@ const ProjectDashboardView = ({ project }: ProjectDashboardViewProps) => {
             {evaluations.length > 0 && (
                 <>
                     <Box marginY={2}>
-                        <Typography variant="h2">Evaluations in progress</Typography>
+                        <Typography variant="h2">Evaluations</Typography>
                     </Box>
                     {evaluations && (
                         <Box display="flex" flexDirection="column">
-                            {evaluations
-                                .filter(e => e.participants.map(p => p.azureUniqueId).includes(currentUser.id))
-                                .map(e => {
-                                    return (
-                                        <Box key={e.id}>
-                                            <EvaluationListItem evaluation={e} />
-                                        </Box>
-                                    )
-                                })}
+                            <EvaluationsTable
+                                evaluations={evaluations.filter(e => e.participants.map(p => p.azureUniqueId).includes(currentUser.id))}
+                            />
                         </Box>
                     )}
                 </>
