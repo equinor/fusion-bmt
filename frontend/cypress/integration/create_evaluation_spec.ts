@@ -1,45 +1,33 @@
-import { Role } from '../../src/api/models'
+import { Progression, Role } from '../../src/api/models'
 import { EvaluationSeed } from '../support/evaluation_seed'
 import { evaluationName } from '../support/helpers'
 import NominationPage from '../support/nomination'
 import ProjectPage from '../support/project'
-import { User, users } from '../support/mock/external/users'
+import { createParticipants } from '../testdata/participants'
+import { users, User } from '../support/mock/external/users'
+import * as faker from 'faker'
 
-const evaluationUserIsFacilitator = () => {
+const createEvaluation = (creator: User, otherUser: User, prefix: string) => {
+    let progression: Progression = faker.random.arrayElement(Object.values(Progression))
     let seed = new EvaluationSeed({
-        users: users.slice(0, 3),
-        namePrefix: 'user is Facilitator',
+        progression: progression,
+        participants: createParticipants({ users: [creator, otherUser], progression: progression, role: Role.Participant }),
+        namePrefix: prefix,
     })
-    let user = seed.participants[2]
-    user.role = Role.Facilitator
     return seed
 }
 
-const evaluationUserIsParticipant = () => {
-    return new EvaluationSeed({
-        users: users.slice(0, 3),
-        namePrefix: 'user is Participant',
-    })
-}
-
-const evaluationUserIsNotInIt = () => {
-    return new EvaluationSeed({
-        users: users.slice(0, 2),
-        namePrefix: 'user is not part of this Evaluation',
-    })
-}
-
 describe('Creating a new Evaluation', () => {
-    const user: User = users[2]
-    let userIsFacilitator = { seed: evaluationUserIsFacilitator(), name: 'user is Facilitator' }
-    let userIsParticipant = { seed: evaluationUserIsParticipant(), name: 'user is Participant' }
-    let userIsNotInEvaluation = { seed: evaluationUserIsNotInIt(), name: 'user is not in evaluation' }
-    let previousEvaluations = [userIsFacilitator, userIsParticipant, userIsNotInEvaluation]
+    const user = users[2]
+    const evalUserIsFacilitator = createEvaluation(user, users[0], 'user is Facilitator')
+    const evalUserIsParticipant = createEvaluation(users[0], user, 'user is Participant')
+    const evalUserIsNotInEvaluation = createEvaluation(users[0], users[1], 'user is not in evaluation')
+    const previousEvaluations = [evalUserIsFacilitator, evalUserIsParticipant, evalUserIsNotInEvaluation]
 
     before(() => {
-        userIsFacilitator.seed.plant()
-        userIsParticipant.seed.plant()
-        userIsNotInEvaluation.seed.plant()
+        evalUserIsFacilitator.plant()
+        evalUserIsParticipant.plant()
+        evalUserIsNotInEvaluation.plant()
     })
 
     beforeEach(() => {
@@ -68,7 +56,7 @@ describe('Creating a new Evaluation', () => {
                 projectPage.createEvaluationButton().click()
 
                 const dialog = new ProjectPage.CreateEvaluationDialog()
-                dialog.createEvaluation(name, previous.seed.name)
+                dialog.createEvaluation(name, previous.name)
 
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)

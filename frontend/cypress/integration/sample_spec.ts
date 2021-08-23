@@ -3,8 +3,7 @@
 
 import ProjectPage from '../support/project'
 import NominationPage from '../support/nomination'
-import {User, users, getUsers} from '../support/mock/external/users'
-
+import { User, users, getUsers } from '../support/mock/external/users'
 
 describe('Sample tests', () => {
     let allUsers: User[]
@@ -50,4 +49,3 @@ describe('Sample tests', () => {
         })
     })
 })
-

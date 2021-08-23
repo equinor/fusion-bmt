@@ -7,7 +7,9 @@ import { ActionsGrid, ActionsTab, CreateActionDialog, EditActionDialog, mapPrior
 import { EvaluationPage, QuestionnaireSidePanel } from '../support/evaluation'
 import { ConfirmationDialog, DropdownSelect } from '../support/common'
 import { DELETE_ACTION } from '../support/gql'
+import { createParticipants } from '../testdata/participants'
 import * as faker from 'faker'
+import { getUsers } from '../support/mock/external/users'
 
 describe('Actions', () => {
     const evaluationPage = new EvaluationPage()
@@ -246,9 +248,11 @@ describe('Actions', () => {
 })
 
 const createCreateSeed = () => {
+    const users = getUsers(faker.datatype.number({ min: 1, max: 4 }))
+    const progression = faker.random.arrayElement(Object.values(Progression))
     const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        nParticipants: faker.datatype.number({ min: 1, max: 4 }),
+        progression: progression,
+        participants: createParticipants({ users: users, progression: progression }),
     })
 
     const existingActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 3 }) }, () => {
@@ -260,9 +264,11 @@ const createCreateSeed = () => {
 }
 
 const createEditSeed = () => {
+    const users = getUsers(faker.datatype.number({ min: 1, max: 4 }))
+    const progression = faker.random.arrayElement(Object.values(Progression))
     const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        nParticipants: faker.datatype.number({ min: 1, max: 4 }),
+        progression: progression,
+        participants: createParticipants({ users: users, progression: progression }),
     })
 
     const existingAction = seed.createAction({
@@ -286,9 +292,11 @@ const createEditSeed = () => {
 }
 
 const createDeleteSeed = () => {
+    const progression = faker.random.arrayElement(Object.values(Progression))
+    const users = getUsers(faker.datatype.number({ min: 1, max: 5 }))
     const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        nParticipants: faker.datatype.number({ min: 1, max: 5 }),
+        progression: progression,
+        participants: createParticipants({ users: users, progression: progression }),
     })
 
     const actionToDelete = seed.createAction({
@@ -307,9 +315,11 @@ const createDeleteSeed = () => {
 }
 
 const createViewSeed = () => {
+    const users = getUsers(faker.datatype.number({ min: 1, max: 5 }))
+    const progression = faker.random.arrayElement(Object.values(Progression))
     const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        nParticipants: faker.datatype.number({ min: 1, max: 5 }),
+        progression: progression,
+        participants: createParticipants({ users: users, progression: progression }),
     })
 
     const actions: Action[] = Array.from({ length: faker.datatype.number({ min: 2, max: 4 }) }, () => {

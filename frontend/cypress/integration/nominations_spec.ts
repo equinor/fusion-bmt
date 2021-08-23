@@ -2,6 +2,7 @@ import { EvaluationSeed } from '../support/evaluation_seed'
 import { Progression, Role } from '../../src/api/models'
 import { Participant } from '../support/mocks'
 import NominationPage from '../support/nomination'
+import { getUsers } from '../support/mock/external/users'
 
 describe('Nomination', () => {
     context('Delete', () => {
@@ -11,7 +12,6 @@ describe('Nomination', () => {
 
         beforeEach(() => {
             ;({ seed, owner, otherFacilitator } = createDeleteSeed())
-
             seed.plant()
         })
 
@@ -46,15 +46,13 @@ describe('Nomination', () => {
 })
 
 const createDeleteSeed = () => {
+    let users = getUsers(2)
+    let owner = new Participant({ user: users[0], role: Role.Facilitator, progression: Progression.Nomination })
+    let otherFacilitator = new Participant({ user: users[1], role: Role.Facilitator, progression: Progression.Nomination })
     const seed = new EvaluationSeed({
         progression: Progression.Nomination,
-        nParticipants: 2,
+        participants: [owner, otherFacilitator],
     })
-
-    let owner = seed.participants[0]
-    owner.role = Role.Facilitator
-    let otherFacilitator = seed.participants[1]
-    otherFacilitator.role = Role.Facilitator
 
     return { seed, owner, otherFacilitator }
 }

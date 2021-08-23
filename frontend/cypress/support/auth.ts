@@ -1,5 +1,5 @@
 import jwtDecode, { JwtPayload } from 'jwt-decode'
-import { User, users } from './mock/external/users'
+import { User } from './mock/external/users'
 
 const SERVER_URL = Cypress.env('AUTH_URL') || 'http://localhost:8080'
 const ISSUER = 'common'
@@ -20,7 +20,7 @@ export const getToken = (): string => {
 
 const tokens = new Map<User, string>()
 
-Cypress.Commands.add('login', (user: User = users[0]) => {
+Cypress.Commands.add('login', (user: User) => {
     cy.log('Logging with user: ' + user.username)
     if (tokens.has(user)) {
         window.localStorage.setItem(CACHE_ENTRY, tokens.get(user)!)
@@ -48,6 +48,7 @@ Cypress.Commands.add('login', (user: User = users[0]) => {
             },
         }).then(resp => {
             /* Change to Assertion Function if used more */
+            cy.log('Response ' + resp.headers.location)
             if (typeof resp.headers.location !== 'string') {
                 throw new TypeError(`Expected location to be a string,
                                      but was ${resp.headers.location}`)
@@ -119,7 +120,7 @@ declare global {
              * Retrieve user token from mock-oauth2-server and store it
              * @example cy.login(extHire1)
              */
-            login(value?: User): Cypress.Chainable
+            login(value: User): Cypress.Chainable
         }
     }
 }
