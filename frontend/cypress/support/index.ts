@@ -15,6 +15,6 @@
 
 import './auth'
 import './visit'
-import './external'
+import './mock/external/external'
 import './gql'
 import './common'

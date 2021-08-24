@@ -3,7 +3,7 @@ import { EvaluationSeed } from '../support/evaluation_seed'
 import { evaluationName } from '../support/helpers'
 import NominationPage from '../support/nomination'
 import ProjectPage from '../support/project'
-import { User, users } from '../support/users'
+import { User, users } from '../support/mock/external/users'
 
 const evaluationUserIsFacilitator = () => {
     let seed = new EvaluationSeed({
@@ -57,7 +57,6 @@ describe('Creating a new Evaluation', () => {
 
         const nominationPage = new NominationPage()
         nominationPage.evaluationTitle().should('have.text', name)
-        nominationPage.assertParticipantPresent(user)
     })
 
     context('Can create evaluation ', () => {
@@ -73,7 +72,6 @@ describe('Creating a new Evaluation', () => {
 
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)
-                nominationPage.assertParticipantPresent(user)
             })
         })
     })

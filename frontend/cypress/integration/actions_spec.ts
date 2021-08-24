@@ -55,8 +55,10 @@ describe('Actions', () => {
                 },
             }).then(() => {
                 cy.on('uncaught:exception', (err, runnable) => {
-                    expect(err.message).to.include('Action not found')
-                    return false
+                    if (err.message.includes('Action not found')) {
+                        console.log("Swallowing unhandled 'Action not found'")
+                        return false
+                    }
                 })
 
                 deleteAction()

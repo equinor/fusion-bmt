@@ -1,7 +1,7 @@
 import * as faker from 'faker'
 
 import { Organization, Priority, Progression, Role, Severity } from '../../src/api/models'
-import { User } from './users'
+import { User } from './mock/external/users'
 import { EvaluationSeed } from './evaluation_seed'
 
 interface IParticipant {

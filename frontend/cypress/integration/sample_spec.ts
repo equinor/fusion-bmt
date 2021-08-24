@@ -3,7 +3,7 @@
 
 import ProjectPage from '../support/project'
 import NominationPage from '../support/nomination'
-import {User, users, getUsers} from '../support/users'
+import {User, users, getUsers} from '../support/mock/external/users'
 
 
 describe('Sample tests', () => {
