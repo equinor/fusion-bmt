@@ -136,6 +136,7 @@ const ActionEditSidebar = ({
                         text={note}
                         onChange={onChangeNote}
                         onCreateClick={onCreateNote}
+                        disabled={isNoteSaving}
                     />
                     <NotesList notes={action.notes} participantsDetails={personDetailsList} />
                 </div>

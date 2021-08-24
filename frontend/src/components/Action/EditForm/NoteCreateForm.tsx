@@ -10,9 +10,10 @@ interface Props {
     text: string
     onChange: (text: string) => void
     onCreateClick: (text: string) => void
+    disabled: boolean
 }
 
-const NoteCreateForm = ({ text, onChange, onCreateClick }: Props) => {
+const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
 
     const addNote = () => {
         if (text.length > 0) {
@@ -30,6 +31,7 @@ const NoteCreateForm = ({ text, onChange, onCreateClick }: Props) => {
                         multiline
                         label="Notes"
                         onChange={(event: TextFieldChangeEvent) => onChange(event.target.value)}
+                        disabled={disabled}
                         onKeyPress={(e: any) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault()
@@ -41,7 +43,7 @@ const NoteCreateForm = ({ text, onChange, onCreateClick }: Props) => {
                     />
                 </Grid>
                 <Grid item xs={2} container={true} alignItems="center">
-                    <Button variant="ghost" onClick={addNote}>
+                    <Button variant="ghost" onClick={addNote} disabled={disabled}>
                         <Icon data={add}></Icon>
                     </Button>
                 </Grid>
