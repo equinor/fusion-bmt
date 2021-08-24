@@ -1,4 +1,4 @@
-import { User } from './users'
+import { User } from './mock/external/users'
 
 export default class NominationPage {
     evaluationTitle = () => {

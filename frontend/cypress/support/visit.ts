@@ -1,5 +1,5 @@
-import { User } from './users'
-import { getFusionProjectData, findFusionProjectByID } from './projects'
+import { User } from './mock/external/users'
+import { getFusionProjectData, findFusionProjectByID } from './mock/external/projects'
 
 function setupEnvironment() {
     cy.interceptExternal()
