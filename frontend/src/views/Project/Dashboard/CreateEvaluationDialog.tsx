@@ -11,6 +11,7 @@ import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
 import { useGetAllEvaluationsQuery } from './ProjectDashboardGQL'
 import { useProject } from '../../../globals/contexts'
+import { apiErrorMessage } from '../../../api/error'
 
 interface CreateEvaluationDialogProps {
     open: boolean
@@ -53,26 +54,11 @@ const CreateEvaluationDialog = ({
         return <>Loading...</>
     }
 
-    if (errorQuery !== undefined) {
+    if (errorQuery !== undefined || evaluations === undefined) {
         return (
             <div>
                 <TextArea
-                    value={`Error in loading evaluations: ${JSON.stringify(
-                        errorQuery
-                    )}`}
-                    onChange={() => {}}
-                />
-            </div>
-        )
-    }
-
-    if (evaluations === undefined) {
-        return (
-            <div>
-                <TextArea
-                    value={`Error in loading evaluations(undefined): ${JSON.stringify(
-                        evaluations
-                    )}`}
+                    value={apiErrorMessage('Could not load evaluations')}
                     onChange={() => {}}
                 />
             </div>

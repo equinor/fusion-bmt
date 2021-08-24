@@ -10,6 +10,7 @@ import EvaluationView from './EvaluationView'
 import { useAzureUniqueId } from '../../utils/Variables'
 import { getNextProgression } from '../../utils/ProgressionStatus'
 import { CurrentParticipantContext, EvaluationContext } from '../../globals/contexts'
+import { apiErrorMessage } from '../../api/error'
 
 interface Params {
     fusionProjectId: string
@@ -45,7 +46,7 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
     if (errorProgressingParticipant !== undefined) {
         return (
             <div>
-                <TextArea value={`Error progressing participant: ${JSON.stringify(errorProgressingParticipant)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not progress participant')} onChange={() => {}} />
             </div>
         )
     }
@@ -53,7 +54,7 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
     if (errorLoadingEvaluation !== undefined) {
         return (
             <div>
-                <TextArea value={`Error loading evaluation: ${JSON.stringify(errorLoadingEvaluation)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not load evaluation')} onChange={() => {}} />
             </div>
         )
     }
@@ -61,7 +62,7 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
     if (errorProgressEvaluation !== undefined) {
         return (
             <div>
-                <TextArea value={`Error progressing evaluation: ${JSON.stringify(errorProgressEvaluation)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not progress evaluation')} onChange={() => {}} />
             </div>
         )
     }
@@ -69,7 +70,7 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
     if (evaluation === undefined) {
         return (
             <div>
-                <TextArea value={`Error: evaluation is undefined`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Evaluation is undefined')} onChange={() => {}} />
             </div>
         )
     }

@@ -2,6 +2,7 @@ import React from 'react'
 
 import { ModalSideSheet } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
+import { TextArea } from '@equinor/fusion-components'
 
 import { Participant, Question } from '../../../api/models'
 import { DataToCreateAction } from '../../../api/mutations'
@@ -14,9 +15,19 @@ interface Props {
     possibleAssignees: Participant[]
     onActionCreate: (action: DataToCreateAction) => void
     onClose: () => void
+    apiError?: string
+    disableCreate?: boolean
 }
 
-const ActionCreateSidebar = ({ open, connectedQuestion, possibleAssignees, onActionCreate, onClose }: Props) => {
+const ActionCreateSidebar = ({
+    open,
+    connectedQuestion,
+    possibleAssignees,
+    onActionCreate,
+    onClose,
+    apiError,
+    disableCreate = false,
+}: Props) => {
     const { personDetailsList, isLoading } = useAllPersonDetailsAsync(possibleAssignees.map(assignee => assignee.azureUniqueId))
 
     return (
@@ -24,6 +35,11 @@ const ActionCreateSidebar = ({ open, connectedQuestion, possibleAssignees, onAct
             {isLoading && (
                 <div style={{ textAlign: 'center' }}>
                     <CircularProgress />
+                </div>
+            )}
+            {apiError && (
+                <div>
+                    <TextArea value={apiError} onChange={() => {}} />
                 </div>
             )}
             {!isLoading && (
@@ -34,6 +50,7 @@ const ActionCreateSidebar = ({ open, connectedQuestion, possibleAssignees, onAct
                         possibleAssigneesDetails={personDetailsList}
                         onActionCreate={onActionCreate}
                         onCancelClick={onClose}
+                        disableCreate={disableCreate}
                     />
                 </div>
             )}

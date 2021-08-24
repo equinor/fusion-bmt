@@ -9,6 +9,7 @@ import NominationTable from './NominationTable'
 import { useCreateParticipantMutation, useParticipantsQuery } from './NominationGQL'
 import { participantCanProgressEvaluation, participantCanAddParticipant } from '../../../utils/RoleBasedAccess'
 import { useAzureUniqueId } from '../../../utils/Variables'
+import { apiErrorMessage } from '../../../api/error'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -76,21 +77,15 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     if (errorMutation !== undefined) {
         return (
             <div>
-                <TextArea value={`Error in creating participant: ${JSON.stringify(errorMutation)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not add participant')} onChange={() => {}} />
             </div>
         )
     }
-    if (errorQuery !== undefined) {
+
+    if (errorQuery !== undefined || participants === undefined) {
         return (
             <div>
-                <TextArea value={`Error in loading participants: ${JSON.stringify(errorQuery)}`} onChange={() => {}} />
-            </div>
-        )
-    }
-    if (participants === undefined) {
-        return (
-            <div>
-                <TextArea value={`Error in loading participants(undefined): ${JSON.stringify(participants)}`} onChange={() => {}} />
+                <TextArea value={apiErrorMessage('Could not load participants')} onChange={() => {}} />
             </div>
         )
     }

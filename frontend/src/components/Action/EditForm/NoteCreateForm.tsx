@@ -7,16 +7,17 @@ import { add } from '@equinor/eds-icons'
 import { TextFieldChangeEvent } from '../utils'
 
 interface Props {
+    text: string
+    onChange: (text: string) => void
     onCreateClick: (text: string) => void
+    disabled: boolean
 }
 
-const NoteCreateForm = ({ onCreateClick }: Props) => {
-    const [noteInProgress, setNoteInProgress] = useState<string>('')
+const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
 
     const addNote = () => {
-        if (noteInProgress.length > 0) {
-            onCreateClick(noteInProgress)
-            setNoteInProgress('')
+        if (text.length > 0) {
+            onCreateClick(text)
         }
     }
 
@@ -26,10 +27,11 @@ const NoteCreateForm = ({ onCreateClick }: Props) => {
                 <Grid item xs={10}>
                     <TextField
                         id="noteInProgress"
-                        value={noteInProgress}
+                        value={text}
                         multiline
                         label="Notes"
-                        onChange={(event: TextFieldChangeEvent) => setNoteInProgress(event.target.value)}
+                        onChange={(event: TextFieldChangeEvent) => onChange(event.target.value)}
+                        disabled={disabled}
                         onKeyPress={(e: any) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault()
@@ -41,7 +43,7 @@ const NoteCreateForm = ({ onCreateClick }: Props) => {
                     />
                 </Grid>
                 <Grid item xs={2} container={true} alignItems="center">
-                    <Button variant="ghost" onClick={addNote}>
+                    <Button variant="ghost" onClick={addNote} disabled={disabled}>
                         <Icon data={add}></Icon>
                     </Button>
                 </Grid>

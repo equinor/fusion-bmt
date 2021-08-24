@@ -1,8 +1,8 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import ActionCreateSidebar from './ActionCreateSidebar'
 import { Participant, Question } from '../../../api/models'
 import { useCreateActionMutation } from '../../../api/mutations'
-import { TextArea } from '@equinor/fusion-components'
+import { apiErrorMessage } from '../../../api/error'
 
 interface Props {
     isOpen: boolean
@@ -12,26 +12,37 @@ interface Props {
 }
 
 const ActionCreateSidebarWithApi = ({ isOpen, connectedQuestion, possibleAssignees, onClose }: Props) => {
-    const { createAction, error: errorCreatingAction } = useCreateActionMutation()
+    const { createAction, error: errorCreatingAction, action, loading } = useCreateActionMutation()
+    const [error, setError] = useState('')
 
-    if (errorCreatingAction !== undefined) {
-        return (
-            <div>
-                <TextArea value={`Error creating action: ${JSON.stringify(errorCreatingAction)}`} onChange={() => {}} />
-            </div>
-        )
-    }
+    // Wait for a response and only close Sideview if mutation was successful
+    useEffect(() => {
+        if (action) {
+            onClose()
+        }
+    }, [action])
+
+    useEffect(() => {
+        if (errorCreatingAction) {
+            setError(apiErrorMessage('Could not create action'))
+        }
+        else {
+            setError('')
+        }
+    }, [errorCreatingAction])
 
     return (
         <ActionCreateSidebar
             open={isOpen}
-            onClose={onClose}
+            onClose={ () => {
+                onClose()
+                setError('')
+            }}
             connectedQuestion={connectedQuestion}
             possibleAssignees={possibleAssignees}
-            onActionCreate={action => {
-                onClose()
-                createAction(action)
-            }}
+            onActionCreate={createAction}
+            apiError={error}
+            disableCreate={loading}
         />
     )
 }

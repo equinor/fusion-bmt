@@ -1,8 +1,8 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { Action, Participant, Question } from '../../../api/models'
 import ActionEditSidebar from './ActionEditSidebar'
 import { useCreateNoteMutation, useEditActionMutation } from '../../../api/mutations'
-import { TextArea } from '@equinor/fusion-components'
+import { apiErrorMessage } from '../../../api/error'
 
 interface Props {
     action: Action
@@ -14,23 +14,42 @@ interface Props {
 
 const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, possibleAssignees }: Props) => {
     const { editAction, loading: isActionSaving, error: errorEditingAction } = useEditActionMutation()
-    const { createNote, loading: isNoteSaving, error: errorCreatingNote } = useCreateNoteMutation()
+    const { createNote, note, loading: isNoteSaving, error: errorCreatingNote } = useCreateNoteMutation()
+    const [actionError, setActionError] = useState('')
+    const [noteError, setNoteError] = useState('')
+    const [localNote, setLocalNote] = useState<string>('')
 
-    if (errorEditingAction !== undefined) {
-        return (
-            <div>
-                <TextArea value={`Error editing action: ${JSON.stringify(errorEditingAction)}`} onChange={() => {}} />
-            </div>
-        )
+    useEffect(() =>  {
+        if (errorEditingAction) {
+            setActionError(apiErrorMessage('Could not save changes to action'))
+        } else {
+            setActionError('')
+        }
+    }, [errorEditingAction])
+
+    useEffect(() =>  {
+        if (errorCreatingNote) {
+            setNoteError(apiErrorMessage('Could not create note'))
+        } else {
+            setNoteError('')
+        }
+    }, [errorCreatingNote])
+
+    const onChangeNote = (value: string) => {
+        setLocalNote(value)
     }
 
-    if (errorCreatingNote !== undefined) {
-        return (
-            <div>
-                <TextArea value={`Error creating note: ${JSON.stringify(errorCreatingNote)}`} onChange={() => {}} />
-            </div>
-        )
+    const onCreateNote = (text: string) => {
+        if (!isNoteSaving) {
+            createNote(action.id, text)
+        }
     }
+
+    useEffect(() =>  {
+        if (note) {
+            setLocalNote('')
+        }
+    }, [note])
 
     return (
         <ActionEditSidebar
@@ -41,12 +60,12 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
             possibleAssignees={possibleAssignees}
             isActionSaving={isActionSaving}
             isNoteSaving={isNoteSaving}
-            onActionEdit={action => {
-                editAction(action)
-            }}
-            onNoteCreate={(actionId: string, text: string) => {
-                createNote(actionId, text)
-            }}
+            onActionEdit={editAction}
+            onCreateNote={onCreateNote}
+            onChangeNote={onChangeNote}
+            note={localNote}
+            apiErrorAction={actionError}
+            apiErrorNote={noteError}
         />
     )
 }

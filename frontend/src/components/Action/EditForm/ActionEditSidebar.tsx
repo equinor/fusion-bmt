@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { ModalSideSheet } from '@equinor/fusion-components'
+import { TextArea, ModalSideSheet } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
 
 import { Action, Participant, Question } from '../../../api/models'
@@ -21,8 +21,12 @@ interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
     onActionEdit: (action: Action) => void
-    onNoteCreate: (actionId: string, text: string) => void
+    note: string
+    onChangeNote: (text: string) => void
+    onCreateNote: (text: string) => void
     onClose: () => void
+    apiErrorAction: string
+    apiErrorNote: string
 }
 
 const ActionEditSidebar = ({
@@ -33,8 +37,12 @@ const ActionEditSidebar = ({
     connectedQuestion,
     possibleAssignees,
     onActionEdit,
-    onNoteCreate,
+    note,
+    onChangeNote,
+    onCreateNote,
     onClose,
+    apiErrorAction,
+    apiErrorNote,
 }: Props) => {
     const { personDetailsList, isLoading: isLoadingPersonDetails } = useAllPersonDetailsAsync(
         possibleAssignees.map(assignee => assignee.azureUniqueId)
@@ -43,7 +51,7 @@ const ActionEditSidebar = ({
     const [delayedAction, setDelayedAction] = useState<Action | undefined>(undefined)
 
     useEffect(() => {
-        if (isActionSaving || isNoteSaving) {
+        if (isActionSaving) {
             setSavingState(SavingState.Saving)
         } else {
             if (savingState === SavingState.Saving) {
@@ -52,11 +60,16 @@ const ActionEditSidebar = ({
                 setSavingState(SavingState.None)
             }
         }
-    }, [isActionSaving, isNoteSaving])
+    }, [isActionSaving])
+
+    useEffect(() => {
+        if (apiErrorAction) {
+            setSavingState(SavingState.NotSaved)
+        }
+    }, [apiErrorAction])
 
     const onEditWithoutDelay = (action: Action, isValid: boolean) => {
         if (isValid) {
-            setSavingState(SavingState.Saving)
             setDelayedAction(undefined)
             onActionEdit(action)
         } else {
@@ -67,7 +80,6 @@ const ActionEditSidebar = ({
 
     const onEditWithDelay = (action: Action, isValid: boolean) => {
         if (isValid) {
-            setSavingState(SavingState.Saving)
             setDelayedAction(action)
         } else {
             setSavingState(SavingState.NotSaved)
@@ -102,6 +114,11 @@ const ActionEditSidebar = ({
             )}
             {!isLoadingPersonDetails && (
                 <div style={{ margin: 20 }}>
+                    {apiErrorAction &&  (
+                        <div>
+                            <TextArea value={apiErrorAction} onChange={() => {}} />
+                        </div>
+                    )}
                     <ActionEditForm
                         action={action}
                         connectedQuestion={connectedQuestion}
@@ -110,7 +127,17 @@ const ActionEditSidebar = ({
                         onEditShouldDelay={onEditWithDelay}
                         onEditShouldNotDelay={onEditWithoutDelay}
                     />
-                    <NoteCreateForm onCreateClick={(text: string) => onNoteCreate(action.id, text)} />
+                    {apiErrorNote &&  (
+                        <div style={{ marginTop: 20 }}>
+                            <TextArea value={apiErrorNote} onChange={() => {}} />
+                        </div>
+                    )}
+                    <NoteCreateForm
+                        text={note}
+                        onChange={onChangeNote}
+                        onCreateClick={onCreateNote}
+                        disabled={isNoteSaving}
+                    />
                     <NotesList notes={action.notes} participantsDetails={personDetailsList} />
                 </div>
             )}
