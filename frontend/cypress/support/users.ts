@@ -90,7 +90,7 @@ const local1 = new User({
 
 export const users = [employee1, external1, consultant1, extHire1, unknown1, local1]
 
-export function getUsers(n: number) : User[]{
+export function getUsers(n: number): User[] {
     if (n > users.length) {
         const msg = `You requested more mocked users (${n})
             than currently available (${users.length})`
@@ -105,3 +105,35 @@ export function getUsers(n: number) : User[]{
     return faker.helpers.shuffle([...users]).slice(0, n)
 }
 
+export function findUserByID(id: string) {
+    return users.filter(u => u.id == id)[0]
+}
+
+export function findUserByUsername(username: string) {
+    return users.filter(u => u.username == username)[0]
+}
+
+export function getUserData(user: User) {
+    // Fields are taken from various real requests
+    return {
+        positions: [],
+        azureUniqueId: user.id,
+        mail: user.email,
+        name: user.name,
+        jobTitle: user.jobTitle,
+        department: 'Awesome department',
+        fullDepartment: 'Completely awesome department',
+        mobilePhone: '+12 34567890',
+        officeLocation: 'Flower Garden',
+        upn: user.username,
+        preferredContactMail: null,
+        isResourceOwner: false,
+        accountType: user.type,
+        company: null,
+        roles: [],
+        contracts: [],
+        accountClassification: 'Internal',
+        manager: null,
+        managerAzureUniqueId: '000',
+    }
+}
