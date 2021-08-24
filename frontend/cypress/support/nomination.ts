@@ -1,4 +1,5 @@
 import { User } from './mock/external/users'
+import { SideSheet } from './common'
 
 export default class NominationPage {
     evaluationTitle = () => {
@@ -35,7 +36,7 @@ export default class NominationPage {
         this.participantsTable().contains(user.name).should('not.exist')
     }
 
-    static NomineeDialog = class {
+    static NomineeDialog = class extends SideSheet {
         body = () => {
             /* Unable to use pure dialog
              * fusion doesn't accept our data-testid
@@ -55,17 +56,6 @@ export default class NominationPage {
 
             // relying on the stubbed behavior: only 1 result returned
             this.body().contains('Add').should('exist').click()
-        }
-
-        close = () => {
-            /* might not be stable as we can't directly grab dialog handle */
-            this.body()
-                .parent()
-                .parent()
-                .parent()
-                .within(() => {
-                    cy.get('div[class*="close"]').click()
-                })
         }
     }
 }

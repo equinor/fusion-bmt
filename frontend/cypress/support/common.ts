@@ -13,6 +13,25 @@ export class ConfirmationDialog {
     }
 }
 
+export abstract class SideSheet {
+    /**
+     * Must indicate the top area we have control of
+     * (aka first element inside (Modal)SideSheet)
+     */
+    abstract body(): Cypress.Chainable
+
+    close = () => {
+        /* might not be stable as we can't directly grab dialog handle */
+        this.body()
+            .parent()
+            .parent()
+            .parent()
+            .within(() => {
+                cy.get('div[class*="close"]').click()
+            })
+    }
+}
+
 Cypress.Commands.add('testCacheAndDB', (testCache: Function, testDB: Function = testCache) => {
     testCache()
     cy.reloadBmt()
