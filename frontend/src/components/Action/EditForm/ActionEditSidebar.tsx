@@ -51,7 +51,7 @@ const ActionEditSidebar = ({
     const [delayedAction, setDelayedAction] = useState<Action | undefined>(undefined)
 
     useEffect(() => {
-        if (isActionSaving || isNoteSaving) {
+        if (isActionSaving) {
             setSavingState(SavingState.Saving)
         } else {
             if (savingState === SavingState.Saving) {
@@ -60,13 +60,13 @@ const ActionEditSidebar = ({
                 setSavingState(SavingState.None)
             }
         }
-    }, [isActionSaving, isNoteSaving])
+    }, [isActionSaving])
 
     useEffect(() => {
-        if (apiErrorAction || apiErrorNote) {
+        if (apiErrorAction) {
             setSavingState(SavingState.NotSaved)
         }
-    }, [apiErrorAction, apiErrorNote])
+    }, [apiErrorAction])
 
     const onEditWithoutDelay = (action: Action, isValid: boolean) => {
         if (isValid) {
