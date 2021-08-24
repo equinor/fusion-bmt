@@ -1,4 +1,5 @@
 {
     "chromeWebSecurity": false,
-    "projectId": "ry3x7y"
+    "projectId": "ry3x7y",
+    "fixturesFolder": false
 }
