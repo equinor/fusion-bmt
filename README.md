@@ -4,6 +4,11 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/45edba07b87447489c54a51867141261)](https://www.codacy.com/gh/equinor/fusion-bmt/dashboard?utm_source=github.com&utm_medium=referral&utm_content=equinor/fusion-bmt&utm_campaign=Badge_Grade)
 [![BMT](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/detailed/ry3x7y&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ry3x7y/runs)
 
+**Prod**: [![Prod Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/prod/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/prod)
+**Dev**: [![Dev Build Status!](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/dev/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/dev)
+**Test**: [![Test Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/test/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/test)
+
+
 To run the project with docker-compose use:
 
 -   `docker-compose up --build`
