@@ -39,17 +39,17 @@ const ActionTableWithApi = ({ evaluations }: Props) => {
 
     const { personDetailsList } = useAllPersonDetailsAsync(allAzureUniqueIds)
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
-    const [aqeToEdit, setAqeToEdit] = useState<ActionQuestionAndEvaluation | undefined>()
+    const [actionIdToEdit, setActionIdToEdit] = useState<string>('')
+    const actionQuestionAndEvaluation = actionQuestionAndEvaluations.find(aqe => aqe.action.id === actionIdToEdit)
 
     const onClose = () => {
         setIsEditSidebarOpen(false)
-        setAqeToEdit(undefined)
+        setActionIdToEdit('')
     }
 
-    const openEditActionPanel = (action: Action) => {
-        const newAqeToEdit = actionQuestionAndEvaluations.find(aqe => aqe.action.id === action.id)!
+    const openEditActionPanel = (actionId: string) => {
         setIsEditSidebarOpen(true)
-        setAqeToEdit(newAqeToEdit)
+        setActionIdToEdit(actionId)
     }
 
     const actionsWithAdditionalInfo = actionQuestionAndEvaluations.map(aqe => {
@@ -63,13 +63,13 @@ const ActionTableWithApi = ({ evaluations }: Props) => {
                 personDetailsList={personDetailsList}
                 onClickAction={openEditActionPanel}
             />
-            {aqeToEdit !== undefined && (
+            {actionIdToEdit !== '' && actionQuestionAndEvaluation !== undefined && (
                 <ActionEditSidebarWithApi
-                    action={aqeToEdit.action}
+                    action={actionQuestionAndEvaluation.action}
                     isOpen={isEditSidebarOpen}
                     onClose={onClose}
-                    connectedQuestion={aqeToEdit.question}
-                    possibleAssignees={aqeToEdit.evaluation.participants}
+                    connectedQuestion={actionQuestionAndEvaluation.question}
+                    possibleAssignees={actionQuestionAndEvaluation.evaluation.participants}
                 />
             )}
         </Box>

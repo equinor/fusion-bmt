@@ -51,13 +51,20 @@ const SortIcon = styled(Icon)<IconProps>`
 interface Props {
     actionsWithAdditionalInfo: ActionWithAdditionalInfo[]
     personDetailsList: PersonDetails[]
-    onClickAction: (action: Action) => void
+    onClickAction: (actionId: string) => void
     showEvaluations?: boolean
     projects?: Context[]
     isFetchingProjects?: boolean
 }
 
-const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false, projects, isFetchingProjects = false }: Props) => {
+const ActionTable = ({
+    onClickAction,
+    actionsWithAdditionalInfo,
+    personDetailsList,
+    showEvaluations = false,
+    projects,
+    isFetchingProjects = false,
+}: Props) => {
     const [sortDirection, setSortDirection] = useState<SortDirection>('none')
     const [columnToSortBy, setColumnToSortBy] = useState<Column>()
 
@@ -126,68 +133,72 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
 
     return (
         <>
-            {!isFetchingProjects && <Table style={{ width: '100%' }}>
-                <Head>
-                    <Row>
-                        {actionTableColumns
-                            .filter(
-                                col =>
-                                    (col.name === 'Evaluation' && showEvaluations) || 
-                                    (col.name === 'Project' && projects) || 
-                                    (col.name !== 'Evaluation' && col.name !== 'Project')
-                            )
-                            .map(column => {
-                                const isSelected = columnToSortBy ? column.name === columnToSortBy.name : false
-                                return (
-                                    <Cell
-                                        key={column.name}
-                                        onClick={() => {
-                                            setSortOn(column)
-                                        }}
-                                        sort={isSelected ? sortDirection : 'none'}
-                                    >
-                                        {column.name}
-                                        <SortIcon
-                                            name={sortDirection === 'descending' ? 'chevron_up' : 'chevron_down'}
-                                            isSelected={isSelected}
-                                        />
-                                    </Cell>
+            {!isFetchingProjects && (
+                <Table style={{ width: '100%' }}>
+                    <Head>
+                        <Row>
+                            {actionTableColumns
+                                .filter(
+                                    col =>
+                                        (col.name === 'Evaluation' && showEvaluations) ||
+                                        (col.name === 'Project' && projects) ||
+                                        (col.name !== 'Evaluation' && col.name !== 'Project')
                                 )
-                            })}
-                    </Row>
-                </Head>
-                <Body>
-                    {sortedActions.map(({ action, barrier, organization }) => {
-                        const priority = action.priority
-                        const priorityFormatted = priority.substring(0, 1) + priority.substring(1).toLowerCase()
-                        const assignedTo = assignedPersonDetails(action)
+                                .map(column => {
+                                    const isSelected = columnToSortBy ? column.name === columnToSortBy.name : false
+                                    return (
+                                        <Cell
+                                            key={column.name}
+                                            onClick={() => {
+                                                setSortOn(column)
+                                            }}
+                                            sort={isSelected ? sortDirection : 'none'}
+                                        >
+                                            {column.name}
+                                            <SortIcon
+                                                name={sortDirection === 'descending' ? 'chevron_up' : 'chevron_down'}
+                                                isSelected={isSelected}
+                                            />
+                                        </Cell>
+                                    )
+                                })}
+                        </Row>
+                    </Head>
+                    <Body>
+                        {sortedActions.map(({ action, barrier, organization }) => {
+                            const priority = action.priority
+                            const priorityFormatted = priority.substring(0, 1) + priority.substring(1).toLowerCase()
+                            const assignedTo = assignedPersonDetails(action)
 
-                        return (
-                            <Row key={action.id}>
-                                <Cell
-                                    onClick={() => onClickAction(action)}
-                                    style={{ color: tokens.colors.interactive.primary__resting.rgba, cursor: 'pointer' }}
-                                >
-                                    {action.title}
-                                </Cell>
-                                {projects && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>}
-                                {showEvaluations && <Cell>{action.question.evaluation.name}</Cell>}
-                                <Cell>{barrierToString(barrier)}</Cell>
-                                <Cell>{organizationToString(organization)}</Cell>
-                                <Cell>{action.completed ? 'Yes' : 'No'}</Cell>
-                                <Cell>
-                                    <PriorityDisplay>
-                                        <PriorityIndicator priority={action.priority} />
-                                        <Typography style={{ marginLeft: '10px' }}>{priorityFormatted}</Typography>
-                                    </PriorityDisplay>
-                                </Cell>
-                                <Cell>{assignedTo ? assignedTo.name : 'Unknown User'}</Cell>
-                                <Cell>{new Date(action.dueDate).toLocaleDateString()}</Cell>
-                            </Row>
-                        )
-                    })}
-                </Body>
-            </Table>}
+                            return (
+                                <Row key={action.id}>
+                                    <Cell
+                                        onClick={() => onClickAction(action.id)}
+                                        style={{ color: tokens.colors.interactive.primary__resting.rgba, cursor: 'pointer' }}
+                                    >
+                                        {action.title}
+                                    </Cell>
+                                    {projects && (
+                                        <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>
+                                    )}
+                                    {showEvaluations && <Cell>{action.question.evaluation.name}</Cell>}
+                                    <Cell>{barrierToString(barrier)}</Cell>
+                                    <Cell>{organizationToString(organization)}</Cell>
+                                    <Cell>{action.completed ? 'Yes' : 'No'}</Cell>
+                                    <Cell>
+                                        <PriorityDisplay>
+                                            <PriorityIndicator priority={action.priority} />
+                                            <Typography style={{ marginLeft: '10px' }}>{priorityFormatted}</Typography>
+                                        </PriorityDisplay>
+                                    </Cell>
+                                    <Cell>{assignedTo ? assignedTo.name : 'Unknown User'}</Cell>
+                                    <Cell>{new Date(action.dueDate).toLocaleDateString()}</Cell>
+                                </Row>
+                            )
+                        })}
+                    </Body>
+                </Table>
+            )}
         </>
     )
 }

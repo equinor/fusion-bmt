@@ -65,7 +65,8 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
     const [projects, setProjects] = useState<Context[]>()
     const [isFetchingProject, setIsFetchingProject] = useState<boolean>(true)
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
-    const [actionToEdit, setActionToEdit] = useState<ActionWithAdditionalInfo | undefined>()
+    const [actionIdToEdit, setActionIdToEdit] = useState<string>('')
+    const actionToEdit = actionsWithAdditionalInfo.find(actionWithInfo => actionWithInfo.action.id === actionIdToEdit)
 
     useEffect(() => {
         apiClients.context.getContextsAsync().then(projects => {
@@ -76,13 +77,12 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
 
     const onClose = () => {
         setIsEditSidebarOpen(false)
-        setActionToEdit(undefined)
+        setActionIdToEdit('')
     }
 
-    const openEditActionPanel = (action: Action) => {
-        const newActionToEdit = actionsWithAdditionalInfo.find(actionWithInfo => actionWithInfo.action.id === action.id)!
+    const openEditActionPanel = (actionId: string) => {
         setIsEditSidebarOpen(true)
-        setActionToEdit(newActionToEdit)
+        setActionIdToEdit(actionId)
     }
 
     return (
@@ -95,7 +95,7 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
                 projects={projects}
                 isFetchingProjects={isFetchingProject}
             />
-            {actionToEdit !== undefined && (
+            {actionIdToEdit !== '' && actionToEdit !== undefined && (
                 <ActionEditSidebarWithApi
                     action={actionToEdit.action}
                     isOpen={isEditSidebarOpen}

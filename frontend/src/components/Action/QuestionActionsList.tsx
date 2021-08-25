@@ -21,7 +21,7 @@ const QuestionActionsList = ({ question, participants }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState<boolean>(false)
     const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState<boolean>(false)
-    const [actionToEditId, setActionToEditId] = useState<string | undefined>()
+    const [actionIdToEdit, setActionIdToEdit] = useState<string | undefined>()
     const [actionToDelete, setActionToDelete] = useState<string | undefined>()
     const actions = [...question.actions]
 
@@ -29,13 +29,13 @@ const QuestionActionsList = ({ question, participants }: Props) => {
 
     const openActionEditSidebar = (action: Action) => {
         setIsEditSidebarOpen(true)
-        setActionToEditId(action.id)
+        setActionIdToEdit(action.id)
     }
 
     const onClose = () => {
         setIsEditSidebarOpen(false)
         setIsCreateSidebarOpen(false)
-        setActionToEditId(undefined)
+        setActionIdToEdit(undefined)
     }
 
     return (
@@ -105,9 +105,9 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                     })}
                 {actions.length === 0 && <Typography italic>No actions added</Typography>}
             </Box>
-            {actionToEditId !== undefined && (
+            {actionIdToEdit !== undefined && (
                 <ActionEditSidebarWithApi
-                    action={actions.find(a => a.id === actionToEditId)!}
+                    action={actions.find(a => a.id === actionIdToEdit)!}
                     isOpen={isEditSidebarOpen}
                     onClose={onClose}
                     connectedQuestion={question}
