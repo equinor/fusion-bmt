@@ -123,9 +123,6 @@ export class EvaluationSeed {
     questions: Question[] = []
 
     constructor({ progression, participants, fusionProjectId = '123', namePrefix = 'Evaluation' }: EvaluationSeedInput) {
-        if (progression === undefined) {
-            progression = Progression.Individual
-        }
         this.progression = progression
         this.participants = participants
         this.fusionProjectId = fusionProjectId
