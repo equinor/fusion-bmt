@@ -12,3 +12,23 @@ export class EvaluationPage {
         return cy.contains('a', progressionToString(progression))
     }
 }
+
+export class QuestionnaireSidePanel {
+    body = () => {
+        return cy
+            .get("div[role='tablist']")
+            .children()
+            .eq(0)
+            .invoke('attr', 'aria-controls')
+            .then(id => {
+                return cy
+                    .get('#' + id)
+                    .children()
+                    .eq(0)
+                    .children()
+                    .eq(0)
+                    .children()
+                    .eq(0)
+            })
+    }
+}

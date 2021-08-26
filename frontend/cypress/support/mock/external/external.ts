@@ -113,4 +113,9 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
             console.log('Unhandled promise uncaught: ' + err.message)
         }
     }
+
+    /* thrown sometimes when navigating through stepper, looks to be from fusion */
+    if (err.message.includes("Cannot read property 'removeEventListener' of null")) {
+        return false
+    }
 })

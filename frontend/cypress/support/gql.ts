@@ -33,7 +33,9 @@ export const ADD_EVALUATION = `
             id
             questions {
                 id,
-                order
+                order,
+                barrier,
+                organization
             }
             participants {
                 id

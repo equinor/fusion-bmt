@@ -113,8 +113,8 @@ const ActionEditSidebar = ({
                 </div>
             )}
             {!isLoadingPersonDetails && (
-                <div style={{ margin: 20 }}>
-                    {apiErrorAction &&  (
+                <div style={{ margin: 20 }} data-testid="edit_action_dialog_body">
+                    {apiErrorAction && (
                         <div>
                             <TextArea value={apiErrorAction} onChange={() => {}} />
                         </div>
@@ -127,17 +127,12 @@ const ActionEditSidebar = ({
                         onEditShouldDelay={onEditWithDelay}
                         onEditShouldNotDelay={onEditWithoutDelay}
                     />
-                    {apiErrorNote &&  (
+                    {apiErrorNote && (
                         <div style={{ marginTop: 20 }}>
                             <TextArea value={apiErrorNote} onChange={() => {}} />
                         </div>
                     )}
-                    <NoteCreateForm
-                        text={note}
-                        onChange={onChangeNote}
-                        onCreateClick={onCreateNote}
-                        disabled={isNoteSaving}
-                    />
+                    <NoteCreateForm text={note} onChange={onChangeNote} onCreateClick={onCreateNote} disabled={isNoteSaving} />
                     <NotesList notes={action.notes} participantsDetails={personDetailsList} />
                 </div>
             )}

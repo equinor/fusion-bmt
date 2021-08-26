@@ -43,7 +43,7 @@ const ActionCreateSidebar = ({
                 </div>
             )}
             {!isLoading && (
-                <div style={{ margin: 20 }}>
+                <div style={{ margin: 20 }} data-testid="create_action_dialog_body">
                     <ActionCreateForm
                         connectedQuestion={connectedQuestion}
                         possibleAssignees={possibleAssignees}
