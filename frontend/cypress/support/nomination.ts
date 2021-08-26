@@ -10,13 +10,17 @@ export default class NominationPage {
         return cy.contains('Add Person')
     }
 
-    deletePerson = (user: User) => {
-        this.deletePersonDiv(user).within(() => {
-            cy.contains('Delete').click()
-        })
+    // deletePersonButton = (user: User) => {
+    //     this.deletePersonButton(user).within(() => {
+    //         cy.contains('Delete').click()
+    //     })
+    // }
+
+    finishNominationButton = () => {
+        return cy.contains('Finish Nomination')
     }
 
-    deletePersonDiv = (user: User) => {
+    deletePersonButton = (user: User) => {
         return cy.get(`[data-testid=delete_button_${user.id}]`)
     }
 

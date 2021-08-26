@@ -115,7 +115,7 @@ const NominationTable = ({ participants }: NominationTableProps) => {
         organization: participant.organization,
         role: participant.role,
         rowIdentifier: participant.id,
-        disableDelete: disable
+        disableDelete: disable,
     }))
     return (
         <>
