@@ -29,6 +29,7 @@ function waitForEvaluationPageLoad() {
     cy.contains('Please select a project.').should('not.exist')
     cy.contains('Loading').should('not.exist')
     cy.contains('Workshop Assessment').should('be.visible')
+    cy.contains('Loading').should('not.exist')
 }
 
 /**

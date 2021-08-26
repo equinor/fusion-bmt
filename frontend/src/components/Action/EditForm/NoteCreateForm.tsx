@@ -14,7 +14,6 @@ interface Props {
 }
 
 const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
-
     const addNote = () => {
         if (text.length > 0) {
             onCreateClick(text)
@@ -43,7 +42,7 @@ const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
                     />
                 </Grid>
                 <Grid item xs={2} container={true} alignItems="center">
-                    <Button variant="ghost" onClick={addNote} disabled={disabled}>
+                    <Button variant="ghost" onClick={addNote} disabled={disabled} data-testid="add_note_button">
                         <Icon data={add}></Icon>
                     </Button>
                 </Grid>

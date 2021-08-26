@@ -9,10 +9,14 @@ interface SaveIndicatorProps {
     savingState: SavingState
 }
 
-const SaveConfirmation = styled.div`
+const SaveConfirmation = styled.div<{ 'data-testid'?: string }>`
     display: flex;
     align-items: center;
 `
+
+SaveConfirmation.defaultProps = {
+    'data-testid': 'save_indicator',
+}
 
 const SaveIndicator = ({ savingState }: SaveIndicatorProps) => {
     return (

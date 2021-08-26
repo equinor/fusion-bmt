@@ -25,7 +25,7 @@ const NotesList = ({ notes, participantsDetails }: Props) => {
     })
 
     return (
-        <Box mt={5}>
+        <Box mt={5} data-testid={'notes_list'}>
             {sortedNotes.map(note => {
                 const createrDetails: PersonDetails | undefined = participantsDetails.find(
                     p => p.azureUniqueId === note.createdBy!.azureUniqueId

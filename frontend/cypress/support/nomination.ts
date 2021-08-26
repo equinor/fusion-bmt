@@ -1,4 +1,5 @@
 import { User } from './mock/external/users'
+import { SideSheet } from './common'
 
 export default class NominationPage {
     evaluationTitle = () => {
@@ -28,18 +29,14 @@ export default class NominationPage {
     }
 
     assertParticipantPresent = (user: User) => {
-        this.participantsTable().within(() => {
-            cy.contains(user.name).should('exist')
-        })
+        this.participantsTable().contains(user.name).should('exist')
     }
 
     assertParticipantAbsent = (user: User) => {
-        this.participantsTable().within(() => {
-            cy.contains(user.name).should('not.exist')
-        })
+        this.participantsTable().contains(user.name).should('not.exist')
     }
 
-    static NomineeDialog = class {
+    static NomineeDialog = class extends SideSheet {
         body = () => {
             /* Unable to use pure dialog
              * fusion doesn't accept our data-testid
@@ -55,25 +52,10 @@ export default class NominationPage {
 
         searchAndAddPerson = (user: User) => {
             this.searchPersonTextBox().clear().type(user.username)
-            this.body().within(() => {
-                cy.contains(user.name).should('exist')
-            })
+            this.body().contains(user.name).should('exist')
 
             // relying on the stubbed behavior: only 1 result returned
-            this.body().within(() => {
-                cy.contains('Add').should('exist').click()
-            })
-        }
-
-        close = () => {
-            /* might not be stable as we can't directly grab dialog handle */
-            this.body()
-                .parent()
-                .parent()
-                .parent()
-                .within(() => {
-                    cy.get('div[class*="close"]').click()
-                })
+            this.body().contains('Add').should('exist').click()
         }
     }
 }

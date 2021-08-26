@@ -84,7 +84,7 @@ const QuestionActionsList = ({ question, participants }: Props) => {
                                         </Typography>
                                         {action.completed && (
                                             <Box p="0.1rem">
-                                                <Tooltip placement="bottom" title="Completed">
+                                                <Tooltip placement="bottom" title="Completed" data-testid={`action_complete_${action.id}`}>
                                                     <DoneIcon />
                                                 </Tooltip>
                                             </Box>
