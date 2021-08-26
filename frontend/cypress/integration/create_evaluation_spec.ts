@@ -3,17 +3,16 @@ import { EvaluationSeed } from '../support/evaluation_seed'
 import { evaluationName } from '../support/helpers'
 import NominationPage from '../support/nomination'
 import ProjectPage from '../support/project'
-import { createParticipants } from '../testdata/participants'
 import { users, User } from '../support/mock/external/users'
 import * as faker from 'faker'
 
 const createEvaluation = (creator: User, otherUser: User, prefix: string) => {
-    let progression: Progression = faker.random.arrayElement(Object.values(Progression))
     let seed = new EvaluationSeed({
-        progression: progression,
-        participants: createParticipants({ users: [creator, otherUser], progression: progression, role: Role.Participant }),
+        progression: faker.random.arrayElement(Object.values(Progression)),
+        users: [creator, otherUser],
         namePrefix: prefix,
     })
+    seed.participants[1].role = Role.Participant
     return seed
 }
 

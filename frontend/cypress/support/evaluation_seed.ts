@@ -1,6 +1,7 @@
 import { Progression, Question, Role } from '../../src/api/models'
 import { User, getUsers } from './mock/external/users'
 import { evaluationName } from './helpers'
+import { createParticipant } from '../testdata/participants'
 import { Answer, Action, createAction, Participant, Note, Summary } from './mocks'
 import {
     GET_PROJECT,
@@ -17,7 +18,7 @@ import {
 
 type EvaluationSeedInput = {
     progression: Progression
-    participants: Participant[]
+    users: User[]
     fusionProjectId?: string
     namePrefix?: string
 }
@@ -48,10 +49,10 @@ type EvaluationSeedInput = {
  *
  *      const seed = new EvaluationSeed({
  *          progression: Progression.Individual,
- *          nParticipants: 3
+ *          users: [u1, u2, u3]
  *      })
  *
- * 'seed' now contains 3 participants, each backed by a mocked AD user. By
+ * 'seed' now contains 3 participants each backed by a mocked AD user. By
  * default the first user is a Role.Facilitator and will be used to create the
  * evaluation. All other users have Role.Participant and belong to
  * Organization.All. They are all at the same progression as the Evaluation.
@@ -122,11 +123,24 @@ export class EvaluationSeed {
     actions: Action[] = []
     questions: Question[] = []
 
-    constructor({ progression, participants, fusionProjectId = '123', namePrefix = 'Evaluation' }: EvaluationSeedInput) {
+    constructor({ progression, users, fusionProjectId = '123', namePrefix = 'Evaluation' }: EvaluationSeedInput) {
         this.progression = progression
-        this.participants = participants
+        let participants: Participant[] = []
+        users.forEach(u => {
+            participants.push(this.createParticipant({ user: u, progression: progression }))
+        })
+        participants.forEach(p => this.addParticipant(p))
         this.fusionProjectId = fusionProjectId
         this.name = evaluationName({ prefix: namePrefix })
+    }
+
+    addParticipant(participant: Participant) {
+        // The first participant is always a facilitator
+        if (this.participants.length == 0) {
+            participant.role = Role.Facilitator
+        }
+        this.participants.push(participant)
+        return this
     }
 
     addAnswer(answer: Answer) {
@@ -150,6 +164,8 @@ export class EvaluationSeed {
     }
 
     public createAction = createAction
+
+    public createParticipant = createParticipant
 
     findQuestionId(order: number) {
         const question = this.questions.find(x => x.order === order)
