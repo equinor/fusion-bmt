@@ -26,7 +26,7 @@ export class Participant {
     }
 }
 
-export function createParticipant(this: EvaluationSeed, { user, role, progression, organization }: IParticipant): Participant {
+export function createParticipant({ user, role, progression, organization }: IParticipant): Participant {
     if (progression === undefined) {
         progression = faker.random.arrayElement(Object.values(Progression))
     }
