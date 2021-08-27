@@ -26,20 +26,17 @@ export class Participant {
     }
 }
 
-type ParticipantInput = {
-    user: User
-    role?: Role
-    progression?: Progression
-}
-export function createParticipant(this: EvaluationSeed, { user, role, progression }: ParticipantInput): Participant {
+export function createParticipant(this: EvaluationSeed, { user, role, progression, organization }: IParticipant): Participant {
     if (progression === undefined) {
         progression = faker.random.arrayElement(Object.values(Progression))
     }
     if (role === undefined) {
         role = faker.random.arrayElement(Object.values(Role))
     }
-    const organisation = faker.random.arrayElement(Object.values(Organization))
-    return new Participant({ user: user, role: role, organization: organisation, progression: progression })
+    if (organization === undefined) {
+        organization = faker.random.arrayElement(Object.values(Organization))
+    }
+    return new Participant({ user: user, role: role, organization: organization, progression: progression })
 }
 
 interface IAnswer {
