@@ -1,7 +1,7 @@
 import { Progression, Question, Role } from '../../src/api/models'
 import { User, getUsers } from './mock/external/users'
 import { evaluationName } from './helpers'
-import { createParticipant } from '../testdata/participants'
+import { createParticipant } from './mocks'
 import { Answer, Action, createAction, Participant, Note, Summary } from './mocks'
 import {
     GET_PROJECT,
