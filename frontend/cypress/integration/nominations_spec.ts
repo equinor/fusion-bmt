@@ -51,7 +51,6 @@ const createDeleteSeed = () => {
     let otherFacilitator = new Participant({ user: users[1], role: Role.Facilitator, progression: Progression.Nomination })
     const seed = new EvaluationSeed({
         progression: Progression.Nomination,
-        users: [],
     })
     seed.addParticipant(owner).addParticipant(otherFacilitator)
     return { seed, owner, otherFacilitator }
