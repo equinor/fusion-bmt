@@ -6,6 +6,19 @@ export enum ProgressionStatus {
     Awaiting = 'Awaiting',
 }
 
+export const countProgressionStatus = (progressionStatusToCount: ProgressionStatus, currentProgression: Progression) => {
+    let count = 0
+    {
+        Object.values(Progression).map(progression => {
+            const progressionStatus = calcProgressionStatus(currentProgression, progression)
+            if (progressionStatus === progressionStatusToCount) {
+                count++
+            }
+        })
+    }
+    return count
+}
+
 export const calcProgressionStatus = (currentProgression: Progression, progressionToEvaluate: Progression): ProgressionStatus => {
     if (progressionLessThan(currentProgression, progressionToEvaluate)) return ProgressionStatus.Awaiting
     if (progressionLessThan(progressionToEvaluate, currentProgression)) return ProgressionStatus.Complete

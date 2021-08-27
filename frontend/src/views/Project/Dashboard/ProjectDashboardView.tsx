@@ -1,35 +1,82 @@
 import React from 'react'
-
 import { Project } from '../../../api/models'
 import CreateEvaluationButton from './CreateEvaluationButton'
 import { Box } from '@material-ui/core'
-import { Typography } from '@equinor/eds-core-react'
-import { useEvaluationsQuery } from './ProjectDashboardGQL'
+import { CircularProgress, Typography } from '@equinor/eds-core-react'
+import { useGetAllEvaluationsQuery, useUserEvaluationsQuery } from './ProjectDashboardGQL'
 import { TextArea } from '@equinor/fusion-components'
+import { Chip } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 import { apiErrorMessage } from '../../../api/error'
 import EvaluationsTable from './EvaluationsTable'
+import styled from 'styled-components'
 
-interface ProjectDashboardViewProps {
+const Chips = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+`
+
+const StyledChip = styled(Chip)`
+    cursor: pointer;
+    margin-right: 10px;
+`
+
+const Centered = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+`
+
+enum TableSelection {
+    User = 'USER',
+    Project = 'PROJECT',
+}
+
+const CenteredCircularProgress = () => {
+    return (
+        <Centered>
+            <CircularProgress />
+        </Centered>
+    )
+}
+
+interface Props {
     project: Project
 }
 
-const ProjectDashboardView = ({ project }: ProjectDashboardViewProps) => {
+const ProjectDashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
+    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.User)
+    const userTableSelected = selectedProjectTable === TableSelection.User
+    const projectTableSelected = selectedProjectTable === TableSelection.Project
+
     if (!currentUser) {
         return <p>Please log in.</p>
     }
 
-    const { loading: loadingQuery, evaluations, error: errorQuery } = useEvaluationsQuery(project.id, currentUser.id)
+    const { loading: loadingUserEvaluations, evaluations: userEvaluations, error: errorUserEvaluations } = useUserEvaluationsQuery(
+        currentUser.id
+    )
+    const {
+        loading: loadingProjectEvaluations,
+        evaluations: projectEvaluations,
+        error: errorProjectEvaluations,
+    } = useGetAllEvaluationsQuery(project.id)
 
-    if (loadingQuery) {
-        return <>Loading...</>
-    }
-
-    if (errorQuery !== undefined || evaluations === undefined) {
+    if (errorUserEvaluations !== undefined) {
         return (
             <div>
-                <TextArea value={apiErrorMessage('Could not load evaluations')} onChange={() => {}} />
+                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorUserEvaluations)}`} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    if (errorProjectEvaluations !== undefined) {
+        return (
+            <div>
+                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorProjectEvaluations)}`} onChange={() => {}} />
             </div>
         )
     }
@@ -37,19 +84,33 @@ const ProjectDashboardView = ({ project }: ProjectDashboardViewProps) => {
     return (
         <div style={{ margin: 20 }}>
             <CreateEvaluationButton projectId={project.id} />
-
-            {evaluations.length > 0 && (
+            <Box marginY={2}>
+                <Typography variant="h2">Evaluations</Typography>
+            </Box>
+            <Chips>
+                <StyledChip
+                    variant={selectedProjectTable === TableSelection.User ? 'active' : 'default'}
+                    onClick={() => setSelectedProjectTable(TableSelection.User)}
+                >
+                    My evaluations
+                </StyledChip>
+                <StyledChip
+                    variant={selectedProjectTable === TableSelection.Project ? 'active' : 'default'}
+                    onClick={() => setSelectedProjectTable(TableSelection.Project)}
+                >
+                    Project evaluations
+                </StyledChip>
+            </Chips>
+            {userTableSelected && (
                 <>
-                    <Box marginY={2}>
-                        <Typography variant="h2">Evaluations</Typography>
-                    </Box>
-                    {evaluations && (
-                        <Box display="flex" flexDirection="column">
-                            <EvaluationsTable
-                                evaluations={evaluations.filter(e => e.participants.map(p => p.azureUniqueId).includes(currentUser.id))}
-                            />
-                        </Box>
-                    )}
+                    {userEvaluations && <EvaluationsTable evaluations={userEvaluations || []} />}
+                    {loadingUserEvaluations && <CenteredCircularProgress />}
+                </>
+            )}
+            {projectTableSelected && (
+                <>
+                    {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations || []} />}
+                    {loadingProjectEvaluations && <CenteredCircularProgress />}
                 </>
             )}
         </div>

@@ -15,10 +15,12 @@ export const Wrapper = styled.div<{ isDense: boolean }>`
     margin-bottom: ${props => (props.isDense ? '0' : '30px')};
     display: flex;
     flex-direction: column;
+    width: 360px;
+    height: 100px;
 `
 
 export const BowtieComponent = styled.div<{ isDense: boolean }>`
-    margin: ${props => (props.isDense ? '20px 5px' : '50px 20px')};
+    margin: ${props => (props.isDense ? '15px 2px' : '50px 20px')};
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -38,8 +40,8 @@ export const MiddleTextWrapper = styled.div`
 
 export const MiddleDotWrapper = styled.div`
     position: relative;
-    left: 204px;
-    bottom: 35px;
+    left: 167px;
+    bottom: 30px;
     width: 20px;
 `
 

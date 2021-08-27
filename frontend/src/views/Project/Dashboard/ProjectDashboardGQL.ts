@@ -20,13 +20,30 @@ export const useEvaluationsQuery = (projectId: string, azureUniqueId: string): E
                 participants {
                     ...ParticipantFields
                 }
+                questions {
+                    ...QuestionFields
+                    answers {
+                        ...AnswerFields
+                    }
+                    evaluation {
+                        ...EvaluationFields
+                    }
+                    actions {
+                        ...ActionFields
+                    }
+                }
             }
         }
         ${EVALUATION_FIELDS_FRAGMENT}
         ${PARTICIPANT_FIELDS_FRAGMENT}
     `
 
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId, azureUniqueId } })
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, {
+        variables: {
+            projectId,
+            azureUniqueId,
+        },
+    })
 
     return {
         loading,
@@ -35,22 +52,68 @@ export const useEvaluationsQuery = (projectId: string, azureUniqueId: string): E
     }
 }
 
-export const useGetAllEvaluationsQuery = (
-    projectId: string
-): EvaluationQueryProps => {
+export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {
+    const GET_EVALUATIONS = gql`
+        query($azureUniqueId: String!) {
+            evaluations(where: { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } } }) {
+                id
+                name
+                progression
+                createDate
+                questions {
+                    id
+                    barrier
+                    answers {
+                        id
+                        severity
+                        progression
+                    }
+                    actions {
+                        id
+                        dueDate
+                        completed
+                    }
+                }
+            }
+        }
+    `
+
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { azureUniqueId } })
+
+    return {
+        loading,
+        evaluations: data?.evaluations,
+        error,
+    }
+}
+
+export const useGetAllEvaluationsQuery = (projectId: string): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
         query($projectId: String!) {
             evaluations(where: { project: { id: { eq: $projectId } } }) {
                 id
                 name
+                progression
+                createDate
+                questions {
+                    id
+                    barrier
+                    answers {
+                        id
+                        severity
+                        progression
+                    }
+                    actions {
+                        id
+                        dueDate
+                        completed
+                    }
+                }
             }
         }
     `
 
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(
-        GET_EVALUATIONS,
-        { variables: { projectId } }
-    )
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId } })
 
     return {
         loading,
@@ -60,11 +123,7 @@ export const useGetAllEvaluationsQuery = (
 }
 
 interface CreateEvaluationMutationProps {
-    createEvaluation: (
-        name: string,
-        projectId: string,
-        previousEvaluationId?: string
-    ) => void
+    createEvaluation: (name: string, projectId: string, previousEvaluationId?: string) => void
     loading: boolean
     evaluation: Evaluation | undefined
     error: ApolloError | undefined
@@ -72,16 +131,8 @@ interface CreateEvaluationMutationProps {
 
 export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
     const ADD_EVALUATION = gql`
-        mutation CreateEvaluation(
-            $name: String!
-            $projectId: String!
-            $previousEvaluationId: String
-        ) {
-            createEvaluation(
-                name: $name
-                projectId: $projectId
-                previousEvaluationId: $previousEvaluationId
-            ) {
+        mutation CreateEvaluation($name: String!, $projectId: String!, $previousEvaluationId: String) {
+            createEvaluation(name: $name, projectId: $projectId, previousEvaluationId: $previousEvaluationId) {
                 ...EvaluationFields
             }
         }
@@ -104,11 +155,7 @@ export const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => 
         },
     })
 
-    const createEvaluation = (
-        name: string,
-        projectId: string,
-        previousEvaluationId?: string
-    ) => {
+    const createEvaluation = (name: string, projectId: string, previousEvaluationId?: string) => {
         createEvaluationApolloFunc({
             variables: { name, projectId, previousEvaluationId },
         })
