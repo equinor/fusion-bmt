@@ -81,10 +81,12 @@ export class EvaluationSeed {
     constructor({ progression, users, fusionProjectId = '123', namePrefix = 'Evaluation' }: EvaluationSeedInput) {
         this.progression = progression
         let participants: Participant[] = []
+
         users.forEach(u => {
             participants.push(this.createParticipant({ user: u, progression: progression }))
         })
         participants.forEach(p => this.addParticipant(p))
+
         this.fusionProjectId = fusionProjectId
         this.name = evaluationName({ prefix: namePrefix })
     }
@@ -176,6 +178,9 @@ export class EvaluationSeed {
 }
 
 const populateDB = (seed: EvaluationSeed) => {
+    if (seed.participants === undefined || seed.participants.length < 1 || seed.participants[0].role !== Role.Facilitator) {
+        throw Error('First participant is not Facilitator')
+    }
     return cy
         .login(seed.participants[0].user)
         .then(() => {
