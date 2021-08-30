@@ -1,6 +1,5 @@
 import { User } from './mock/external/users'
 import { getFusionProjectData, findFusionProjectByID } from './mock/external/projects'
-
 function setupEnvironment() {
     cy.interceptExternal()
     cy.viewport(1800, 1000) //until we decide to test on various resolutions

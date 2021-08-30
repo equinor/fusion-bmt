@@ -1,10 +1,7 @@
-import * as faker from 'faker'
-
 import { Organization, Priority, Progression, Role, Severity } from '../../src/api/models'
 import { User } from './mock/external/users'
-import { EvaluationSeed } from './evaluation_seed'
 
-interface IParticipant {
+export interface IParticipant {
     user: User
     role?: Role
     organization?: Organization
@@ -26,7 +23,7 @@ export class Participant {
     }
 }
 
-interface IAnswer {
+export interface IAnswer {
     questionOrder: number
     answeredBy: Participant
     progression?: Progression
@@ -51,7 +48,7 @@ export class Answer {
     }
 }
 
-type IAction = {
+export type IAction = {
     questionOrder: number
     assignedTo: Participant
     createdBy: Participant
@@ -61,24 +58,6 @@ type IAction = {
     description?: string
     completed?: boolean
     onHold?: boolean
-}
-
-export function createAction(
-    this: EvaluationSeed,
-    {
-        assignedTo = faker.random.arrayElement(this!.participants),
-        createdBy = faker.random.arrayElement(this!.participants),
-        // no access to questions as creation is run before plant. Reconsider?
-        questionOrder = faker.datatype.number({ min: 1, max: 3 }),
-        dueDate = faker.date.future(),
-        title = faker.lorem.sentence(),
-        priority = faker.random.arrayElement(Object.values(Priority)),
-        description = faker.lorem.words(),
-        completed = faker.datatype.boolean(),
-        onHold = faker.datatype.boolean(),
-    }: Partial<IAction>
-) {
-    return new Action({ assignedTo, createdBy, questionOrder, dueDate, title, priority, description, completed, onHold })
 }
 
 export class Action {
