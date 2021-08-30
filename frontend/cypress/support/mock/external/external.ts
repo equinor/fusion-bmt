@@ -79,7 +79,7 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
          * made, we get get unhandled promises errors. Hence for stability
          * purpose we will ignore these promises again.
          */
-        const messageRegex = '> (.+)'
+        const messageRegex = '> (.*)'
         const messageMatch = err.message.match(messageRegex)
 
         if (messageMatch) {
@@ -107,6 +107,12 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
                         return false
                     }
                 }
+            }
+
+            /* Sometimes we get an empty promise due to intercepted requests. */
+            if (message === '') {
+                console.log('Swallowing empty unhandled promise:\n' + err.stack)
+                return false
             }
 
             /* Log remaining unhandled promises as Cypress sometimes doesn't log them fully */
