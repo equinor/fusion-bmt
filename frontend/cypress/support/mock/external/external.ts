@@ -86,7 +86,7 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
             const message = messageMatch[1]
 
             /* It looks like majority of our stability issues fall under this message: */
-            if (message === 'Failed to fetch') {
+            if (message === 'Failed to fetch' || message === 'NetworkError when attempting to fetch resource.') {
                 console.log(`Swallowing unhandled "Failed to fetch" promise:\n\n%c${err.message}\n`, 'padding-left: 30px;')
                 return false
             }
@@ -115,7 +115,10 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
     }
 
     /* thrown sometimes when navigating through stepper, looks to be from fusion */
-    if (err.message.includes("Cannot read property 'removeEventListener' of null")) {
+    if (
+        err.message.includes("Cannot read property 'removeEventListener' of null") ||
+        err.message.includes('can\'t access property "removeEventListener", editorRef.current is null')
+    ) {
         return false
     }
 })
