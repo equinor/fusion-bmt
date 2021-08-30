@@ -48,7 +48,6 @@ Cypress.Commands.add('login', (user: User) => {
             },
         }).then(resp => {
             /* Change to Assertion Function if used more */
-            cy.log('Response ' + resp.headers.location)
             if (typeof resp.headers.location !== 'string') {
                 throw new TypeError(`Expected location to be a string,
                                      but was ${resp.headers.location}`)

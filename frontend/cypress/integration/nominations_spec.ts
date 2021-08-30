@@ -54,6 +54,5 @@ const createDeleteSeed = () => {
     seed.participants[1].role = Role.Facilitator
     const facilitator = seed.participants[0]
     const otherFacilitator = seed.participants[1]
-    seed.addParticipant(facilitator).addParticipant(otherFacilitator)
     return { seed, facilitator, otherFacilitator }
 }
