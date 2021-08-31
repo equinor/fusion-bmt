@@ -138,11 +138,9 @@ function verifyUserManagementCapabilities(
     } else {
         nominationPage.finishNominationButton().should('be.disabled')
     }
-    // Delete button never visible for user itself regardless of role
-    nominationPage.deletePersonDiv(participant.user).should('not.exist')
     allParticipants.forEach(p => {
         if (p === participant) {
-            return
+            nominationPage.deletePersonDiv(participant.user).should('not.exist')
         }
         if (canDeleteUser) {
             nominationPage.deletePersonDiv(p.user).find('button').should('be.enabled')
