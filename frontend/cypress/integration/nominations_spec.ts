@@ -14,7 +14,7 @@ describe('User management', () => {
                 seed = createSeed()
                 seed.plant()
             })
-            ;[
+            const userCapabilities = [
                 {
                     role: Role.Facilitator,
                     addUser: true,
@@ -33,7 +33,9 @@ describe('User management', () => {
                     deleteUser: false,
                     progressEval: false,
                 },
-            ].forEach(e => {
+            ]
+
+            userCapabilities.forEach(e => {
                 it(`${e.role} can delete user = ${e.deleteUser}, add user = ${e.addUser}, progress nomination = ${e.progressEval}`, () => {
                     let p = seed.findRandomParticipant(e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
@@ -77,7 +79,7 @@ describe('User management', () => {
                 seed = createSeed(randomStage)
                 seed.plant()
             })
-            ;[
+            const userCapabilites = [
                 {
                     role: Role.Facilitator,
                     addUser: true,
@@ -96,7 +98,9 @@ describe('User management', () => {
                     deleteUser: false,
                     progressEval: false,
                 },
-            ].forEach(e => {
+            ]
+
+            userCapabilites.forEach(e => {
                 it(`${e.role} can delete user = ${e.deleteUser}, can add user = ${e.addUser}`, () => {
                     let p = seed.findRandomParticipant(e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
