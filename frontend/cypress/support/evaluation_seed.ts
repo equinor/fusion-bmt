@@ -1,7 +1,7 @@
 import { Progression, Question, Role } from '../../src/api/models'
 import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
-import { createParticipant, createAction, findRandomParticipant } from './testdata'
+import { createParticipant, createAction } from './testdata'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
 import * as faker from 'faker'
 import {

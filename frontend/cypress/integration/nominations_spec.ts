@@ -5,6 +5,7 @@ import NominationPage from '../support/nomination'
 import { getUsers } from '../support/mock/external/users'
 import * as faker from 'faker'
 import StepperGrid from '../support/stepper_grid'
+import { EvaluationPage } from '../support/evaluation'
 describe('User management', () => {
     describe('Nomination stage', () => {
         let seed: EvaluationSeed
@@ -84,7 +85,7 @@ describe('User management', () => {
         ])
         context(`User management users at random stage ${randomStage}`, () => {
             const nominationPage = new NominationPage()
-            const stepper_grid = new StepperGrid()
+            const evaluationPage = new EvaluationPage()
             before(() => {
                 seed = createSeed(randomStage)
                 seed.plant()
@@ -120,7 +121,7 @@ describe('User management', () => {
                 it(`${e.role} can delete user = ${e.canDeleteUser}, can add user = ${e.canAddUser}`, () => {
                     let p = findRandomParticipant(seed, e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
-                    stepper_grid.nomination().click()
+                    evaluationPage.progressionStepLink(Progression.Nomination).click()
                     verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
                 })
             })
