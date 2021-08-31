@@ -3,56 +3,164 @@ import { Progression, Role } from '../../src/api/models'
 import { Participant } from '../support/mocks'
 import NominationPage from '../support/nomination'
 import { getUsers } from '../support/mock/external/users'
+import * as faker from 'faker'
+import StepperGrid from '../support/stepper_grid'
 
-describe('Nomination', () => {
-    context('Delete', () => {
+describe('Nomination stage', () => {
+    describe('Adding and deleting users, finishing nomination', () => {
         let seed: EvaluationSeed
-        let facilitator: Participant
-        let otherFacilitator: Participant
-
-        beforeEach(() => {
-            ;({ seed, facilitator, otherFacilitator } = createDeleteSeed())
+        const nominationPage = new NominationPage()
+        before(() => {
+            seed = createSeed()
             seed.plant()
         })
-
-        function visitEvaluation(visitAs: Participant) {
-            cy.visitEvaluation(seed.evaluationId, visitAs.user)
-            cy.contains(facilitator.user.name).should('exist')
-            cy.contains(otherFacilitator.user.name).should('exist')
-        }
-
-        function checkDelete(notPossibleToDelete: Participant, possibleToDelete: Participant) {
-            const nominationPage = new NominationPage()
-            nominationPage.deletePersonDiv(notPossibleToDelete.user).should('not.exist')
-            nominationPage.deletePerson(possibleToDelete.user)
-
-            cy.testCacheAndDB(() => {
-                nominationPage.assertParticipantAbsent(possibleToDelete.user)
+        ;[
+            {
+                role: Role.Facilitator,
+                addUser: true,
+                deleteUser: true,
+                progressEval: true,
+            },
+            {
+                role: Role.OrganizationLead,
+                addUser: true,
+                deleteUser: true,
+                progressEval: false,
+            },
+            {
+                role: Role.Participant,
+                addUser: false,
+                deleteUser: false,
+                progressEval: false,
+            },
+        ].forEach(e => {
+            it(`${e.role} can delete user = ${e.deleteUser}, add user = ${e.addUser}, progress nomination = ${e.progressEval}`, () => {
+                let p = seed.findRandomParticipant(e.role)
+                cy.visitEvaluation(seed.evaluationId, p.user)
+                verifyUserManagementCapabilities(nominationPage, seed.participants, {
+                    participant: p,
+                    addUser: e.addUser,
+                    deleteUser: e.deleteUser,
+                    progressEval: e.progressEval,
+                })
             })
-        }
-
-        it('Facilitator can delete an other facilitator, but not themself', () => {
-            visitEvaluation(facilitator)
-            checkDelete(facilitator, otherFacilitator)
         })
 
-        it('Other facilitator who is not owner can delete owner', () => {
-            visitEvaluation(otherFacilitator)
-            checkDelete(otherFacilitator, facilitator)
-            cy.visitProject(facilitator.user)
-            cy.contains(seed.name).should('not.exist')
+        it('TODO: A participant that is added is part of the evaluation', () => {
+            // To be added
+        })
+
+        it('A participant that is deleted is no longer part of evaluation', () => {
+            const role = faker.random.arrayElement([Role.Facilitator, Role.OrganizationLead])
+            const p = seed.findRandomParticipant(role)
+            cy.visitEvaluation(seed.evaluationId, p.user)
+            const userToDelete = seed.findRandomParticipant(Role.Participant)
+            nominationPage.deletePersonDiv(userToDelete.user).click()
+            cy.visitEvaluation(seed.evaluationId, p.user)
+            nominationPage.assertParticipantPresent(p.user)
+            nominationPage.assertParticipantAbsent(userToDelete.user)
+        })
+
+        it('TODO: When Facilitator progresses evaluation it moves to next stage', () => {
+            // To be added
         })
     })
 })
 
-const createDeleteSeed = () => {
-    let users = getUsers(2)
+describe('After Nomination stage', () => {
+    let randomStage = faker.random.arrayElement([
+        Progression.Workshop,
+        Progression.FollowUp,
+        Progression.Individual,
+        Progression.Preparation,
+    ])
+    //randomStage = Progression.Individual
+    context(`User management users at random stage ${randomStage}`, () => {
+        let seed: EvaluationSeed
+        const nominationPage = new NominationPage()
+        const stepper_grid = new StepperGrid()
+        before(() => {
+            seed = createSeed(randomStage)
+            seed.plant()
+        })
+        ;[
+            {
+                role: Role.Facilitator,
+                addUser: true,
+                deleteUser: false,
+                progressEval: false,
+            },
+            {
+                role: Role.OrganizationLead,
+                addUser: true,
+                deleteUser: false,
+                progressEval: false,
+            },
+            {
+                role: Role.Participant,
+                addUser: false,
+                deleteUser: false,
+                progressEval: false,
+            },
+        ].forEach(e => {
+            it(`${e.role} delete user = ${e.deleteUser}, can add user = ${e.addUser}`, () => {
+                let p = seed.findRandomParticipant(e.role)
+                cy.visitEvaluation(seed.evaluationId, p.user)
+                stepper_grid.nomination().click()
+                verifyUserManagementCapabilities(nominationPage, seed.participants, {
+                    participant: p,
+                    addUser: e.addUser,
+                    deleteUser: e.deleteUser,
+                    progressEval: e.progressEval,
+                })
+            })
+        })
+    })
+})
+
+function createSeed(progression: Progression = Progression.Nomination) {
+    let users = getUsers(4)
     const seed = new EvaluationSeed({
-        progression: Progression.Nomination,
-        users: users,
+        progression: progression,
+        users,
     })
     seed.participants[1].role = Role.Facilitator
-    const facilitator = seed.participants[0]
-    const otherFacilitator = seed.participants[1]
-    return { seed, facilitator, otherFacilitator }
+    seed.participants[2].role = Role.Participant
+    seed.participants[3].role = Role.OrganizationLead
+    return seed
+}
+
+interface IVerifyUserManagementCapabilities {
+    participant: Participant
+    addUser: boolean
+    deleteUser: boolean
+    progressEval: boolean
+}
+function verifyUserManagementCapabilities(
+    nominationPage: NominationPage,
+    allParticipants: Participant[],
+    { participant, addUser, deleteUser, progressEval }: IVerifyUserManagementCapabilities
+) {
+    if (addUser) {
+        nominationPage.addPersonButton().should('be.enabled')
+    } else {
+        nominationPage.addPersonButton().should('be.disabled')
+    }
+    if (progressEval) {
+        nominationPage.finishNominationButton().should('be.enabled')
+    } else {
+        nominationPage.finishNominationButton().should('be.disabled')
+    }
+    // Delete button never visible for user itself regardless of role
+    nominationPage.deletePersonDiv(participant.user).should('not.exist')
+    allParticipants.forEach(p => {
+        if (p === participant) {
+            return
+        }
+        if (deleteUser) {
+            nominationPage.deletePersonDiv(p.user).find('button').should('be.enabled')
+        } else {
+            nominationPage.deletePersonDiv(p.user).find('button').should('be.disabled')
+        }
+    })
 }
