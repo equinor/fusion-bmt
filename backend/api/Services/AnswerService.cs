@@ -91,8 +91,7 @@ namespace api.Services
 
         public Answer UpdateAnswer(Answer answer,
                                    Severity severity,
-                                   string text,
-                                   Participant author)
+                                   string text)
         {
             if (answer == null)
             {
@@ -101,7 +100,6 @@ namespace api.Services
 
             answer.Severity = severity;
             answer.Text = text;
-            answer.AnsweredBy = author;
 
             _context.Answers.Update(answer);
             _context.SaveChanges();
