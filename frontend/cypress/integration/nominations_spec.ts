@@ -37,12 +37,7 @@ describe('User management', () => {
                 it(`${e.role} can delete user = ${e.deleteUser}, add user = ${e.addUser}, progress nomination = ${e.progressEval}`, () => {
                     let p = seed.findRandomParticipant(e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
-                    verifyUserManagementCapabilities(nominationPage, seed.participants, {
-                        participant: p,
-                        addUser: e.addUser,
-                        deleteUser: e.deleteUser,
-                        progressEval: e.progressEval,
-                    })
+                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.addUser, e.deleteUser, e.progressEval)
                 })
             })
 
@@ -106,12 +101,7 @@ describe('User management', () => {
                     let p = seed.findRandomParticipant(e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
                     stepper_grid.nomination().click()
-                    verifyUserManagementCapabilities(nominationPage, seed.participants, {
-                        participant: p,
-                        addUser: e.addUser,
-                        deleteUser: e.deleteUser,
-                        progressEval: e.progressEval,
-                    })
+                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.addUser, e.deleteUser, e.progressEval)
                 })
             })
         })
@@ -130,23 +120,20 @@ function createSeed(progression: Progression = Progression.Nomination) {
     return seed
 }
 
-interface IVerifyUserManagementCapabilities {
-    participant: Participant
-    addUser: boolean
-    deleteUser: boolean
-    progressEval: boolean
-}
 function verifyUserManagementCapabilities(
     nominationPage: NominationPage,
     allParticipants: Participant[],
-    { participant, addUser, deleteUser, progressEval }: IVerifyUserManagementCapabilities
+    participant: Participant,
+    canAddUser: boolean,
+    canDeleteUser: boolean,
+    canProgressEval: boolean
 ) {
-    if (addUser) {
+    if (canAddUser) {
         nominationPage.addPersonButton().should('be.enabled')
     } else {
         nominationPage.addPersonButton().should('be.disabled')
     }
-    if (progressEval) {
+    if (canProgressEval) {
         nominationPage.finishNominationButton().should('be.enabled')
     } else {
         nominationPage.finishNominationButton().should('be.disabled')
@@ -157,7 +144,7 @@ function verifyUserManagementCapabilities(
         if (p === participant) {
             return
         }
-        if (deleteUser) {
+        if (canDeleteUser) {
             nominationPage.deletePersonDiv(p.user).find('button').should('be.enabled')
         } else {
             nominationPage.deletePersonDiv(p.user).find('button').should('be.disabled')
