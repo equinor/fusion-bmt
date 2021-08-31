@@ -3,6 +3,7 @@ import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
 import { createParticipant, createAction } from './testdata'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
+import * as faker from 'faker'
 import {
     GET_PROJECT,
     ADD_EVALUATION,
@@ -130,6 +131,17 @@ export class EvaluationSeed {
             throw new RangeError('No such question')
         }
         return question.id
+    }
+
+    findRandomParticipant(role: Role): Participant {
+        let participants: Participant[] = []
+        this.participants.forEach(x => {
+            if (x.role === role) {
+                participants.push(x)
+            }
+        })
+        const participant = faker.random.arrayElement(participants)
+        return participant
     }
 
     /** Plant the seed
