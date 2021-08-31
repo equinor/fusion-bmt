@@ -17,29 +17,29 @@ describe('User management', () => {
             const userCapabilities = [
                 {
                     role: Role.Facilitator,
-                    addUser: true,
-                    deleteUser: true,
-                    progressEval: true,
+                    canAddUser: true,
+                    canDeleteUser: true,
+                    canProgressEval: true,
                 },
                 {
                     role: Role.OrganizationLead,
-                    addUser: true,
-                    deleteUser: true,
-                    progressEval: false,
+                    canAddUser: true,
+                    canDeleteUser: true,
+                    canProgressEval: false,
                 },
                 {
                     role: Role.Participant,
-                    addUser: false,
-                    deleteUser: false,
-                    progressEval: false,
+                    canAddUser: false,
+                    canDeleteUser: false,
+                    canProgressEval: false,
                 },
             ]
 
             userCapabilities.forEach(e => {
-                it(`${e.role} can delete user = ${e.deleteUser}, add user = ${e.addUser}, progress nomination = ${e.progressEval}`, () => {
+                it(`${e.role} can delete user = ${e.canDeleteUser}, add user = ${e.canAddUser}, progress nomination = ${e.canProgressEval}`, () => {
                     let p = seed.findRandomParticipant(e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
-                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.addUser, e.deleteUser, e.progressEval)
+                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
                 })
             })
 
@@ -82,30 +82,30 @@ describe('User management', () => {
             const userCapabilites = [
                 {
                     role: Role.Facilitator,
-                    addUser: true,
-                    deleteUser: false,
-                    progressEval: false,
+                    canAddUser: true,
+                    canDeleteUser: false,
+                    canProgressEval: false,
                 },
                 {
                     role: Role.OrganizationLead,
-                    addUser: true,
-                    deleteUser: false,
-                    progressEval: false,
+                    canAddUser: true,
+                    canDeleteUser: false,
+                    canProgressEval: false,
                 },
                 {
                     role: Role.Participant,
-                    addUser: false,
-                    deleteUser: false,
-                    progressEval: false,
+                    canAddUser: false,
+                    canDeleteUser: false,
+                    canProgressEval: false,
                 },
             ]
 
             userCapabilites.forEach(e => {
-                it(`${e.role} can delete user = ${e.deleteUser}, can add user = ${e.addUser}`, () => {
+                it(`${e.role} can delete user = ${e.canDeleteUser}, can add user = ${e.canAddUser}`, () => {
                     let p = seed.findRandomParticipant(e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
                     stepper_grid.nomination().click()
-                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.addUser, e.deleteUser, e.progressEval)
+                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
                 })
             })
         })
