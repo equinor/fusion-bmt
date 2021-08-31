@@ -133,7 +133,6 @@ export class EvaluationSeed {
         return question.id
     }
 
-    public findRandomParticipant = findRandomParticipant
     /** Plant the seed
      *
      * After setting up a valid seed (state) for an Evaluation, we need to feed

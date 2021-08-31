@@ -33,11 +33,3 @@ export function createAction(
 ) {
     return new Action({ assignedTo, createdBy, questionOrder, dueDate, title, priority, description, completed, onHold })
 }
-
-export function findRandomParticipant(this: EvaluationSeed, role: Role): Participant {
-    let participants: Participant[] = this.participants.filter(x => {
-        return x.role === role
-    })
-    const participant = faker.random.arrayElement(participants)
-    return participant
-}

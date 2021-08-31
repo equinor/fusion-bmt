@@ -43,7 +43,7 @@ describe('User management', () => {
 
             userCapabilities.forEach(e => {
                 it(`${e.role} can delete user = ${e.canDeleteUser}, add user = ${e.canAddUser}, progress nomination = ${e.canProgressEval}`, () => {
-                    let p = seed.findRandomParticipant(e.role)
+                    let p = findRandomParticipant(seed, e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
                     verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
                 })
@@ -55,9 +55,9 @@ describe('User management', () => {
 
             it('A participant that is deleted is no longer part of evaluation', () => {
                 const role = faker.random.arrayElement([Role.Facilitator, Role.OrganizationLead])
-                const p = seed.findRandomParticipant(role)
+                const p = findRandomParticipant(seed, role)
                 cy.visitEvaluation(seed.evaluationId, p.user)
-                const userToDelete = seed.findRandomParticipant(Role.Participant)
+                const userToDelete = findRandomParticipant(seed, Role.Participant)
                 nominationPage.deletePersonDiv(userToDelete.user).click()
                 cy.visitEvaluation(seed.evaluationId, p.user)
                 nominationPage.assertParticipantPresent(p.user)
@@ -118,7 +118,7 @@ describe('User management', () => {
 
             userCapabilites.forEach(e => {
                 it(`${e.role} can delete user = ${e.canDeleteUser}, can add user = ${e.canAddUser}`, () => {
-                    let p = seed.findRandomParticipant(e.role)
+                    let p = findRandomParticipant(seed, e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user)
                     stepper_grid.nomination().click()
                     verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
@@ -139,6 +139,14 @@ function createSeed(progression: Progression = Progression.Nomination) {
     seed.participants[3].role = Role.OrganizationLead
     seed.participants[4].role = Role.ReadOnly
     return seed
+}
+
+function findRandomParticipant(seed: EvaluationSeed, role: Role): Participant {
+    let participants: Participant[] = seed.participants.filter(x => {
+        return x.role === role
+    })
+    const participant = faker.random.arrayElement(participants)
+    return participant
 }
 
 function verifyUserManagementCapabilities(
