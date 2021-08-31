@@ -1,7 +1,7 @@
 import { Progression, Question, Role } from '../../src/api/models'
 import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
-import { createParticipant, createAction } from './testdata'
+import { createParticipant, createAction, findRandomParticipant } from './testdata'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
 import * as faker from 'faker'
 import {
@@ -133,17 +133,7 @@ export class EvaluationSeed {
         return question.id
     }
 
-    findRandomParticipant(role: Role): Participant {
-        let participants: Participant[] = []
-        this.participants.forEach(x => {
-            if (x.role === role) {
-                participants.push(x)
-            }
-        })
-        const participant = faker.random.arrayElement(participants)
-        return participant
-    }
-
+    public findRandomParticipant = findRandomParticipant
     /** Plant the seed
      *
      * After setting up a valid seed (state) for an Evaluation, we need to feed

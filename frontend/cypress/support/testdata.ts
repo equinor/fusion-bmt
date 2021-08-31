@@ -33,3 +33,14 @@ export function createAction(
 ) {
     return new Action({ assignedTo, createdBy, questionOrder, dueDate, title, priority, description, completed, onHold })
 }
+
+export function findRandomParticipant(this: EvaluationSeed, role: Role): Participant {
+    let participants: Participant[] = []
+    this.participants.forEach(x => {
+        if (x.role === role) {
+            participants.push(x)
+        }
+    })
+    const participant = faker.random.arrayElement(participants)
+    return participant
+}
