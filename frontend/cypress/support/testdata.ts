@@ -35,11 +35,8 @@ export function createAction(
 }
 
 export function findRandomParticipant(this: EvaluationSeed, role: Role): Participant {
-    let participants: Participant[] = []
-    this.participants.forEach(x => {
-        if (x.role === role) {
-            participants.push(x)
-        }
+    let participants: Participant[] = this.participants.filter(x => {
+        return x.role === role
     })
     const participant = faker.random.arrayElement(participants)
     return participant
