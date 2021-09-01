@@ -10,7 +10,7 @@ import { DELETE_ACTION } from '../support/gql'
 import * as faker from 'faker'
 import { getUsers, User } from '../support/mock/external/users'
 
-describe('Actions', () => {
+describe('Actions management', () => {
     const evaluationPage = new EvaluationPage()
     const actionsGrid = new ActionsGrid()
     const actionsTab = new ActionsTab()
@@ -20,21 +20,20 @@ describe('Actions', () => {
     const editActionDialog = new EditActionDialog()
     const dropdownSelect = new DropdownSelect()
 
-    context('Create', () => {
+    describe('Creating and Editing Actions', () => {
         let seed: EvaluationSeed
-        let actionTestData: Action
-        const createActionFrom = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
         const users = getUsers(faker.datatype.number({ min: 3, max: 4 }))
 
-        beforeEach(() => {
-            ;({ seed } = createCreateSeed(users))
+        before(() => {
+            seed = createSeedWithActions(users)
             seed.plant()
         })
         it.only('Action can be created', () => {
             const creator = faker.random.arrayElement(users)
             cy.visitEvaluation(seed.evaluationId, creator)
+            const createActionFrom = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
             evaluationPage.progressionStepLink(createActionFrom).click()
-            actionTestData = createActionTestData(users)
+            let actionTestData = createActionTestData(users)
             actionsGrid.addActionButton(actionTestData.questionOrder).click()
             createActionDialog.titleInput().type(actionTestData.title)
             createActionDialog.assignedToInput().click()
@@ -67,30 +66,16 @@ describe('Actions', () => {
                 }
             )
         })
-    })
 
-    context('Edit', () => {
-        let seed: EvaluationSeed
-        let editor: User
-
-        let existingAction: Action
-        let existingNotes: Note[]
         let notesOfSomeAction: Note[]
         let someAction: Action
         let updatedAction: Action
         let newNotes: Note[]
-        const users = getUsers(faker.datatype.number({ min: 3, max: 4 }))
-        const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
-
-        beforeEach(() => {
-            ;({ seed, existingAction, existingNotes } = createEditSeedWithActions(users))
-
-            seed.plant()
-        })
 
         it.only('Action can be edited', () => {
             let user = faker.random.arrayElement(users)
             cy.visitEvaluation(seed.evaluationId, user)
+            const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
             evaluationPage.progressionStepLink(actionProgression).click()
             ;({ notesOfSomeAction, someAction } = findActionWithNotes(seed))
             actionsGrid.actionLink(someAction.questionOrder, someAction.title).click()
@@ -113,7 +98,7 @@ describe('Actions', () => {
             cy.testCacheAndDB(() => {
                 evaluationPage.progressionStepLink(actionProgression).click()
                 actionsGrid.actionLink(someAction.questionOrder, updatedAction.title).click()
-                editActionDialog.assertActionValues(updatedAction, existingNotes.concat(newNotes))
+                editActionDialog.assertActionValues(updatedAction, notesOfSomeAction.concat(newNotes))
             })
         })
     })
@@ -245,22 +230,6 @@ describe('Actions', () => {
     })
 })
 
-const createCreateSeed = (users: User[]) => {
-    const progression = faker.random.arrayElement(Object.values(Progression))
-    const seed = new EvaluationSeed({
-        progression: progression,
-        users: users,
-    })
-
-    const existingActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 3 }) }, () => {
-        return seed.createAction({})
-    })
-
-    existingActions.forEach(a => seed.addAction(a))
-
-    return { seed }
-}
-
 const findActionWithNotes = (seed: EvaluationSeed) => {
     const note = faker.random.arrayElement(seed.notes)
     const notesOfSomeAction = seed.notes.filter(x => {
@@ -270,7 +239,7 @@ const findActionWithNotes = (seed: EvaluationSeed) => {
     return { notesOfSomeAction, someAction }
 }
 
-const createEditSeedWithActions = (users: User[]) => {
+const createSeedWithActions = (users: User[]) => {
     const seed = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
         users: users,
@@ -293,7 +262,7 @@ const createEditSeedWithActions = (users: User[]) => {
     faker.helpers.shuffle([existingAction, ...otherActions]).forEach(a => seed.addAction(a))
     existingNotes.forEach(n => seed.addNote(n))
 
-    return { seed, existingAction, existingNotes }
+    return seed
 }
 
 const createDeleteSeed = () => {

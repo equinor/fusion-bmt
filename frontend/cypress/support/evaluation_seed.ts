@@ -3,7 +3,6 @@ import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
 import { createParticipant, createAction } from './testdata'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
-import * as faker from 'faker'
 import {
     GET_PROJECT,
     ADD_EVALUATION,
