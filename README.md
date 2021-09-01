@@ -228,7 +228,7 @@ before performing this.
 -   [prod radix](https://fusion-bmt.app.radix.equinor.com/)
 -   [prod fusion](https://fusion.equinor.com/apps/bmt)
 
-## Model overview
+### Model overview
 
 ![alt text](docs/model.png?raw=true "Simple domain model diagram")
 
