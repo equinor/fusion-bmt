@@ -162,7 +162,7 @@ namespace api.GQL
             try
             {
                 answer = _answerService.GetAnswer(question, currentUser, progression);
-                _answerService.UpdateAnswer(answer, severity, text, currentUser);
+                _answerService.UpdateAnswer(answer, severity, text);
             }
             catch (NotFoundInDBException)
             {
