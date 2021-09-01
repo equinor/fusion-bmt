@@ -41,6 +41,16 @@ namespace tests
             return RandomEnumValue<Organization>();
         }
 
+        public static Progression Progression()
+        {
+            return RandomEnumValue<Progression>();
+        }
+
+        public static Severity Severity()
+        {
+            return RandomEnumValue<Severity>();
+        }
+
         private static T RandomEnumValue<T>()
         {
             Array values = Enum.GetValues(typeof(T));

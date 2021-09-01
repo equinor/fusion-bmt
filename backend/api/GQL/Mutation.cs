@@ -165,6 +165,10 @@ namespace api.GQL
             IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
             Question question = queryableQuestion.First();
             Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             Participant currentUser = CurrentUser(evaluation);
             Answer answer;
             try

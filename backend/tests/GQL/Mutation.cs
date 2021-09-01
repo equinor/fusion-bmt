@@ -112,6 +112,28 @@ namespace tests
             return participant;
         }
 
+        protected Answer SetAnswer(
+            string questionId,
+            Severity? severity = null,
+            string text = null,
+            Progression? progression = null)
+        {
+
+            if (text == null)
+            {
+                text = Randomize.String();
+            }
+
+            Answer answer= _mutation.SetAnswer(
+                    questionId: questionId,
+                    severity: severity.GetValueOrDefault(Randomize.Severity()),
+                    text: text,
+                    progression: progression.GetValueOrDefault(Randomize.Progression())
+            );
+
+            return answer;
+        }
+
         /* Helper methods */
 
         protected int NumberOfParticipants(Evaluation evaluation)
@@ -123,6 +145,26 @@ namespace tests
             ;
 
             return participants;
+        }
+
+        protected int NumberOfAnswers(Question question)
+        {
+            int answers = _answerService
+                .GetAll()
+                .Where(a => a.Question == question)
+                .Count()
+            ;
+
+            return answers;
+        }
+
+        protected Question GetFirstQuestion(Evaluation evaluation)
+        {
+            return _questionService
+                .GetAll()
+                .Where(q => q.Evaluation.Id == evaluation.Id)
+                .First()
+            ;
         }
     }
 }
