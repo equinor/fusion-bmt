@@ -112,6 +112,10 @@ namespace api.GQL
         public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization, Role role)
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             return _participantService.Create(azureUniqueId, evaluation, organization, role);
         }
 

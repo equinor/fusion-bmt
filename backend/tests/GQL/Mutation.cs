@@ -59,5 +59,70 @@ namespace tests
 
             _project = _projectService.Create("Project");
         }
+
+        /* Mutation wrappers with default values */
+
+        protected Evaluation CreateEvaluation(
+            string name = null,
+            string projectId = null,
+            string previousEvaluationId = null)
+        {
+            if (name == null)
+            {
+                name = Randomize.String();
+            }
+
+            if (projectId == null)
+            {
+                projectId = _project.Id;
+            }
+
+            if (previousEvaluationId == null)
+            {
+                previousEvaluationId = "";
+            }
+
+            Evaluation evaluation =  _mutation.CreateEvaluation(
+                name: name,
+                projectId: projectId,
+                previousEvaluationId:  previousEvaluationId
+            );
+
+            return evaluation;
+        }
+
+        protected Participant CreateParticipant(
+            Evaluation evaluation,
+            string azureUniqueId = null,
+            Organization? organization = null,
+            Role? role = null)
+        {
+            if (azureUniqueId == null)
+            {
+                azureUniqueId = Randomize.Integer().ToString();
+            }
+
+            Participant participant = _mutation.CreateParticipant(
+                azureUniqueId: azureUniqueId,
+                evaluationId: evaluation.Id,
+                organization: organization.GetValueOrDefault(Randomize.Organization()),
+                role: role.GetValueOrDefault(Randomize.Role())
+            );
+
+            return participant;
+        }
+
+        /* Helper methods */
+
+        protected int NumberOfParticipants(Evaluation evaluation)
+        {
+            int participants = _participantService
+                .GetAll()
+                .Where(p => p.Evaluation == evaluation)
+                .Count()
+            ;
+
+            return participants;
+        }
     }
 }
