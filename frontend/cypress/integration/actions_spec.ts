@@ -25,6 +25,7 @@ describe('Actions', () => {
         let actionTestData: Action
         const createActionFrom = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
         const users = getUsers(faker.datatype.number({ min: 3, max: 4 }))
+
         beforeEach(() => {
             ;({ seed } = createCreateSeed(users))
             const creator = faker.random.arrayElement(users)
@@ -35,7 +36,7 @@ describe('Actions', () => {
                 evaluationPage.progressionStepLink(createActionFrom).click()
             })
         })
-        it.only('Action can be created', () => {
+        it('Action can be created', () => {
             //actionTestData = createCreateTestData()
             actionsGrid.addActionButton(actionTestData.questionOrder).click()
             createActionDialog.titleInput().type(actionTestData.title)
@@ -73,29 +74,33 @@ describe('Actions', () => {
 
     context('Edit', () => {
         let seed: EvaluationSeed
-        let editor: Participant
+        let editor: User
 
         let existingAction: Action
         let existingNotes: Note[]
+        let notesOfSomeAction: Note[]
+        let someAction: Action
+        //notesOfSomeAction, someAction
         let updatedAction: Action
         let newNotes: Note[]
-
+        const users = getUsers(faker.datatype.number({ min: 3, max: 4 }))
         const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
 
         beforeEach(() => {
-            ;({ seed, existingAction, existingNotes } = createEditSeed())
-            editor = faker.random.arrayElement(seed.participants)
-            ;({ updatedAction, newNotes } = createEditTestData(seed, editor, existingAction))
-
+            ;({ seed, existingAction, existingNotes } = createEditSeedWithActions(users))
+            editor = faker.random.arrayElement(users)
+            ;({ updatedAction, newNotes } = createEditTestData(seed, new Participant({ user: editor }), existingAction))
+            //;({ notesOfSomeAction, someAction } = findActionWithNotes(seed))
             seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, editor.user)
+                cy.visitEvaluation(seed.evaluationId, editor)
                 evaluationPage.progressionStepLink(actionProgression).click()
             })
         })
 
-        it('Action can be edited', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
-            editActionDialog.assertActionValues(existingAction, existingNotes)
+        it.only('Action can be edited', () => {
+            ;({ notesOfSomeAction, someAction } = findActionWithNotes(seed))
+            actionsGrid.actionLink(someAction.questionOrder, someAction.title).click()
+            editActionDialog.assertActionValues(someAction, notesOfSomeAction)
 
             editActionDialog.titleInput().replace(updatedAction.title)
             dropdownSelect.select(editActionDialog.assignedToInput(), updatedAction.assignedTo.user.name)
@@ -113,7 +118,7 @@ describe('Actions', () => {
             editActionDialog.close()
             cy.testCacheAndDB(() => {
                 evaluationPage.progressionStepLink(actionProgression).click()
-                actionsGrid.actionLink(existingAction.questionOrder, updatedAction.title).click()
+                actionsGrid.actionLink(someAction.questionOrder, updatedAction.title).click()
                 editActionDialog.assertActionValues(updatedAction, existingNotes.concat(newNotes))
             })
         })
@@ -262,10 +267,19 @@ const createCreateSeed = (users: User[]) => {
     return { seed }
 }
 
-const createEditSeed = () => {
+const findActionWithNotes = (seed: EvaluationSeed) => {
+    const note = faker.random.arrayElement(seed.notes)
+    const notesOfSomeAction = seed.notes.filter(x => {
+        return (x.action.id = note.action.id)
+    })
+    const someAction = seed.actions.find(x => x.id === note.action.id)!
+    return { notesOfSomeAction, someAction }
+}
+
+const createEditSeedWithActions = (users: User[]) => {
     const seed = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
-        users: getUsers(faker.datatype.number({ min: 1, max: 4 })),
+        users: users,
     })
 
     const existingAction = seed.createAction({
@@ -279,7 +293,7 @@ const createEditSeed = () => {
         })
     })
 
-    const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 2 }) }, () => {
+    const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 2, max: 4 }) }, () => {
         return seed.createAction({})
     })
     faker.helpers.shuffle([existingAction, ...otherActions]).forEach(a => seed.addAction(a))
