@@ -5,6 +5,7 @@ using Microsoft.Data.Sqlite;
 
 using api.Authorization;
 using api.Context;
+using api.Models;
 
 namespace tests
 {
@@ -39,7 +40,7 @@ namespace tests
         {
             return "1";
         }
-        public void AssertIsFacilitator(string evaluationId)
+        public void AssertCanPerformMutation(Evaluation evaluation, Role[] allowdRoles)
         {
             // Do nothing
         }

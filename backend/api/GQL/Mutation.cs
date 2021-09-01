@@ -69,8 +69,10 @@ namespace api.GQL
 
         public Evaluation ProgressEvaluation(string evaluationId, Progression newProgression)
         {
-            _authService.AssertIsFacilitator(evaluationId);
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            Role[] canBePerformedBy = { Role.Facilitator };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             _evaluationService.ProgressEvaluation(evaluation, newProgression);
 
@@ -87,8 +89,10 @@ namespace api.GQL
 
         public Evaluation SetSummary(string evaluationId, string summary)
         {
-            _authService.AssertIsFacilitator(evaluationId);
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            Role[] canBePerformedBy = { Role.Facilitator };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             _evaluationService.SetSummary(evaluation, summary);
             return evaluation;
@@ -231,6 +235,26 @@ namespace api.GQL
         {
             string azureUniqueId = _authService.GetOID();
             return _participantService.GetParticipant(azureUniqueId, evaluation);
+        }
+
+        private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles) {
+            string oid = _authService.GetOID();
+            Role userRoleInEvaluation;
+
+            try
+            {
+                userRoleInEvaluation = _participantService.GetParticipant(oid, evaluation).Role;
+            }
+            catch(NotFoundInDBException) {
+                string msg = "Non-participants cannot perform mutations on Evaluation";
+                throw new UnauthorizedAccessException(msg);
+            }
+
+            if (!validRoles.Contains(userRoleInEvaluation))
+            {
+                string msg = "{0} are not allowed to perform this operation";
+                throw new UnauthorizedAccessException(String.Format(msg, userRoleInEvaluation));
+            };
         }
     }
 }

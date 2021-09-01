@@ -67,7 +67,7 @@ namespace tests
         {
             Project project = _projectService.Create("ProgressEvaluationToFollowup");
             Evaluation evaluation = _evaluationService.Create("ProgressEvaluationToFollowup", project, "");
-            Participant participant = _participantService.Create("ProgressEvaluationToFollowup", evaluation, Organization.All, Role.Facilitator);
+            Participant participant = _participantService.Create("1", evaluation, Organization.All, Role.Facilitator);
 
             List<Question> questions = _questionService.CreateBulk(_questionTemplateService.GetAll().ToList(), evaluation);
             _answerService.Create(participant, questions[0], Severity.High, "test_answer_0", Progression.Workshop);
