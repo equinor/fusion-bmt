@@ -238,12 +238,6 @@ namespace api.GQL
             return _noteService.Create(CurrentUser(evaluation), text, action);
         }
 
-        public Note EditNote(string noteId, string text)
-        {
-            Note note = _noteService.GetNote(noteId);
-            return _noteService.EditNote(note, text);
-        }
-
         public ClosingRemark CreateClosingRemark(string actionId, string text)
         {
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);

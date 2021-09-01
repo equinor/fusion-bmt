@@ -327,7 +327,6 @@ export type Mutation = {
   editAction?: Maybe<Action>;
   deleteAction?: Maybe<Action>;
   createNote?: Maybe<Note>;
-  editNote?: Maybe<Note>;
   createClosingRemark?: Maybe<ClosingRemark>;
 };
 
@@ -431,12 +430,6 @@ export type MutationDeleteActionArgs = {
 
 export type MutationCreateNoteArgs = {
   actionId?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationEditNoteArgs = {
-  noteId?: Maybe<Scalars['String']>;
   text?: Maybe<Scalars['String']>;
 };
 
