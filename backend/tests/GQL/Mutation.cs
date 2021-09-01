@@ -199,6 +199,11 @@ namespace tests
             return action;
         }
 
+        protected void DeleteAction(string actionId)
+        {
+            _mutation.DeleteAction(actionId);
+        }
+
         /* Helper methods */
 
         protected int NumberOfParticipants(Evaluation evaluation)

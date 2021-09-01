@@ -217,6 +217,10 @@ namespace api.GQL
             /* Note that no related fields are loaded */
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
             Action action = queryableAction.First();
+            Evaluation evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
+
+            Role[] canBePerformedBy = { Role.Facilitator };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
              _actionService.Remove(action);
              return action;
