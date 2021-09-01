@@ -15,8 +15,8 @@ export const Wrapper = styled.div<{ isDense: boolean }>`
     margin-bottom: ${props => (props.isDense ? '0' : '30px')};
     display: flex;
     flex-direction: column;
-    width: 360px;
-    height: 100px;
+    width: ${props => (props.isDense ? '360px' : '')};
+    height: ${props => (props.isDense ? '100px' : '')};
 `
 
 export const BowtieComponent = styled.div<{ isDense: boolean }>`
