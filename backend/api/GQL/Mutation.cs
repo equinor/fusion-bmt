@@ -232,6 +232,9 @@ namespace api.GQL
             Action action = queryableAction.First();
             Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
 
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             return _noteService.Create(CurrentUser(evaluation), text, action);
         }
 

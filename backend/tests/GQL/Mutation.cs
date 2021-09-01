@@ -204,6 +204,24 @@ namespace tests
             _mutation.DeleteAction(actionId);
         }
 
+        protected Note CreateNote(
+            string actionId,
+            string text = null)
+        {
+
+            if (text == null)
+            {
+                text = Randomize.String();
+            }
+
+            Note note = _mutation.CreateNote(
+                actionId: actionId,
+                text: text
+            );
+
+            return note;
+        }
+
         /* Helper methods */
 
         protected int NumberOfParticipants(Evaluation evaluation)
@@ -237,6 +255,17 @@ namespace tests
             ;
 
             return actions;
+        }
+
+        protected int NumberOfNotes(Action action)
+        {
+            int notes = _noteService
+                .GetAll()
+                .Where(a => a.Action == action)
+                .Count()
+            ;
+
+            return notes;
         }
 
         protected Question GetFirstQuestion(Evaluation evaluation)
