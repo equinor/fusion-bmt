@@ -8,7 +8,7 @@ import { EvaluationPage, QuestionnaireSidePanel } from '../support/evaluation'
 import { ConfirmationDialog, DropdownSelect } from '../support/common'
 import { DELETE_ACTION } from '../support/gql'
 import * as faker from 'faker'
-import { getUsers } from '../support/mock/external/users'
+import { getUsers, User } from '../support/mock/external/users'
 
 describe('Actions', () => {
     const evaluationPage = new EvaluationPage()
@@ -22,50 +22,50 @@ describe('Actions', () => {
 
     context('Create', () => {
         let seed: EvaluationSeed
-        let action: Action
+        let actionTestData: Action
         const createActionFrom = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
-
+        const users = getUsers(faker.datatype.number({ min: 3, max: 4 }))
         beforeEach(() => {
-            ;({ seed } = createCreateSeed())
-            const creator = faker.random.arrayElement(seed.participants)
-            ;({ action } = createCreateTestData(seed, creator))
+            ;({ seed } = createCreateSeed(users))
+            const creator = faker.random.arrayElement(users)
+            actionTestData = createCreateTestData(users)
 
             seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, creator.user)
+                cy.visitEvaluation(seed.evaluationId, creator)
                 evaluationPage.progressionStepLink(createActionFrom).click()
             })
         })
-
-        it('Action can be created', () => {
-            actionsGrid.addActionButton(action.questionOrder).click()
-            createActionDialog.titleInput().type(action.title)
+        it.only('Action can be created', () => {
+            //actionTestData = createCreateTestData()
+            actionsGrid.addActionButton(actionTestData.questionOrder).click()
+            createActionDialog.titleInput().type(actionTestData.title)
             createActionDialog.assignedToInput().click()
             dropdownSelect.assertSelectValues(
                 seed.participants.map(p => {
                     return p.user.name
                 })
             )
-            dropdownSelect.select(createActionDialog.assignedToInput(), action.assignedTo.user.name)
-            createActionDialog.dueDateInput().replace(action.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
+            dropdownSelect.select(createActionDialog.assignedToInput(), actionTestData.assignedTo.user.name)
+            createActionDialog.dueDateInput().replace(actionTestData.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
             createActionDialog.priorityInput().click()
             dropdownSelect.assertSelectValues(
                 Object.values(Priority).map(p => {
                     return mapPriority(p)
                 })
             )
-            dropdownSelect.select(createActionDialog.priorityInput(), mapPriority(action.priority))
+            dropdownSelect.select(createActionDialog.priorityInput(), mapPriority(actionTestData.priority))
             createActionDialog.body().contains(`Connected to ${seed.name}`).should('exist')
-            createActionDialog.descriptionInput().type(action.description)
+            createActionDialog.descriptionInput().type(actionTestData.description)
 
             createActionDialog.createButton().click()
             cy.testCacheAndDB(
                 () => {
                     createActionDialog.body().should('not.exist')
-                    actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
+                    actionsGrid.actionLink(actionTestData.questionOrder, actionTestData.title).should('exist')
                 },
                 () => {
                     evaluationPage.progressionStepLink(createActionFrom).click()
-                    actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
+                    actionsGrid.actionLink(actionTestData.questionOrder, actionTestData.title).should('exist')
                 }
             )
         })
@@ -246,11 +246,11 @@ describe('Actions', () => {
     })
 })
 
-const createCreateSeed = () => {
+const createCreateSeed = (users: User[]) => {
     const progression = faker.random.arrayElement(Object.values(Progression))
     const seed = new EvaluationSeed({
         progression: progression,
-        users: getUsers(faker.datatype.number({ min: 1, max: 4 })),
+        users: users,
     })
 
     const existingActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 3 }) }, () => {
@@ -323,17 +323,19 @@ const createViewSeed = () => {
     return { seed, actions }
 }
 
-const createCreateTestData = (seed: EvaluationSeed, creator: Participant) => {
+const createCreateTestData = (users: User[]) => {
+    const assignedToParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
+    const createdByParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
     const action = new Action({
-        createdBy: creator,
+        createdBy: createdByParticipant,
         questionOrder: faker.datatype.number({ min: 1, max: 2 }),
         title: 'New shiny issue!',
-        assignedTo: faker.random.arrayElement(seed.participants),
+        assignedTo: assignedToParticipant,
         dueDate: faker.date.future(),
         priority: faker.random.arrayElement(Object.values(Priority)),
         description: faker.lorem.words(),
     })
-    return { action }
+    return action
 }
 
 const createEditTestData = (seed: EvaluationSeed, editor: Participant, existingAction: Action) => {
