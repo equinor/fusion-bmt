@@ -4,7 +4,6 @@ import { Participant } from '../support/mocks'
 import NominationPage from '../support/nomination'
 import { getUsers } from '../support/mock/external/users'
 import * as faker from 'faker'
-import StepperGrid from '../support/stepper_grid'
 import { EvaluationPage } from '../support/evaluation'
 describe('User management', () => {
     describe('Nomination stage', () => {
