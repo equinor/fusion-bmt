@@ -28,16 +28,13 @@ describe('Actions', () => {
 
         beforeEach(() => {
             ;({ seed } = createCreateSeed(users))
-            const creator = faker.random.arrayElement(users)
-            actionTestData = createCreateTestData(users)
-
-            seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, creator)
-                evaluationPage.progressionStepLink(createActionFrom).click()
-            })
+            seed.plant()
         })
-        it('Action can be created', () => {
-            //actionTestData = createCreateTestData()
+        it.only('Action can be created', () => {
+            const creator = faker.random.arrayElement(users)
+            cy.visitEvaluation(seed.evaluationId, creator)
+            evaluationPage.progressionStepLink(createActionFrom).click()
+            actionTestData = createActionTestData(users)
             actionsGrid.addActionButton(actionTestData.questionOrder).click()
             createActionDialog.titleInput().type(actionTestData.title)
             createActionDialog.assignedToInput().click()
@@ -80,7 +77,6 @@ describe('Actions', () => {
         let existingNotes: Note[]
         let notesOfSomeAction: Note[]
         let someAction: Action
-        //notesOfSomeAction, someAction
         let updatedAction: Action
         let newNotes: Note[]
         const users = getUsers(faker.datatype.number({ min: 3, max: 4 }))
@@ -88,20 +84,18 @@ describe('Actions', () => {
 
         beforeEach(() => {
             ;({ seed, existingAction, existingNotes } = createEditSeedWithActions(users))
-            editor = faker.random.arrayElement(users)
-            ;({ updatedAction, newNotes } = createEditTestData(seed, new Participant({ user: editor }), existingAction))
-            //;({ notesOfSomeAction, someAction } = findActionWithNotes(seed))
-            seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, editor)
-                evaluationPage.progressionStepLink(actionProgression).click()
-            })
+
+            seed.plant()
         })
 
         it.only('Action can be edited', () => {
+            let user = faker.random.arrayElement(users)
+            cy.visitEvaluation(seed.evaluationId, user)
+            evaluationPage.progressionStepLink(actionProgression).click()
             ;({ notesOfSomeAction, someAction } = findActionWithNotes(seed))
             actionsGrid.actionLink(someAction.questionOrder, someAction.title).click()
             editActionDialog.assertActionValues(someAction, notesOfSomeAction)
-
+            ;({ updatedAction, newNotes } = createEditTestData(seed, user, someAction))
             editActionDialog.titleInput().replace(updatedAction.title)
             dropdownSelect.select(editActionDialog.assignedToInput(), updatedAction.assignedTo.user.name)
             editActionDialog.dueDateInput().replace(updatedAction.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
@@ -337,7 +331,7 @@ const createViewSeed = () => {
     return { seed, actions }
 }
 
-const createCreateTestData = (users: User[]) => {
+const createActionTestData = (users: User[]) => {
     const assignedToParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
     const createdByParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
     const action = new Action({
@@ -352,7 +346,7 @@ const createCreateTestData = (users: User[]) => {
     return action
 }
 
-const createEditTestData = (seed: EvaluationSeed, editor: Participant, existingAction: Action) => {
+const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Action) => {
     const updatedAction = { ...existingAction }
     updatedAction.title = 'Feel proud for me, I have been updated!'
     updatedAction.assignedTo = faker.random.arrayElement(seed.participants)
@@ -366,7 +360,7 @@ const createEditTestData = (seed: EvaluationSeed, editor: Participant, existingA
         return new Note({
             text: faker.lorem.words(),
             action: updatedAction,
-            createdBy: editor,
+            createdBy: new Participant({ user: user }),
         })
     })
 
