@@ -164,6 +164,41 @@ namespace tests
             return action;
         }
 
+        protected Action EditAction(
+            string actionId,
+            string assignedToId,
+            string description = null,
+            System.DateTimeOffset? dueDate = null,
+            Priority? priority = null,
+            string title = null,
+            bool onHold = false,
+            bool completed = false)
+        {
+
+            if (title == null)
+            {
+                title = Randomize.String();
+            }
+
+            if (description == null)
+            {
+                description = Randomize.String();
+            }
+
+            Action action = _mutation.EditAction(
+                actionId: actionId,
+                assignedToId: assignedToId,
+                description: description,
+                dueDate: dueDate.GetValueOrDefault(System.DateTimeOffset.Now),
+                priority: priority.GetValueOrDefault(Randomize.Priority()),
+                title: title,
+                onHold: onHold,
+                completed: completed
+            );
+
+            return action;
+        }
+
         /* Helper methods */
 
         protected int NumberOfParticipants(Evaluation evaluation)

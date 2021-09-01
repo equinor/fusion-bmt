@@ -202,6 +202,10 @@ namespace api.GQL
         {
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
             Action action = queryableAction.First();
+            Evaluation evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             Participant assignedTo = _participantService.GetParticipant(assignedToId);
 
