@@ -242,6 +242,85 @@ describe('Actions', () => {
             })
         })
     })
+
+    context('Complete action', () => {
+        let seed: EvaluationSeed
+        let editor: Participant
+        let existingAction: Action
+        let existingNotes: Note[]
+        let updatedAction: Action
+        let newNote: Note
+
+        const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
+
+        beforeEach(() => {
+            ;({ seed, existingAction, existingNotes } = createCompleteActionSeed())
+            editor = faker.random.arrayElement(seed.participants)
+            ;({ updatedAction, newNote } = createCompleteActionData(seed, editor, existingAction))
+
+            seed.plant().then(() => {
+                cy.visitEvaluation(seed.evaluationId, editor.user)
+                evaluationPage.progressionStepLink(actionProgression).click()
+            })
+        })
+
+        function checkView() {
+            editActionDialog.actionCompletedText().should('not.exist')
+            editActionDialog.completeActionButton().should('exist')
+            editActionDialog.completedReasonInput().should('not.exist')
+            editActionDialog.completeActionConfirmButton().should('not.exist')
+            editActionDialog.completeActionCancelButton().should('not.exist')
+        }
+
+        function openConfirmCompleteView() {
+            editActionDialog.completeActionButton().click()
+            editActionDialog.completeActionButton().should('be.disabled')
+            editActionDialog.completedReasonInput().should('exist')
+            editActionDialog.completeActionConfirmButton().should('exist')
+            editActionDialog.completeActionCancelButton().should('exist')
+        }
+
+        function confirmAndCheckCompleted() {
+            editActionDialog.completeActionConfirmButton().click()
+            editActionDialog.assertSaved()
+            editActionDialog.actionCompletedText().should('exist')
+            editActionDialog.close()
+        }
+
+        function testCacheInReopenedActionView() {
+            cy.testCacheAndDB(() => {
+                evaluationPage.progressionStepLink(actionProgression).click()
+                actionsGrid.actionLink(existingAction.questionOrder, updatedAction.title).click()
+                editActionDialog.assertActionValues(updatedAction, existingNotes.concat([newNote]))
+            })
+        }
+
+        it('Action can be completed without writing a reason', () => {
+            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+            checkView()
+            openConfirmCompleteView()
+            confirmAndCheckCompleted()
+            testCacheInReopenedActionView()
+        })
+
+        it('Action can be completed with a reason', () => {
+            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+            checkView()
+            openConfirmCompleteView()
+            editActionDialog.completedReasonInput().replace('Closed because of a good reason')
+            confirmAndCheckCompleted()
+            testCacheInReopenedActionView()
+        })
+
+        it('Completing Action can be cancelled', () => {
+            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+            checkView()
+            openConfirmCompleteView()
+            editActionDialog.completeActionCancelButton().click()
+            checkView()
+            editActionDialog.assertNoClosingMessageInNotes(existingNotes)
+        })
+    })
 })
 
 const createCreateSeed = () => {
@@ -280,6 +359,34 @@ const createEditSeed = () => {
     const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 2 }) }, () => {
         return seed.createAction({})
     })
+    faker.helpers.shuffle([existingAction, ...otherActions]).forEach(a => seed.addAction(a))
+    existingNotes.forEach(n => seed.addNote(n))
+
+    return { seed, existingAction, existingNotes }
+}
+
+const createCompleteActionSeed = () => {
+    const seed = new EvaluationSeed({
+        progression: faker.random.arrayElement(Object.values(Progression)),
+        users: getUsers(faker.datatype.number({ min: 1, max: 4 })),
+    })
+
+    const existingAction = seed.createAction({
+        completed: false,
+    })
+
+    const existingNotes = Array.from({ length: faker.datatype.number({ min: 1, max: 4 }) }, () => {
+        return new Note({
+            text: faker.lorem.sentence(),
+            action: existingAction,
+            createdBy: faker.random.arrayElement(seed.participants),
+        })
+    })
+
+    const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 2 }) }, () => {
+        return seed.createAction({})
+    })
+
     faker.helpers.shuffle([existingAction, ...otherActions]).forEach(a => seed.addAction(a))
     existingNotes.forEach(n => seed.addNote(n))
 
@@ -353,4 +460,17 @@ const createEditTestData = (seed: EvaluationSeed, editor: Participant, existingA
     })
 
     return { updatedAction, newNotes }
+}
+
+const createCompleteActionData = (seed: EvaluationSeed, editor: Participant, existingAction: Action) => {
+    const updatedAction = { ...existingAction, completed: true }
+
+    const newNote = new Note({
+        text: '',
+        action: updatedAction,
+        createdBy: editor,
+        typeName: 'ClosingRemark',
+    })
+
+    return { updatedAction, newNote }
 }

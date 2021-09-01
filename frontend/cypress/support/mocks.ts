@@ -99,17 +99,20 @@ interface INote {
     text: string
     action: Action
     createdBy: Participant
+    typeName?: string
 }
 
 export class Note {
     text: string
     action: Action
     createdBy: Participant
+    __typename?: string
 
-    constructor({ text, action, createdBy }: INote) {
+    constructor({ text, action, createdBy, typeName }: INote) {
         this.text = text
         this.action = action
         this.createdBy = createdBy
+        this.__typename = typeName
     }
 }
 

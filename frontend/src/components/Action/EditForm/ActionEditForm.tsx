@@ -156,7 +156,7 @@ const ActionEditForm = ({
             <Grid container spacing={3}>
                 {action.completed && (
                     <Grid item xs={6}>
-                        <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        <div style={{ display: 'flex', flexDirection: 'row' }} data-testid="action_completed_text">
                             <Icon data={check_circle_outlined} style={{ marginRight: '5px' }} />
                             <Typography variant="body_short">Completed</Typography>
                         </div>
@@ -250,6 +250,7 @@ const ActionEditForm = ({
                                 setCompletingReason('')
                             }}
                             disabled={completeActionViewOpen}
+                            data-testid="complete_action_button"
                         >
                             Complete action
                         </Button>
@@ -281,10 +282,16 @@ const ActionEditForm = ({
                         )}
                         <Grid item xs={12}>
                             <div style={{ float: 'right' }}>
-                                <Button variant="outlined" style={{ marginRight: '10px' }} onClick={() => setCompleteActionViewOpen(false)}>
+                                <Button
+                                    variant="outlined"
+                                    style={{ marginRight: '10px' }}
+                                    onClick={() => setCompleteActionViewOpen(false)}
+                                    data-testid="complete_action_cancel_button"
+                                >
                                     Cancel
                                 </Button>
                                 <Button
+                                    data-testid="complete_action_confirm_button"
                                     onClick={() => {
                                         if (!apiErrorClosingRemark) {
                                             setCompleted(true)

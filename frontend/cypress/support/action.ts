@@ -107,8 +107,28 @@ export class EditActionDialog extends ActionDialog {
         return cy.getByDataTestid('add_note_button')
     }
 
+    completedReasonInput = () => {
+        return cy.get('#completed-reason')
+    }
+
+    completeActionButton = () => {
+        return cy.getByDataTestid('complete_action_button')
+    }
+
+    completeActionConfirmButton = () => {
+        return cy.getByDataTestid('complete_action_confirm_button')
+    }
+
+    completeActionCancelButton = () => {
+        return cy.getByDataTestid('complete_action_cancel_button')
+    }
+
     notesDiv = () => {
         return cy.getByDataTestid('notes_list')
+    }
+
+    actionCompletedText = () => {
+        return cy.getByDataTestid('action_completed_text')
     }
 
     assertSaved = () => {
@@ -133,9 +153,24 @@ export class EditActionDialog extends ActionDialog {
         this.dueDateInput().should('have.value', action.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
         ;[...notes].reverse().forEach((note, index) => {
             this.notesDiv().children().eq(index).as('note')
+            if (note.__typename === 'ClosingRemark') {
+                cy.get('@note').should('contain.text', note.createdBy.user.name + ' closed action')
+            } else {
+                cy.get('@note').should('contain.text', note.createdBy.user.name + ' wrote')
+            }
+            if (note.text) {
+                cy.get('@note').contains(note.text).should('exist')
+            }
+
+            // TODO: time not checked. Need to figure out if it can be done reasonably
+        })
+    }
+
+    assertNoClosingMessageInNotes = (notes: Note[]) => {
+        ;[...notes].reverse().forEach((note, index) => {
+            this.notesDiv().children().eq(index).as('note')
             cy.get('@note').should('contain.text', note.createdBy.user.name + ' wrote')
             cy.get('@note').contains(note.text).should('exist')
-            // TODO: time not checked. Need to figure out if it can be done reasonably
         })
     }
 }
