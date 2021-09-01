@@ -222,6 +222,24 @@ namespace tests
             return note;
         }
 
+        protected ClosingRemark CreateClosingRemark(
+            string actionId,
+            string text = null)
+        {
+
+            if (text == null)
+            {
+                text = Randomize.String();
+            }
+
+            ClosingRemark remark = _mutation.CreateClosingRemark(
+                actionId: actionId,
+                text: text
+            );
+
+            return remark;
+        }
+
         /* Helper methods */
 
         protected int NumberOfParticipants(Evaluation evaluation)
@@ -266,6 +284,17 @@ namespace tests
             ;
 
             return notes;
+        }
+
+        protected int NumberOfClosingRemarks(Action action)
+        {
+            int remarks = _closingRemarkService
+                .GetAll()
+                .Where(a => a.Action == action)
+                .Count()
+            ;
+
+            return remarks;
         }
 
         protected Question GetFirstQuestion(Evaluation evaluation)
