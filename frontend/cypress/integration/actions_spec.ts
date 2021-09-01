@@ -1,16 +1,16 @@
 import { EvaluationSeed } from '../support/evaluation_seed'
 import { Progression, Priority, Role } from '../../src/api/models'
 import { FUSION_DATE_LOCALE } from '../support/helpers'
-import { barrierToString, organizationToString } from '../../src/utils/EnumToString'
+import { barrierToString } from '../../src/utils/EnumToString'
 import { Action, Note, Participant } from '../support/mocks'
 import { ActionsGrid, ActionsTab, CreateActionDialog, EditActionDialog, mapPriority } from '../support/action'
 import { EvaluationPage, QuestionnaireSidePanel } from '../support/evaluation'
 import { ConfirmationDialog, DropdownSelect } from '../support/common'
 import { DELETE_ACTION } from '../support/gql'
 import * as faker from 'faker'
-import { getUsers } from '../support/mock/external/users'
+import { getUsers, User } from '../support/mock/external/users'
 
-describe('Actions', () => {
+describe('Actions management', () => {
     const evaluationPage = new EvaluationPage()
     const actionsGrid = new ActionsGrid()
     const actionsTab = new ActionsTab()
@@ -20,23 +20,67 @@ describe('Actions', () => {
     const editActionDialog = new EditActionDialog()
     const dropdownSelect = new DropdownSelect()
 
-    context('Create', () => {
-        let seed: EvaluationSeed
-        let action: Action
-        const createActionFrom = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
+    let seed: EvaluationSeed
+    const users = getUsers(4)
+    const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
+    const getRandomProgressionWorkshopOrFollowUp = () => {
+        return faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
+    }
+    const logInRandomUser = (progression: Progression = getRandomProgressionWorkshopOrFollowUp()) => {
+        const user = faker.random.arrayElement(users)
+        cy.visitEvaluation(seed.evaluationId, user)
+        evaluationPage.progressionStepLink(progression).click()
+        return user
+    }
+    const logInUser = (role: Role, progression: Progression = getRandomProgressionWorkshopOrFollowUp()): User => {
+        const participant = seed.participants.find(x => {
+            return x.role === role
+        })
+        if (participant === undefined) {
+            throw 'No user with role ' + role + ' found'
+        }
+        cy.visitEvaluation(seed.evaluationId, participant.user)
+        evaluationPage.progressionStepLink(progression).click()
+        return participant.user
+    }
 
-        beforeEach(() => {
-            ;({ seed } = createCreateSeed())
-            const creator = faker.random.arrayElement(seed.participants)
-            ;({ action } = createCreateTestData(seed, creator))
-
-            seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, creator.user)
-                evaluationPage.progressionStepLink(createActionFrom).click()
+    beforeEach(() => {
+        seed = createSeedWithActions(users, roles, { completed: false })
+        seed.plant()
+    })
+    context('Creating and editing actions', () => {
+        const roles = [
+            {
+                role: Role.Facilitator,
+                canCreateAction: true,
+            },
+            {
+                role: Role.OrganizationLead,
+                canCreateAction: true,
+            },
+            {
+                role: Role.Participant,
+                canCreateAction: true,
+            },
+            {
+                role: Role.ReadOnly,
+                canCreateAction: false,
+            },
+        ]
+        roles.forEach(r => {
+            it(`${r.role} can create action = ${r.canCreateAction}`, () => {
+                logInUser(r.role)
+                let action = createActionTestData(users)
+                r.canCreateAction
+                    ? actionsGrid.addActionButton(action.questionOrder).should('be.enabled')
+                    : actionsGrid.addActionButton(action.questionOrder).should('not.exist')
             })
         })
 
-        it('Action can be created', () => {
+        const randomRole = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
+        it(`Action creation by ${randomRole} and verification that action was created`, () => {
+            logInUser(randomRole)
+            let action = createActionTestData(users)
             actionsGrid.addActionButton(action.questionOrder).click()
             createActionDialog.titleInput().type(action.title)
             createActionDialog.assignedToInput().click()
@@ -64,39 +108,23 @@ describe('Actions', () => {
                     actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
                 },
                 () => {
-                    evaluationPage.progressionStepLink(createActionFrom).click()
+                    evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
                     actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
                 }
             )
         })
-    })
 
-    context('Edit', () => {
-        let seed: EvaluationSeed
-        let editor: Participant
-
-        let existingAction: Action
-        let existingNotes: Note[]
+        let actionNotes: Note[]
+        let action: Action
         let updatedAction: Action
         let newNotes: Note[]
 
-        const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
-
-        beforeEach(() => {
-            ;({ seed, existingAction, existingNotes } = createEvaluationWithActionsWithNotes({ title: 'Just some random action' }))
-            editor = faker.random.arrayElement(seed.participants)
-            ;({ updatedAction, newNotes } = createEditTestData(seed, editor, existingAction))
-
-            seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, editor.user)
-                evaluationPage.progressionStepLink(actionProgression).click()
-            })
-        })
-
-        it('Action can be edited', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
-            editActionDialog.assertActionValues(existingAction, existingNotes)
-
+        it(`Editing action by ${randomRole} - assign action, add notes and verify notes were added`, () => {
+            let user = logInUser(randomRole)
+            ;({ actionNotes, action } = findActionWithNotes(seed))
+            actionsGrid.actionLink(action.questionOrder, action.title).click()
+            editActionDialog.assertActionValues(action, actionNotes)
+            ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
             editActionDialog.titleInput().replace(updatedAction.title)
             dropdownSelect.select(editActionDialog.assignedToInput(), updatedAction.assignedTo.user.name)
             editActionDialog.dueDateInput().replace(updatedAction.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
@@ -110,160 +138,166 @@ describe('Actions', () => {
             editActionDialog.assertSaved()
             editActionDialog.close()
             cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(actionProgression).click()
-                actionsGrid.actionLink(existingAction.questionOrder, updatedAction.title).click()
-                editActionDialog.assertActionValues(updatedAction, existingNotes.concat(newNotes))
+                evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                actionsGrid.actionLink(action.questionOrder, updatedAction.title).click()
+                editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
             })
         })
     })
-
-    context('Delete', () => {
-        let seed: EvaluationSeed
-        let actionToDelete: Action
-        let actionToStay: Action
-
-        const deleteActionFrom = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
-
-        beforeEach(() => {
-            ;({ seed, actionToDelete, actionToStay } = createDeleteSeed())
-
-            seed.plant().then(() => {
-                const user = faker.random.arrayElement(seed.participants.filter(x => x.role === Role.Facilitator)).user
-                cy.visitEvaluation(seed.evaluationId, user)
-                evaluationPage.progressionStepLink(deleteActionFrom).click()
-                cy.contains(actionToDelete.title).should('exist')
-                cy.contains(actionToStay.title).should('exist')
-            })
-        })
-
-        const deleteAction = () => {
+    context('Deleting Actions', () => {
+        const deleteAction = (actionToDelete: Action) => {
             actionsGrid.deleteActionButton(actionToDelete.id).click()
             confirmationDialog.yesButton().click()
         }
 
-        it('Action can be deleted', () => {
-            deleteAction()
-            cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(deleteActionFrom).click()
-                cy.contains(actionToDelete.title).should('not.exist')
-                cy.contains(actionToStay.title).should('exist')
+        const roles = [
+            {
+                role: Role.Facilitator,
+                canDeleteAction: true,
+                deleteButtonExists: true,
+            },
+            {
+                role: Role.OrganizationLead,
+                canDeleteAction: false,
+                deleteButtonExists: true,
+            },
+            {
+                role: Role.Participant,
+                canDeleteAction: false,
+                deleteButtonExists: true,
+            },
+            {
+                role: Role.ReadOnly,
+                canDeleteAction: false, // This value is irrelevant
+                deleteButtonExists: false,
+            },
+        ]
+        roles.forEach(r => {
+            it(`${r.role} delete button exists = ${r.deleteButtonExists} can delete action = ${r.canDeleteAction}`, () => {
+                if (r.role === Role.Participant || r.role === Role.OrganizationLead) {
+                    // Dev-note participant & orgLead should not be allowed to press delete button.
+                    // This test tests that when they do, they get this exception
+                    // Remove below exception when prod code is fixed.
+                    cy.on('uncaught:exception', (err, runnable) => {
+                        if (err.message.includes('are not allowed to perform this operation')) {
+                            console.log("Swallowing unhandled 'are not allowed to perform this operation'")
+                            return false
+                        }
+                    })
+                }
+
+                logInUser(r.role)
+                const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
+                if (!r.deleteButtonExists) {
+                    actionsGrid.deleteActionButton(actionToDelete.id).should('not.exist')
+                } else {
+                    deleteAction(actionToDelete)
+                    if (r.canDeleteAction === false) {
+                        cy.contains('are not allowed to perform this operation')
+                    } else {
+                        cy.testCacheAndDB(() => {
+                            evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                            cy.contains(actionToDelete.title).should('not.exist')
+                            cy.contains(actionToStay.title).should('exist')
+                        })
+                    }
+                }
             })
         })
 
-        it('Action delete may be canceled', () => {
+        const getActionToDeleteActionToStay = () => {
+            let actions = faker.random.arrayElements(seed.actions, 2)
+            let actionToDelete = actions[0]
+            let actionToStay = actions[1]
+            return { actionToDelete, actionToStay }
+        }
+
+        it(`Cancel delete action by Facilitator, then verify action was not deleted`, () => {
+            logInUser(Role.Facilitator)
+            const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
             actionsGrid.deleteActionButton(actionToDelete.id).click()
             confirmationDialog.noButton().click()
 
             cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(deleteActionFrom).click()
+                evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
                 cy.contains(actionToDelete.title).should('exist')
                 cy.contains(actionToStay.title).should('exist')
             })
         })
-
-        it('Deleted action can not be deleted again', () => {
-            cy.gql(DELETE_ACTION, {
-                variables: {
-                    actionId: actionToDelete.id,
-                },
-            }).then(() => {
-                cy.on('uncaught:exception', (err, runnable) => {
-                    if (err.message.includes('Action not found')) {
-                        console.log("Swallowing unhandled 'Action not found'")
-                        return false
-                    }
-                })
-
-                cy.login(seed.participants[0].user)
-                deleteAction()
-
-                cy.testCacheAndDB(
-                    () => {
-                        cy.contains(actionToStay.title).should('exist')
-                        cy.contains('Action not found').should('exist')
+        context('Error handling when facilitator has two browser windows open', () => {
+            it('Deleted action in one window cannot be deleted in other window', () => {
+                logInUser(Role.Facilitator)
+                const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
+                cy.gql(DELETE_ACTION, {
+                    variables: {
+                        actionId: actionToDelete.id,
                     },
-                    () => {
-                        evaluationPage.progressionStepLink(deleteActionFrom).click()
-                        cy.contains(actionToDelete.title).should('not.exist')
-                        cy.contains(actionToStay.title).should('exist')
-                        cy.contains('Action not found').should('not.exist')
-                    }
-                )
-            })
-        })
-    })
+                }).then(() => {
+                    cy.on('uncaught:exception', (err, runnable) => {
+                        if (err.message.includes('Action not found')) {
+                            console.log("Swallowing unhandled 'Action not found'")
+                            return false
+                        }
+                    })
 
-    context('View', () => {
-        let seed: EvaluationSeed
-        let actions: Action[]
+                    deleteAction(actionToDelete)
 
-        beforeEach(() => {
-            ;({ seed, actions } = createViewSeed())
-
-            seed.plant().then(() => {
-                const user = faker.random.arrayElement(seed.participants).user
-                cy.visitEvaluation(seed.evaluationId, user)
-            })
-        })
-
-        context('Created actions are visible', () => {
-            function getQuestion(action: Action) {
-                return seed.questions.find(q => q.id === seed.findQuestionId(action.questionOrder))!
-            }
-
-            function checkActionsPresentOnProgression() {
-                actions.forEach(a => {
-                    questionnaireSidePanel
-                        .body()
-                        .contains(barrierToString(getQuestion(a).barrier))
-                        .click()
-                    actionsGrid.actionLink(a.questionOrder, a.title).should('exist')
-                    actionsGrid.actionCompleteDiv(a.id).should(a.completed ? 'exist' : 'not.exist')
-                })
-            }
-
-            it('Actions are visible on Workshop Progression', () => {
-                evaluationPage.progressionStepLink(Progression.Workshop).click()
-                checkActionsPresentOnProgression()
-            })
-
-            it('Actions are visible on Follow-Up Progression', () => {
-                evaluationPage.progressionStepLink(Progression.FollowUp).click()
-                checkActionsPresentOnProgression()
-            })
-
-            it('Actions are visible on Follow-Up Actions Tab', () => {
-                evaluationPage.progressionStepLink(Progression.FollowUp).click()
-                actionsTab.linkToTab().click()
-                actionsTab.body().should('be.visible')
-                actions.forEach(a => {
-                    const question = seed.questions.find(q => q.id === seed.findQuestionId(a.questionOrder))
-                    actionsTab.assertActionValues(a, question!)
+                    cy.testCacheAndDB(
+                        () => {
+                            cy.contains(actionToStay.title).should('exist')
+                            cy.contains('Action not found').should('exist')
+                        },
+                        () => {
+                            evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                            cy.contains(actionToDelete.title).should('not.exist')
+                            cy.contains(actionToStay.title).should('exist')
+                            cy.contains('Action not found').should('not.exist')
+                        }
+                    )
                 })
             })
         })
     })
 
-    context('Complete action', () => {
-        let seed: EvaluationSeed
-        let editor: Participant
-        let existingAction: Action
-        let existingNotes: Note[]
-        let updatedAction: Action
+    context('Viewing actions', () => {
+        function getQuestion(action: Action) {
+            return seed.questions.find(q => q.id === seed.findQuestionId(action.questionOrder))!
+        }
+
+        function checkActionsExistOnProgression() {
+            let actions = seed.actions
+            actions.forEach(a => {
+                questionnaireSidePanel
+                    .body()
+                    .contains(barrierToString(getQuestion(a).barrier))
+                    .click()
+                actionsGrid.actionLink(a.questionOrder, a.title).should('exist')
+                actionsGrid.actionCompleteDiv(a.id).should(a.completed ? 'exist' : 'not.exist')
+            })
+        }
+        it('Actions are visible on Workshop Progression', () => {
+            logInRandomUser(Progression.Workshop)
+            checkActionsExistOnProgression()
+        })
+
+        it('Actions are visible on Follow-Up Progression', () => {
+            logInRandomUser(Progression.FollowUp)
+            checkActionsExistOnProgression()
+        })
+
+        it('Actions are visible on Follow-Up Actions Tab', () => {
+            logInRandomUser(Progression.FollowUp)
+            actionsTab.linkToTab().click()
+            actionsTab.body().should('be.visible')
+            let actions: Action[] = seed.actions
+            actions.forEach(a => {
+                const question = seed.questions.find(q => q.id === seed.findQuestionId(a.questionOrder))
+                actionsTab.assertActionValues(a, question!)
+            })
+        })
+    })
+    context('Completing actions', () => {
         let newNote: Note
-
-        const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
-
-        beforeEach(() => {
-            ;({ seed, existingAction, existingNotes } = createEvaluationWithActionsWithNotes({ completed: false }))
-            editor = faker.random.arrayElement(seed.participants)
-            ;({ updatedAction, newNote } = createCompleteActionData(seed, editor, existingAction))
-
-            seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, editor.user)
-                evaluationPage.progressionStepLink(actionProgression).click()
-            })
-        })
 
         function checkView() {
             editActionDialog.actionCompletedText().should('not.exist')
@@ -288,137 +322,111 @@ describe('Actions', () => {
             editActionDialog.close()
         }
 
-        function testCacheInReopenedActionView() {
+        function testCacheInReopenedActionView(oneAction: Action, notesInTheAction: Note[]) {
             cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(actionProgression).click()
-                actionsGrid.actionLink(existingAction.questionOrder, updatedAction.title).click()
-                editActionDialog.assertActionValues(updatedAction, existingNotes.concat([newNote]))
+                evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                actionsGrid.actionLink(oneAction.questionOrder, oneAction.title).click()
+                editActionDialog.assertActionValues(oneAction, notesInTheAction)
             })
         }
 
-        it('Action can be completed without writing a reason', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+        let actionNotes: Note[]
+        let action: Action
+        let updatedAction: Action
+
+        const roleThatCanComplete = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
+        it(`Action can be completed by ${roleThatCanComplete} without writing a reason`, () => {
+            let user = logInUser(roleThatCanComplete)
+            ;({ actionNotes, action } = findActionWithNotes(seed))
+            ;({ updatedAction, newNote } = createCompleteAction(user, action))
+            actionsGrid.actionLink(action.questionOrder, action.title).click()
             checkView()
             openConfirmCompleteView()
             confirmAndCheckCompleted()
-            testCacheInReopenedActionView()
+            testCacheInReopenedActionView(updatedAction, actionNotes.concat(newNote))
         })
 
-        it('Action can be completed with a reason', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+        it(`Action can be completed by ${roleThatCanComplete} with a reason`, () => {
+            let user = logInUser(roleThatCanComplete)
+            ;({ actionNotes, action } = findActionWithNotes(seed))
+            ;({ updatedAction, newNote } = createCompleteAction(user, action))
+            actionsGrid.actionLink(action.questionOrder, action.title).click()
             checkView()
             openConfirmCompleteView()
             editActionDialog.completedReasonInput().replace('Closed because of a good reason')
             confirmAndCheckCompleted()
-            testCacheInReopenedActionView()
+            testCacheInReopenedActionView(updatedAction, actionNotes.concat(newNote))
         })
 
-        it('Completing Action can be cancelled', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+        it(`Completing Action can be cancelled by ${roleThatCanComplete}`, () => {
+            let user = logInUser(roleThatCanComplete)
+            ;({ actionNotes, action } = findActionWithNotes(seed))
+            actionsGrid.actionLink(action.questionOrder, action.title).click()
             checkView()
             openConfirmCompleteView()
             editActionDialog.completeActionCancelButton().click()
             checkView()
-            editActionDialog.assertNoClosingMessageInNotes(existingNotes)
+            editActionDialog.assertNoClosingMessageInNotes(actionNotes)
         })
     })
 })
 
-const createCreateSeed = () => {
-    const progression = faker.random.arrayElement(Object.values(Progression))
-    const seed = new EvaluationSeed({
-        progression: progression,
-        users: getUsers(faker.datatype.number({ min: 1, max: 4 })),
+const findActionWithNotes = (seed: EvaluationSeed) => {
+    const note = faker.random.arrayElement(seed.notes)
+    const actionNotes = seed.notes.filter(x => {
+        return (x.action.id = note.action.id)
     })
-
-    const existingActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 3 }) }, () => {
-        return seed.createAction({})
-    })
-
-    existingActions.forEach(a => seed.addAction(a))
-
-    return { seed }
+    const action = seed.actions.find(x => x.id === note.action.id)!
+    return { actionNotes, action }
 }
 
-const createEvaluationWithActionsWithNotes = (actionParameters: Partial<Action>) => {
+const createSeedWithActions = (users: User[], roles: Role[], actionParameters: Partial<Action>) => {
     const seed = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
-        users: getUsers(faker.datatype.number({ min: 1, max: 4 })),
+        users,
+        roles,
     })
 
-    const existingAction = seed.createAction({
+    const oneAction = seed.createAction({
         ...actionParameters,
     })
 
     const existingNotes: Note[] = Array.from({ length: faker.datatype.number({ min: 1, max: 4 }) }, () => {
         return new Note({
             text: faker.lorem.sentence(),
-            action: existingAction,
-            createdBy: faker.random.arrayElement(seed.participants),
+            action: oneAction,
+            createdBy: faker.random.arrayElement(seed.participants.filter(x => x.role !== Role.ReadOnly)),
         })
     })
 
-    const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 2 }) }, () => {
+    const moreActions: Action[] = Array.from({ length: faker.datatype.number({ min: 1, max: 2 }) }, () => {
         return seed.createAction({})
     })
-    faker.helpers.shuffle([existingAction, ...otherActions]).forEach(a => seed.addAction(a))
+    faker.helpers.shuffle([oneAction, ...moreActions]).forEach(a => seed.addAction(a))
     existingNotes.forEach(n => seed.addNote(n))
 
-    return { seed, existingAction, existingNotes }
+    return seed
 }
 
-const createDeleteSeed = () => {
-    const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        users: getUsers(faker.datatype.number({ min: 1, max: 5 })),
-    })
-
-    const actionToDelete = seed.createAction({
-        title: 'You shall be murdered! 😇',
-        description: 'Naughty, naughty action!',
-    })
-    const actionToStay = seed.createAction({
-        title: 'You have my permission to live 😈',
-    })
-    const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 5 }) }, () => {
-        return seed.createAction({})
-    })
-    faker.helpers.shuffle([actionToDelete, actionToStay, ...otherActions]).forEach(a => seed.addAction(a))
-
-    return { seed, actionToDelete, actionToStay }
-}
-
-const createViewSeed = () => {
-    const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        users: getUsers(faker.datatype.number({ min: 1, max: 5 })),
-    })
-
-    const actions: Action[] = Array.from({ length: faker.datatype.number({ min: 2, max: 4 }) }, () => {
-        return seed.createAction({ questionOrder: faker.datatype.number({ min: 1, max: 8 }) })
-    })
-    faker.helpers.shuffle([...actions]).forEach(a => seed.addAction(a))
-
-    return { seed, actions }
-}
-
-const createCreateTestData = (seed: EvaluationSeed, creator: Participant) => {
+const createActionTestData = (users: User[]) => {
+    const assignedToParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
+    const createdByParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
     const action = new Action({
-        createdBy: creator,
+        createdBy: createdByParticipant,
         questionOrder: faker.datatype.number({ min: 1, max: 2 }),
         title: 'New shiny issue!',
-        assignedTo: faker.random.arrayElement(seed.participants),
+        assignedTo: assignedToParticipant,
         dueDate: faker.date.future(),
         priority: faker.random.arrayElement(Object.values(Priority)),
         description: faker.lorem.words(),
     })
-    return { action }
+    return action
 }
 
-const createEditTestData = (seed: EvaluationSeed, editor: Participant, existingAction: Action) => {
+const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Action) => {
     const updatedAction = { ...existingAction }
     updatedAction.title = 'Feel proud for me, I have been updated!'
-    updatedAction.assignedTo = faker.random.arrayElement(seed.participants)
+    updatedAction.assignedTo = new Participant({ user })
     updatedAction.dueDate = faker.date.future()
     updatedAction.priority = faker.random.arrayElement(Object.values(Priority))
     updatedAction.description = faker.lorem.words()
@@ -429,22 +437,20 @@ const createEditTestData = (seed: EvaluationSeed, editor: Participant, existingA
         return new Note({
             text: faker.lorem.words(),
             action: updatedAction,
-            createdBy: editor,
+            createdBy: new Participant({ user }),
         })
     })
 
     return { updatedAction, newNotes }
 }
 
-const createCompleteActionData = (seed: EvaluationSeed, editor: Participant, existingAction: Action) => {
+const createCompleteAction = (user: User, existingAction: Action) => {
     const updatedAction = { ...existingAction, completed: true }
-
     const newNote = new Note({
         text: '',
         action: updatedAction,
-        createdBy: editor,
+        createdBy: new Participant({ user }),
         typeName: 'ClosingRemark',
     })
-
     return { updatedAction, newNote }
 }
