@@ -31,6 +31,21 @@ npm install
 npm start
 ```
 
+### Updating the frontend schema
+
+Any changes made to the database [model](backend/api/Models/Models.cs) or the
+GraphQL [queries](backend/api/GQL/Query.cs) and
+[mutations](backend/api/GQL/Mutation.cs) in the backend need to be communicated
+to the frontend. This is done by running:
+
+```bash
+npm run schema
+```
+
+from the `/frontend`-directory. The changes must be checked in to git. Note
+that for `npm run schema` to run properly the backend must be running and
+[authorization must be turned off](#disable-authorization)
+
 ## Backend
 
 The backend is build using .NET 5.0. We use GraphQL to handle requests
@@ -111,21 +126,9 @@ dotnet ef migrations remove
 ```
 
 or simply delete the files and changes created by `add`. Once deleted you can
-make new changes to the model and then create a new migration with `add`.
-
-#### Updating the frontend schema
-
-Our frontend also needs to know about the current database schema. Once a new
-migration is created, run:
-
-```bash
-npm run schema
-```
-
-from the `/frontend`-directory. This will update the frontend schema. These
-changes must also be checked in to git. Note that for `npm run schema` to run
-properly the backend must be running and [authorization must be turned
-off](#disable-authorization)
+make new changes to the model and then create a new migration with `add`. Note
+that you also need to [update the frontend
+schema](#updating-the-frontend-schema).
 
 #### Applying the migrations to the dev- and test database
 
