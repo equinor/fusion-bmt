@@ -14,45 +14,6 @@ import {
     QUESTION_FIELDS_FRAGMENT,
 } from '../../api/fragments'
 
-const useActionsQuery = (currentUserId: string) => {
-    const GET_ACTIONS = gql`
-        query {
-            actions(where: { assignedTo: { azureUniqueId: { eq: "${currentUserId}" } } }) {
-                ...ActionFields
-                notes {
-                    ...NoteFields
-                }
-                closingRemarks {
-                    ...ClosingRemarkFields
-                }
-                question {
-                    ...QuestionFields
-                    evaluation {
-                        name
-                        ...ParticipantsArray
-                        project {
-                            fusionProjectId
-                        }
-                    }
-                }
-            }
-        }
-        ${ACTION_FIELDS_FRAGMENT}
-        ${NOTE_FIELDS_FRAGMENT}
-        ${CLOSING_REMARK_FIELDS_FRAGMENT}
-        ${QUESTION_FIELDS_FRAGMENT}
-        ${PARTICIPANTS_ARRAY_FRAGMENT}
-    `
-
-    const { loading, data, error } = useQuery<{ actions: Action[] }>(GET_ACTIONS)
-
-    return {
-        loading,
-        actions: data ? data.actions : [],
-        error,
-    }
-}
-
 interface Props {
     azureUniqueId: string
 }
@@ -113,3 +74,48 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
 }
 
 export default ActionTableForOneUserWithApi
+
+interface ActionsQueryProps {
+    loading: boolean
+    actions: Action[]
+    error: ApolloError | undefined
+}
+
+const useActionsQuery = (currentUserId: string): ActionsQueryProps => {
+    const GET_ACTIONS = gql`
+        query {
+            actions(where: { assignedTo: { azureUniqueId: { eq: "${currentUserId}" } } }) {
+                ...ActionFields
+                notes {
+                    ...NoteFields
+                }
+                closingRemarks {
+                    ...ClosingRemarkFields
+                }
+                question {
+                    ...QuestionFields
+                    evaluation {
+                        name
+                        ...ParticipantsArray
+                        project {
+                            fusionProjectId
+                        }
+                    }
+                }
+            }
+        }
+        ${ACTION_FIELDS_FRAGMENT}
+        ${NOTE_FIELDS_FRAGMENT}
+        ${CLOSING_REMARK_FIELDS_FRAGMENT}
+        ${QUESTION_FIELDS_FRAGMENT}
+        ${PARTICIPANTS_ARRAY_FRAGMENT}
+    `
+
+    const { loading, data, error } = useQuery<{ actions: Action[] }>(GET_ACTIONS)
+
+    return {
+        loading,
+        actions: data ? data.actions : [],
+        error,
+    }
+}
