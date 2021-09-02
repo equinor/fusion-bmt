@@ -6,18 +6,13 @@ import { Action, Barrier, Organization } from '../../api/models'
 import ActionTable from './ActionTable'
 import ActionEditSidebarWithApi from '../Action/EditForm/ActionEditSidebarWithApi'
 import { useAllPersonDetailsAsync } from '../../utils/hooks'
-import { 
-    ACTION_FIELDS_FRAGMENT, 
-    NOTE_FIELDS_FRAGMENT, 
-    PARTICIPANTS_ARRAY_FRAGMENT, 
-    QUESTION_FIELDS_FRAGMENT 
+import {
+    ACTION_FIELDS_FRAGMENT,
+    CLOSING_REMARK_FIELDS_FRAGMENT,
+    NOTE_FIELDS_FRAGMENT,
+    PARTICIPANTS_ARRAY_FRAGMENT,
+    QUESTION_FIELDS_FRAGMENT,
 } from '../../api/fragments'
-
-type ActionWithAdditionalInfo = {
-    action: Action
-    barrier: Barrier
-    organization: Organization
-}
 
 interface Props {
     azureUniqueId: string
@@ -82,7 +77,7 @@ export default ActionTableForOneUserWithApi
 
 interface ActionsQueryProps {
     loading: boolean
-    actions: Action[] 
+    actions: Action[]
     error: ApolloError | undefined
 }
 
@@ -93,6 +88,9 @@ const useActionsQuery = (currentUserId: string): ActionsQueryProps => {
                 ...ActionFields
                 notes {
                     ...NoteFields
+                }
+                closingRemarks {
+                    ...ClosingRemarkFields
                 }
                 question {
                     ...QuestionFields
@@ -108,6 +106,7 @@ const useActionsQuery = (currentUserId: string): ActionsQueryProps => {
         }
         ${ACTION_FIELDS_FRAGMENT}
         ${NOTE_FIELDS_FRAGMENT}
+        ${CLOSING_REMARK_FIELDS_FRAGMENT}
         ${QUESTION_FIELDS_FRAGMENT}
         ${PARTICIPANTS_ARRAY_FRAGMENT}
     `

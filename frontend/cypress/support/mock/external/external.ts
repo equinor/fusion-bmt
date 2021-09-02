@@ -128,4 +128,8 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
     ) {
         return false
     }
+
+    if (err.message.includes("Cannot read properties of null (reading 'removeEventListener')")) {
+        return false
+    }
 })

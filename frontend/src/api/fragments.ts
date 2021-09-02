@@ -95,6 +95,18 @@ fragment QuestionActions on Question {
 ${ACTION_FIELDS_FRAGMENT}
 `
 
+export const CLOSING_REMARK_FIELDS_FRAGMENT = gql`
+    fragment ClosingRemarkFields on ClosingRemark {
+        id
+        text
+        createDate
+        createdBy {
+            ...ParticipantFields
+        }
+    }
+    ${PARTICIPANT_FIELDS_FRAGMENT}
+`
+
 export const NOTE_FIELDS_FRAGMENT = gql`
     fragment NoteFields on Note {
         id
@@ -114,4 +126,13 @@ export const ACTION_NOTES_FRAGMENT = gql`
         }
     }
     ${NOTE_FIELDS_FRAGMENT}
+`
+
+export const ACTION_CLOSING_REMARKS_FRAGMENT = gql`
+    fragment ActionClosingRemarks on Action {
+        closingRemarks {
+            ...ClosingRemarkFields
+        }
+    }
+    ${CLOSING_REMARK_FIELDS_FRAGMENT}
 `

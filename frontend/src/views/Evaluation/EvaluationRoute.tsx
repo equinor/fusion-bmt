@@ -11,7 +11,16 @@ import { useAzureUniqueId } from '../../utils/Variables'
 import { getNextProgression } from '../../utils/ProgressionStatus'
 import { CurrentParticipantContext, EvaluationContext } from '../../globals/contexts'
 import { apiErrorMessage } from '../../api/error'
-import { ACTION_FIELDS_FRAGMENT, ANSWER_FIELDS_FRAGMENT, EVALUATION_FIELDS_FRAGMENT, NOTE_FIELDS_FRAGMENT, PARTICIPANTS_ARRAY_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT, QUESTION_FIELDS_FRAGMENT } from '../../api/fragments'
+import {
+    ACTION_FIELDS_FRAGMENT,
+    ANSWER_FIELDS_FRAGMENT,
+    EVALUATION_FIELDS_FRAGMENT,
+    NOTE_FIELDS_FRAGMENT,
+    PARTICIPANTS_ARRAY_FRAGMENT,
+    PARTICIPANT_FIELDS_FRAGMENT,
+    QUESTION_FIELDS_FRAGMENT,
+    CLOSING_REMARK_FIELDS_FRAGMENT,
+} from '../../api/fragments'
 
 interface Params {
     fusionProjectId: string
@@ -207,6 +216,9 @@ const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
                         notes {
                             ...NoteFields
                         }
+                        closingRemarks {
+                            ...ClosingRemarkFields
+                        }
                     }
                 }
             }
@@ -217,6 +229,7 @@ const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
         ${ANSWER_FIELDS_FRAGMENT}
         ${ACTION_FIELDS_FRAGMENT}
         ${NOTE_FIELDS_FRAGMENT}
+        ${CLOSING_REMARK_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATION, {
