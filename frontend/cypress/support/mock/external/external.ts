@@ -79,14 +79,14 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
          * made, we get get unhandled promises errors. Hence for stability
          * purpose we will ignore these promises again.
          */
-        const messageRegex = '> (.+)'
+        const messageRegex = '> (.*)'
         const messageMatch = err.message.match(messageRegex)
 
         if (messageMatch) {
             const message = messageMatch[1]
 
             /* It looks like majority of our stability issues fall under this message: */
-            if (message === 'Failed to fetch') {
+            if (message === 'Failed to fetch' || message === 'NetworkError when attempting to fetch resource.') {
                 console.log(`Swallowing unhandled "Failed to fetch" promise:\n\n%c${err.message}\n`, 'padding-left: 30px;')
                 return false
             }
@@ -109,13 +109,22 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
                 }
             }
 
+            /* Sometimes we get an empty promise due to intercepted requests. */
+            if (message === '') {
+                console.log('Swallowing empty unhandled promise:\n' + err.stack)
+                return false
+            }
+
             /* Log remaining unhandled promises as Cypress sometimes doesn't log them fully */
             console.log('Unhandled promise uncaught: ' + err.message)
         }
     }
 
     /* thrown sometimes when navigating through stepper, looks to be from fusion */
-    if (err.message.includes("Cannot read property 'removeEventListener' of null")) {
+    if (
+        err.message.includes("Cannot read property 'removeEventListener' of null") ||
+        err.message.includes('can\'t access property "removeEventListener", editorRef.current is null')
+    ) {
         return false
     }
 })
