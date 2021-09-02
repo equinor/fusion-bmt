@@ -83,7 +83,7 @@ describe('Actions', () => {
         const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
 
         beforeEach(() => {
-            ;({ seed, existingAction, existingNotes } = createEditSeed())
+            ;({ seed, existingAction, existingNotes } = createEvaluationWithActionsWithNotes({ title: 'Just some random action' }))
             editor = faker.random.arrayElement(seed.participants)
             ;({ updatedAction, newNotes } = createEditTestData(seed, editor, existingAction))
 
@@ -254,7 +254,7 @@ describe('Actions', () => {
         const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
 
         beforeEach(() => {
-            ;({ seed, existingAction, existingNotes } = createCompleteActionSeed())
+            ;({ seed, existingAction, existingNotes } = createEvaluationWithActionsWithNotes({ completed: false }))
             editor = faker.random.arrayElement(seed.participants)
             ;({ updatedAction, newNote } = createCompleteActionData(seed, editor, existingAction))
 
@@ -339,15 +339,16 @@ const createCreateSeed = () => {
     return { seed }
 }
 
-const createEditSeed = () => {
+const createEvaluationWithActionsWithNotes = (actionParameters: Partial<Action>) => {
     const seed = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
         users: getUsers(faker.datatype.number({ min: 1, max: 4 })),
     })
 
     const existingAction = seed.createAction({
-        title: 'Just some random action',
+        ...actionParameters,
     })
+
     const existingNotes: Note[] = Array.from({ length: faker.datatype.number({ min: 1, max: 4 }) }, () => {
         return new Note({
             text: faker.lorem.sentence(),
@@ -359,34 +360,6 @@ const createEditSeed = () => {
     const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 2 }) }, () => {
         return seed.createAction({})
     })
-    faker.helpers.shuffle([existingAction, ...otherActions]).forEach(a => seed.addAction(a))
-    existingNotes.forEach(n => seed.addNote(n))
-
-    return { seed, existingAction, existingNotes }
-}
-
-const createCompleteActionSeed = () => {
-    const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        users: getUsers(faker.datatype.number({ min: 1, max: 4 })),
-    })
-
-    const existingAction = seed.createAction({
-        completed: false,
-    })
-
-    const existingNotes = Array.from({ length: faker.datatype.number({ min: 1, max: 4 }) }, () => {
-        return new Note({
-            text: faker.lorem.sentence(),
-            action: existingAction,
-            createdBy: faker.random.arrayElement(seed.participants),
-        })
-    })
-
-    const otherActions: Action[] = Array.from({ length: faker.datatype.number({ min: 0, max: 2 }) }, () => {
-        return seed.createAction({})
-    })
-
     faker.helpers.shuffle([existingAction, ...otherActions]).forEach(a => seed.addAction(a))
     existingNotes.forEach(n => seed.addNote(n))
 
