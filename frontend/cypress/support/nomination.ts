@@ -20,6 +20,10 @@ export default class NominationPage {
         return cy.get(`[data-testid=delete_button_${user.id}]`)
     }
 
+    finishNominationButton = () => {
+        return cy.contains('Finish Nomination')
+    }
+
     participantsTable = () => {
         /* fusion doesn't have a property we can use and we also don't have any
          * explicit elements in the code we can grab.
