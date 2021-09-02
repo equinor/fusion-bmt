@@ -34,15 +34,23 @@ namespace tests
         }
     }
 
-    class MockAuthService : IAuthService
+    public class MockAuthService : IAuthService
     {
+        private string _loggedInUser = "1";
+
+        public void LoginUser(string azureUniqueId)
+        {
+            _loggedInUser = azureUniqueId;
+        }
+
+        public void LoginUser(Participant participant)
+        {
+            _loggedInUser = participant.AzureUniqueId;
+        }
+
         public string GetOID()
         {
-            return "1";
-        }
-        public void AssertCanPerformMutation(Evaluation evaluation, Role[] allowdRoles)
-        {
-            // Do nothing
+            return _loggedInUser;
         }
     }
 }
