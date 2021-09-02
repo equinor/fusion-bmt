@@ -123,7 +123,8 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
     /* thrown sometimes when navigating through stepper, looks to be from fusion */
     if (
         err.message.includes("Cannot read property 'removeEventListener' of null") ||
-        err.message.includes('can\'t access property "removeEventListener", editorRef.current is null')
+        err.message.includes('can\'t access property "removeEventListener", editorRef.current is null') ||
+        err.message.includes("Cannot read properties of null (reading 'removeEventListener')")
     ) {
         return false
     }
