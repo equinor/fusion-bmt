@@ -43,13 +43,14 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
                 <TabList>
                     <Tab>Dashboard</Tab>
-                    <Tab>Actions</Tab>
+                    <Tab data-testid="dashboard_actions_tab">Actions</Tab>
                 </TabList>
                 <TabPanels>
                     <StyledTabPanel>
                         <ProjectDashboardView project={project} />
-                    </StyledTabPanel><StyledTabPanel>
-                        <ActionTableForOneUserWithApi azureUniqueId={currentUser!.id}/>
+                    </StyledTabPanel>
+                    <StyledTabPanel>
+                        <ActionTableForOneUserWithApi azureUniqueId={currentUser!.id} />
                     </StyledTabPanel>
                 </TabPanels>
             </Tabs>

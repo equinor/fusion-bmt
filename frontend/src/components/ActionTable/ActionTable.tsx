@@ -134,7 +134,7 @@ const ActionTable = ({
     return (
         <>
             {!isFetchingProjects && (
-                <Table style={{ width: '100%' }}>
+                <Table id="actions-table" style={{ width: '100%' }}>
                     <Head>
                         <Row>
                             {actionTableColumns
@@ -171,7 +171,7 @@ const ActionTable = ({
                             const assignedTo = assignedPersonDetails(action)
 
                             return (
-                                <Row key={action.id}>
+                                <Row key={action.id} id={'action-' + action.id}>
                                     <Cell
                                         onClick={() => onClickAction(action.id)}
                                         style={{ color: tokens.colors.interactive.primary__resting.rgba, cursor: 'pointer' }}
