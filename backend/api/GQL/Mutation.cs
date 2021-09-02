@@ -121,6 +121,15 @@ namespace api.GQL
 
         public Participant DeleteParticipant(string participantId)
         {
+            Evaluation evaluation = _participantService.GetAll()
+                .Where(p => p.Id.Equals(participantId))
+                .Select(p => p.Evaluation)
+                .First()
+            ;
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             return _participantService.Remove(participantId);
         }
 
