@@ -66,7 +66,6 @@ const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParti
                     stepKey={Progression.Workshop}
                 >
                     <WorkshopTabs
-                        allowedRoles={[Role.Facilitator]}
                         evaluation={evaluation}
                     >
                         <WorkshopView

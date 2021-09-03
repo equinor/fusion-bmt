@@ -1,14 +1,17 @@
 import { Context } from '@equinor/fusion'
-import { Question, Progression, Role, Severity } from '../api/models'
+import { Question, Progression, Role, Severity, Participant } from '../api/models'
 import { SeverityCount } from '../utils/Severity'
 
-export const findCorrectAnswer = (question: Question, viewProgression: Progression, useFacilitatorAnswer: boolean, userId: string) => {
+export const findCorrectAnswer = (question: Question, viewProgression: Progression, useFacilitatorAnswer: boolean, participant: Participant | undefined) => {
     const answers = question.answers.filter(a => a.progression === viewProgression)
+    if (!participant) {
+        return undefined
+    }
 
     if (useFacilitatorAnswer) {
         return answers.find(a => a.answeredBy?.role === Role.Facilitator)
     } else {
-        return answers.find(a => a.answeredBy?.azureUniqueId === userId)
+        return answers.find(a => a.answeredBy?.azureUniqueId === participant.azureUniqueId)
     }
 }
 

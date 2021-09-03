@@ -3,15 +3,16 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Organization, Progression, Role } from '../../../api/models'
+import { Barrier, Evaluation, Organization, Progression } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
 import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSwitch'
-import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
+import { getNextProgression, progressionLessThan } from '../../../utils/ProgressionStatus'
 import { useParticipant } from '../../../globals/contexts'
 import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
+import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../utils/disableComponents'
 
 interface IndividualViewProps {
     evaluation: Evaluation
@@ -27,21 +28,12 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
     const questions = evaluation.questions
     const barrierQuestions = questions.filter(q => q.barrier === selectedBarrier)
 
-    const { role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId } = useParticipant()
-
     const viewProgression = Progression.Individual
-    const allowedRoles = Object.values(Role)
-
-    const isEvaluationAtThisProgression = evaluation.progression == viewProgression
-    const participantAllowed = allowedRoles.includes(participantRole)
-    const isParticipantCompleted = progressionLessThan(viewProgression, participantProgression)
-    const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
-    const hasParticipantBeenHere = progressionGreaterThanOrEqual(participantProgression, viewProgression)
-
-    const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !hasParticipantBeenHere
-
+    const participant = useParticipant()
+    const isParticipantCompleted = participant ? progressionLessThan(viewProgression, participant.progression) : false
+ 
     const localOnClompleteClick = () => {
-        const nextProgression = getNextProgression(participantProgression)
+        const nextProgression = getNextProgression(participant!.progression)
         onProgressParticipant(nextProgression)
     }
 
@@ -83,7 +75,7 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         <Box mr={2}>
                             <ProgressionCompleteSwitch
                                 isCheckedInitially={isParticipantCompleted}
-                                disabled={disableAllUserInput}
+                                disabled={disableCompleteSwitch(participant, evaluation, viewProgression)}
                                 onCompleteClick={localOnClompleteClick}
                                 onUncompleteClick={localOnUncompleteClick}
                             />
@@ -91,7 +83,7 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         <Box>
                             <Button
                                 onClick={onNextStepClick}
-                                disabled={participantRole !== Role.Facilitator || !isEvaluationAtThisProgression}
+                                disabled={disableProgression(evaluation, participant, viewProgression)}
                             >
                                 Finish {progressionToString(viewProgression)}
                             </Button>
@@ -101,7 +93,7 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         questions={barrierQuestions}
                         organizationFilter={organizationFilter}
                         viewProgression={viewProgression}
-                        disable={(disableAllUserInput || isParticipantCompleted) && participantRole !== Role.Facilitator}
+                        disable={disableAnswer(participant, evaluation, viewProgression)}
                     />
                 </Box>
             </Box>

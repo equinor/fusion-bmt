@@ -97,11 +97,7 @@ const disableDelete = (evaluation: Evaluation, azureUniqueId: string) => {
 
     const loggedInUser = evaluation.participants.find(p => p.azureUniqueId === azureUniqueId)
 
-    if (!loggedInUser) {
-        return true
-    }
-
-    return !participantCanDeleteParticipant(loggedInUser.role)
+    return !participantCanDeleteParticipant(loggedInUser)
 }
 
 interface NominationTableProps {

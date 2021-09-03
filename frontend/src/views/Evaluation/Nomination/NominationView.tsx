@@ -7,61 +7,23 @@ import { Button, TextArea } from '@equinor/fusion-components'
 import AddNomineeDialog from './AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
 import NominationTable from './NominationTable'
-import { participantCanProgressEvaluation, participantCanAddParticipant } from '../../../utils/RoleBasedAccess'
-import { useAzureUniqueId } from '../../../utils/Variables'
+import { participantCanAddParticipant } from '../../../utils/RoleBasedAccess'
 import { apiErrorMessage } from '../../../api/error'
 import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { useParticipant } from '../../../globals/contexts'
+import { disableProgression } from '../../../utils/disableComponents'
 
 interface NominationViewProps {
     evaluation: Evaluation
     onNextStep: () => void
 }
 
-/** Who (Role) can progress Evaluation past Nomination, and when
- *
- * Who:
- *  Facilitators and OrganizationLeads
- *
- * When:
- *  Evaluation is at Nomination stage
- */
-const disableProgression = (evaluation: Evaluation, azureUniqueId: string) => {
-    if (evaluation.progression !== Progression.Nomination) {
-        return true
-    }
-
-    const loggedInUser = evaluation.participants.find(p => p.azureUniqueId === azureUniqueId)
-
-    if (!loggedInUser) {
-        return true
-    }
-
-    return !participantCanProgressEvaluation(loggedInUser.role)
-}
-
-/** Who (Role) can add add users, and when (Progression)
- *
- * Who:
- *  Facilitators and OrganizationLeads
- *
- * When:
- *  Any Progression
- */
-const disableAddParticipant = (evaluation: Evaluation, azureUniqueId: string) => {
-    const loggedInUser = evaluation.participants.find(p => p.azureUniqueId === azureUniqueId)
-
-    if (!loggedInUser) {
-        return true
-    }
-
-    return !participantCanAddParticipant(loggedInUser.role)
-}
-
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const [panelOpen, setPanelOpen] = React.useState(false)
     const { createParticipant, error: errorMutation } = useCreateParticipantMutation()
     const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
-    const azureUniqueId = useAzureUniqueId()
+    const participant = useParticipant()
+    const viewProgression = Progression.Nomination
 
     const onNextStepClick = () => {
         onNextStep()
@@ -98,7 +60,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                     <h2 data-testid="evaluation_title">{evaluation.name}</h2>
                 </Box>
                 <Box>
-                    <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, azureUniqueId)}>
+                    <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
                         Finish Nomination
                     </Button>
                 </Box>
@@ -108,7 +70,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 onClick={() => {
                     setPanelOpen(true)
                 }}
-                disabled={disableAddParticipant(evaluation, azureUniqueId)}
+                disabled={!participantCanAddParticipant(participant)}
             >
                 Add Person
             </Button>

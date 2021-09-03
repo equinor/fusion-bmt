@@ -7,16 +7,14 @@ import { useEffectNotOnMount } from '../../../utils/hooks'
 import { SavingState } from '../../../utils/Variables'
 import WorkshopSummary from './WorkshopSummary'
 
-
 const WRITE_DELAY_MS = 1000
 
 interface WorkshopSummaryWithApiProps {
     evaluation: Evaluation
+    disable: boolean
 }
 
-const WorkshopSummaryWithApi = ({
-    evaluation
-}: React.PropsWithChildren<WorkshopSummaryWithApiProps>) => {
+const WorkshopSummaryWithApi = ({ evaluation, disable }: React.PropsWithChildren<WorkshopSummaryWithApiProps>) => {
     const [localSummary, setLocalSummary] = useState(evaluation.summary ?? '')
     const [savingState, setSavingState] = useState(SavingState.None)
     const { setSummary, loading, error } = useSummaryMutation()
@@ -56,13 +54,14 @@ const WorkshopSummaryWithApi = ({
     }
 
     return (
-        <>
-            <WorkshopSummary
-                localSummary={localSummary}
-                onChange={onChange}
-                savingState={savingState}
+        <div style={{ padding: '30px' }}>
+            <WorkshopSummary 
+                localSummary={localSummary} 
+                onChange={onChange} 
+                savingState={savingState} 
+                disable={disable} 
             />
-        </>
+        </div>
     )
 }
 

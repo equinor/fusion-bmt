@@ -17,14 +17,14 @@ type Props = {
 }
 
 const QuestionsList = ({ questions, viewProgression, disable, displayActions, onQuestionSummarySelected, severityFilter, organizationFilter }: Props) => {
-    const { azureUniqueId: currentUserAzureUniqueId } = useParticipant()
+    const participant = useParticipant()
 
     const severityFilteredQuestions = severityFilter !== undefined
         ? questions.filter(q =>
             hasSeverity(
                 q,
                 severityFilter,
-                currentUserAzureUniqueId,
+                participant,
                 viewProgression
             )
         )

@@ -3,11 +3,10 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Question, Progression, Role, Severity, Organization } from '../../../api/models'
+import { Barrier, Evaluation, Question, Progression, Severity, Organization } from '../../../api/models'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useParticipant } from '../../../globals/contexts'
-import { progressionLessThan } from '../../../utils/ProgressionStatus'
 import SeveritySummary from '../../../components/SeveritySummary'
 import QuestionProgressionFollowUpSidebar from './QuestionProgressionFollowUpSidebar'
 import { countSeverities } from '../../../utils/Severity'
@@ -15,11 +14,8 @@ import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
 import { getBarrierAnswers, onScroll } from '../../helpers'
-import {
-    hasSeverity,
-    hasOrganization,
-    toggleFilter
-} from '../../../utils/QuestionAndAnswerUtils'
+import { hasSeverity, hasOrganization, toggleFilter } from '../../../utils/QuestionAndAnswerUtils'
+import { disableAnswer } from '../../../utils/disableComponents'
 
 const TOP_POSITION_SCROLL_WINDOW = 200
 
@@ -46,15 +42,7 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
         setSelectedQuestion(question)
     }
 
-    const { role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId } = useParticipant()
-    const allowedRoles = [Role.Facilitator]
-
-    const isEvaluationAtThisProgression = evaluation.progression == viewProgression
-    const participantAllowed = allowedRoles.includes(participantRole)
-    const isParticipantCompleted = progressionLessThan(viewProgression, participantProgression)
-    const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
-
-    const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !isEvaluationAtThisProgression
+    const participant = useParticipant()
 
     const closeAnswerSummarySidebar = () => {
         setSelectedQuestion(undefined)
@@ -77,17 +65,11 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
         }
     }
 
-    const filterAndSortQuestions = (
-        organizations: Organization[],
-        severities: Severity[]
-    ) => {
-        return barrierQuestions.filter(q => hasSeverity(q,
-                severities,
-                participantUniqueId,
-                viewProgression
-            )
-        ).filter(q => hasOrganization(q, organizations)
-        ).sort((q1, q2) => q1.order - q2.order)
+    const filterAndSortQuestions = (organizations: Organization[], severities: Severity[]) => {
+        return barrierQuestions
+            .filter(q => hasSeverity(q, severities, participant, viewProgression))
+            .filter(q => hasOrganization(q, organizations))
+            .sort((q1, q2) => q1.order - q2.order)
     }
 
     const onSeverityFilterChange = (sev: Severity) => {
@@ -148,7 +130,7 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                         organizationFilter={organizationFilter}
                         questions={barrierQuestions}
                         viewProgression={viewProgression}
-                        disable={disableAllUserInput || isParticipantCompleted}
+                        disable={disableAnswer(participant, evaluation, viewProgression)}
                         onQuestionSummarySelected={onQuestionSummarySelected}
                     />
                 </Box>
