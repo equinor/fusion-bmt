@@ -104,6 +104,9 @@ namespace api.GQL
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
             Participant participant = _participantService.GetParticipant(azureUniqueId, evaluation);
 
+            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead, Role.Participant };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             Participant progressedParticipant = _participantService.ProgressParticipant(participant, newProgression);
 
             return progressedParticipant;
