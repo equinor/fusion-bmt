@@ -11,6 +11,8 @@ import PriorityIndicator from './PriorityIndicator'
 import ActionEditSidebarWithApi from './EditForm/ActionEditSidebarWithApi'
 import ActionCreateSidebarWithApi from './CreateForm/ActionCreateSidebarWithApi'
 import ConfirmationDialog from './../ConfirmationDialog'
+import { useParticipant } from '../../globals/contexts'
+import { participantCanCreateAction, participantCanDeleteAction } from '../../utils/RoleBasedAccess'
 
 interface Props {
     question: Question
@@ -26,6 +28,7 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
     const [actionIdToEdit, setActionIdToEdit] = useState<string | undefined>()
     const [actionToDelete, setActionToDelete] = useState<string | undefined>()
     const actions = [...question.actions]
+    const participant = useParticipant()
 
     const openActionEditSidebar = (action: Action) => {
         setIsEditSidebarOpen(true)
@@ -47,12 +50,12 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                             Actions
                         </Typography>
                     </Box>
-                    <Box>
+                    {participantCanCreateAction(participant) && <Box>
                         <Button variant="ghost" onClick={() => setIsCreateSidebarOpen(true)}>
                             <Icon data={add}></Icon>
                             Add action
                         </Button>
-                    </Box>
+                    </Box>}
                 </Box>
                 {actions
                     .sort((a1, a2) => {
@@ -90,7 +93,7 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                                             </Box>
                                         )}
                                     </Box>
-                                    <IconButton
+                                    {participantCanDeleteAction(participant) && <IconButton
                                         data-testid={`delete_action_button_${action.id}`}
                                         onClick={() => {
                                             setIsConfirmDeleteDialogOpen(true)
@@ -98,7 +101,7 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                                         }}
                                     >
                                         <DeleteIcon />
-                                    </IconButton>
+                                    </IconButton>}
                                 </Box>
                             </div>
                         )

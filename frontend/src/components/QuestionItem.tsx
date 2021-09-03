@@ -17,14 +17,14 @@ interface Props {
 
 
 const QuestionItem = ({ question, viewProgression, disable, displayActions = false, onQuestionSummarySelected }: Props) => {
-    const { azureUniqueId } = useParticipant()
+    const participant = useParticipant()
 
     const useSharedAnswer = useSharedFacilitatorAnswer(viewProgression)
     const answer = findCorrectAnswer(
         question,
         viewProgression,
         useSharedAnswer,
-        azureUniqueId
+        participant
     )
 
     return (

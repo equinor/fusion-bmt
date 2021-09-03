@@ -28,6 +28,7 @@ interface Props {
     isClosingRemarkSaved: boolean
     apiErrorClosingRemark: string
     apiErrorAction: string
+    disableEditAction: boolean
 }
 
 const ActionEditForm = ({
@@ -41,6 +42,7 @@ const ActionEditForm = ({
     createClosingRemark,
     apiErrorClosingRemark,
     apiErrorAction,
+    disableEditAction,
 }: Props) => {
     const [title, setTitle] = useState<string>((action && action.title) || '')
     const [titleValidity, setTitleValidity] = useState<Validity>('default')
@@ -60,6 +62,7 @@ const ActionEditForm = ({
         title: personDetails.name,
         key: personDetails.azureUniqueId,
         isSelected: personDetails.azureUniqueId === assignedToId,
+        isDisabled: disableEditAction
     }))
 
     const createdDateString = new Date(action.createDate).toLocaleDateString()
@@ -177,6 +180,7 @@ const ActionEditForm = ({
                         variant={titleValidity}
                         helperText={titleValidity === 'error' ? 'required' : ''}
                         helperIcon={titleValidity === 'error' ? ErrorIcon : <></>}
+                        disabled={disableEditAction}
                     />
                 </Grid>
                 <Grid item xs={5}>
@@ -193,6 +197,7 @@ const ActionEditForm = ({
                         label="Due date"
                         onChange={newDate => setDueDate(newDate !== null ? newDate : new Date())}
                         selectedDate={dueDate}
+                        disabled={disableEditAction}
                     />
                 </Grid>
                 <Grid item xs={3}>
@@ -220,6 +225,7 @@ const ActionEditForm = ({
                         onSelect={option => {
                             setPriority(option.key as Priority)
                         }}
+                        disabled={disableEditAction}
                     />
                 </Grid>
                 <Grid item xs={12}>
@@ -239,6 +245,7 @@ const ActionEditForm = ({
                         }}
                         variant="default"
                         style={{ height: 150 }}
+                        disabled={disableEditAction}
                     />
                 </Grid>
                 {!completed && (
@@ -249,7 +256,7 @@ const ActionEditForm = ({
                                 setCompleteActionViewOpen(true)
                                 setCompletingReason('')
                             }}
-                            disabled={completeActionViewOpen}
+                            disabled={completeActionViewOpen || disableEditAction}
                             data-testid="complete_action_button"
                         >
                             Complete action

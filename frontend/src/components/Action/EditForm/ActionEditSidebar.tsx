@@ -10,6 +10,8 @@ import { SavingState } from '../../../utils/Variables'
 import { useAllPersonDetailsAsync, useEffectNotOnMount } from '../../../utils/hooks'
 import NotesAndClosingRemarksList from './NotesAndClosingRemarksList'
 import NoteCreateForm from './NoteCreateForm'
+import { useParticipant } from '../../../globals/contexts'
+import { participantCanEditAction } from '../../../utils/RoleBasedAccess'
 
 const WRITE_DELAY_MS = 1000
 
@@ -56,6 +58,8 @@ const ActionEditSidebar = ({
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [delayedAction, setDelayedAction] = useState<Action | undefined>(undefined)
     const notesAndClosingRemarks: (Note | ClosingRemark)[] = action.notes.map(note => note)
+
+    const participant = useParticipant()
 
     if (action.closingRemarks !== undefined) {
         action.closingRemarks.forEach(closingRemark => {
@@ -138,6 +142,7 @@ const ActionEditSidebar = ({
                         isClosingRemarkSaved={isClosingRemarkSaved}
                         apiErrorClosingRemark={apiErrorClosingRemark}
                         apiErrorAction={apiErrorAction}
+                        disableEditAction={!participantCanEditAction(participant)}
                     />
                     {apiErrorAction && (
                         <div style={{ marginTop: 20 }}>
@@ -149,7 +154,12 @@ const ActionEditSidebar = ({
                             <TextArea value={apiErrorNote} onChange={() => {}} />
                         </div>
                     )}
-                    <NoteCreateForm text={note} onChange={onChangeNote} onCreateClick={onCreateNote} disabled={isNoteSaving} />
+                    <NoteCreateForm
+                        text={note}
+                        onChange={onChangeNote}
+                        onCreateClick={onCreateNote}
+                        disabled={isNoteSaving || !participantCanEditAction(participant)}
+                    />
                     <NotesAndClosingRemarksList notesAndClosingRemarks={notesAndClosingRemarks} participantsDetails={personDetailsList} />
                 </div>
             )}

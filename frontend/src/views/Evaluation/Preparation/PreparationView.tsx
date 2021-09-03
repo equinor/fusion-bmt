@@ -3,24 +3,21 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Question, Progression, Role, Organization, Severity } from '../../../api/models'
+import { Barrier, Evaluation, Question, Progression, Organization, Severity } from '../../../api/models'
 import EvaluationSidebar from '../EvaluationSidebar'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
 import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSwitch'
 import { useParticipant } from '../../../globals/contexts'
-import { getNextProgression, progressionGreaterThanOrEqual, progressionLessThan } from '../../../utils/ProgressionStatus'
+import { getNextProgression, progressionLessThan } from '../../../utils/ProgressionStatus'
 import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
 import { getBarrierAnswers, onScroll } from '../../helpers'
 import SeveritySummary from '../../../components/SeveritySummary'
 import { countSeverities } from '../../../utils/Severity'
-import {
-    hasSeverity,
-    hasOrganization,
-    toggleFilter
-} from '../../../utils/QuestionAndAnswerUtils'
+import { hasSeverity, hasOrganization, toggleFilter } from '../../../utils/QuestionAndAnswerUtils'
+import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../utils/disableComponents'
 
 const TOP_POSITION_SCROLL_WINDOW = 200
 
@@ -41,18 +38,9 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
     const questions = evaluation.questions
     const barrierQuestions = questions.filter(q => q.barrier === selectedBarrier)
 
-    const { role: participantRole, progression: participantProgression, azureUniqueId: participantUniqueId } = useParticipant()
-
     const viewProgression = Progression.Preparation
-    const allowedRoles = [Role.Facilitator, Role.OrganizationLead]
-
-    const isEvaluationAtThisProgression = evaluation.progression == viewProgression
-    const participantAllowed = allowedRoles.includes(participantRole)
-    const isParticipantCompleted = progressionLessThan(viewProgression, participantProgression)
-    const isEvaluationFinishedHere = progressionLessThan(viewProgression, evaluation.progression)
-    const hasParticipantBeenHere = progressionGreaterThanOrEqual(participantProgression, viewProgression)
-
-    const disableAllUserInput = isEvaluationFinishedHere || !participantAllowed || !hasParticipantBeenHere
+    const participant = useParticipant()
+    const isParticipantCompleted = participant ? progressionLessThan(viewProgression, participant.progression) : false
 
     const onQuestionSummarySelected = (question: Question) => {
         if (selectedQuestion && question.id === selectedQuestion.id) {
@@ -63,7 +51,7 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
     }
 
     const localOnClompleteClick = () => {
-        const nextProgression = getNextProgression(participantProgression)
+        const nextProgression = getNextProgression(participant!.progression)
         onProgressParticipant(nextProgression)
     }
 
@@ -92,17 +80,11 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
         }
     }
 
-    const filterAndSortQuestions = (
-        organizations: Organization[],
-        severities: Severity[]
-    ) => {
-        return barrierQuestions.filter(q => hasSeverity(q,
-                severities,
-                participantUniqueId,
-                viewProgression
-            )
-        ).filter(q => hasOrganization(q, organizations)
-        ).sort((q1, q2) => q1.order - q2.order)
+    const filterAndSortQuestions = (organizations: Organization[], severities: Severity[]) => {
+        return barrierQuestions
+            .filter(q => hasSeverity(q, severities, participant, viewProgression))
+            .filter(q => hasOrganization(q, organizations))
+            .sort((q1, q2) => q1.order - q2.order)
     }
 
     const onSeverityFilterChange = (sev: Severity) => {
@@ -162,14 +144,14 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                             <Box flexDirection="row" mt={1}>
                                 <ProgressionCompleteSwitch
                                     isCheckedInitially={isParticipantCompleted}
-                                    disabled={disableAllUserInput}
+                                    disabled={disableCompleteSwitch(participant, evaluation, viewProgression)}
                                     onCompleteClick={localOnClompleteClick}
                                     onUncompleteClick={localOnUncompleteClick}
                                 />
                                 <Button
                                     style={{ marginLeft: '20px' }}
                                     onClick={onNextStepClick}
-                                    disabled={participantRole !== Role.Facilitator || !isEvaluationAtThisProgression}
+                                    disabled={disableProgression(evaluation, participant, viewProgression)}
                                 >
                                     {'Finish ' + progressionToString(viewProgression)}
                                 </Button>
@@ -181,7 +163,7 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                         severityFilter={severityFilter}
                         organizationFilter={organizationFilter}
                         viewProgression={viewProgression}
-                        disable={disableAllUserInput || isParticipantCompleted}
+                        disable={disableAnswer(participant, evaluation, viewProgression)}
                         onQuestionSummarySelected={onQuestionSummarySelected}
                     />
                 </Box>

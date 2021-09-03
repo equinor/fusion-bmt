@@ -5,19 +5,15 @@ import { Evaluation, Role } from '../../../api/models'
 import { useParticipant } from '../../../globals/contexts'
 import { StyledTabPanel } from '../../../components/StyledTabs'
 import WorkshopSummaryWithApi from './WorkshopSummaryWithApi'
+import { participantCanEditWorkshopSummary, participantCanViewWorkshopSummary } from '../../../utils/RoleBasedAccess'
 
 const { TabList, Tab, TabPanels } = Tabs
 
 interface WorkshopTabsProps {
     evaluation: Evaluation
-    allowedRoles: Role[]
 }
 
-const WorkshopTabs = ({
-    children,
-    allowedRoles,
-    evaluation,
-}: React.PropsWithChildren<WorkshopTabsProps>) => {
+const WorkshopTabs = ({ children, evaluation }: React.PropsWithChildren<WorkshopTabsProps>) => {
     const [activeTab, setActiveTab] = useState(0)
     const participant = useParticipant()
 
@@ -25,14 +21,12 @@ const WorkshopTabs = ({
         <Tabs activeTab={activeTab} onChange={setActiveTab}>
             <TabList>
                 <Tab>Questionaire</Tab>
-                <Tab>Workshop Summary</Tab>
+                <Tab disabled={!participantCanViewWorkshopSummary(participant)}>Workshop Summary</Tab>
             </TabList>
             <TabPanels>
                 <StyledTabPanel>{children}</StyledTabPanel>
                 <StyledTabPanel>
-                    {allowedRoles.includes(participant.role) && (
-                        <WorkshopSummaryWithApi evaluation={evaluation} />
-                    )}
+                    <WorkshopSummaryWithApi evaluation={evaluation} disable={!participantCanEditWorkshopSummary(participant)} />
                 </StyledTabPanel>
             </TabPanels>
         </Tabs>
