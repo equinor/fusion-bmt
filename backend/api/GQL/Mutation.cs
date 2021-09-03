@@ -190,6 +190,9 @@ namespace api.GQL
             Question question = queryableQuestion.First();
             Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
 
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             Participant assignedTo = _participantService.GetParticipant(assignedToId);
 
             return _actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority, question);

@@ -4,7 +4,6 @@ using api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using Xunit;
@@ -134,6 +133,37 @@ namespace tests
             return answer;
         }
 
+        protected Action CreateAction(
+            string questionId,
+            string assignedToId,
+            string description = null,
+            System.DateTimeOffset? dueDate = null,
+            Priority? priority = null,
+            string title = null)
+        {
+
+            if (title == null)
+            {
+                title = Randomize.String();
+            }
+
+            if (description == null)
+            {
+                description = Randomize.String();
+            }
+
+            Action action = _mutation.CreateAction(
+                questionId: questionId,
+                assignedToId: assignedToId,
+                description: description,
+                dueDate: dueDate.GetValueOrDefault(System.DateTimeOffset.Now),
+                priority: priority.GetValueOrDefault(Randomize.Priority()),
+                title: title
+            );
+
+            return action;
+        }
+
         /* Helper methods */
 
         protected int NumberOfParticipants(Evaluation evaluation)
@@ -156,6 +186,17 @@ namespace tests
             ;
 
             return answers;
+        }
+
+        protected int NumberOfActions(Question question)
+        {
+            int actions = _actionService
+                .GetAll()
+                .Where(a => a.Question == question)
+                .Count()
+            ;
+
+            return actions;
         }
 
         protected Question GetFirstQuestion(Evaluation evaluation)

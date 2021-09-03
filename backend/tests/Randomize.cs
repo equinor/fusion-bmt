@@ -1,4 +1,8 @@
 using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+
 
 using api.Models;
 
@@ -49,6 +53,17 @@ namespace tests
         public static Severity Severity()
         {
             return RandomEnumValue<Severity>();
+        }
+
+        public static Priority Priority()
+        {
+            return RandomEnumValue<Priority>();
+        }
+
+        public static T Value<T>(ICollection<T> values)
+        {
+            int pick = random.Next(values.Count);
+            return values.ElementAt(pick);
         }
 
         private static T RandomEnumValue<T>()
