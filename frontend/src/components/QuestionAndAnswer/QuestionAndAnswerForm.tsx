@@ -2,7 +2,7 @@ import React from 'react'
 import { Chip } from '@equinor/fusion-components'
 import { Typography } from '@equinor/eds-core-react'
 
-import { Answer, Question } from '../../api/models'
+import { Answer, Question, Severity } from '../../api/models'
 import { Box, Grid } from '@material-ui/core'
 import AnswerSeverityForm from './AnswerSeverityForm'
 import AnswerMarkdownForm from './AnswerMarkdownForm'
@@ -15,11 +15,19 @@ interface QuestionAndAnswerFormProps {
     question: Question
     answer: Answer
     disabled: boolean
-    onAnswerChange: (answerParts: Partial<Answer>) => void
+    onAnswerTextChange: (text: string) => void
+    onSeverityChange: (severity: Severity) => void
     savingState: SavingState
 }
 
-const QuestionAndAnswerForm = ({ question, answer, disabled, onAnswerChange, savingState }: QuestionAndAnswerFormProps) => {
+const QuestionAndAnswerForm = ({
+    question,
+    answer,
+    disabled,
+    onAnswerTextChange,
+    onSeverityChange,
+    savingState,
+}: QuestionAndAnswerFormProps) => {
     return (
         <>
             <Grid container>
@@ -50,7 +58,7 @@ const QuestionAndAnswerForm = ({ question, answer, disabled, onAnswerChange, sav
                             <Box mr={5}>
                                 <AnswerSeverityForm
                                     severity={answer.severity}
-                                    onSeveritySelected={severity => onAnswerChange({ severity: severity })}
+                                    onSeveritySelected={severity => onSeverityChange(severity)}
                                     disabled={disabled}
                                 />
                             </Box>
@@ -59,7 +67,7 @@ const QuestionAndAnswerForm = ({ question, answer, disabled, onAnswerChange, sav
                                     markdown={answer.text === '' ? ' ' : answer.text /*Fixes backspace error in markdown editor*/}
                                     disabled={disabled}
                                     onMarkdownChange={text => {
-                                        onAnswerChange({ text: text })
+                                        onAnswerTextChange(text)
                                     }}
                                 />
                             </Box>
