@@ -9,7 +9,7 @@ import styled from 'styled-components'
 import { Action, Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useEffectNotOnMount } from '../../../utils/hooks'
-import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
+import { checkIfCompleteReasonValid, checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 import { check_circle_outlined } from '@equinor/eds-icons'
 
 const StyledDate = styled(Typography)`
@@ -53,8 +53,10 @@ const ActionEditForm = ({
     const [priority, setPriority] = useState<Priority>(action.priority)
     const [description, setDescription] = useState<string>(action.description)
     const [completed, setCompleted] = useState<boolean>(action.completed)
+    const [completeReason, setCompleteReason] = useState<string>('')
+    const [completeReasonValidity, setCompleteReasonValidity] = useState<Validity>('default')
+
     const [completeActionViewOpen, setCompleteActionViewOpen] = useState<boolean>(false)
-    const [completingReason, setCompletingReason] = useState<string>('')
 
     const assigneesOptions: SearchableDropdownOption[] = possibleAssigneesDetails.map(personDetails => ({
         title: personDetails.name,
@@ -132,8 +134,22 @@ const ActionEditForm = ({
     }, [assignedTo])
 
     useEffect(() => {
+        const completeReasonValid = checkIfCompleteReasonValid(completeReason)
+
+        if (completeReasonValidity === 'error') {
+            if (completeReasonValid) {
+                setCompleteReasonValidity('success')
+            }
+        } else if (completeReasonValidity === 'success') {
+            if (!completeReasonValid) {
+                setCompleteReasonValidity('error')
+            }
+        }
+    }, [completeReason, completeReasonValidity])
+
+    useEffect(() => {
         if (action.completed && completeActionViewOpen) {
-            createClosingRemark(completingReason)
+            createClosingRemark(completeReason)
         }
     }, [action.completed])
 
@@ -146,10 +162,30 @@ const ActionEditForm = ({
 
     useEffect(() => {
         if (isClosingRemarkSaved && completeActionViewOpen && !apiErrorClosingRemark) {
-            setCompletingReason('')
+            setCompleteReason('')
             setCompleteActionViewOpen(false)
         }
     }, [isClosingRemarkSaved])
+
+    const onCompletedConfirmed = () => {
+        const isCompleteReasonValid = checkIfCompleteReasonValid(completeReason)
+        const savingClosingRemarkFailedOnPreviousAttempt = apiErrorClosingRemark
+
+        if (!isCompleteReasonValid) {
+            setCompleteReasonValidity('error')
+        } else {
+            if (savingClosingRemarkFailedOnPreviousAttempt) {
+                createClosingRemark(completeReason) // If Confirm-button is clicked after a previous fail to save remark, we try saving remark again (no need to set complete-status, because this is already saved)
+            } else {
+                setCompleted(true)
+            }
+        }
+    }
+
+    const cancelCompleteAction = () => {
+        setCompleteReasonValidity('default')
+        setCompleteActionViewOpen(false)
+    }
 
     return (
         <>
@@ -247,7 +283,7 @@ const ActionEditForm = ({
                             style={{ float: 'right' }}
                             onClick={() => {
                                 setCompleteActionViewOpen(true)
-                                setCompletingReason('')
+                                setCompleteReason('')
                             }}
                             disabled={completeActionViewOpen}
                             data-testid="complete_action_button"
@@ -265,12 +301,15 @@ const ActionEditForm = ({
                         <Grid item xs={12}>
                             <TextField
                                 id="completed-reason"
-                                value={completingReason}
+                                value={completeReason}
                                 autoFocus={true}
-                                label={'Optional reason for closing action'}
+                                label={'Reason for closing action'}
                                 onChange={(event: TextFieldChangeEvent) => {
-                                    setCompletingReason(event.target.value)
+                                    setCompleteReason(event.target.value)
                                 }}
+                                variant={completeReasonValidity}
+                                helperText={completeReasonValidity === 'error' ? 'required' : ''}
+                                helperIcon={completeReasonValidity === 'error' ? ErrorIcon : <></>}
                             />
                         </Grid>
                         {apiErrorClosingRemark && (
@@ -285,20 +324,15 @@ const ActionEditForm = ({
                                 <Button
                                     variant="outlined"
                                     style={{ marginRight: '10px' }}
-                                    onClick={() => setCompleteActionViewOpen(false)}
+                                    onClick={cancelCompleteAction}
                                     data-testid="complete_action_cancel_button"
                                 >
                                     Cancel
                                 </Button>
                                 <Button
                                     data-testid="complete_action_confirm_button"
-                                    onClick={() => {
-                                        if (!apiErrorClosingRemark) {
-                                            setCompleted(true)
-                                        } else {
-                                            createClosingRemark(completingReason)
-                                        }
-                                    }}
+                                    onClick={onCompletedConfirmed}
+                                    disabled={completeReasonValidity === 'error'}
                                 >
                                     {!apiErrorClosingRemark ? 'Confirm' : 'Try again'}
                                 </Button>

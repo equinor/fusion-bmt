@@ -18,3 +18,7 @@ export const checkIfTitleValid = (title: string) => {
 export const checkIfParticipantValid = (participant: Participant | undefined) => {
     return participant !== undefined
 }
+
+export const checkIfCompleteReasonValid = (title: string) => {
+    return title.length > 0
+}
