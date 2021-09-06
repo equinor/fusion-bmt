@@ -14,16 +14,22 @@ namespace tests
     [Collection("UsesDbContext")]
     public class MutationTest : DbContextTestSetup
     {
-        private readonly Mutation _mutation;
-        private readonly ProjectService _projectService;
-        private readonly EvaluationService _evaluationService;
-        private readonly ParticipantService _participantService;
-        private readonly QuestionService _questionService;
-        private readonly AnswerService _answerService;
-        private readonly QuestionTemplateService _questionTemplateService;
-        private readonly ActionService _actionService;
-        private readonly NoteService _noteService;
-        private readonly ClosingRemarkService _closingRemarkService;
+        /* Services */
+        protected readonly Mutation _mutation;
+        protected readonly ProjectService _projectService;
+        protected readonly EvaluationService _evaluationService;
+        protected readonly ParticipantService _participantService;
+        protected readonly QuestionService _questionService;
+        protected readonly AnswerService _answerService;
+        protected readonly QuestionTemplateService _questionTemplateService;
+        protected readonly ActionService _actionService;
+        protected readonly NoteService _noteService;
+        protected readonly ClosingRemarkService _closingRemarkService;
+        protected readonly MockAuthService _authService;
+
+        /* Helpers */
+        private readonly Project _project;
+
         public MutationTest()
         {
             ILoggerFactory factory = new NullLoggerFactory();
@@ -36,6 +42,7 @@ namespace tests
             _actionService = new ActionService(_context);
             _noteService = new NoteService(_context);
             _closingRemarkService = new ClosingRemarkService(_context);
+            _authService = new MockAuthService();
             _mutation = new Mutation(
                 _projectService,
                 _evaluationService,
@@ -46,49 +53,11 @@ namespace tests
                 _actionService,
                 _noteService,
                 _closingRemarkService,
-                new MockAuthService(),
+                _authService,
                 new Logger<Mutation>(factory)
             );
-        }
 
-        [Fact]
-        public void CreateEvaluation()
-        {
-            string projectId = _context.Projects.First().Id;
-            int evaluationsBefore = _context.Evaluations.Count();
-            _mutation.CreateEvaluation("CreateEvaluation", projectId, "");
-            int evaluationsAfter = _context.Evaluations.Count();
-
-            Assert.Equal(evaluationsBefore + 1, evaluationsAfter);
-        }
-
-        [Fact]
-        public void ProgressEvaluationToFollowup()
-        {
-            Project project = _projectService.Create("ProgressEvaluationToFollowup");
-            Evaluation evaluation = _evaluationService.Create("ProgressEvaluationToFollowup", project, "");
-            Participant participant = _participantService.Create("1", evaluation, Organization.All, Role.Facilitator);
-
-            List<Question> questions = _questionService.CreateBulk(_questionTemplateService.GetAll().ToList(), evaluation);
-            _answerService.Create(participant, questions[0], Severity.High, "test_answer_0", Progression.Workshop);
-            _answerService.Create(participant, questions[1], Severity.High, "test_answer_1", Progression.Workshop);
-            _answerService.Create(participant, questions[2], Severity.High, "test_answer_2", Progression.Workshop);
-
-            int nAnswersWorkshop = _context.Answers.Where(
-                a => (a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation))
-            ).Count();
-
-            // Forces null on db relations
-            // To simulate behavior of normal API call
-            _context.ChangeTracker.Clear();
-
-            _mutation.ProgressEvaluation(evaluation.Id, Progression.FollowUp);
-
-            int nAnswersFollowup = _context.Answers.Where(
-                a => (a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation))
-            ).Count();
-
-            Assert.Equal(nAnswersWorkshop, nAnswersFollowup);
+            _project = _projectService.Create("Project");
         }
     }
 }
