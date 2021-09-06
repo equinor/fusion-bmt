@@ -60,6 +60,36 @@ namespace tests
             AssertIsNotAuthorized(AzureUniqueId);
         }
 
+        [Fact]
+        public void CannotPerformOnNonLastFacilitator()
+        {
+            Evaluation evaluation = CreateEvaluation();
+            Participant first = evaluation.Participants.First();
+            _authService.LoginUser(first);
+            Participant second = CreateParticipant(evaluation, role: Role.Facilitator);
+
+            int participants = evaluation.Participants.Count();
+            Assert.Equal(2, participants);
+
+            _authService.LoginUser(second);
+            _mutation.DeleteParticipant(first.Id);
+
+            participants = evaluation.Participants.Count();
+            Assert.Equal(1, participants);
+        }
+
+        [Fact]
+        public void CannotPerformOnLastFacilitator()
+        {
+            Evaluation evaluation = CreateEvaluation();
+            Participant facilitator = evaluation.Participants.First();
+            _authService.LoginUser(facilitator);
+
+            Assert.Throws<InvalidOperationException>(() =>
+                _mutation.DeleteParticipant(facilitator.Id)
+            );
+        }
+
         /* Helper methods */
 
         private void AssertCanDelete(Participant user)

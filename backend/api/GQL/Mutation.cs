@@ -133,6 +133,24 @@ namespace api.GQL
             Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
             AssertCanPerformMutation(evaluation, canBePerformedBy);
 
+            Participant subject = _participantService.GetParticipant(participantId);
+
+            /* Safeguard against deleting the last Facilitator */
+            if (subject.Role.Equals(Role.Facilitator))
+            {
+                int facilitators = evaluation.Participants
+                    .Where(p => p.Role.Equals(Role.Facilitator))
+                    .Count()
+                ;
+
+                if (facilitators < 2)
+                {
+                    string msg = "Cannot delete last Facilitator in Evaluation";
+                    throw new InvalidOperationException(msg);
+
+                }
+            }
+
             return _participantService.Remove(participantId);
         }
 
