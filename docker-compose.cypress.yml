@@ -30,8 +30,8 @@ services:
             - "./frontend/cypress/auth_server:/mnt/conf"
     cypress:
         build:
-            context: frontend
-            dockerfile: cypress.Dockerfile
+            context: ./
+            dockerfile: ./frontend/cypress.Dockerfile
         depends_on:
             - frontend
         environment:

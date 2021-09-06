@@ -2,6 +2,9 @@ trigger:
     - master
     - cypress
 
+pr:
+    - master
+
 pool:
     vmImage: "ubuntu-latest"
 
