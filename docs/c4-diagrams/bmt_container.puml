@@ -1,0 +1,41 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define DEVICONS2 https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons2
+
+!include DEVICONS/react.puml
+!include DEVICONS/database.puml
+!include DEVICONS2/csharp_line.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title Container diagram for Barrier Management Tool
+
+Person(admin, "BMT admin", "Can change project types, question sets and more")
+Person(facilitator, "Facilitator", "Creates evaluations in BMT and oversees evaluation process")
+Person(org_lead, "Organization lead", "Is responsible for an organizational area in a project")
+Person(participant, "Participant", "Answers questions and takes part in workshop, sharing their knowledge on the state of barriers")
+
+System_Boundary(bmt, "Barrier Management Tool") {
+    Container(frontend, "Web app", "react, EDS, Fusion framework", "Front end application", react)
+    Container(backend, "Backend API", "C#", "Backend server with GraphQL API", csharp_line)
+    ContainerDb(database, "Database", "SQL Database", "Question sets, answers, actions and more", database)
+}
+
+System_Ext(fusionAuth, "Fusion Auth", "Fusion authentication & authorization service.")
+System_Ext(fusionProject, "Fusion Project", "Fusion project information service.")
+
+Rel(admin, frontend, "Configures evaluation setup")
+Rel(facilitator, frontend,"Elect org lead and facilitates")
+Rel(org_lead, frontend, "Elect participant and answers questions")
+Rel(participant, frontend, "Answers questions")
+
+Rel(frontend, backend, "Makes API call to","async, JSON/HTTPS")
+Rel(backend, database, "Makes DB call to","LINQ")
+
+Rel_L(frontend, fusionAuth, Authenticates users)
+Rel_R(frontend, fusionProject, Read project info)
+
+@enduml

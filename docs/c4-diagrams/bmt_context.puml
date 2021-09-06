@@ -1,0 +1,26 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title Context diagram for Barrier Management Tool
+
+Person(admin, "BMT admin", "Can change project types, question sets and more")
+Person(facilitator, "Facilitator", "Creates evaluations in BMT and oversees evaluation process")
+Person(org_lead, "Organization lead", "Is responsible for an organizational area in a project")
+Person(participant, "Participant", "Answers questions and takes part in workshop, sharing their knowledge on the state of barriers")
+
+System(bmt, "Barrier Management Tool", "System supporting the evaluation and improvement of barriers")
+System_Ext(fusionAuth, "Fusion Auth", "Fusion authentication & authorization service.")
+System_Ext(fusionProject, "Fusion Project", "Fusion project information  service.")
+
+Rel(admin, bmt, "Configures evaluation setup")
+Rel(facilitator, bmt,"Elect org lead and facilitates")
+Rel(org_lead, bmt, "Elect participant and answers questions")
+Rel(participant, bmt, "Answers questions")
+
+Rel_L(bmt, fusionAuth, Authenticates users)
+Rel_R(bmt, fusionProject, Read project info)
+
+@enduml
