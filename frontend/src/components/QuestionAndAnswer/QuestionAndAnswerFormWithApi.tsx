@@ -31,7 +31,8 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
 
     const { setAnswer, loading, error: errorSettingAnswer } = useSetAnswerMutation()
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
-    const [localAnswer, setLocalAnswer] = useState<Answer>(answer ?? emptyAnswer)
+    const [localAnswerText, setLocalAnswerText] = useState<string>(answer && answer.text ? answer.text : '')
+    const [localSeverity, setLocalSeverity] = useState<Severity>(answer && answer.severity ? answer.severity : Severity.Na)
 
     useEffect(() => {
         if (loading) {
@@ -47,12 +48,16 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
 
     useEffectNotOnMount(() => {
         const timeout = setTimeout(() => {
-            setAnswer(question.id, localAnswer.severity, localAnswer.text, viewProgression)
+            setAnswer(question.id, localSeverity, localAnswerText, viewProgression)
         }, WRITE_DELAY_MS)
         return () => {
             clearTimeout(timeout)
         }
-    }, [localAnswer])
+    }, [localAnswerText])
+
+    useEffectNotOnMount(() => {
+        setAnswer(question.id, localSeverity, localAnswerText, viewProgression)
+    }, [localSeverity])
 
     if (errorSettingAnswer !== undefined) {
         return (
@@ -66,10 +71,12 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
         <>
             <QuestionAndAnswerForm
                 question={question}
-                answer={localAnswer}
-                onAnswerChange={answerParts => {
-                    setSavingState(SavingState.Saving)
-                    setLocalAnswer(oldLocalAnswer => ({ ...oldLocalAnswer, ...answerParts }))
+                answer={{ ...(answer || emptyAnswer), text: localAnswerText, severity: localSeverity }}
+                onAnswerTextChange={(text: string) => {
+                    setLocalAnswerText(text)
+                }}
+                onSeverityChange={(severity: Severity) => {
+                    setLocalSeverity(severity)
                 }}
                 disabled={disabled}
                 savingState={savingState}
