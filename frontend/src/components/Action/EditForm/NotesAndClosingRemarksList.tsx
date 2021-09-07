@@ -42,6 +42,7 @@ const NotesAndClosingRemarksList = ({ notesAndClosingRemarks, participantsDetail
 
                 return (
                     <Box
+                        data-testid={isClosingRemark ? 'closing_remark' : 'note_element'}
                         key={noteOrRemark.id}
                         display="flex"
                         flexDirection="column"

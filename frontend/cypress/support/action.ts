@@ -180,6 +180,12 @@ export class EditActionDialog extends ActionDialog {
             })
     }
 
+    assertClosingCommentInList = () => {
+        cy.getByDataTestid('notes_list').within(() => {
+            cy.getByDataTestid('closing_remark', 10000).should('exist')
+        })
+    }
+
     /**
      * Insert provided values on the Edit dialog.
      */
@@ -205,8 +211,14 @@ export class EditActionDialog extends ActionDialog {
         this.assignedToInput().should('have.value', action.assignedTo.user.name)
         this.priorityInput().should('have.text', mapPriority(action.priority))
         this.dueDateInput().should('have.value', action.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
-        this.actionCompletedText().should(action.completed ? 'exist' : 'not.exist')
-        this.completeActionButton().should(action.completed ? 'not.exist' : 'exist')
+        this.assertNoteList(notes)
+    }
+
+    /**
+     * Check that notes list contain expected notes.
+     * @param notes Pass all notes in the order of creation
+     */
+    assertNoteList = (notes: Note[]) => {
         ;[...notes].reverse().forEach((note, index) => {
             this.notesDiv().children().eq(index).as('note')
             if (note.__typename === 'ClosingRemark') {
@@ -218,10 +230,25 @@ export class EditActionDialog extends ActionDialog {
                 cy.get('@note').contains(note.text).should('exist')
             }
 
-            // TODO: time not checked. Need to figure out if it can be done reasonably
+            // TODO: time not checked. Need to figure out if it can be done reasonably.
         })
     }
 
+    /**
+     * Check that the provided closing note is in the provided index.
+     */
+    assertClosingMessageInNotes = (note: Note, index: number) => {
+        this.notesDiv().children().eq(index).as('note')
+        cy.get('@note').should('contain.text', note.createdBy.user.name + ' closed action')
+        if (note.text) {
+            cy.get('@note').contains(note.text).should('exist')
+        }
+    }
+
+    /**
+     * Check that the notes list does not contain a closing note
+     * @param notes Pass all notes in the order of creation
+     */
     assertNoClosingMessageInNotes = (notes: Note[]) => {
         ;[...notes].reverse().forEach((note, index) => {
             this.notesDiv().children().eq(index).as('note')
@@ -230,6 +257,10 @@ export class EditActionDialog extends ActionDialog {
         })
     }
 
+    /**
+     * Check that all expected texts and buttons are or
+     * are not visible when action is not completed
+     */
     assertViewActionNotCompleted = () => {
         this.actionCompletedText().should('not.exist')
         this.completeActionButton().should('exist')
@@ -238,6 +269,10 @@ export class EditActionDialog extends ActionDialog {
         this.completeActionCancelButton().should('not.exist')
     }
 
+    /**
+     * Check that all expected texts and buttons are or
+     * are not visible when the 'confirm complete'-view is open
+     */
     openCompleteActionView = () => {
         this.completeActionButton().click()
         this.completeActionButton().should('be.disabled')
@@ -246,10 +281,15 @@ export class EditActionDialog extends ActionDialog {
         this.completeActionCancelButton().should('exist')
     }
 
+    /**
+     * Confirm complete action and check that the view looks like
+     * expected afterwards
+     */
     confirmAndCheckCompleted = () => {
         this.completeActionConfirmButton().click()
         this.assertSaved()
         this.actionCompletedText().should('exist')
+        this.assertClosingCommentInList()
     }
 }
 

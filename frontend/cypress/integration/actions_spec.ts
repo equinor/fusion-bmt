@@ -10,8 +10,6 @@ import { DELETE_ACTION } from '../support/gql'
 import * as faker from 'faker'
 import { getUsers } from '../support/mock/external/users'
 
-const WAIT = 4000 // Using 4000 since the tests will fail anyways if the query takes longer than that to respond
-
 describe('Actions', () => {
     const evaluationPage = new EvaluationPage()
     const actionsGrid = new ActionsGrid()
@@ -100,7 +98,9 @@ describe('Actions', () => {
             editActionDialog.assertActionValues(existingAction, existingNotes)
             editActionDialog.editAction(updatedAction, newNotes, dropdownSelect)
             editActionDialog.assertSaved()
+            editActionDialog.assertActionValues(updatedAction, existingNotes.concat(newNotes))
             editActionDialog.close()
+
             cy.testCacheAndDB(() => {
                 evaluationPage.progressionStepLink(actionProgression).click()
                 actionsGrid.actionLink(existingAction.questionOrder, updatedAction.title).click()
@@ -112,59 +112,52 @@ describe('Actions', () => {
     context('Complete action', () => {
         let seed: EvaluationSeed
         let editor: Participant
-
         let existingAction: Action
         let existingNotes: Note[]
-        let updatedAction: Action
-        let newNote: Note
-
-        const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
 
         beforeEach(() => {
             ;({ seed, editor, existingAction, existingNotes } = createEvaluationWithActionsWithNotes({ completed: false }))
-            ;({ updatedAction, newNote } = createCompleteActionData(seed, editor, existingAction))
 
-            seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, editor.user)
-                evaluationPage.progressionStepLink(actionProgression).click()
-            })
+            seed.plant()
         })
 
-        function testCacheInReopenedActionView() {
+        const actionProgression = faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
+
+        function openActionEditView() {
+            cy.visitEvaluation(seed.evaluationId, editor.user)
+            evaluationPage.progressionStepLink(actionProgression).click()
+            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+        }
+
+        function testViewAfterReload(newNote: Note) {
             cy.testCacheAndDB(() => {
                 evaluationPage.progressionStepLink(actionProgression).click()
-                actionsGrid.actionLink(existingAction.questionOrder, updatedAction.title).click()
-                editActionDialog.assertActionValues(updatedAction, existingNotes.concat([newNote]))
+                actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+                editActionDialog.assertClosingMessageInNotes(newNote, 0)
             })
         }
 
-        it('Action can be completed without writing a reason', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
-            editActionDialog.assertViewActionNotCompleted()
-            editActionDialog.openCompleteActionView()
-            editActionDialog.confirmAndCheckCompleted()
-            cy.wait(WAIT)
-            editActionDialog.assertActionValues(updatedAction, existingNotes.concat([newNote]))
-            editActionDialog.close()
-            testCacheInReopenedActionView()
-        })
+        it('Action can be completed', () => {
+            const saveWithReason = faker.datatype.boolean()
+            const newNote = createCompleteNote(existingAction, editor)
 
-        it('Action can be completed with a reason', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
+            openActionEditView()
+
             editActionDialog.assertViewActionNotCompleted()
             editActionDialog.openCompleteActionView()
-            editActionDialog.completedReasonInput().replace('Closed because of a good reason')
+            if (saveWithReason) {
+                editActionDialog.completedReasonInput().replace('Closed because of a good reason')
+            }
             editActionDialog.confirmAndCheckCompleted()
-            cy.wait(WAIT)
-            editActionDialog.assertActionValues(updatedAction, existingNotes.concat([newNote]))
+            editActionDialog.assertClosingMessageInNotes(newNote, 0)
             editActionDialog.close()
-            testCacheInReopenedActionView()
+            testViewAfterReload(newNote)
         })
 
         it('Completing Action can be cancelled', () => {
-            actionsGrid.actionLink(existingAction.questionOrder, existingAction.title).click()
-            editActionDialog.assertViewActionNotCompleted()
-            editActionDialog.openCompleteActionView()
+            openActionEditView()
+
+            editActionDialog.completeActionButton().click()
             editActionDialog.completeActionCancelButton().click()
             editActionDialog.assertViewActionNotCompleted()
             editActionDialog.assertNoClosingMessageInNotes(existingNotes)
@@ -252,12 +245,12 @@ describe('Actions', () => {
         let actions: Action[]
         let editor: Participant
 
-        beforeEach(() => {
-            ;({ seed, editor, actions } = createViewSeed())
-            seed.plant()
-        })
+        context('Created actions are visible in action tables with actions from all users', () => {
+            beforeEach(() => {
+                ;({ seed, editor, actions } = createViewSeed())
+                seed.plant()
+            })
 
-        context('Created actions are visible', () => {
             function getQuestion(action: Action) {
                 return seed.questions.find(q => q.id === seed.findQuestionId(action.questionOrder))!
             }
@@ -295,6 +288,13 @@ describe('Actions', () => {
                     actionsTab.assertActionValues(a, question!)
                 })
             })
+        })
+
+        context('Created actions are visible in action table with one users actions', () => {
+            beforeEach(() => {
+                ;({ seed, editor, actions } = createViewSeed(true))
+                seed.plant()
+            })
 
             it('Actions are visible on Dashboard Actions Tab', () => {
                 cy.visitProject(editor.user)
@@ -310,56 +310,55 @@ describe('Actions', () => {
     context('Actions Tab on Dashboard', () => {
         let seed: EvaluationSeed
         let editor: Participant
-
         let existingAction: Action
         let existingNotes: Note[]
 
         beforeEach(() => {
             ;({ seed, editor, existingAction, existingNotes } = createActionTableSeed())
-
-            seed.plant().then(() => {
-                cy.visitProject(editor.user)
-                dashboardActions.tab().click()
-            })
+            seed.plant()
         })
+
+        function openEditActionView(actionTitle: string) {
+            dashboardActions.tab().click()
+            dashboardActions.actionLink(existingAction.id, actionTitle).click()
+        }
 
         it('Action can be edited', () => {
             const { updatedAction, newNotes } = createEditTestData(seed, editor, existingAction, false)
 
-            dashboardActions.actionLink(existingAction.id, existingAction.title).click()
+            cy.visitProject(editor.user)
+            openEditActionView(existingAction.title)
+
             editActionDialog.assertActionValues(existingAction, existingNotes)
             editActionDialog.editAction(updatedAction, newNotes, dropdownSelect)
             editActionDialog.assertSaved()
-            cy.wait(WAIT)
             editActionDialog.assertActionValues(updatedAction, existingNotes.concat(newNotes))
             editActionDialog.close()
 
             cy.testCacheAndDB(() => {
-                dashboardActions.tab().click()
-                dashboardActions.actionLink(existingAction.id, updatedAction.title).click()
+                openEditActionView(updatedAction.title)
                 editActionDialog.assertActionValues(updatedAction, existingNotes.concat(newNotes))
             })
         })
 
         it('Action can be completed', () => {
-            const saveWithComment = Math.random() < 0.5
-            const { updatedAction: completedAction, newNote } = createCompleteActionData(seed, editor, existingAction)
+            const saveWithReason = faker.datatype.boolean()
+            const newNote = createCompleteNote(existingAction, editor)
 
-            dashboardActions.actionLink(existingAction.id, existingAction.title).click()
-            editActionDialog.assertViewActionNotCompleted()
+            cy.visitProject(editor.user)
+            openEditActionView(existingAction.title)
+
             editActionDialog.openCompleteActionView()
-            if (saveWithComment) {
+            if (saveWithReason) {
                 editActionDialog.completedReasonInput().replace('Closed because of a good reason')
             }
             editActionDialog.confirmAndCheckCompleted()
-            cy.wait(WAIT)
-            editActionDialog.assertActionValues(completedAction, existingNotes.concat([newNote]))
+            editActionDialog.assertClosingMessageInNotes(newNote, 0)
             editActionDialog.close()
 
             cy.testCacheAndDB(() => {
-                dashboardActions.tab().click()
-                dashboardActions.actionLink(existingAction.id, existingAction.title).click()
-                editActionDialog.assertActionValues(completedAction, existingNotes.concat([newNote]))
+                openEditActionView(existingAction.title)
+                editActionDialog.assertClosingMessageInNotes(newNote, 0)
             })
         })
     })
@@ -379,19 +378,18 @@ describe('Actions', () => {
 
         beforeEach(() => {
             ;({ seed, editor, existingAction, existingNotes } = createActionTableSeed())
-            seed.plant().then(() => {
-                cy.visitEvaluation(seed.evaluationId, editor.user)
-                navigateToView(existingAction.title)
-            })
+            seed.plant()
         })
 
         it('Action can be edited', () => {
             const { updatedAction, newNotes } = createEditTestData(seed, editor, existingAction)
 
+            cy.visitEvaluation(seed.evaluationId, editor.user)
+            navigateToView(existingAction.title)
+
             editActionDialog.assertActionValues(existingAction, existingNotes)
             editActionDialog.editAction(updatedAction, newNotes, dropdownSelect)
             editActionDialog.assertSaved()
-            cy.wait(WAIT)
             editActionDialog.assertActionValues(updatedAction, existingNotes.concat(newNotes))
             editActionDialog.close()
 
@@ -402,22 +400,23 @@ describe('Actions', () => {
         })
 
         it('Action can be completed', () => {
-            const saveWithComment = Math.random() < 0.5
+            const saveWithReason = faker.datatype.boolean()
             const { updatedAction: completedAction, newNote } = createCompleteActionData(seed, editor, existingAction)
 
-            editActionDialog.assertViewActionNotCompleted()
+            cy.visitEvaluation(seed.evaluationId, editor.user)
+            navigateToView(existingAction.title)
+
             editActionDialog.openCompleteActionView()
-            if (saveWithComment) {
+            if (saveWithReason) {
                 editActionDialog.completedReasonInput().replace('Closed because of a good reason')
             }
             editActionDialog.confirmAndCheckCompleted()
-            cy.wait(WAIT)
-            editActionDialog.assertActionValues(completedAction, existingNotes.concat([newNote]))
+            editActionDialog.assertClosingMessageInNotes(newNote, 0)
             editActionDialog.close()
 
             cy.testCacheAndDB(() => {
                 navigateToView(completedAction.title)
-                editActionDialog.assertActionValues(completedAction, existingNotes.concat([newNote]))
+                editActionDialog.assertClosingMessageInNotes(newNote, 0)
             })
         })
     })
@@ -510,16 +509,21 @@ const createActionTableSeed = () => {
     return { seed, editor, existingAction, existingNotes }
 }
 
-const createViewSeed = () => {
+const createViewSeed = (putAllActionsOnEditor = false) => {
     const seed = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
         users: getUsers(faker.datatype.number({ min: 1, max: 5 })),
     })
 
     const editor = faker.random.arrayElement(seed.participants)
+    const preassignedActionValues: Partial<Action> = { questionOrder: faker.datatype.number({ min: 1, max: 8 }) }
+
+    if (putAllActionsOnEditor) {
+        preassignedActionValues.assignedTo = editor
+    }
 
     const actions: Action[] = Array.from({ length: faker.datatype.number({ min: 2, max: 4 }) }, () => {
-        return seed.createAction({ questionOrder: faker.datatype.number({ min: 1, max: 8 }), assignedTo: editor })
+        return seed.createAction(preassignedActionValues)
     })
     faker.helpers.shuffle([...actions]).forEach(a => seed.addAction(a))
 
@@ -562,13 +566,18 @@ const createEditTestData = (seed: EvaluationSeed, editor: Participant, existingA
 
 const createCompleteActionData = (seed: EvaluationSeed, editor: Participant, existingAction: Action) => {
     const updatedAction = { ...existingAction, completed: true }
+    const newNote = createCompleteNote(updatedAction, editor)
 
+    return { updatedAction, newNote }
+}
+
+const createCompleteNote = (action: Action, editor: Participant) => {
     const newNote = new Note({
         text: '',
-        action: updatedAction,
+        action: action,
         createdBy: editor,
         typeName: 'ClosingRemark',
     })
 
-    return { updatedAction, newNote }
+    return newNote
 }
