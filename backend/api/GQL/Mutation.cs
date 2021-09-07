@@ -69,8 +69,10 @@ namespace api.GQL
 
         public Evaluation ProgressEvaluation(string evaluationId, Progression newProgression)
         {
-            _authService.AssertIsFacilitator(evaluationId);
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            Role[] canBePerformedBy = { Role.Facilitator };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             _evaluationService.ProgressEvaluation(evaluation, newProgression);
 
@@ -87,8 +89,10 @@ namespace api.GQL
 
         public Evaluation SetSummary(string evaluationId, string summary)
         {
-            _authService.AssertIsFacilitator(evaluationId);
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            Role[] canBePerformedBy = { Role.Facilitator };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             _evaluationService.SetSummary(evaluation, summary);
             return evaluation;
@@ -100,6 +104,9 @@ namespace api.GQL
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
             Participant participant = _participantService.GetParticipant(azureUniqueId, evaluation);
 
+            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead, Role.Participant };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             Participant progressedParticipant = _participantService.ProgressParticipant(participant, newProgression);
 
             return progressedParticipant;
@@ -108,11 +115,42 @@ namespace api.GQL
         public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization, Role role)
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             return _participantService.Create(azureUniqueId, evaluation, organization, role);
         }
 
         public Participant DeleteParticipant(string participantId)
         {
+            Evaluation evaluation = _participantService.GetAll()
+                .Where(p => p.Id.Equals(participantId))
+                .Select(p => p.Evaluation)
+                .First()
+            ;
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+            Participant subject = _participantService.GetParticipant(participantId);
+
+            /* Safeguard against deleting the last Facilitator */
+            if (subject.Role.Equals(Role.Facilitator))
+            {
+                int facilitators = evaluation.Participants
+                    .Where(p => p.Role.Equals(Role.Facilitator))
+                    .Count()
+                ;
+
+                if (facilitators < 2)
+                {
+                    string msg = "Cannot delete last Facilitator in Evaluation";
+                    throw new InvalidOperationException(msg);
+
+                }
+            }
+
             return _participantService.Remove(participantId);
         }
 
@@ -157,6 +195,10 @@ namespace api.GQL
             IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
             Question question = queryableQuestion.First();
             Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             Participant currentUser = CurrentUser(evaluation);
             Answer answer;
             try
@@ -178,6 +220,9 @@ namespace api.GQL
             Question question = queryableQuestion.First();
             Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
 
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             Participant assignedTo = _participantService.GetParticipant(assignedToId);
 
             return _actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority, question);
@@ -187,6 +232,10 @@ namespace api.GQL
         {
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
             Action action = queryableAction.First();
+            Evaluation evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             Participant assignedTo = _participantService.GetParticipant(assignedToId);
 
@@ -198,6 +247,10 @@ namespace api.GQL
             /* Note that no related fields are loaded */
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
             Action action = queryableAction.First();
+            Evaluation evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
+
+            Role[] canBePerformedBy = { Role.Facilitator };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
              _actionService.Remove(action);
              return action;
@@ -209,13 +262,10 @@ namespace api.GQL
             Action action = queryableAction.First();
             Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
 
-            return _noteService.Create(CurrentUser(evaluation), text, action);
-        }
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
-        public Note EditNote(string noteId, string text)
-        {
-            Note note = _noteService.GetNote(noteId);
-            return _noteService.EditNote(note, text);
+            return _noteService.Create(CurrentUser(evaluation), text, action);
         }
 
         public ClosingRemark CreateClosingRemark(string actionId, string text)
@@ -224,6 +274,9 @@ namespace api.GQL
             Action action = queryableAction.First();
             Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
 
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
             return _closingRemarkService.Create(CurrentUser(evaluation), text, action);
         }
 
@@ -231,6 +284,26 @@ namespace api.GQL
         {
             string azureUniqueId = _authService.GetOID();
             return _participantService.GetParticipant(azureUniqueId, evaluation);
+        }
+
+        private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles) {
+            string oid = _authService.GetOID();
+            Role userRoleInEvaluation;
+
+            try
+            {
+                userRoleInEvaluation = _participantService.GetParticipant(oid, evaluation).Role;
+            }
+            catch(NotFoundInDBException) {
+                string msg = "Non-participants cannot perform mutations on Evaluation";
+                throw new UnauthorizedAccessException(msg);
+            }
+
+            if (!validRoles.Contains(userRoleInEvaluation))
+            {
+                string msg = "{0} are not allowed to perform this operation";
+                throw new UnauthorizedAccessException(String.Format(msg, userRoleInEvaluation));
+            };
         }
     }
 }

@@ -1,5 +1,5 @@
 import { EvaluationSeed } from '../support/evaluation_seed'
-import { Progression, Priority } from '../../src/api/models'
+import { Progression, Priority, Role } from '../../src/api/models'
 import { FUSION_DATE_LOCALE } from '../support/helpers'
 import { barrierToString, organizationToString } from '../../src/utils/EnumToString'
 import { Action, Note, Participant } from '../support/mocks'
@@ -128,7 +128,7 @@ describe('Actions', () => {
             ;({ seed, actionToDelete, actionToStay } = createDeleteSeed())
 
             seed.plant().then(() => {
-                const user = faker.random.arrayElement(seed.participants).user
+                const user = faker.random.arrayElement(seed.participants.filter(x => x.role === Role.Facilitator)).user
                 cy.visitEvaluation(seed.evaluationId, user)
                 evaluationPage.progressionStepLink(deleteActionFrom).click()
                 cy.contains(actionToDelete.title).should('exist')
@@ -174,6 +174,7 @@ describe('Actions', () => {
                     }
                 })
 
+                cy.login(seed.participants[0].user)
                 deleteAction()
 
                 cy.testCacheAndDB(

@@ -208,39 +208,34 @@ const populateDB = (seed: EvaluationSeed) => {
             })
         })
         .then(() => {
-            cy.log(`EvaluationSeed: Progressing evaluation for creator ${seed.participants[0].user}`)
-            cy.gql(PROGRESS_PARTICIPANT, {
-                variables: {
-                    evaluationId: seed.evaluationId,
-                    newProgression: seed.participants[0].progression,
-                },
-            })
-        })
-        .then(() => {
             return seed.participants.slice(1)
         })
         .each((participant: Participant) => {
-            cy.log(`EvaluationSeed: Adding and progressing additional Participants`)
-            return cy
-                .gql(ADD_PARTICIPANT, {
+            cy.log(`EvaluationSeed: Adding Participants`)
+            cy.gql(ADD_PARTICIPANT, {
+                variables: {
+                    azureUniqueId: participant.user.id,
+                    evaluationId: seed.evaluationId,
+                    organization: participant.organization,
+                    role: participant.role,
+                },
+            }).then(res => {
+                participant.id = res.body.data.createParticipant.id
+            })
+        })
+        .then(() => {
+            return seed.participants
+        })
+        .each((participant: Participant) => {
+            cy.login(participant.user).then(() => {
+                cy.log(`EvaluationSeed: Progressing Participant`)
+                cy.gql(PROGRESS_PARTICIPANT, {
                     variables: {
-                        azureUniqueId: participant.user.id,
                         evaluationId: seed.evaluationId,
-                        organization: participant.organization,
-                        role: participant.role,
+                        newProgression: participant.progression,
                     },
                 })
-                .then(res => {
-                    participant.id = res.body.data.createParticipant.id
-                    cy.login(participant.user).then(() => {
-                        cy.gql(PROGRESS_PARTICIPANT, {
-                            variables: {
-                                evaluationId: seed.evaluationId,
-                                newProgression: participant.progression,
-                            },
-                        })
-                    })
-                })
+            })
         })
         .then(() => {
             return seed.answers

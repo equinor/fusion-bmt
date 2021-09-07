@@ -4,7 +4,6 @@ using api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
 using System.Linq;
 using System.Collections.Generic;
 using Xunit;
@@ -14,16 +13,22 @@ namespace tests
     [Collection("UsesDbContext")]
     public class MutationTest : DbContextTestSetup
     {
-        private readonly Mutation _mutation;
-        private readonly ProjectService _projectService;
-        private readonly EvaluationService _evaluationService;
-        private readonly ParticipantService _participantService;
-        private readonly QuestionService _questionService;
-        private readonly AnswerService _answerService;
-        private readonly QuestionTemplateService _questionTemplateService;
-        private readonly ActionService _actionService;
-        private readonly NoteService _noteService;
-        private readonly ClosingRemarkService _closingRemarkService;
+        /* Services */
+        protected readonly Mutation _mutation;
+        protected readonly ProjectService _projectService;
+        protected readonly EvaluationService _evaluationService;
+        protected readonly ParticipantService _participantService;
+        protected readonly QuestionService _questionService;
+        protected readonly AnswerService _answerService;
+        protected readonly QuestionTemplateService _questionTemplateService;
+        protected readonly ActionService _actionService;
+        protected readonly NoteService _noteService;
+        protected readonly ClosingRemarkService _closingRemarkService;
+        protected readonly MockAuthService _authService;
+
+        /* Helpers */
+        private readonly Project _project;
+
         public MutationTest()
         {
             ILoggerFactory factory = new NullLoggerFactory();
@@ -36,6 +41,7 @@ namespace tests
             _actionService = new ActionService(_context);
             _noteService = new NoteService(_context);
             _closingRemarkService = new ClosingRemarkService(_context);
+            _authService = new MockAuthService();
             _mutation = new Mutation(
                 _projectService,
                 _evaluationService,
@@ -46,49 +52,258 @@ namespace tests
                 _actionService,
                 _noteService,
                 _closingRemarkService,
-                new MockAuthService(),
+                _authService,
                 new Logger<Mutation>(factory)
             );
+
+            _project = _projectService.Create("Project");
         }
 
-        [Fact]
-        public void CreateEvaluation()
-        {
-            string projectId = _context.Projects.First().Id;
-            int evaluationsBefore = _context.Evaluations.Count();
-            _mutation.CreateEvaluation("CreateEvaluation", projectId, "");
-            int evaluationsAfter = _context.Evaluations.Count();
+        /* Mutation wrappers with default values */
 
-            Assert.Equal(evaluationsBefore + 1, evaluationsAfter);
+        protected Evaluation CreateEvaluation(
+            string name = null,
+            string projectId = null,
+            string previousEvaluationId = null)
+        {
+            if (name == null)
+            {
+                name = Randomize.String();
+            }
+
+            if (projectId == null)
+            {
+                projectId = _project.Id;
+            }
+
+            if (previousEvaluationId == null)
+            {
+                previousEvaluationId = "";
+            }
+
+            Evaluation evaluation =  _mutation.CreateEvaluation(
+                name: name,
+                projectId: projectId,
+                previousEvaluationId:  previousEvaluationId
+            );
+
+            return evaluation;
         }
 
-        [Fact]
-        public void ProgressEvaluationToFollowup()
+        protected Participant CreateParticipant(
+            Evaluation evaluation,
+            string azureUniqueId = null,
+            Organization? organization = null,
+            Role? role = null)
         {
-            Project project = _projectService.Create("ProgressEvaluationToFollowup");
-            Evaluation evaluation = _evaluationService.Create("ProgressEvaluationToFollowup", project, "");
-            Participant participant = _participantService.Create("ProgressEvaluationToFollowup", evaluation, Organization.All, Role.Facilitator);
+            if (azureUniqueId == null)
+            {
+                azureUniqueId = Randomize.Integer().ToString();
+            }
 
-            List<Question> questions = _questionService.CreateBulk(_questionTemplateService.GetAll().ToList(), evaluation);
-            _answerService.Create(participant, questions[0], Severity.High, "test_answer_0", Progression.Workshop);
-            _answerService.Create(participant, questions[1], Severity.High, "test_answer_1", Progression.Workshop);
-            _answerService.Create(participant, questions[2], Severity.High, "test_answer_2", Progression.Workshop);
+            Participant participant = _mutation.CreateParticipant(
+                azureUniqueId: azureUniqueId,
+                evaluationId: evaluation.Id,
+                organization: organization.GetValueOrDefault(Randomize.Organization()),
+                role: role.GetValueOrDefault(Randomize.Role())
+            );
 
-            int nAnswersWorkshop = _context.Answers.Where(
-                a => (a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation))
-            ).Count();
+            return participant;
+        }
 
-            // Forces null on db relations
-            // To simulate behavior of normal API call
-            _context.ChangeTracker.Clear();
+        protected Answer SetAnswer(
+            string questionId,
+            Severity? severity = null,
+            string text = null,
+            Progression? progression = null)
+        {
 
-            _mutation.ProgressEvaluation(evaluation.Id, Progression.FollowUp);
+            if (text == null)
+            {
+                text = Randomize.String();
+            }
 
-            int nAnswersFollowup = _context.Answers.Where(
-                a => (a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation))
-            ).Count();
+            Answer answer= _mutation.SetAnswer(
+                    questionId: questionId,
+                    severity: severity.GetValueOrDefault(Randomize.Severity()),
+                    text: text,
+                    progression: progression.GetValueOrDefault(Randomize.Progression())
+            );
 
-            Assert.Equal(nAnswersWorkshop, nAnswersFollowup);
+            return answer;
+        }
+
+        protected Action CreateAction(
+            string questionId,
+            string assignedToId,
+            string description = null,
+            System.DateTimeOffset? dueDate = null,
+            Priority? priority = null,
+            string title = null)
+        {
+
+            if (title == null)
+            {
+                title = Randomize.String();
+            }
+
+            if (description == null)
+            {
+                description = Randomize.String();
+            }
+
+            Action action = _mutation.CreateAction(
+                questionId: questionId,
+                assignedToId: assignedToId,
+                description: description,
+                dueDate: dueDate.GetValueOrDefault(System.DateTimeOffset.Now),
+                priority: priority.GetValueOrDefault(Randomize.Priority()),
+                title: title
+            );
+
+            return action;
+        }
+
+        protected Action EditAction(
+            string actionId,
+            string assignedToId,
+            string description = null,
+            System.DateTimeOffset? dueDate = null,
+            Priority? priority = null,
+            string title = null,
+            bool onHold = false,
+            bool completed = false)
+        {
+
+            if (title == null)
+            {
+                title = Randomize.String();
+            }
+
+            if (description == null)
+            {
+                description = Randomize.String();
+            }
+
+            Action action = _mutation.EditAction(
+                actionId: actionId,
+                assignedToId: assignedToId,
+                description: description,
+                dueDate: dueDate.GetValueOrDefault(System.DateTimeOffset.Now),
+                priority: priority.GetValueOrDefault(Randomize.Priority()),
+                title: title,
+                onHold: onHold,
+                completed: completed
+            );
+
+            return action;
+        }
+
+        protected void DeleteAction(string actionId)
+        {
+            _mutation.DeleteAction(actionId);
+        }
+
+        protected Note CreateNote(
+            string actionId,
+            string text = null)
+        {
+
+            if (text == null)
+            {
+                text = Randomize.String();
+            }
+
+            Note note = _mutation.CreateNote(
+                actionId: actionId,
+                text: text
+            );
+
+            return note;
+        }
+
+        protected ClosingRemark CreateClosingRemark(
+            string actionId,
+            string text = null)
+        {
+
+            if (text == null)
+            {
+                text = Randomize.String();
+            }
+
+            ClosingRemark remark = _mutation.CreateClosingRemark(
+                actionId: actionId,
+                text: text
+            );
+
+            return remark;
+        }
+
+        /* Helper methods */
+
+        protected int NumberOfParticipants(Evaluation evaluation)
+        {
+            int participants = _participantService
+                .GetAll()
+                .Where(p => p.Evaluation == evaluation)
+                .Count()
+            ;
+
+            return participants;
+        }
+
+        protected int NumberOfAnswers(Question question)
+        {
+            int answers = _answerService
+                .GetAll()
+                .Where(a => a.Question == question)
+                .Count()
+            ;
+
+            return answers;
+        }
+
+        protected int NumberOfActions(Question question)
+        {
+            int actions = _actionService
+                .GetAll()
+                .Where(a => a.Question == question)
+                .Count()
+            ;
+
+            return actions;
+        }
+
+        protected int NumberOfNotes(Action action)
+        {
+            int notes = _noteService
+                .GetAll()
+                .Where(a => a.Action == action)
+                .Count()
+            ;
+
+            return notes;
+        }
+
+        protected int NumberOfClosingRemarks(Action action)
+        {
+            int remarks = _closingRemarkService
+                .GetAll()
+                .Where(a => a.Action == action)
+                .Count()
+            ;
+
+            return remarks;
+        }
+
+        protected Question GetFirstQuestion(Evaluation evaluation)
+        {
+            return _questionService
+                .GetAll()
+                .Where(q => q.Evaluation.Id == evaluation.Id)
+                .First()
+            ;
         }
     }
 }

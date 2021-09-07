@@ -9,7 +9,6 @@ namespace api.Authorization
     public interface IAuthService
     {
         public string GetOID();
-        public void AssertIsFacilitator(string evaluationId);
     }
 
     public class AuthService : IAuthService
@@ -32,18 +31,6 @@ namespace api.Authorization
             var httpContext = _contextAccessor.HttpContext;
             string oid = httpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
             return oid;
-        }
-
-        public void AssertIsFacilitator(string evaluationId)
-        {
-            string oid = GetOID();
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-            Participant participant = _participantService.GetParticipant(oid, evaluation);
-            if (participant.Role != Role.Facilitator)
-            {
-                throw new UnauthorizedAccessException($"Current user is not Facilitator");
-
-            }
         }
     }
 }
