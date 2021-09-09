@@ -159,12 +159,12 @@ describe('Actions management', () => {
             {
                 role: Role.OrganizationLead,
                 canDeleteAction: false,
-                deleteButtonExists: true,
+                deleteButtonExists: false,
             },
             {
                 role: Role.Participant,
                 canDeleteAction: false,
-                deleteButtonExists: true,
+                deleteButtonExists: false,
             },
             {
                 role: Role.ReadOnly,
@@ -174,18 +174,6 @@ describe('Actions management', () => {
         ]
         roles.forEach(r => {
             it(`${r.role} delete button exists = ${r.deleteButtonExists} can delete action = ${r.canDeleteAction}`, () => {
-                if (r.role === Role.Participant || r.role === Role.OrganizationLead) {
-                    // Dev-note participant & orgLead should not be allowed to press delete button.
-                    // This test tests that when they do, they get this exception
-                    // Remove below exception when prod code is fixed.
-                    cy.on('uncaught:exception', (err, runnable) => {
-                        if (err.message.includes('are not allowed to perform this operation')) {
-                            console.log("Swallowing unhandled 'are not allowed to perform this operation'")
-                            return false
-                        }
-                    })
-                }
-
                 logInUser(r.role)
                 const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
                 if (!r.deleteButtonExists) {
