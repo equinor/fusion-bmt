@@ -15,6 +15,7 @@ namespace api.Context
         public DbSet<Note> Notes { get; set; }
         public DbSet<ClosingRemark> ClosingRemarks { get; set; }
         public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
+        public DbSet<ProjectCategory> ProjectCategories { get; set; }
 
         public BmtDbContext(DbContextOptions<BmtDbContext> options)
         : base(options)

@@ -24,6 +24,7 @@ namespace tests
                 new ActionService(_context),
                 new NoteService(_context),
                 new ClosingRemarkService(_context),
+                new ProjectCategoryService(_context),
                 new Logger<GraphQuery>(factory)
             );
         }

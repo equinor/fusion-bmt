@@ -78,6 +78,7 @@ namespace api.Services
                 Status = status,
                 Order = questionTemplate.Order,
                 previous = questionTemplate,
+                ProjectCategories = questionTemplate.ProjectCategories
             };
             _context.QuestionTemplates.Add(newQuestionTemplate);
 

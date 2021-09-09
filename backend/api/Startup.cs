@@ -114,6 +114,7 @@ namespace api
             services.AddScoped<NoteService>();
             services.AddScoped<ClosingRemarkService>();
             services.AddScoped<QuestionTemplateService>();
+            services.AddScoped<ProjectCategoryService>();
             services.AddScoped<IAuthService, AuthService>();
 
             services.AddGraphQLServer()

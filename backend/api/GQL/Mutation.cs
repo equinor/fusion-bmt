@@ -24,6 +24,7 @@ namespace api.GQL
 
         /* Admin Services */
         private readonly QuestionTemplateService _questionTemplateService;
+        private readonly ProjectCategoryService _projectCategoryService;
 
         /* Other Services */
         private readonly IAuthService _authService;
@@ -39,6 +40,7 @@ namespace api.GQL
             NoteService noteService,
             ClosingRemarkService closingRemarkService,
             QuestionTemplateService questionTemplateService,
+            ProjectCategoryService projectCategoryService,
             IAuthService authService,
             ILogger<Mutation> logger
         )
@@ -52,6 +54,7 @@ namespace api.GQL
             _noteService = noteService;
             _closingRemarkService = closingRemarkService;
             _questionTemplateService = questionTemplateService;
+            _projectCategoryService = projectCategoryService;
             _authService = authService;
             _logger = logger;
         }
@@ -255,6 +258,11 @@ namespace api.GQL
          * There are no role based restictions to these mutations as the
          * concept "Role" only exists withing an Evaluation.
          */
+        public ProjectCategory CreateProjectCategory(string name)
+        {
+            return _projectCategoryService.Create(name);
+        }
+
         public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
         {
             return _questionTemplateService.Create(barrier, organization, text, supportNotes);

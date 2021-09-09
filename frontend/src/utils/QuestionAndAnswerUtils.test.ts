@@ -99,6 +99,7 @@ describe('Test getFilledUserAnswersForProgression', () => {
             status: Status.Active,
             supportNotes: '',
             text: '',
+            projectCategories: []
         },
         supportNotes: '',
         text: '',

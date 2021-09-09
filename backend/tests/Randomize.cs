@@ -45,6 +45,11 @@ namespace tests
             return RandomEnumValue<Organization>();
         }
 
+        public static Barrier Barrier()
+        {
+            return RandomEnumValue<Barrier>();
+        }
+
         public static Progression Progression()
         {
             return RandomEnumValue<Progression>();

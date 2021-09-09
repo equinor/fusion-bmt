@@ -26,6 +26,7 @@ namespace tests
 
         /* Admin Services */
         protected readonly QuestionTemplateService _questionTemplateService;
+        protected readonly ProjectCategoryService _projectCategoryService;
 
         /* Other Services */
         protected readonly MockAuthService _authService;
@@ -45,6 +46,7 @@ namespace tests
             _noteService = new NoteService(_context);
             _closingRemarkService = new ClosingRemarkService(_context);
             _questionTemplateService = new QuestionTemplateService(_context);
+            _projectCategoryService = new ProjectCategoryService(_context);
             _authService = new MockAuthService();
             _mutation = new Mutation(
                 _projectService,
@@ -56,6 +58,7 @@ namespace tests
                 _noteService,
                 _closingRemarkService,
                 _questionTemplateService,
+                _projectCategoryService,
                 _authService,
                 new Logger<Mutation>(factory)
             );

@@ -200,6 +200,7 @@ namespace tests
                 .AddScoped<NoteService>()
                 .AddScoped<ClosingRemarkService>()
                 .AddScoped<QuestionTemplateService>()
+                .AddScoped<ProjectCategoryService>()
                 .AddScoped<Mutation>()
                 .BuildServiceProvider();
             return serviceProvider;

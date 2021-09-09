@@ -98,6 +98,20 @@ namespace api.Models
         public virtual QuestionTemplate QuestionTemplate { get; set; }
     }
 
+    public class ProjectCategory
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Required]
+        public string Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Required]
+        public ICollection<QuestionTemplate> QuestionTemplates { get; set; }
+    }
+
     public class QuestionTemplate
     {
         [Key]
@@ -121,6 +135,8 @@ namespace api.Models
         [Required]
         public virtual ICollection<Question> Questions { get; private set; }
         public QuestionTemplate previous { get; set; }
+        [Required]
+        public ICollection<ProjectCategory> ProjectCategories { get; set; }
     }
 
     public class Answer
