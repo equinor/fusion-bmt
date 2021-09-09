@@ -1,5 +1,4 @@
-import {Answer, Participant, Progression, Role} from "../api/models"
-
+import { Answer, Participant, Progression, Role } from '../api/models'
 
 /** Role-based access to an Answer
  *
@@ -17,22 +16,17 @@ export const participantCanReadAnswer = (participant: Participant | undefined, a
             return true
         case Role.Participant: // Intentional fall-through
         case Role.ReadOnly:
-            return (
-                answer.progression !== Progression.Individual ||
-                participant.id === answer.answeredBy?.id
-            )
+            return answer.progression !== Progression.Individual || participant.id === answer.answeredBy?.id
         default:
             return false
     }
 }
-
 
 /* Role-based rule for adding another Participant to the Evaluation */
 export const participantCanAddParticipant = (participant: Participant | undefined) => {
     /* Currently this share the same access as for deleting Participants */
     return participantCanDeleteParticipant(participant)
 }
-
 
 /* Role-based rule for deleting another Participant from the Evaluation */
 export const participantCanDeleteParticipant = (participant: Participant | undefined) => {
@@ -50,7 +44,6 @@ export const participantCanDeleteParticipant = (participant: Participant | undef
             return false
     }
 }
-
 
 /* Role-based rule for progressing an Evaluation */
 export const participantCanProgressEvaluation = (participant: Participant | undefined) => {
@@ -110,9 +103,9 @@ export const participantCanDeleteAction = (participant: Participant | undefined)
     }
     switch (participant.role) {
         case Role.Facilitator:
-        case Role.OrganizationLead:
-        case Role.Participant: // Intentional fall-through
             return true
+        case Role.OrganizationLead: // Intentional fall-through
+        case Role.Participant:
         case Role.ReadOnly:
             return false
         default:

@@ -20,6 +20,7 @@ import {
 type EvaluationSeedInput = {
     progression: Progression
     users: User[]
+    roles?: Role[]
     fusionProjectId?: string
     namePrefix?: string
 }
@@ -79,13 +80,21 @@ export class EvaluationSeed {
     actions: Action[] = []
     questions: Question[] = []
 
-    constructor({ progression, users, fusionProjectId = '123', namePrefix = 'Evaluation' }: EvaluationSeedInput) {
+    constructor({ progression, users, roles, fusionProjectId = '123', namePrefix = 'Evaluation' }: EvaluationSeedInput) {
         this.progression = progression
         let participants: Participant[] = []
 
-        users.forEach(u => {
-            participants.push(this.createParticipant({ user: u, progression: progression }))
-        })
+        if (roles === undefined) {
+            users.forEach(u => {
+                participants.push(this.createParticipant({ user: u, progression: progression }))
+            })
+        } else {
+            users.forEach((u, index) => {
+                const r = roles[index]
+                cy.log('Creating participant ' + r)
+                participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
+            })
+        }
         participants.forEach(p => this.addParticipant(p))
 
         this.fusionProjectId = fusionProjectId
