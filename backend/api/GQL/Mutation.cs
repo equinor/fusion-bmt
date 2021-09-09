@@ -12,15 +12,20 @@ namespace api.GQL
 {
     public class Mutation
     {
+        /* Primary Services*/
         private readonly ProjectService _projectService;
         private readonly EvaluationService _evaluationService;
         private readonly ParticipantService _participantService;
         private readonly QuestionService _questionService;
         private readonly AnswerService _answerService;
-        private readonly QuestionTemplateService _questionTemplateService;
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
         private readonly ClosingRemarkService _closingRemarkService;
+
+        /* Admin Services */
+        private readonly QuestionTemplateService _questionTemplateService;
+
+        /* Other Services */
         private readonly IAuthService _authService;
         private readonly ILogger _logger;
 
@@ -30,10 +35,10 @@ namespace api.GQL
             ParticipantService participantService,
             QuestionService questionService,
             AnswerService answerService,
-            QuestionTemplateService questionTemplateService,
             ActionService actionService,
             NoteService noteService,
             ClosingRemarkService closingRemarkService,
+            QuestionTemplateService questionTemplateService,
             IAuthService authService,
             ILogger<Mutation> logger
         )
@@ -43,14 +48,15 @@ namespace api.GQL
             _participantService = participantService;
             _questionService = questionService;
             _answerService = answerService;
-            _questionTemplateService = questionTemplateService;
             _actionService = actionService;
             _noteService = noteService;
             _closingRemarkService = closingRemarkService;
+            _questionTemplateService = questionTemplateService;
             _authService = authService;
             _logger = logger;
         }
 
+        /* Primary mutations - manupulating specific Evaluations */
         public Evaluation CreateEvaluation(string name,
                                            string projectId,
                                            string previousEvaluationId)
@@ -154,42 +160,6 @@ namespace api.GQL
             return _participantService.Remove(participantId);
         }
 
-        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
-        {
-            return _questionTemplateService.Create(barrier, organization, text, supportNotes);
-        }
-
-        public QuestionTemplate EditQuestionTemplate(
-            string questionTemplateId,
-            Barrier barrier,
-            Organization organization,
-            string text,
-            string supportNotes,
-            Status status
-        )
-        {
-            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
-            return _questionTemplateService.Edit(questionTemplate, barrier, organization, text, supportNotes, status);
-        }
-
-        public QuestionTemplate ReorderQuestionTemplate(
-            string questionTemplateId,
-            string newNextQuestionTemplateId
-        )
-        {
-            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
-            if (string.IsNullOrEmpty(newNextQuestionTemplateId))
-            {
-                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate);
-            }
-            else
-            {
-                QuestionTemplate newNextQuestionTemplate = _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
-                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
-            }
-        }
-
-
         public Answer SetAnswer(string questionId, Severity severity, string text, Progression progression)
         {
             IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
@@ -280,6 +250,47 @@ namespace api.GQL
             return _closingRemarkService.Create(CurrentUser(evaluation), text, action);
         }
 
+        /* Admin mutations
+         *
+         * There are no role based restictions to these mutations as the
+         * concept "Role" only exists withing an Evaluation.
+         */
+        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
+        {
+            return _questionTemplateService.Create(barrier, organization, text, supportNotes);
+        }
+
+        public QuestionTemplate EditQuestionTemplate(
+            string questionTemplateId,
+            Barrier barrier,
+            Organization organization,
+            string text,
+            string supportNotes,
+            Status status
+        )
+        {
+            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
+            return _questionTemplateService.Edit(questionTemplate, barrier, organization, text, supportNotes, status);
+        }
+
+        public QuestionTemplate ReorderQuestionTemplate(
+            string questionTemplateId,
+            string newNextQuestionTemplateId
+        )
+        {
+            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
+            if (string.IsNullOrEmpty(newNextQuestionTemplateId))
+            {
+                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate);
+            }
+            else
+            {
+                QuestionTemplate newNextQuestionTemplate = _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
+                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
+            }
+        }
+
+        /* Helpers */
         private Participant CurrentUser(Evaluation evaluation)
         {
             string azureUniqueId = _authService.GetOID();

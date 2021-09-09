@@ -11,8 +11,8 @@ namespace api.Context
 {
     public static class InitContent
     {
-        public static readonly List<Project> Projects = GetProjects();
         public static readonly List<QuestionTemplate> QuestionTemplates = GetQuestionTemplates();
+        public static readonly List<Project> Projects = GetProjects();
         public static readonly List<Evaluation> Evaluations = GetEvaluations();
         public static readonly List<Participant> Participants = GetParticipants();
         public static readonly List<Question> Questions = GetQuestions();
