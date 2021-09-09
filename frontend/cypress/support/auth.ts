@@ -21,7 +21,6 @@ export const getToken = (): string => {
 const tokens = new Map<User, string>()
 
 Cypress.Commands.add('login', (user: User) => {
-    cy.log('Logging with user: ' + user.username)
     if (tokens.has(user)) {
         window.localStorage.setItem(CACHE_ENTRY, tokens.get(user)!)
         return
