@@ -91,7 +91,6 @@ export class EvaluationSeed {
         } else {
             users.forEach((u, index) => {
                 const r = roles[index]
-                cy.log('Creating participant ' + r)
                 participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
             })
         }
@@ -199,7 +198,6 @@ const populateDB = (seed: EvaluationSeed) => {
         .then(res => {
             seed.projectId = res.body.data.project.id
 
-            cy.log(`EvaluationSeed: Creating Evaluation by ${seed.participants[0].user}`)
             cy.gql(ADD_EVALUATION, { variables: { name: seed.name, projectId: seed.projectId } }).then(res => {
                 const evaluation = res.body.data.createEvaluation
                 seed.evaluationId = evaluation.id
@@ -208,7 +206,6 @@ const populateDB = (seed: EvaluationSeed) => {
             })
         })
         .then(e => {
-            cy.log(`EvaluationSeed: Progressing Evaluation to ${seed.progression}`)
             cy.gql(PROGRESS_EVALUATION, {
                 variables: {
                     evaluationId: seed.evaluationId,
@@ -220,7 +217,6 @@ const populateDB = (seed: EvaluationSeed) => {
             return seed.participants.slice(1)
         })
         .each((participant: Participant) => {
-            cy.log(`EvaluationSeed: Adding Participants`)
             cy.gql(ADD_PARTICIPANT, {
                 variables: {
                     azureUniqueId: participant.user.id,
@@ -237,7 +233,6 @@ const populateDB = (seed: EvaluationSeed) => {
         })
         .each((participant: Participant) => {
             cy.login(participant.user).then(() => {
-                cy.log(`EvaluationSeed: Progressing Participant`)
                 cy.gql(PROGRESS_PARTICIPANT, {
                     variables: {
                         evaluationId: seed.evaluationId,
@@ -251,7 +246,6 @@ const populateDB = (seed: EvaluationSeed) => {
         })
         .each((answer: Answer) => {
             cy.login(answer.answeredBy.user).then(() => {
-                cy.log(`EvaluationSeed: Adding Answer`)
                 cy.gql(SET_ANSWER, {
                     variables: {
                         questionId: seed.findQuestionId(answer.questionOrder),
@@ -268,7 +262,6 @@ const populateDB = (seed: EvaluationSeed) => {
         .each((action: Action) => {
             cy.login(action.createdBy.user)
                 .then(() => {
-                    cy.log(`EvaluationSeed: Adding Action`)
                     cy.gql(CREATE_ACTION, {
                         variables: {
                             questionId: seed.findQuestionId(action.questionOrder),
@@ -284,7 +277,6 @@ const populateDB = (seed: EvaluationSeed) => {
                     action.id = res.body.data.createAction.id
                 })
                 .then(() => {
-                    cy.log(`EvaluationSeed: Editing Action`)
                     cy.gql(EDIT_ACTION, {
                         variables: {
                             actionId: action.id,
@@ -304,7 +296,6 @@ const populateDB = (seed: EvaluationSeed) => {
         })
         .each((note: Note) => {
             cy.login(note.createdBy.user).then(() => {
-                cy.log(`EvaluationSeed: Adding Note`)
                 cy.gql(CREATE_NOTE, {
                     variables: {
                         text: note.text,
@@ -316,7 +307,6 @@ const populateDB = (seed: EvaluationSeed) => {
         .then(() => {
             if (seed.summary !== undefined) {
                 cy.login(seed.summary.createdBy.user).then(() => {
-                    cy.log(`EvaluationSeed: Setting summary to: ${seed.summary!.summary}`)
                     cy.gql(SET_SUMMARY, {
                         variables: {
                             evaluationId: seed.evaluationId,
