@@ -12,6 +12,7 @@ import { StyledTabPanel } from '../../components/StyledTabs'
 import { apiErrorMessage } from '../../api/error'
 import ActionTableForOneUserWithApi from '../../components/ActionTable/ActionTableForOneUserWithApi'
 import { Project } from '../../api/models'
+import AdminView from '../Admin/AdminView'
 
 const { TabList, Tab, TabPanels } = Tabs
 
@@ -25,6 +26,8 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
 
     const [activeTab, setActiveTab] = React.useState(0)
     const { loading, project, error } = useProjectQuery(fusionProjectId)
+
+    const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
 
     if (loading) {
         return <>Loading...</>
@@ -44,13 +47,22 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
                 <TabList>
                     <Tab>Dashboard</Tab>
                     <Tab>Actions</Tab>
+                    {isAdmin ? <Tab>Admin</Tab> : <></>}
                 </TabList>
                 <TabPanels>
                     <StyledTabPanel>
                         <ProjectDashboardView project={project} />
-                    </StyledTabPanel><StyledTabPanel>
-                        <ActionTableForOneUserWithApi azureUniqueId={currentUser!.id}/>
                     </StyledTabPanel>
+                    <StyledTabPanel>
+                        <ActionTableForOneUserWithApi azureUniqueId={currentUser!.id} />
+                    </StyledTabPanel>
+                    {isAdmin ? (
+                        <StyledTabPanel>
+                            <AdminView />
+                        </StyledTabPanel>
+                    ) : (
+                        <></>
+                    )}
                 </TabPanels>
             </Tabs>
         </ProjectContext.Provider>
