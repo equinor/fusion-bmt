@@ -78,6 +78,7 @@ describe('Actions management', () => {
         })
 
         const randomRole = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
+
         it(`Action creation by ${randomRole} and verification that action was created`, () => {
             logInUser(randomRole)
             let action = createActionTestData(users)
@@ -122,21 +123,15 @@ describe('Actions management', () => {
         it(`Editing action by ${randomRole} - assign action, add notes and verify notes were added`, () => {
             let user = logInUser(randomRole)
             ;({ actionNotes, action } = findActionWithNotes(seed))
-            actionsGrid.actionLink(action.questionOrder, action.title).click()
-            editActionDialog.assertActionValues(action, actionNotes)
             ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
-            editActionDialog.titleInput().replace(updatedAction.title)
-            dropdownSelect.select(editActionDialog.assignedToInput(), updatedAction.assignedTo.user.name)
-            editActionDialog.dueDateInput().replace(updatedAction.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
-            dropdownSelect.select(editActionDialog.priorityInput(), mapPriority(updatedAction.priority))
-            editActionDialog.descriptionInput().replace(updatedAction.description)
-            newNotes.forEach(note => {
-                editActionDialog.notesInput().replace(note.text)
-                editActionDialog.addNoteButton().click()
-            })
 
-            editActionDialog.assertSaved()
+            actionsGrid.actionLink(action.questionOrder, action.title).click()
+
+            editActionDialog.assertActionValues(action, actionNotes)
+            editActionDialog.editAction(updatedAction, newNotes, actionNotes.length)
+            editActionDialog.assertNotesValues(actionNotes.concat(newNotes))
             editActionDialog.close()
+
             cy.testCacheAndDB(() => {
                 evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
                 actionsGrid.actionLink(action.questionOrder, updatedAction.title).click()
@@ -263,6 +258,7 @@ describe('Actions management', () => {
                 actionsGrid.actionCompleteDiv(a.id).should(a.completed ? 'exist' : 'not.exist')
             })
         }
+
         it('Actions are visible on Workshop Progression', () => {
             logInRandomUser(Progression.Workshop)
             checkActionsExistOnProgression()
@@ -285,76 +281,59 @@ describe('Actions management', () => {
         })
     })
     context('Completing actions', () => {
+        let action: Action
+        let actionNotes: Note[]
+        let updatedAction: Action
         let newNote: Note
 
-        function checkView() {
-            editActionDialog.actionCompletedText().should('not.exist')
-            editActionDialog.completeActionButton().should('exist')
-            editActionDialog.completedReasonInput().should('not.exist')
-            editActionDialog.completeActionConfirmButton().should('not.exist')
-            editActionDialog.completeActionCancelButton().should('not.exist')
-        }
+        const roleThatCanComplete = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
+        const saveWithReason = faker.datatype.boolean()
 
-        function openConfirmCompleteView() {
+        it(`Action can be completed by ${roleThatCanComplete} ${saveWithReason ? 'with a reason' : 'without a reason'}`, () => {
+            let user = logInUser(roleThatCanComplete)
+            ;({ actionNotes, action } = findActionWithNotes(seed))
+            ;({ updatedAction, newNote } = createCompleteAction(user, action, saveWithReason))
+
+            actionsGrid.actionLink(action.questionOrder, action.title).click()
+
+            editActionDialog.assertCompletedInView(action.completed)
+            editActionDialog.assertCompleteConfirmViewVisible(false)
+
             editActionDialog.completeActionButton().click()
-            editActionDialog.completeActionButton().should('be.disabled')
-            editActionDialog.completedReasonInput().should('exist')
-            editActionDialog.completeActionConfirmButton().should('exist')
-            editActionDialog.completeActionCancelButton().should('exist')
-        }
+            editActionDialog.assertCompleteConfirmViewVisible(true)
 
-        function confirmAndCheckCompleted() {
+            editActionDialog.completedReasonInput().replace(newNote.text)
             editActionDialog.completeActionConfirmButton().click()
+
             editActionDialog.assertSaved()
             editActionDialog.actionCompletedText().should('exist')
+            editActionDialog.assertClosingNoteExists(newNote)
             editActionDialog.close()
-        }
 
-        function testCacheInReopenedActionView(oneAction: Action, notesInTheAction: Note[]) {
             cy.testCacheAndDB(() => {
                 evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
-                actionsGrid.actionLink(oneAction.questionOrder, oneAction.title).click()
-                editActionDialog.assertActionValues(oneAction, notesInTheAction)
+                actionsGrid.actionLink(updatedAction.questionOrder, updatedAction.title).click()
+                editActionDialog.assertClosingNoteExists(newNote)
             })
-        }
-
-        let actionNotes: Note[]
-        let action: Action
-        let updatedAction: Action
-
-        const roleThatCanComplete = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
-        it(`Action can be completed by ${roleThatCanComplete} without writing a reason`, () => {
-            let user = logInUser(roleThatCanComplete)
-            ;({ actionNotes, action } = findActionWithNotes(seed))
-            ;({ updatedAction, newNote } = createCompleteAction(user, action))
-            actionsGrid.actionLink(action.questionOrder, action.title).click()
-            checkView()
-            openConfirmCompleteView()
-            confirmAndCheckCompleted()
-            testCacheInReopenedActionView(updatedAction, actionNotes.concat(newNote))
-        })
-
-        it(`Action can be completed by ${roleThatCanComplete} with a reason`, () => {
-            let user = logInUser(roleThatCanComplete)
-            ;({ actionNotes, action } = findActionWithNotes(seed))
-            ;({ updatedAction, newNote } = createCompleteAction(user, action))
-            actionsGrid.actionLink(action.questionOrder, action.title).click()
-            checkView()
-            openConfirmCompleteView()
-            editActionDialog.completedReasonInput().replace('Closed because of a good reason')
-            confirmAndCheckCompleted()
-            testCacheInReopenedActionView(updatedAction, actionNotes.concat(newNote))
         })
 
         it(`Completing Action can be cancelled by ${roleThatCanComplete}`, () => {
             let user = logInUser(roleThatCanComplete)
             ;({ actionNotes, action } = findActionWithNotes(seed))
+
             actionsGrid.actionLink(action.questionOrder, action.title).click()
-            checkView()
-            openConfirmCompleteView()
+
+            editActionDialog.assertCompletedInView(action.completed)
+
+            editActionDialog.completeActionButton().click()
+
+            editActionDialog.assertCompleteConfirmViewVisible(true)
+
             editActionDialog.completeActionCancelButton().click()
-            checkView()
-            editActionDialog.assertNoClosingMessageInNotes(actionNotes)
+
+            editActionDialog.assertCompleteConfirmViewVisible(false)
+            editActionDialog.actionCompletedText().should('not.exist')
+            cy.contains('closed action').should('not.exist')
         })
     })
 })
@@ -450,11 +429,11 @@ const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Ac
     return { updatedAction, newNotes }
 }
 
-const createCompleteAction = (user: User, existingAction: Action) => {
+const createCompleteAction = (user: User, existingAction: Action, saveWithReason: boolean) => {
     const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
     const updatedAction = { ...existingAction, completed: true }
     const newNote = new Note({
-        text: '',
+        text: saveWithReason ? 'Closed because of a good reason' : '',
         action: updatedAction,
         createdBy: new Participant({
             user,
