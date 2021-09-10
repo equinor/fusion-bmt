@@ -41,7 +41,7 @@ describe('Creating a new Evaluation', () => {
         projectPage.createEvaluationButton().click()
 
         const dialog = new ProjectPage.CreateEvaluationDialog()
-        dialog.createEvaluation(name)
+        dialog.createEvaluation(name, 'SquareField')
 
         const nominationPage = new NominationPage()
         nominationPage.evaluationTitle().should('have.text', name)
@@ -56,7 +56,7 @@ describe('Creating a new Evaluation', () => {
                 projectPage.createEvaluationButton().click()
 
                 const dialog = new ProjectPage.CreateEvaluationDialog()
-                dialog.createEvaluation(name, previous.name)
+                dialog.createEvaluation(name, 'SquareField', previous.name)
 
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)

@@ -71,7 +71,8 @@ namespace tests
         protected Evaluation CreateEvaluation(
             string name = null,
             string projectId = null,
-            string previousEvaluationId = null)
+            string previousEvaluationId = null,
+            string projectCategoryId = null)
         {
             if (name == null)
             {
@@ -88,10 +89,16 @@ namespace tests
                 previousEvaluationId = "";
             }
 
+            if (projectCategoryId == null)
+            {
+                projectCategoryId = _projectCategoryService.GetAll().First().Id;
+            }
+
             Evaluation evaluation =  _mutation.CreateEvaluation(
-                name: name,
-                projectId: projectId,
-                previousEvaluationId:  previousEvaluationId
+                name:                 name,
+                projectId:            projectId,
+                previousEvaluationId: previousEvaluationId,
+                projectCategoryId:    projectCategoryId
             );
 
             return evaluation;

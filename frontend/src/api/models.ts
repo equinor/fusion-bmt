@@ -364,6 +364,7 @@ export type MutationCreateEvaluationArgs = {
   name?: Maybe<Scalars['String']>;
   projectId?: Maybe<Scalars['String']>;
   previousEvaluationId?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
 };
 
 

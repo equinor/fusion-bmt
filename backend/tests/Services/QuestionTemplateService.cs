@@ -68,6 +68,7 @@ namespace tests
             originalQT = service.AddToProjectCategory(originalQT.Id, projectCategory.Id);
 
             var nTemplates = service.GetAll().Count();
+            var nActive = service.ActiveQuestions(projectCategory).Count();
 
             var newText         = Randomize.String();
             var newSupportNotes = Randomize.String();
@@ -84,6 +85,7 @@ namespace tests
             );
 
             Assert.Equal(nTemplates + 1, service.GetAll().Count());
+            Assert.Equal(nActive, service.ActiveQuestions(projectCategory).Count());
 
             Assert.Equal(newText,          updatedQT.Text);
             Assert.Equal(newSupportNotes,  updatedQT.SupportNotes);
@@ -127,6 +129,7 @@ namespace tests
             var projectCategory = projectCategoryService.Create(Randomize.String());
 
             var service = new QuestionTemplateService(_context);
+            var nActive = service.ActiveQuestions(projectCategory).Count();
             var nTemplates = service.GetAll().Count();
             var template = service.GetAll().First();
 
@@ -136,6 +139,7 @@ namespace tests
             Assert.True(updatedQT.ProjectCategories.Contains(updatedSP));
             Assert.True(updatedSP.QuestionTemplates.Contains(updatedQT));
 
+            Assert.Equal(nActive + 1, service.ActiveQuestions(projectCategory).Count());
             Assert.Equal(nTemplates,  service.GetAll().Count());
 
             /* Adding the same QuestionTemplate should fail */
@@ -155,6 +159,7 @@ namespace tests
 
             service.AddToProjectCategory(template.Id, projectCategory.Id);
 
+            var nActive = service.ActiveQuestions(projectCategory).Count();
             var nTemplates = service.GetAll().Count();
 
             var updatedQT = service.RemoveFromProjectCategory(template.Id, projectCategory.Id);
@@ -163,6 +168,7 @@ namespace tests
             Assert.False(updatedQT.ProjectCategories.Contains(updatedSP));
             Assert.False(updatedSP.QuestionTemplates.Contains(updatedQT));
 
+            Assert.Equal(nActive - 1, service.ActiveQuestions(projectCategory).Count());
             Assert.Equal(nTemplates,  service.GetAll().Count());
 
             /* Removing the same QuestionTemplate should fail */

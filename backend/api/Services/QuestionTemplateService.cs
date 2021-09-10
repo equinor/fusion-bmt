@@ -17,11 +17,16 @@ namespace api.Services
             _context = context;
         }
 
-        public List<QuestionTemplate> ActiveQuestions()
+        public List<QuestionTemplate> ActiveQuestions(ProjectCategory projectCategory)
         {
-            List<QuestionTemplate> questions = _context.QuestionTemplates.Where(
-                template => template.Status.Equals(Status.Active)
-            ).ToList();
+            List<QuestionTemplate> questions = _context.QuestionTemplates
+                .Include(x => x.ProjectCategories)
+                .Where(template =>
+                    template.Status.Equals(Status.Active) &&
+                    template.ProjectCategories.Contains(projectCategory)
+                )
+                .ToList();
+
             return questions;
         }
 

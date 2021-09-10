@@ -26,6 +26,7 @@ describe('Sample tests', () => {
 
         const createEvaluationDialog = new ProjectPage.CreateEvaluationDialog()
         createEvaluationDialog.nameTextField().type(evaluationName)
+        createEvaluationDialog.projectCategoryTextField().type(`SquareField{enter}`)
         createEvaluationDialog.createButton().click()
 
         const nominationPage = new NominationPage()

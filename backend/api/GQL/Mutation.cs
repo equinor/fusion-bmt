@@ -60,19 +60,35 @@ namespace api.GQL
         }
 
         /* Primary mutations - manupulating specific Evaluations */
-        public Evaluation CreateEvaluation(string name,
-                                           string projectId,
-                                           string previousEvaluationId)
+        public Evaluation CreateEvaluation(
+            string name,
+            string projectId,
+            string previousEvaluationId,
+            string projectCategoryId
+        )
         {
-            string azureUniqueId = _authService.GetOID();
-            Project project = _projectService.GetProject(projectId);
-            Evaluation evaluation = _evaluationService.Create(
-                name, project, previousEvaluationId
-            );
-            _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
+            var azureUniqueId = _authService.GetOID();
 
-            _questionService.CreateBulk(_questionTemplateService.ActiveQuestions(), evaluation);
-            _logger.LogInformation($"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}");
+            var project = _projectService.GetProject(projectId);
+            var evaluation = _evaluationService.Create(
+                name:                 name,
+                project:              project,
+                previousEvaluationId: previousEvaluationId
+            );
+
+            _participantService.Create(
+                azureUniqueId: azureUniqueId,
+                evaluation:    evaluation,
+                organization:  Organization.All,
+                role:          Role.Facilitator
+            );
+
+            var projectCategory = _projectCategoryService.Get(projectCategoryId);
+            var questions = _questionTemplateService.ActiveQuestions(projectCategory);
+            _questionService.CreateBulk(questions, evaluation);
+
+            var log = $"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}";
+            _logger.LogInformation(log);
             return evaluation;
         }
 
