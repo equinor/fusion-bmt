@@ -355,6 +355,8 @@ export type Mutation = {
   createQuestionTemplate?: Maybe<QuestionTemplate>;
   editQuestionTemplate?: Maybe<QuestionTemplate>;
   reorderQuestionTemplate?: Maybe<QuestionTemplate>;
+  addToProjectCategory?: Maybe<QuestionTemplate>;
+  removeFromProjectCategory?: Maybe<QuestionTemplate>;
 };
 
 
@@ -469,6 +471,18 @@ export type MutationEditQuestionTemplateArgs = {
 export type MutationReorderQuestionTemplateArgs = {
   questionTemplateId?: Maybe<Scalars['String']>;
   newNextQuestionTemplateId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationAddToProjectCategoryArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationRemoveFromProjectCategoryArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
 };
 
 export type Note = {

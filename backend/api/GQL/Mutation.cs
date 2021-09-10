@@ -298,6 +298,22 @@ namespace api.GQL
             }
         }
 
+        public QuestionTemplate AddToProjectCategory(
+            string questionTemplateId,
+            string projectCategoryId
+        )
+        {
+            return _questionTemplateService.AddToProjectCategory(questionTemplateId, projectCategoryId);
+        }
+
+        public QuestionTemplate RemoveFromProjectCategory(
+            string questionTemplateId,
+            string projectCategoryId
+        )
+        {
+            return _questionTemplateService.RemoveFromProjectCategory(questionTemplateId, projectCategoryId);
+        }
+
         /* Helpers */
         private Participant CurrentUser(Evaluation evaluation)
         {

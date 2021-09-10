@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 using api.Context;
 using api.Models;
@@ -86,6 +87,82 @@ namespace api.Services
             _context.QuestionTemplates.Update(questionTemplate);
             _context.SaveChanges();
             return newQuestionTemplate;
+        }
+
+        public QuestionTemplate AddToProjectCategory(
+            string questionTemplateId,
+            string projectCategoryId
+        )
+        {
+            /* The Include solves 2 problems for us:
+             *
+             *  1) Include, as the name suggest, includes the navigation
+             *  property ProjectCategory in the query. Which is the property that we
+             *  want to alter.
+             *
+             *  2) Because we don't explicitly initialize the navigation
+             *  property "ProjectCategories", it will be null after creation.
+             *  This will obviously make the rest of the code fail. Explicitly
+             *  querying ProjectCategories will initialize it when applicable.
+             *
+             *  Because Include increases the query size, it introduces a
+             *  performance hit. In this case there is no way around it as we
+             *  need to query for both QuestionTemplate and it's
+             *  ProjectCategories.  Luckily ProjectCategories.Count() will
+             *  always be reasonable small.
+             *
+             *  Because of the performance implications of Include, the
+             *  signature of this method breaks the general convention of the
+             *  class by taking in Ids rather than Objects. This design was
+             *  chosen to relieve the caller from having to make the correct
+             *  object Query. E.g. if the caller got the QuestionTemplate
+             *  object from GetQuestionTemplate() and passed that to this
+             *  method, it would fail as GetQuestionTemplate() doesn't (and
+             *  shouldn't) do Include.
+             */
+            var template = _context.QuestionTemplates
+                .Include(x => x.ProjectCategories)
+                .Single(x => x.Id == questionTemplateId)
+            ;
+
+            var projectCategory = _context.ProjectCategories
+                .Single(x => x.Id == projectCategoryId)
+            ;
+
+            if (template.ProjectCategories.Contains(projectCategory))
+            {
+                string msg = "QuestionTemplate is already in ProjectCategory";
+                throw new Exception(msg);
+            }
+
+            template.ProjectCategories.Add(projectCategory);
+            _context.SaveChanges();
+            return template;
+        }
+
+        public QuestionTemplate RemoveFromProjectCategory(
+            string questionTemplateId,
+            string projectCategoryId
+        )
+        {
+            var template = _context.QuestionTemplates
+                .Include(x => x.ProjectCategories)
+                .Single(x => x.Id == questionTemplateId)
+            ;
+
+            var projectCategory = _context.ProjectCategories
+                .Single(x => x.Id == projectCategoryId)
+            ;
+
+            if (!template.ProjectCategories.Contains(projectCategory))
+            {
+                string msg = "QuestionTemplate is not in ProjectCategory";
+                throw new Exception(msg);
+            }
+
+            template.ProjectCategories.Remove(projectCategory);
+            _context.SaveChanges();
+            return template;
         }
 
         private QuestionTemplate ReorderQuestionTemplateInternal(QuestionTemplate questionTemplate, int newOrder)
