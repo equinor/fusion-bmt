@@ -13,6 +13,7 @@ namespace api.GQL
         private readonly EvaluationService _evaluationService;
         private readonly ParticipantService _participantService;
         private readonly QuestionService _questionService;
+        private readonly QuestionTemplateService _questionTemplateService;
         private readonly AnswerService _answerService;
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
@@ -24,6 +25,7 @@ namespace api.GQL
             EvaluationService evaluationService,
             ParticipantService participantService,
             QuestionService questionService,
+            QuestionTemplateService questionTemplateService,
             AnswerService answerService,
             ActionService actionService,
             NoteService noteService,
@@ -35,6 +37,7 @@ namespace api.GQL
             _evaluationService = evaluationService;
             _participantService = participantService;
             _questionService = questionService;
+            _questionTemplateService = questionTemplateService;
             _answerService = answerService;
             _actionService = actionService;
             _noteService = noteService;
@@ -83,6 +86,13 @@ namespace api.GQL
         public IQueryable<Question> GetQuestions()
         {
             return _questionService.GetAll();
+        }
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<QuestionTemplate> GetQuestionTemplates()
+        {
+            return _questionTemplateService.GetAll();
         }
 
         [UseProjection]

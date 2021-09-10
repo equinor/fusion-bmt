@@ -57,6 +57,17 @@ export const QUESTION_FIELDS_FRAGMENT = gql`
         __typename
     }
 `
+export const QUESTIONTEMPLATE_FIELDS_FRAGMENT = gql`
+    fragment QuestionTemplateFields on QuestionTemplate {
+        id
+        text
+        supportNotes
+        barrier
+        order
+        organization
+        __typename
+    }
+`
 
 export const QUESTION_ANSWERS_FRAGMENT = gql`
     fragment QuestionAnswers on Question {
