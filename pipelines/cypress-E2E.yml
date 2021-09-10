@@ -10,19 +10,62 @@ pool:
 
 jobs:
     - job: Cypress_E2E_Tests
+      strategy:
+          parallel: 4
+      variables:
+          npm_config_cache: $(Pipeline.Workspace)/.npm
       steps:
-          - task: DockerCompose@0
+
+          - task: NodeTool@0
             inputs:
-                dockerComposeFile: "docker-compose.cypress.yml"
-                action: "Run a Docker Compose command"
-                dockerComposeCommand: "build"
+                versionSpec: "16.x"
+                displayName: "Install Node.js"
+
+          - task: Cache@2
+            inputs:
+                key: 'npm | "$(Agent.OS)" | frontend/package-lock.json'
+                restoreKeys: |
+                    npm | "$(Agent.OS)"'
+                path: $(npm_config_cache)
+            displayName: Cache npm
+          - task: Cache@2
+            inputs:
+                key: 'cypress | "$(Agent.OS)" | frontend/package-lock.json'
+                restoreKeys: |
+                    cypress | "$(Agent.OS)"'
+                path: /home/vsts/.cache/Cypress
+            displayName: Cache cypress binary
 
           - task: DockerCompose@0
             inputs:
                 dockerComposeFile: "docker-compose.cypress.yml"
                 action: "Run a Docker Compose command"
                 dockerComposeCommand: "up"
-                arguments: "--exit-code-from cypress cypress"
-                dockerComposeFileArgs: |
-                    CYPRESS_RECORD_KEY=$(CYPRESS_RECORD_KEY)
+                arguments: "-d mock-auth"
+            displayName: "Start mock auth"
 
+          - script: |
+                npm ci
+                npm start &
+            workingDirectory: "frontend"
+            displayName: "Start frontend"
+
+          - script: |
+                dotnet run --no-launch-profile &
+            env:
+                ASPNETCORE_ENVIRONMENT: "Test"
+            workingDirectory: "backend/api"
+            displayName: "Start backend"
+
+          - script: |
+                npx cypress run \
+                --env FRONTEND_URL=http://localhost:3000,API_URL=http://localhost:5000,AUTH_URL=http://localhost:8080 \
+                --config-file ./cypress.json \
+                --record \
+                --parallel --ci-build-id $BUILD_BUILDNUMBER --group "Azure CI"
+            env:
+                # avoid warnings about terminal
+                TERM: xterm
+                CYPRESS_RECORD_KEY: $(CYPRESS_RECORD_KEY)
+            workingDirectory: "frontend"
+            displayName: "Run Cypress"
