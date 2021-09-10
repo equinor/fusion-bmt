@@ -91,7 +91,6 @@ export class EvaluationSeed {
         } else {
             users.forEach((u, index) => {
                 const r = roles[index]
-                cy.log('Creating participant ' + r)
                 participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
             })
         }
