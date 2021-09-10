@@ -19,6 +19,7 @@ namespace tests
                 new EvaluationService(_context),
                 new ParticipantService(_context),
                 new QuestionService(_context),
+                new QuestionTemplateService(_context),
                 new AnswerService(_context),
                 new ActionService(_context),
                 new NoteService(_context),

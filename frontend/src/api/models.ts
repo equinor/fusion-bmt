@@ -211,6 +211,7 @@ export type GraphQuery = {
   evaluations?: Maybe<Array<Maybe<Evaluation>>>;
   participants?: Maybe<Array<Maybe<Participant>>>;
   questions?: Maybe<Array<Maybe<Question>>>;
+  questionTemplates?: Maybe<Array<Maybe<QuestionTemplate>>>;
   answers?: Maybe<Array<Maybe<Answer>>>;
   actions?: Maybe<Array<Maybe<Action>>>;
   notes?: Maybe<Array<Maybe<Note>>>;
@@ -240,6 +241,11 @@ export type GraphQueryParticipantsArgs = {
 
 export type GraphQueryQuestionsArgs = {
   where?: Maybe<QuestionFilterInput>;
+};
+
+
+export type GraphQueryQuestionTemplatesArgs = {
+  where?: Maybe<QuestionTemplateFilterInput>;
 };
 
 
