@@ -3,7 +3,6 @@ import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
 import { createParticipant, createAction } from './testdata'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
-import * as faker from 'faker'
 import {
     GET_PROJECT,
     ADD_EVALUATION,
@@ -20,7 +19,7 @@ import {
 type EvaluationSeedInput = {
     progression: Progression
     users: User[]
-    roles?: Role[]
+    roles: Role[]
     fusionProjectId?: string
     namePrefix?: string
 }
@@ -84,10 +83,8 @@ export class EvaluationSeed {
         this.progression = progression
         let participants: Participant[] = []
 
-        if (roles === undefined) {
-            users.forEach(u => {
-                participants.push(this.createParticipant({ user: u, progression: progression }))
-            })
+        if (roles.length !== users.length) {
+            throw new Error('EvaluationSeed: roles.length != users.length')
         } else {
             users.forEach((u, index) => {
                 const r = roles[index]

@@ -397,8 +397,18 @@ const createSeedWithActions = (users: User[], roles: Role[], actionParameters: P
 }
 
 const createActionTestData = (users: User[]) => {
-    const assignedToParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
-    const createdByParticipant: Participant = new Participant({ user: faker.random.arrayElement(users) })
+    const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+    const progressions = [Progression.Individual, Progression.FollowUp, Progression.Preparation, Progression.Workshop]
+    const assignedToParticipant: Participant = new Participant({
+        user: faker.random.arrayElement(users),
+        role: faker.random.arrayElement(assignableRoles),
+        progression: faker.random.arrayElement(progressions),
+    })
+    const createdByParticipant: Participant = new Participant({
+        user: faker.random.arrayElement(users),
+        role: faker.random.arrayElement(assignableRoles),
+        progression: faker.random.arrayElement(progressions),
+    })
     const action = new Action({
         createdBy: createdByParticipant,
         questionOrder: faker.datatype.number({ min: 1, max: 2 }),
@@ -412,9 +422,15 @@ const createActionTestData = (users: User[]) => {
 }
 
 const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Action) => {
+    const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+    const progressions = [Progression.Individual, Progression.FollowUp, Progression.Preparation, Progression.Workshop]
     const updatedAction = { ...existingAction }
     updatedAction.title = 'Feel proud for me, I have been updated!'
-    updatedAction.assignedTo = new Participant({ user })
+    updatedAction.assignedTo = new Participant({
+        user: user,
+        role: faker.random.arrayElement(assignableRoles),
+        progression: faker.random.arrayElement(progressions),
+    })
     updatedAction.dueDate = faker.date.future()
     updatedAction.priority = faker.random.arrayElement(Object.values(Priority))
     updatedAction.description = faker.lorem.words()
@@ -425,7 +441,11 @@ const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Ac
         return new Note({
             text: faker.lorem.words(),
             action: updatedAction,
-            createdBy: new Participant({ user }),
+            createdBy: new Participant({
+                user: user,
+                role: faker.random.arrayElement(assignableRoles),
+                progression: faker.random.arrayElement(progressions),
+            }),
         })
     })
 
@@ -433,11 +453,17 @@ const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Ac
 }
 
 const createCompleteAction = (user: User, existingAction: Action) => {
+    const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+    const progressions = [Progression.Individual, Progression.FollowUp, Progression.Preparation, Progression.Workshop]
     const updatedAction = { ...existingAction, completed: true }
     const newNote = new Note({
         text: '',
         action: updatedAction,
-        createdBy: new Participant({ user }),
+        createdBy: new Participant({
+            user,
+            role: faker.random.arrayElement(assignableRoles),
+            progression: faker.random.arrayElement(progressions),
+        }),
         typeName: 'ClosingRemark',
     })
     return { updatedAction, newNote }
