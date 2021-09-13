@@ -6,21 +6,22 @@ import ProjectPage from '../support/project'
 import { users, User } from '../support/mock/external/users'
 import * as faker from 'faker'
 
-const createEvaluation = (creator: User, otherUser: User, prefix: string) => {
+const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
     let seed = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
         users: [creator, otherUser],
+        roles,
         namePrefix: prefix,
     })
-    seed.participants[1].role = Role.Participant
     return seed
 }
 
 describe('Creating a new Evaluation', () => {
     const user = users[2]
-    const evalUserIsFacilitator = createEvaluation(user, users[0], 'user is Facilitator')
-    const evalUserIsParticipant = createEvaluation(users[0], user, 'user is Participant')
-    const evalUserIsNotInEvaluation = createEvaluation(users[0], users[1], 'user is not in evaluation')
+    const roles = [Role.Facilitator, Role.Participant]
+    const evalUserIsFacilitator = createEvaluation(user, users[0], roles, 'user is Facilitator')
+    const evalUserIsParticipant = createEvaluation(users[0], user, roles, 'user is Participant')
+    const evalUserIsNotInEvaluation = createEvaluation(users[0], users[1], roles, 'user is not in evaluation')
     const previousEvaluations = [evalUserIsFacilitator, evalUserIsParticipant, evalUserIsNotInEvaluation]
 
     before(() => {

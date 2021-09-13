@@ -1,5 +1,5 @@
 import { EvaluationSeed } from '../support/evaluation_seed'
-import { Progression } from '../../src/api/models'
+import { Progression, Role } from '../../src/api/models'
 import FollowUpTabs from '../support/followup'
 import { EvaluationPage } from '../support/evaluation'
 import { getUsers } from '../support/mock/external/users'
@@ -13,10 +13,11 @@ describe('Workshop Summary', () => {
     context('Bowtie model', () => {
         it('User can not see complete date on an incomplete Evaluation', () => {
             const progression = faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.FollowUp))
-
+            const roles = [Role.Facilitator, Role.Participant]
             seed = new EvaluationSeed({
                 progression,
                 users: getUsers(2),
+                roles,
             })
 
             seed.plant().then(() => {
@@ -32,10 +33,11 @@ describe('Workshop Summary', () => {
 
         it('User can see complete date on a complete Evaluation', () => {
             const today = new Date().toLocaleDateString()
-
+            const roles = [Role.Facilitator, Role.Participant]
             seed = new EvaluationSeed({
                 progression: Progression.FollowUp,
                 users: getUsers(2),
+                roles,
             })
 
             seed.plant().then(() => {

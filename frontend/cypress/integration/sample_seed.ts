@@ -1,5 +1,5 @@
 import { EvaluationSeed } from '../support/evaluation_seed'
-import { Organization, Priority, Progression, Severity } from '../../src/api/models'
+import { Organization, Priority, Progression, Severity, Role } from '../../src/api/models'
 import { Action, Answer, Note, Summary } from '../support/mocks'
 import { getUsers } from '../support/mock/external/users'
 
@@ -7,6 +7,7 @@ const exampleSeed = () => {
     let seed = new EvaluationSeed({
         progression: Progression.Workshop,
         users: getUsers(2),
+        roles: [Role.Facilitator, Role.Participant],
     })
 
     let facilitator = seed.participants[0]

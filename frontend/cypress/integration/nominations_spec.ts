@@ -129,15 +129,13 @@ describe('User management', () => {
 })
 
 function createSeed(progression: Progression = Progression.Nomination) {
-    let users = getUsers(5)
+    let users = getUsers(4)
+    const roles = [Role.Facilitator, Role.Participant, Role.OrganizationLead, Role.ReadOnly]
     const seed = new EvaluationSeed({
         progression: progression,
         users,
+        roles,
     })
-    seed.participants[1].role = Role.Facilitator
-    seed.participants[2].role = Role.Participant
-    seed.participants[3].role = Role.OrganizationLead
-    seed.participants[4].role = Role.ReadOnly
     return seed
 }
 

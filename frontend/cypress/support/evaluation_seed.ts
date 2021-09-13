@@ -91,7 +91,6 @@ export class EvaluationSeed {
         } else {
             users.forEach((u, index) => {
                 const r = roles[index]
-                cy.log('Creating participant ' + r)
                 participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
             })
         }
@@ -102,10 +101,6 @@ export class EvaluationSeed {
     }
 
     addParticipant(participant: Participant) {
-        // The first participant is always a facilitator
-        if (this.participants.length == 0) {
-            participant.role = Role.Facilitator
-        }
         this.participants.push(participant)
         return this
     }
@@ -183,16 +178,17 @@ export class EvaluationSeed {
      *  again.
      */
     plant() {
-        return populateDB(this)
+        const facilitator = this.participants.find(e => e.role === Role.Facilitator)
+        if (facilitator === undefined) {
+            throw Error('Facilitator not found')
+        }
+        return populateDB(this, facilitator)
     }
 }
 
-const populateDB = (seed: EvaluationSeed) => {
-    if (seed.participants === undefined || seed.participants.length < 1 || seed.participants[0].role !== Role.Facilitator) {
-        throw Error('First participant is not Facilitator')
-    }
+const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
     return cy
-        .login(seed.participants[0].user)
+        .login(facilitator.user)
         .then(() => {
             return cy.gql(GET_PROJECT, { variables: { fusionProjectId: seed.fusionProjectId } })
         })
@@ -204,7 +200,8 @@ const populateDB = (seed: EvaluationSeed) => {
                 const evaluation = res.body.data.createEvaluation
                 seed.evaluationId = evaluation.id
                 seed.questions = evaluation.questions
-                seed.participants[0].id = evaluation.participants[0].id
+                seed.participants[seed.participants.indexOf(facilitator)].id =
+                    evaluation.participants[seed.participants.indexOf(facilitator)].id
             })
         })
         .then(e => {
@@ -217,7 +214,7 @@ const populateDB = (seed: EvaluationSeed) => {
             })
         })
         .then(() => {
-            return seed.participants.slice(1)
+            return seed.participants.filter(x => x !== facilitator)
         })
         .each((participant: Participant) => {
             cy.log(`EvaluationSeed: Adding Participants`)
@@ -327,6 +324,6 @@ const populateDB = (seed: EvaluationSeed) => {
             }
         })
         .then(() => {
-            cy.login(seed.participants[0].user)
+            cy.login(facilitator.user)
         })
 }
