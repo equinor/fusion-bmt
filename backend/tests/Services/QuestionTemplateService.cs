@@ -21,20 +21,6 @@ namespace tests
         }
 
         [Fact]
-        public void ActiveQuestions()
-        {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
-
-            List<QuestionTemplate> questionTemplates = questionTemplateService.ActiveQuestions();
-
-            Assert.Equal(15, questionTemplates.Count);
-            foreach (QuestionTemplate qt in questionTemplates)
-            {
-                Assert.True(qt.Status.Equals(Status.Active));
-            }
-        }
-
-        [Fact]
         public void Create()
         {
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
