@@ -3,19 +3,6 @@ import { Action, Participant, IParticipant, IAction } from './mocks'
 import { Progression, Role, Organization, Priority } from '../../src/api/models'
 import { EvaluationSeed } from './evaluation_seed'
 
-export function createParticipant({ user, role, progression, organization }: IParticipant): Participant {
-    if (progression === undefined) {
-        progression = faker.random.arrayElement(Object.values(Progression))
-    }
-    if (role === undefined) {
-        role = faker.random.arrayElement(Object.values(Role))
-    }
-    if (organization === undefined) {
-        organization = faker.random.arrayElement(Object.values(Organization))
-    }
-    return new Participant({ user: user, role: role, organization: organization, progression: progression })
-}
-
 export function createAction(
     this: EvaluationSeed,
     {

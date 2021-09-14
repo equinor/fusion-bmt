@@ -1,7 +1,7 @@
-import { Progression, Question, Role } from '../../src/api/models'
+import { Organization, Progression, Question, Role } from '../../src/api/models'
 import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
-import { createParticipant, createAction } from './testdata'
+import { createAction } from './testdata'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
 import {
     GET_PROJECT,
@@ -88,7 +88,14 @@ export class EvaluationSeed {
         }
         users.forEach((u, index) => {
             const r = roles[index]
-            participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
+            participants.push(
+                new Participant({
+                    user: u,
+                    role: r,
+                    organization: Organization.All,
+                    progression: progression,
+                })
+            )
         })
 
         participants.forEach(p => this.addParticipant(p))
@@ -123,8 +130,6 @@ export class EvaluationSeed {
     }
 
     public createAction = createAction
-
-    public createParticipant = createParticipant
 
     findQuestionId(order: number) {
         const question = this.questions.find(x => x.order === order)
