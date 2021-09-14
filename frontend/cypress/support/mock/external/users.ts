@@ -15,6 +15,7 @@ export class User {
     type: string
     email: string
     jobTitle: string
+    roles: string[]
 
     constructor({
         id,
@@ -23,6 +24,7 @@ export class User {
         type,
         email = username + '@example.com',
         jobTitle = username,
+        roles = [],
     }: {
         id: string
         name: string
@@ -30,6 +32,7 @@ export class User {
         type: string
         email?: string
         jobTitle?: string
+        roles?: string[]
     }) {
         this.id = id
         this.name = name
@@ -37,6 +40,7 @@ export class User {
         this.type = type
         this.email = email
         this.jobTitle = jobTitle
+        this.roles = roles
     }
 }
 
@@ -86,6 +90,7 @@ const local1 = new User({
     username: 'penguin',
     type: Type.LOCAL,
     jobTitle: 'Local 🐧',
+    roles: ['Role.Admin'],
 })
 
 export const users = [employee1, external1, consultant1, extHire1, unknown1, local1]

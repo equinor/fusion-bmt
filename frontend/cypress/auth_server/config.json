@@ -90,7 +90,7 @@
                         "givenName": "Penguin",
                         "name": "Dancing Penguin",
                         "oid": "666",
-                        "roles": ["Reader"],
+                        "roles": ["Role.Admin"],
                         "tid": "common",
                         "upn": "penguin",
                         "ver": "1.0"
