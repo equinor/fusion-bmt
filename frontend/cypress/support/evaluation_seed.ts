@@ -85,12 +85,12 @@ export class EvaluationSeed {
 
         if (roles.length !== users.length) {
             throw new Error('EvaluationSeed: roles.length != users.length')
-        } else {
-            users.forEach((u, index) => {
-                const r = roles[index]
-                participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
-            })
         }
+        users.forEach((u, index) => {
+            const r = roles[index]
+            participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
+        })
+
         participants.forEach(p => this.addParticipant(p))
 
         this.fusionProjectId = fusionProjectId

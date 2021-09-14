@@ -454,7 +454,13 @@ const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Ac
 
 const createCompleteAction = (user: User, existingAction: Action) => {
     const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
-    const progressions = [Progression.Individual, Progression.FollowUp, Progression.Preparation, Progression.Workshop]
+    const progressions = [
+        Progression.Individual,
+        Progression.Individual,
+        Progression.FollowUp,
+        Progression.Preparation,
+        Progression.Workshop,
+    ]
     const updatedAction = { ...existingAction, completed: true }
     const newNote = new Note({
         text: '',
