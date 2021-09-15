@@ -279,6 +279,12 @@ namespace api.GQL
             return _projectCategoryService.Create(name);
         }
 
+        public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
+        {
+            var other = _projectCategoryService.Get(projectCategoryId);
+            return _projectCategoryService.CopyFrom(newName, other);
+        }
+
         public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
         {
             return _questionTemplateService.Create(barrier, organization, text, supportNotes);

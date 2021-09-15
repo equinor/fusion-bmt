@@ -32,6 +32,20 @@ namespace tests
         }
 
         [Fact]
+        public void CopyFrom()
+        {
+            var service = new ProjectCategoryService(_context);
+            var nProjectCategories = service.GetAll().Count();
+            var other = service.GetAll().First();
+            var nTemplates = other.QuestionTemplates.Count();
+
+            var projectCategory = service.CopyFrom(Randomize.String(), other);
+
+            Assert.Equal(nProjectCategories + 1, service.GetAll().Count());
+            Assert.Equal(nTemplates, projectCategory.QuestionTemplates.Count());
+        }
+
+        [Fact]
         public void GetExising()
         {
             var service = new ProjectCategoryService(_context);

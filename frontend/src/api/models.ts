@@ -352,6 +352,7 @@ export type Mutation = {
   createNote?: Maybe<Note>;
   createClosingRemark?: Maybe<ClosingRemark>;
   createProjectCategory?: Maybe<ProjectCategory>;
+  copyProjectCategory?: Maybe<ProjectCategory>;
   createQuestionTemplate?: Maybe<QuestionTemplate>;
   editQuestionTemplate?: Maybe<QuestionTemplate>;
   reorderQuestionTemplate?: Maybe<QuestionTemplate>;
@@ -448,6 +449,12 @@ export type MutationCreateClosingRemarkArgs = {
 
 export type MutationCreateProjectCategoryArgs = {
   name?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCopyProjectCategoryArgs = {
+  newName?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
 };
 
 
