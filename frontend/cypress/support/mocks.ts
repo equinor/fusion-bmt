@@ -3,9 +3,9 @@ import { User } from './mock/external/users'
 
 export interface IParticipant {
     user: User
-    role?: Role
+    role: Role
     organization?: Organization
-    progression?: Progression
+    progression: Progression
 }
 
 export class Participant {
@@ -15,7 +15,7 @@ export class Participant {
     organization: Organization
     progression: Progression
 
-    constructor({ user, role = Role.Participant, organization = Organization.All, progression = Progression.Individual }: IParticipant) {
+    constructor({ user, role, organization = Organization.All, progression }: IParticipant) {
         this.user = user
         this.role = role
         this.organization = organization

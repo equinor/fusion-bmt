@@ -1,9 +1,8 @@
-import { Progression, Question, Role } from '../../src/api/models'
+import { Organization, Progression, Question, Role } from '../../src/api/models'
 import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
-import { createParticipant, createAction } from './testdata'
+import { createAction } from './testdata'
 import { Answer, Action, Participant, Note, Summary } from './mocks'
-import * as faker from 'faker'
 import {
     GET_PROJECT,
     ADD_EVALUATION,
@@ -20,7 +19,7 @@ import {
 type EvaluationSeedInput = {
     progression: Progression
     users: User[]
-    roles?: Role[]
+    roles: Role[]
     fusionProjectId?: string
     namePrefix?: string
 }
@@ -84,16 +83,21 @@ export class EvaluationSeed {
         this.progression = progression
         let participants: Participant[] = []
 
-        if (roles === undefined) {
-            users.forEach(u => {
-                participants.push(this.createParticipant({ user: u, progression: progression }))
-            })
-        } else {
-            users.forEach((u, index) => {
-                const r = roles[index]
-                participants.push(this.createParticipant({ user: u, role: r, progression: progression }))
-            })
+        if (roles.length !== users.length) {
+            throw new Error('EvaluationSeed: roles.length != users.length')
         }
+        users.forEach((u, index) => {
+            const r = roles[index]
+            participants.push(
+                new Participant({
+                    user: u,
+                    role: r,
+                    organization: Organization.All,
+                    progression: progression,
+                })
+            )
+        })
+
         participants.forEach(p => this.addParticipant(p))
 
         this.fusionProjectId = fusionProjectId
@@ -126,8 +130,6 @@ export class EvaluationSeed {
     }
 
     public createAction = createAction
-
-    public createParticipant = createParticipant
 
     findQuestionId(order: number) {
         const question = this.questions.find(x => x.order === order)
