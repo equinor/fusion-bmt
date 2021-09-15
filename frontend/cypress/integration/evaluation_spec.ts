@@ -6,6 +6,7 @@ import ProjectPage from '../support/project'
 import { getUsers, users, User } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { EvaluationPage } from '../support/evaluation'
+import { ConfirmationDialog } from '../support/common'
 
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
@@ -62,6 +63,31 @@ describe('Evaluation management', () => {
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)
             })
+        })
+    })
+
+    context('Progressing an Evaluation', () => {
+        let seed: EvaluationSeed
+        const evaluationPage = new EvaluationPage()
+        const nominationPage = new NominationPage()
+        const confirmationDialog = new ConfirmationDialog()
+
+        beforeEach(() => {
+            seed = new EvaluationSeed({
+                progression: Progression.Nomination,
+                users: getUsers(1),
+                roles: [Role.Facilitator],
+            })
+            seed.plant()
+        })
+
+        it('FACILITATOR can progress from nomination', () => {
+            cy.visitEvaluation(seed.evaluationId, seed.participants[0].user)
+
+            nominationPage.finishNominationButton().click()
+            confirmationDialog.yesButton().click()
+
+            evaluationPage.progressionStepLink(seed.progression, 'Complete').should('be.visible')
         })
     })
 })
