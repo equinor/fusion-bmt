@@ -1,8 +1,9 @@
-import * as faker from "faker"
-import { Progression, Role } from "../../src/api/models"
+import * as faker from 'faker'
+import { Progression, Role } from '../../src/api/models'
 import { Action, Note } from '../support/mocks'
-import { EvaluationSeed } from "../support/evaluation_seed"
-import { getUsers, User } from "../support/mock/external/users"
+import { EvaluationSeed } from '../support/evaluation_seed'
+import { getUsers, User } from '../support/mock/external/users'
+import { EvaluationPage } from '../support/evaluation'
 
 describe('Landing page', () => {
     const users = getUsers(4, false)
@@ -13,7 +14,7 @@ describe('Landing page', () => {
 
     before(() => {
         evaluationIAmIn = createSeedWithActions(users, roles, { completed: false }, '123', 'myEval')
-        evaluationIAmNotIn = createSeedWithActions(users.slice(0,2), roles.slice(0,2), { completed: false }, '123', 'notMyEval')
+        evaluationIAmNotIn = createSeedWithActions(users.slice(0, 2), roles.slice(0, 2), { completed: false }, '123', 'notMyEval')
         evaluationNotInProject = createSeedWithActions(users, roles, { completed: false }, '456', 'notProjectEval')
         evaluationIAmIn.plant()
         evaluationIAmNotIn.plant()
@@ -25,65 +26,102 @@ describe('Landing page', () => {
 
     context('Dashboard', () => {
         context('My evaluations', () => {
-            it('Verify that evaluationIAmIn is listed under My evaluations', () => {
-                const myEvalName = evaluationIAmIn.name
-                cy.contains(myEvalName).should('exist')
-            })
+            const testdata = [
+                {
+                    eval: 'evaluationIAmIn',
+                    isListed: true,
+                },
+                {
+                    eval: 'evaluationIAmNotIn',
+                    isListed: false,
+                },
+                {
+                    eval: 'evaluationNotInProject',
+                    isListed: true,
+                },
+            ]
 
-            it('TODO: Can click evaluationIAmIn', () => {
-
-            })
-        
-            it('Verify that evaluationIAmNotIn is not listed under My evaluations', () => {
-                const notMyEvalName = evaluationIAmNotIn.name
-                cy.get(`[data-testid=table]`).within(() => {
-                    cy.contains(notMyEvalName).should('not.exist')
+            testdata.forEach(t => {
+                it(`Verify that ${t.eval} is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
+                    const evalName = eval(t.eval).name
+                    cy.get(`[data-testid=table]`).within(() => {
+                        t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
+                    })
                 })
             })
 
-            it('Verify that evaluationNotInProject is listed under My evaluations', () => {
-                const notProjectEvalName = evaluationNotInProject.name
-                cy.contains(notProjectEvalName).should('exist')
+            it('Verify that user can click evaluationIAmIn', () => {
+                const myEvalName = evaluationIAmIn.name
+                cy.contains(myEvalName).click()
+                /* const evaluationPage = new EvaluationPage()
+                evaluationPage.progressionStepLink(evaluationIAmIn.progression).should('be.visible') */
+                cy.go('back')
             })
         })
-        
+
         context('Navigate', () => {
             it('Navigate to Project evaluations', () => {
                 cy.contains('Project evaluations').click()
             })
         })
-    
+
         context('Project evaluations', () => {
-            it('Verify that evaluationIAmIn is listed under Project evaluations', () => {
-                const myEvalName = evaluationIAmIn.name
-                cy.contains(myEvalName).should('exist')
-            })
-        
-            it('Verify that evaluationIAmNotIn is listed under Project evaluations', () => {
-                const notMyEvalName = evaluationIAmNotIn.name
-                cy.contains(notMyEvalName).should('exist')
-            })
+            const testdata = [
+                {
+                    eval: 'evaluationIAmIn',
+                    isListed: true,
+                },
+                {
+                    eval: 'evaluationIAmNotIn',
+                    isListed: true,
+                },
+                {
+                    eval: 'evaluationNotInProject',
+                    isListed: false,
+                },
+            ]
 
-            it('TODO: Can click evaluationIAmNotIn', () => {
-
-            })
-        
-            it('Verify that evaluationNotInProject is not displayed', () => {
-                const notProjectEvalName = evaluationNotInProject.name
-                cy.get(`[data-testid=table]`).within(() => {
-                    cy.contains(notProjectEvalName).should('not.exist')
+            testdata.forEach(t => {
+                it(`Verify that ${t.eval} is ${t.isListed ? '' : 'not'} listed under Project evaluations`, () => {
+                    const evalName = eval(t.eval).name
+                    cy.get(`[data-testid=table]`).within(() => {
+                        t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
+                    })
                 })
+            })
+
+            it('Verify that user can click evaluationIAmNotIn', () => {
+                const notMyEvalName = evaluationIAmNotIn.name
+                cy.contains(notMyEvalName).click()
+                /* const evaluationPage = new EvaluationPage()
+                evaluationPage.progressionStepLink(evaluationIAmNotIn.progression).should('be.visible') */
+                cy.go('back')
             })
         })
     })
-    
-    context('TODO: Actions', () => {
 
+    context('Actions', () => {
+        context('Navigate', () => {
+            it('Navigate to Actions tab', () => {
+                cy.get('button').contains('Actions').click()
+            })
+        })
+
+        context('Action table', () => {
+            it('Verify that the Action table is displayed', () => {
+                // cy.get(`[data-testid=action-table]`).should('be.visible')
+            })
+        })
     })
-
 })
 
-const createSeedWithActions = (users: User[], roles: Role[], actionParameters: Partial<Action>, fusionProjectId: string, namePrefix: string) => {
+const createSeedWithActions = (
+    users: User[],
+    roles: Role[],
+    actionParameters: Partial<Action>,
+    fusionProjectId: string,
+    namePrefix: string
+) => {
     const seed = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
         users,
