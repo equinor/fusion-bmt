@@ -90,7 +90,7 @@ const local1 = new User({
 
 export const users = [employee1, external1, consultant1, extHire1, unknown1, local1]
 
-export function getUsers(n: number, randomize = true): User[] {
+export function getUsers(n: number): User[] {
     if (n > users.length) {
         const msg = `You requested more mocked users (${n})
             than currently available (${users.length})`
@@ -101,11 +101,8 @@ export function getUsers(n: number, randomize = true): User[] {
     if (n < 0) {
         throw new RangeError("Requested number of users can't be negative")
     }
-    
-    if (randomize) {
-        return faker.helpers.shuffle([...users]).slice(0, n)
-    }
-    return users.slice(0, n)
+
+    return faker.helpers.shuffle([...users]).slice(0, n)
 }
 
 export function findUserByID(id: string) {

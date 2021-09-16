@@ -1,26 +1,60 @@
 import * as faker from 'faker'
 import { Progression, Role } from '../../src/api/models'
-import { Action, Note } from '../support/mocks'
+
 import { EvaluationSeed } from '../support/evaluation_seed'
 import { getUsers, User } from '../support/mock/external/users'
 import { EvaluationPage } from '../support/evaluation'
 
 describe('Landing page', () => {
-    const users = getUsers(4, false)
+    const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
     let evaluationIAmIn: EvaluationSeed
     let evaluationIAmNotIn: EvaluationSeed
     let evaluationNotInProject: EvaluationSeed
-
+    const user = users[2]
     before(() => {
-        evaluationIAmIn = createSeedWithActions(users, roles, { completed: false }, '123', 'myEval')
-        evaluationIAmNotIn = createSeedWithActions(users.slice(0, 2), roles.slice(0, 2), { completed: false }, '123', 'notMyEval')
-        evaluationNotInProject = createSeedWithActions(users, roles, { completed: false }, '456', 'notProjectEval')
+        evaluationIAmIn = new EvaluationSeed({
+            progression: faker.random.arrayElement(Object.values(Progression)),
+            users,
+            roles,
+            fusionProjectId: '123',
+            namePrefix: 'myEval',
+        })
+        evaluationIAmIn
+            .addAction(
+                evaluationIAmIn.createAction({
+                    completed: false,
+                    assignedTo: evaluationIAmIn.participants.find(p => p.user === user),
+                    title: 'My action' + faker.lorem.words(),
+                    description: 'My action' + faker.lorem.words(),
+                })
+            )
+            .addAction(
+                evaluationIAmIn.createAction({
+                    completed: false,
+                    assignedTo: evaluationIAmIn.participants.find(p => p.user !== user),
+                    title: 'Not my action' + faker.lorem.words(),
+                    description: 'Not my action' + faker.lorem.words(),
+                })
+            )
+        evaluationIAmNotIn = new EvaluationSeed({
+            progression: faker.random.arrayElement(Object.values(Progression)),
+            users: users.slice(0, 2),
+            roles: roles.slice(0, 2),
+            fusionProjectId: '123',
+            namePrefix: 'notMyEval',
+        })
+        evaluationNotInProject = new EvaluationSeed({
+            progression: faker.random.arrayElement(Object.values(Progression)),
+            users: users,
+            roles: roles,
+            fusionProjectId: '456',
+            namePrefix: 'notProjectEval',
+        })
         evaluationIAmIn.plant()
         evaluationIAmNotIn.plant()
         evaluationNotInProject.plant()
 
-        const user = users[2]
         cy.visitProject(user)
     })
 
@@ -30,19 +64,24 @@ describe('Landing page', () => {
                 {
                     eval: 'evaluationIAmIn',
                     isListed: true,
+                    ofProject: true,
                 },
                 {
                     eval: 'evaluationIAmNotIn',
                     isListed: false,
+                    ofProject: true,
                 },
                 {
                     eval: 'evaluationNotInProject',
                     isListed: true,
+                    ofProject: false,
                 },
             ]
 
             testdata.forEach(t => {
-                it(`Verify that ${t.eval} is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
+                it(`Verify that evaluation ${t.ofProject ? '' : 'not '} of project that user ${
+                    t.isListed ? 'participates in ' : 'does not participate in '
+                } is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
                     const evalName = eval(t.eval).name
                     cy.get(`[data-testid=table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
@@ -50,18 +89,20 @@ describe('Landing page', () => {
                 })
             })
 
-            it('Verify that user can click evaluationIAmIn', () => {
+            it('Verify that user can view evaluation user does not participate in', () => {
+                cy.visitProject(user)
                 const myEvalName = evaluationIAmIn.name
                 cy.contains(myEvalName).click()
-                /* const evaluationPage = new EvaluationPage()
-                evaluationPage.progressionStepLink(evaluationIAmIn.progression).should('be.visible') */
+                const evaluationPage = new EvaluationPage()
+                evaluationPage.progressionStepLink(evaluationIAmIn.progression).should('be.visible')
                 cy.go('back')
             })
         })
 
         context('Navigate', () => {
-            it('Navigate to Project evaluations', () => {
+            it('Navigate to Project evaluations from My evaluations', () => {
                 cy.contains('Project evaluations').click()
+                cy.get(`[data-testid=table]`).should('exist')
             })
         })
 
@@ -69,20 +110,32 @@ describe('Landing page', () => {
             const testdata = [
                 {
                     eval: 'evaluationIAmIn',
+                    userIsIn: true,
                     isListed: true,
                 },
                 {
                     eval: 'evaluationIAmNotIn',
+                    userIsIn: false,
                     isListed: true,
                 },
                 {
                     eval: 'evaluationNotInProject',
+                    userIsIn: true,
                     isListed: false,
                 },
             ]
 
+            const visitProjectAndGoToProjectEvaluations = () => {
+                cy.visitProject(user)
+                cy.contains('Project evaluations').click()
+                cy.get(`[data-testid=table]`).should('exist')
+            }
+
             testdata.forEach(t => {
-                it(`Verify that ${t.eval} is ${t.isListed ? '' : 'not'} listed under Project evaluations`, () => {
+                it(`Verify that evaluation ${t.isListed ? '' : 'not '} of project the user is ${t.userIsIn ? '' : 'not '} in is ${
+                    t.isListed ? '' : 'not'
+                } listed under Project evaluations`, () => {
+                    visitProjectAndGoToProjectEvaluations()
                     const evalName = eval(t.eval).name
                     cy.get(`[data-testid=table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
@@ -90,63 +143,40 @@ describe('Landing page', () => {
                 })
             })
 
-            it('Verify that user can click evaluationIAmNotIn', () => {
+            it('Verify that user can click evaluationIAmNotIn from project evaluations', () => {
+                visitProjectAndGoToProjectEvaluations()
                 const notMyEvalName = evaluationIAmNotIn.name
                 cy.contains(notMyEvalName).click()
-                /* const evaluationPage = new EvaluationPage()
-                evaluationPage.progressionStepLink(evaluationIAmNotIn.progression).should('be.visible') */
+                const evaluationPage = new EvaluationPage()
+                evaluationPage.progressionStepLink(evaluationIAmNotIn.progression).should('be.visible')
                 cy.go('back')
             })
         })
     })
 
-    context('Actions', () => {
-        context('Navigate', () => {
-            it('Navigate to Actions tab', () => {
-                cy.get('button').contains('Actions').click()
-            })
-        })
+    const visitProjectAndGoToActionsTable = () => {
+        cy.visitProject(user)
+        cy.get('button').contains('Actions').click()
+    }
 
+    context('Actions', () => {
         context('Action table', () => {
-            it('Verify that the Action table is displayed', () => {
-                // cy.get(`[data-testid=action-table]`).should('be.visible')
+            it('Navigate to Actions tab', () => {
+                visitProjectAndGoToActionsTable()
+                cy.get(`[data-testid=action-table]`).should('be.visible')
+            })
+            it('Action assigned to me is listed', () => {
+                visitProjectAndGoToActionsTable()
+                cy.get(`[data-testid=action-table]`).within(() => {
+                    cy.contains(evaluationIAmIn.actions.find(a => a.assignedTo.user === user)!.title).should('exist')
+                })
+            })
+            it('Action not assigned to me is not listed', () => {
+                visitProjectAndGoToActionsTable()
+                cy.get(`[data-testid=action-table]`).within(() => {
+                    cy.contains(evaluationIAmIn.actions.find(a => a.assignedTo.user !== user)!.title).should('not.exist')
+                })
             })
         })
     })
 })
-
-const createSeedWithActions = (
-    users: User[],
-    roles: Role[],
-    actionParameters: Partial<Action>,
-    fusionProjectId: string,
-    namePrefix: string
-) => {
-    const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
-        users,
-        roles,
-        fusionProjectId,
-        namePrefix,
-    })
-
-    const oneAction = seed.createAction({
-        ...actionParameters,
-    })
-
-    const existingNotes: Note[] = Array.from({ length: faker.datatype.number({ min: 1, max: 4 }) }, () => {
-        return new Note({
-            text: faker.lorem.sentence(),
-            action: oneAction,
-            createdBy: faker.random.arrayElement(seed.participants.filter(x => x.role !== Role.ReadOnly)),
-        })
-    })
-
-    const moreActions: Action[] = Array.from({ length: faker.datatype.number({ min: 1, max: 2 }) }, () => {
-        return seed.createAction({})
-    })
-    faker.helpers.shuffle([oneAction, ...moreActions]).forEach(a => seed.addAction(a))
-    existingNotes.forEach(n => seed.addNote(n))
-
-    return seed
-}
