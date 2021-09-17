@@ -1,4 +1,5 @@
 import { Progression, Question } from '../api/models'
+import { Validity } from '../components/Action/utils'
 
 export const isQuestionStillInView = (selectedQuestionElement: HTMLElement | null, topPlacementInPixels: number | null) => {
     if (selectedQuestionElement !== null && topPlacementInPixels !== null) {
@@ -12,27 +13,19 @@ export const isQuestionStillInView = (selectedQuestionElement: HTMLElement | nul
     return false
 }
 
-
 /* Finds the nearest neighboor of the selectedQuestion that is in View - if any
  */
-const findNewQuestionInView = (
-    selectedQuestion: Question,
-    questions: Question[],
-    topPlacementInPixels: number | null,
-) => {
-    const questionIndex =
-        questions.findIndex((q) =>
-        q.order === selectedQuestion.order
-    )
+const findNewQuestionInView = (selectedQuestion: Question, questions: Question[], topPlacementInPixels: number | null) => {
+    const questionIndex = questions.findIndex(q => q.order === selectedQuestion.order)
 
     let up = questionIndex
     let down = questionIndex
     while (true) {
-        up   -= 1
+        up -= 1
         down += 1
 
         // Terminate without a result when the search space is exhausted
-        if ((down >= questions.length) && (up < 0)) {
+        if (down >= questions.length && up < 0) {
             return
         }
 
@@ -87,4 +80,16 @@ export const getBarrierAnswers = (barrierQuestions: Question[], viewProgression:
         }
         return answers[0]
     })
+}
+
+export const updateValidity = (isFieldValid: boolean, validityStatus: Validity, setValidity: (validity: Validity) => void) => {
+    if (validityStatus === 'error') {
+        if (isFieldValid) {
+            setValidity('success')
+        }
+    } else if (validityStatus === 'success') {
+        if (!isFieldValid) {
+            setValidity('error')
+        }
+    }
 }

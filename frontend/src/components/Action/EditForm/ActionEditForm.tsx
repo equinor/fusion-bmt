@@ -11,6 +11,7 @@ import { barrierToString } from '../../../utils/EnumToString'
 import { useEffectNotOnMount } from '../../../utils/hooks'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 import { check_circle_outlined } from '@equinor/eds-icons'
+import { updateValidity } from '../../../views/helpers'
 
 const StyledDate = styled(Typography)`
     float: right;
@@ -62,7 +63,7 @@ const ActionEditForm = ({
         title: personDetails.name,
         key: personDetails.azureUniqueId,
         isSelected: personDetails.azureUniqueId === assignedToId,
-        isDisabled: disableEditAction
+        isDisabled: disableEditAction,
     }))
 
     const createdDateString = new Date(action.createDate).toLocaleDateString()
@@ -111,27 +112,11 @@ const ActionEditForm = ({
     }, [assignedTo, dueDate, priority, completed])
 
     useEffect(() => {
-        if (titleValidity === 'error') {
-            if (checkIfTitleValid(title)) {
-                setTitleValidity('success')
-            }
-        } else if (titleValidity === 'success') {
-            if (!checkIfTitleValid(title)) {
-                setTitleValidity('error')
-            }
-        }
+        updateValidity(checkIfTitleValid(title), titleValidity, setTitleValidity)
     }, [title, titleValidity])
 
     useEffect(() => {
-        if (assignedToValidity === 'error') {
-            if (checkIfParticipantValid(assignedTo)) {
-                setAssignedToValidity('success')
-            }
-        } else if (assignedToValidity === 'success') {
-            if (!checkIfParticipantValid(assignedTo)) {
-                setAssignedToValidity('error')
-            }
-        }
+        updateValidity(checkIfParticipantValid(assignedTo), assignedToValidity, setAssignedToValidity)
     }, [assignedTo])
 
     useEffect(() => {
