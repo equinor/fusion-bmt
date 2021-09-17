@@ -216,6 +216,7 @@ export type GraphQuery = {
   actions?: Maybe<Array<Maybe<Action>>>;
   notes?: Maybe<Array<Maybe<Note>>>;
   closingRemarks?: Maybe<Array<Maybe<ClosingRemark>>>;
+  projectCategory?: Maybe<Array<Maybe<ProjectCategory>>>;
 };
 
 
@@ -268,6 +269,11 @@ export type GraphQueryClosingRemarksArgs = {
   where?: Maybe<ClosingRemarkFilterInput>;
 };
 
+
+export type GraphQueryProjectCategoryArgs = {
+  where?: Maybe<ProjectCategoryFilterInput>;
+};
+
 export type ListFilterInputTypeOfActionFilterInput = {
   all?: Maybe<ActionFilterInput>;
   none?: Maybe<ActionFilterInput>;
@@ -310,10 +316,24 @@ export type ListFilterInputTypeOfParticipantFilterInput = {
   any?: Maybe<Scalars['Boolean']>;
 };
 
+export type ListFilterInputTypeOfProjectCategoryFilterInput = {
+  all?: Maybe<ProjectCategoryFilterInput>;
+  none?: Maybe<ProjectCategoryFilterInput>;
+  some?: Maybe<ProjectCategoryFilterInput>;
+  any?: Maybe<Scalars['Boolean']>;
+};
+
 export type ListFilterInputTypeOfQuestionFilterInput = {
   all?: Maybe<QuestionFilterInput>;
   none?: Maybe<QuestionFilterInput>;
   some?: Maybe<QuestionFilterInput>;
+  any?: Maybe<Scalars['Boolean']>;
+};
+
+export type ListFilterInputTypeOfQuestionTemplateFilterInput = {
+  all?: Maybe<QuestionTemplateFilterInput>;
+  none?: Maybe<QuestionTemplateFilterInput>;
+  some?: Maybe<QuestionTemplateFilterInput>;
   any?: Maybe<Scalars['Boolean']>;
 };
 
@@ -325,15 +345,19 @@ export type Mutation = {
   progressParticipant?: Maybe<Participant>;
   createParticipant?: Maybe<Participant>;
   deleteParticipant?: Maybe<Participant>;
-  createQuestionTemplate?: Maybe<QuestionTemplate>;
-  editQuestionTemplate?: Maybe<QuestionTemplate>;
-  reorderQuestionTemplate?: Maybe<QuestionTemplate>;
   setAnswer?: Maybe<Answer>;
   createAction?: Maybe<Action>;
   editAction?: Maybe<Action>;
   deleteAction?: Maybe<Action>;
   createNote?: Maybe<Note>;
   createClosingRemark?: Maybe<ClosingRemark>;
+  createProjectCategory?: Maybe<ProjectCategory>;
+  copyProjectCategory?: Maybe<ProjectCategory>;
+  createQuestionTemplate?: Maybe<QuestionTemplate>;
+  editQuestionTemplate?: Maybe<QuestionTemplate>;
+  reorderQuestionTemplate?: Maybe<QuestionTemplate>;
+  addToProjectCategory?: Maybe<QuestionTemplate>;
+  removeFromProjectCategory?: Maybe<QuestionTemplate>;
 };
 
 
@@ -341,6 +365,7 @@ export type MutationCreateEvaluationArgs = {
   name?: Maybe<Scalars['String']>;
   projectId?: Maybe<Scalars['String']>;
   previousEvaluationId?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
 };
 
 
@@ -372,30 +397,6 @@ export type MutationCreateParticipantArgs = {
 
 export type MutationDeleteParticipantArgs = {
   participantId?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationCreateQuestionTemplateArgs = {
-  barrier: Barrier;
-  organization: Organization;
-  text?: Maybe<Scalars['String']>;
-  supportNotes?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationEditQuestionTemplateArgs = {
-  questionTemplateId?: Maybe<Scalars['String']>;
-  barrier: Barrier;
-  organization: Organization;
-  text?: Maybe<Scalars['String']>;
-  supportNotes?: Maybe<Scalars['String']>;
-  status: Status;
-};
-
-
-export type MutationReorderQuestionTemplateArgs = {
-  questionTemplateId?: Maybe<Scalars['String']>;
-  newNextQuestionTemplateId?: Maybe<Scalars['String']>;
 };
 
 
@@ -443,6 +444,53 @@ export type MutationCreateNoteArgs = {
 export type MutationCreateClosingRemarkArgs = {
   actionId?: Maybe<Scalars['String']>;
   text?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCreateProjectCategoryArgs = {
+  name?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCopyProjectCategoryArgs = {
+  newName?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCreateQuestionTemplateArgs = {
+  barrier: Barrier;
+  organization: Organization;
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationEditQuestionTemplateArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  barrier: Barrier;
+  organization: Organization;
+  text?: Maybe<Scalars['String']>;
+  supportNotes?: Maybe<Scalars['String']>;
+  status: Status;
+};
+
+
+export type MutationReorderQuestionTemplateArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  newNextQuestionTemplateId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationAddToProjectCategoryArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationRemoveFromProjectCategoryArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
+  projectCategoryId?: Maybe<Scalars['String']>;
 };
 
 export type Note = {
@@ -540,6 +588,21 @@ export type Project = {
   evaluations: Array<Maybe<Evaluation>>;
 };
 
+export type ProjectCategory = {
+  __typename?: 'ProjectCategory';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  questionTemplates: Array<Maybe<QuestionTemplate>>;
+};
+
+export type ProjectCategoryFilterInput = {
+  and?: Maybe<Array<ProjectCategoryFilterInput>>;
+  or?: Maybe<Array<ProjectCategoryFilterInput>>;
+  id?: Maybe<StringOperationFilterInput>;
+  name?: Maybe<StringOperationFilterInput>;
+  questionTemplates?: Maybe<ListFilterInputTypeOfQuestionTemplateFilterInput>;
+};
+
 export type ProjectFilterInput = {
   and?: Maybe<Array<ProjectFilterInput>>;
   or?: Maybe<Array<ProjectFilterInput>>;
@@ -592,6 +655,7 @@ export type QuestionTemplate = {
   createDate: Scalars['DateTime'];
   questions: Array<Maybe<Question>>;
   previous?: Maybe<QuestionTemplate>;
+  projectCategories: Array<Maybe<ProjectCategory>>;
 };
 
 export type QuestionTemplateFilterInput = {
@@ -607,6 +671,7 @@ export type QuestionTemplateFilterInput = {
   createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
   questions?: Maybe<ListFilterInputTypeOfQuestionFilterInput>;
   previous?: Maybe<QuestionTemplateFilterInput>;
+  projectCategories?: Maybe<ListFilterInputTypeOfProjectCategoryFilterInput>;
 };
 
 export enum Role {

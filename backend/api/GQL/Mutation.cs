@@ -12,15 +12,21 @@ namespace api.GQL
 {
     public class Mutation
     {
+        /* Primary Services*/
         private readonly ProjectService _projectService;
         private readonly EvaluationService _evaluationService;
         private readonly ParticipantService _participantService;
         private readonly QuestionService _questionService;
         private readonly AnswerService _answerService;
-        private readonly QuestionTemplateService _questionTemplateService;
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
         private readonly ClosingRemarkService _closingRemarkService;
+
+        /* Admin Services */
+        private readonly QuestionTemplateService _questionTemplateService;
+        private readonly ProjectCategoryService _projectCategoryService;
+
+        /* Other Services */
         private readonly IAuthService _authService;
         private readonly ILogger _logger;
 
@@ -30,10 +36,11 @@ namespace api.GQL
             ParticipantService participantService,
             QuestionService questionService,
             AnswerService answerService,
-            QuestionTemplateService questionTemplateService,
             ActionService actionService,
             NoteService noteService,
             ClosingRemarkService closingRemarkService,
+            QuestionTemplateService questionTemplateService,
+            ProjectCategoryService projectCategoryService,
             IAuthService authService,
             ILogger<Mutation> logger
         )
@@ -43,27 +50,45 @@ namespace api.GQL
             _participantService = participantService;
             _questionService = questionService;
             _answerService = answerService;
-            _questionTemplateService = questionTemplateService;
             _actionService = actionService;
             _noteService = noteService;
             _closingRemarkService = closingRemarkService;
+            _questionTemplateService = questionTemplateService;
+            _projectCategoryService = projectCategoryService;
             _authService = authService;
             _logger = logger;
         }
 
-        public Evaluation CreateEvaluation(string name,
-                                           string projectId,
-                                           string previousEvaluationId)
+        /* Primary mutations - manupulating specific Evaluations */
+        public Evaluation CreateEvaluation(
+            string name,
+            string projectId,
+            string previousEvaluationId,
+            string projectCategoryId
+        )
         {
-            string azureUniqueId = _authService.GetOID();
-            Project project = _projectService.GetProject(projectId);
-            Evaluation evaluation = _evaluationService.Create(
-                name, project, previousEvaluationId
-            );
-            _participantService.Create(azureUniqueId, evaluation, Organization.All, Role.Facilitator);
+            var azureUniqueId = _authService.GetOID();
 
-            _questionService.CreateBulk(_questionTemplateService.ActiveQuestions(), evaluation);
-            _logger.LogInformation($"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}");
+            var project = _projectService.GetProject(projectId);
+            var evaluation = _evaluationService.Create(
+                name:                 name,
+                project:              project,
+                previousEvaluationId: previousEvaluationId
+            );
+
+            _participantService.Create(
+                azureUniqueId: azureUniqueId,
+                evaluation:    evaluation,
+                organization:  Organization.All,
+                role:          Role.Facilitator
+            );
+
+            var projectCategory = _projectCategoryService.Get(projectCategoryId);
+            var questions = _questionTemplateService.ActiveQuestions(projectCategory);
+            _questionService.CreateBulk(questions, evaluation);
+
+            var log = $"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}";
+            _logger.LogInformation(log);
             return evaluation;
         }
 
@@ -153,42 +178,6 @@ namespace api.GQL
 
             return _participantService.Remove(participantId);
         }
-
-        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
-        {
-            return _questionTemplateService.Create(barrier, organization, text, supportNotes);
-        }
-
-        public QuestionTemplate EditQuestionTemplate(
-            string questionTemplateId,
-            Barrier barrier,
-            Organization organization,
-            string text,
-            string supportNotes,
-            Status status
-        )
-        {
-            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
-            return _questionTemplateService.Edit(questionTemplate, barrier, organization, text, supportNotes, status);
-        }
-
-        public QuestionTemplate ReorderQuestionTemplate(
-            string questionTemplateId,
-            string newNextQuestionTemplateId
-        )
-        {
-            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
-            if (string.IsNullOrEmpty(newNextQuestionTemplateId))
-            {
-                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate);
-            }
-            else
-            {
-                QuestionTemplate newNextQuestionTemplate = _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
-                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
-            }
-        }
-
 
         public Answer SetAnswer(string questionId, Severity severity, string text, Progression progression)
         {
@@ -280,6 +269,74 @@ namespace api.GQL
             return _closingRemarkService.Create(CurrentUser(evaluation), text, action);
         }
 
+        /* Admin mutations
+         *
+         * There are no role based restictions to these mutations as the
+         * concept "Role" only exists withing an Evaluation.
+         */
+        public ProjectCategory CreateProjectCategory(string name)
+        {
+            return _projectCategoryService.Create(name);
+        }
+
+        public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
+        {
+            var other = _projectCategoryService.Get(projectCategoryId);
+            return _projectCategoryService.CopyFrom(newName, other);
+        }
+
+        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
+        {
+            return _questionTemplateService.Create(barrier, organization, text, supportNotes);
+        }
+
+        public QuestionTemplate EditQuestionTemplate(
+            string questionTemplateId,
+            Barrier barrier,
+            Organization organization,
+            string text,
+            string supportNotes,
+            Status status
+        )
+        {
+            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
+            return _questionTemplateService.Edit(questionTemplate, barrier, organization, text, supportNotes, status);
+        }
+
+        public QuestionTemplate ReorderQuestionTemplate(
+            string questionTemplateId,
+            string newNextQuestionTemplateId
+        )
+        {
+            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
+            if (string.IsNullOrEmpty(newNextQuestionTemplateId))
+            {
+                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate);
+            }
+            else
+            {
+                QuestionTemplate newNextQuestionTemplate = _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
+                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
+            }
+        }
+
+        public QuestionTemplate AddToProjectCategory(
+            string questionTemplateId,
+            string projectCategoryId
+        )
+        {
+            return _questionTemplateService.AddToProjectCategory(questionTemplateId, projectCategoryId);
+        }
+
+        public QuestionTemplate RemoveFromProjectCategory(
+            string questionTemplateId,
+            string projectCategoryId
+        )
+        {
+            return _questionTemplateService.RemoveFromProjectCategory(questionTemplateId, projectCategoryId);
+        }
+
+        /* Helpers */
         private Participant CurrentUser(Evaluation evaluation)
         {
             string azureUniqueId = _authService.GetOID();

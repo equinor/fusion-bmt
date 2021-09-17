@@ -12,11 +12,11 @@ import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
 import { useProject } from '../../../globals/contexts'
 import { apiErrorMessage } from '../../../api/error'
-import { Evaluation } from '../../../api/models'
+import { Evaluation, ProjectCategory } from '../../../api/models'
 
 interface CreateEvaluationDialogProps {
     open: boolean
-    onCreate: (name: string, previousEvaluationId?: string) => void
+    onCreate: (name: string, projectCategoryId: string, previousEvaluationId?: string) => void
     onCancelClick: () => void
 }
 
@@ -32,11 +32,17 @@ const CreateEvaluationDialog = ({
         string | undefined
     >(undefined)
 
+    const [selectedProjectCategory, setSelectedProjectCategory] = useState<
+        string | undefined
+    >(undefined)
+
     const handleCreateClick = () => {
         if (nameInputValue.length <= 0) {
             setInputErrorMessage(`The evaluation name must be filled out`)
+        } else if (selectedProjectCategory === undefined) {
+            setInputErrorMessage('A Project Category must be selected')
         } else {
-            onCreate(nameInputValue, selectedEvaluation)
+            onCreate(nameInputValue, selectedProjectCategory, selectedEvaluation)
         }
     }
 
@@ -46,16 +52,22 @@ const CreateEvaluationDialog = ({
     }
 
     const {
-        loading: loadingQuery,
+        loading: loadingEvaluationQuery,
         evaluations,
-        error: errorQuery,
+        error: errorEvaluationQuery,
     } = useGetAllEvaluationsQuery(project.id)
 
-    if (loadingQuery) {
+    const {
+        loading: loadingProjectCategoryQuery,
+        projectCategories,
+        error: errorProjectCategoryQuery,
+    } = useGetAllProjectCategoriesQuery()
+
+    if (loadingEvaluationQuery || loadingProjectCategoryQuery) {
         return <>Loading...</>
     }
 
-    if (errorQuery !== undefined || evaluations === undefined) {
+    if (errorEvaluationQuery !== undefined || evaluations === undefined) {
         return (
             <div>
                 <TextArea
@@ -65,6 +77,26 @@ const CreateEvaluationDialog = ({
             </div>
         )
     }
+
+    if (errorProjectCategoryQuery !== undefined || projectCategories === undefined) {
+        return (
+            <div>
+                <TextArea
+                    value={apiErrorMessage('Could not load Project Categorie')}
+                    onChange={() => {}}
+                />
+            </div>
+        )
+    }
+
+    const projectCategoryOptions: SearchableDropdownOption[] = projectCategories.map(
+        (projectCategory: ProjectCategory) => ({
+            title: projectCategory.name,
+            key: projectCategory.id,
+            isSelected: projectCategory.id == selectedProjectCategory,
+        })
+
+    )
 
     const evaluationOptions: SearchableDropdownOption[] = evaluations.map(
         (evaluation: Evaluation) => ({
@@ -98,6 +130,16 @@ const CreateEvaluationDialog = ({
                                     }
                                 }}
                                 data-testid="create_evaluation_dialog_name_text_field"
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <SearchableDropdown
+                                label="Project Category"
+                                placeholder="Select Project Category"
+                                onSelect={option =>
+                                    setSelectedProjectCategory(option.key)
+                                }
+                                options={projectCategoryOptions}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -151,6 +193,32 @@ const useGetAllEvaluationsQuery = (projectId: string): EvaluationsQueryProps => 
     return {
         loading,
         evaluations: data?.evaluations,
+        error,
+    }
+}
+
+interface ProjectCategoriesQueryProps {
+    loading: boolean
+    projectCategories: ProjectCategory[] | undefined
+    error: ApolloError | undefined
+}
+
+const useGetAllProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
+    const GET_PROJECT_CATEGORY = gql`
+        query {
+            projectCategory {
+                id
+                name
+            }
+        }
+    `
+    const { loading, data, error } = useQuery<{ projectCategory: ProjectCategory[] }>(
+        GET_PROJECT_CATEGORY
+    )
+
+    return {
+        loading,
+        projectCategories: data?.projectCategory,
         error,
     }
 }

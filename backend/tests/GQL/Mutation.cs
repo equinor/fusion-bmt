@@ -13,17 +13,22 @@ namespace tests
     [Collection("UsesDbContext")]
     public class MutationTest : DbContextTestSetup
     {
-        /* Services */
+        /* Primary Services*/
         protected readonly Mutation _mutation;
         protected readonly ProjectService _projectService;
         protected readonly EvaluationService _evaluationService;
         protected readonly ParticipantService _participantService;
         protected readonly QuestionService _questionService;
         protected readonly AnswerService _answerService;
-        protected readonly QuestionTemplateService _questionTemplateService;
         protected readonly ActionService _actionService;
         protected readonly NoteService _noteService;
         protected readonly ClosingRemarkService _closingRemarkService;
+
+        /* Admin Services */
+        protected readonly QuestionTemplateService _questionTemplateService;
+        protected readonly ProjectCategoryService _projectCategoryService;
+
+        /* Other Services */
         protected readonly MockAuthService _authService;
 
         /* Helpers */
@@ -37,10 +42,11 @@ namespace tests
             _participantService = new ParticipantService(_context);
             _questionService = new QuestionService(_context);
             _answerService = new AnswerService(_context);
-            _questionTemplateService = new QuestionTemplateService(_context);
             _actionService = new ActionService(_context);
             _noteService = new NoteService(_context);
             _closingRemarkService = new ClosingRemarkService(_context);
+            _questionTemplateService = new QuestionTemplateService(_context);
+            _projectCategoryService = new ProjectCategoryService(_context);
             _authService = new MockAuthService();
             _mutation = new Mutation(
                 _projectService,
@@ -48,10 +54,11 @@ namespace tests
                 _participantService,
                 _questionService,
                 _answerService,
-                _questionTemplateService,
                 _actionService,
                 _noteService,
                 _closingRemarkService,
+                _questionTemplateService,
+                _projectCategoryService,
                 _authService,
                 new Logger<Mutation>(factory)
             );
@@ -64,7 +71,8 @@ namespace tests
         protected Evaluation CreateEvaluation(
             string name = null,
             string projectId = null,
-            string previousEvaluationId = null)
+            string previousEvaluationId = null,
+            string projectCategoryId = null)
         {
             if (name == null)
             {
@@ -81,10 +89,16 @@ namespace tests
                 previousEvaluationId = "";
             }
 
+            if (projectCategoryId == null)
+            {
+                projectCategoryId = _projectCategoryService.GetAll().First().Id;
+            }
+
             Evaluation evaluation =  _mutation.CreateEvaluation(
-                name: name,
-                projectId: projectId,
-                previousEvaluationId:  previousEvaluationId
+                name:                 name,
+                projectId:            projectId,
+                previousEvaluationId: previousEvaluationId,
+                projectCategoryId:    projectCategoryId
             );
 
             return evaluation;

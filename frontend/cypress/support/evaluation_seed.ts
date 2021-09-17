@@ -14,6 +14,7 @@ import {
     CREATE_NOTE,
     SET_SUMMARY,
     PROGRESS_PARTICIPANT,
+    GET_PROJECT_CATEGORY,
 } from './gql'
 
 type EvaluationSeedInput = {
@@ -196,9 +197,14 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
         })
         .then(res => {
             seed.projectId = res.body.data.project.id
-
+            return cy.gql(GET_PROJECT_CATEGORY, { variables: { name: "SquareField" } })
+        })
+        .then(res => {
+            const projectCategoryId = res.body.data.projectCategory[0].id;
             cy.log(`EvaluationSeed: Creating Evaluation by ${seed.participants[0].user}`)
-            cy.gql(ADD_EVALUATION, { variables: { name: seed.name, projectId: seed.projectId } }).then(res => {
+            cy.gql(ADD_EVALUATION, {
+                variables: { name: seed.name, projectId: seed.projectId, projectCategoryId: projectCategoryId },
+            }).then(res => {
                 const evaluation = res.body.data.createEvaluation
                 seed.evaluationId = evaluation.id
                 seed.questions = evaluation.questions

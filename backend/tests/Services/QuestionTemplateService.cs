@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -18,20 +19,6 @@ namespace tests
             IQueryable<QuestionTemplate> questions = questionTemplateService.GetAll();
 
             Assert.True(questions.Count() > 0);
-        }
-
-        [Fact]
-        public void ActiveQuestions()
-        {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
-
-            List<QuestionTemplate> questionTemplates = questionTemplateService.ActiveQuestions();
-
-            Assert.Equal(15, questionTemplates.Count);
-            foreach (QuestionTemplate qt in questionTemplates)
-            {
-                Assert.True(qt.Status.Equals(Status.Active));
-            }
         }
 
         [Fact]
@@ -69,17 +56,43 @@ namespace tests
         [Fact]
         public void EditQuestionTemplate()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
-            string initialText = "initial text";
-            QuestionTemplate questionTemplate = questionTemplateService.Create(Barrier.GM, Organization.All, initialText, "supportNotes");
+            var service = new QuestionTemplateService(_context);
+            var originalQT = service.Create(
+                barrier:      Randomize.Barrier(),
+                organization: Randomize.Organization(),
+                text:         Randomize.String(),
+                supportNotes: Randomize.String()
+            );
 
-            string newtext = "new text";
-            Barrier newBarrier = Barrier.PS1;
-            QuestionTemplate resultingQuestionTemplate = questionTemplateService.Edit(questionTemplate, newBarrier, Organization.Commissioning, newtext, "supportNotes", Status.Active);
+            var projectCategory  = new ProjectCategoryService(_context).GetAll().First();
+            originalQT = service.AddToProjectCategory(originalQT.Id, projectCategory.Id);
 
-            Assert.Equal(newtext, resultingQuestionTemplate.Text);
-            Assert.Equal(newBarrier, resultingQuestionTemplate.Barrier);
-            Assert.Equal(questionTemplate, resultingQuestionTemplate.previous);
+            var nTemplates = service.GetAll().Count();
+            var nActive = service.ActiveQuestions(projectCategory).Count();
+
+            var newText         = Randomize.String();
+            var newSupportNotes = Randomize.String();
+            var newOrganization = Randomize.Organization();
+            var newBarrier      = Randomize.Barrier();
+
+            var updatedQT = service.Edit(
+                questionTemplate: originalQT,
+                barrier:          newBarrier,
+                organization:     newOrganization,
+                text:             newText,
+                supportNotes:     newSupportNotes,
+                status:           Status.Active
+            );
+
+            Assert.Equal(nTemplates + 1, service.GetAll().Count());
+            Assert.Equal(nActive, service.ActiveQuestions(projectCategory).Count());
+
+            Assert.Equal(newText,          updatedQT.Text);
+            Assert.Equal(newSupportNotes,  updatedQT.SupportNotes);
+            Assert.Equal(newBarrier,       updatedQT.Barrier);
+            Assert.Equal(newOrganization,  updatedQT.Organization);
+
+            Assert.Equal(originalQT,       updatedQT.previous);
         }
 
         [Fact]
@@ -107,6 +120,61 @@ namespace tests
             QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(questionTemplate);
 
             Assert.Equal(newOrder, resultingQuestionTemplate.Order);
+        }
+
+        [Fact]
+        public void AddToProjectCategory()
+        {
+            var projectCategoryService = new ProjectCategoryService(_context);
+            var projectCategory = projectCategoryService.Create(Randomize.String());
+
+            var service = new QuestionTemplateService(_context);
+            var nActive = service.ActiveQuestions(projectCategory).Count();
+            var nTemplates = service.GetAll().Count();
+            var template = service.GetAll().First();
+
+            var updatedQT = service.AddToProjectCategory(template.Id, projectCategory.Id);
+            var updatedSP = projectCategoryService.Get(projectCategory.Id);
+
+            Assert.True(updatedQT.ProjectCategories.Contains(updatedSP));
+            Assert.True(updatedSP.QuestionTemplates.Contains(updatedQT));
+
+            Assert.Equal(nActive + 1, service.ActiveQuestions(projectCategory).Count());
+            Assert.Equal(nTemplates,  service.GetAll().Count());
+
+            /* Adding the same QuestionTemplate should fail */
+            Assert.Throws<Exception>(() =>
+                service.AddToProjectCategory(template.Id, projectCategory.Id)
+            );
+        }
+
+        [Fact]
+        public void RemoveFromProjectCategory()
+        {
+            var projectCategoryService = new ProjectCategoryService(_context);
+            var projectCategory = projectCategoryService.Create(Randomize.String());
+
+            var service = new QuestionTemplateService(_context);
+            var template = service.GetAll().First();
+
+            service.AddToProjectCategory(template.Id, projectCategory.Id);
+
+            var nActive = service.ActiveQuestions(projectCategory).Count();
+            var nTemplates = service.GetAll().Count();
+
+            var updatedQT = service.RemoveFromProjectCategory(template.Id, projectCategory.Id);
+            var updatedSP = projectCategoryService.Get(projectCategory.Id);
+
+            Assert.False(updatedQT.ProjectCategories.Contains(updatedSP));
+            Assert.False(updatedSP.QuestionTemplates.Contains(updatedQT));
+
+            Assert.Equal(nActive - 1, service.ActiveQuestions(projectCategory).Count());
+            Assert.Equal(nTemplates,  service.GetAll().Count());
+
+            /* Removing the same QuestionTemplate should fail */
+            Assert.Throws<Exception>(() =>
+                service.RemoveFromProjectCategory(template.Id, projectCategory.Id)
+            );
         }
     }
 }

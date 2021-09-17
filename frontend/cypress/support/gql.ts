@@ -27,9 +27,25 @@ export const GET_PROJECT = `
     }
 `
 
+export const GET_PROJECT_CATEGORY = `
+    query($name: String!) {
+        projectCategory(where: { name: { eq: $name } }) {
+            id
+        }
+    }
+`
+
 export const ADD_EVALUATION = `
-    mutation CreateEvaluation($name: String!, $projectId: String!) {
-        createEvaluation(name: $name, projectId: $projectId) {
+    mutation CreateEvaluation(
+        $name: String!,
+        $projectId: String!,
+        $projectCategoryId: String
+    ) {
+        createEvaluation(
+            name: $name,
+            projectId: $projectId,
+            projectCategoryId: $projectCategoryId
+        ) {
             id
             questions {
                 id,

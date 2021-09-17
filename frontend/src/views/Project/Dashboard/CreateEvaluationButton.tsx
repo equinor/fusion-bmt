@@ -19,10 +19,11 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
 
     const onCreateEvaluationDialogSureClick = (
         name: string,
+        projectCategoryId: string,
         previousEvaluationId?: string
     ) => {
         setShowDialog(false)
-        createEvaluation(name, projectId, previousEvaluationId)
+        createEvaluation(name, projectId, projectCategoryId, previousEvaluationId)
     }
 
     const onCreateEvaluationDialogCancelClick = () => {
@@ -82,7 +83,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
 export default CreateEvaluationButton
 
 interface CreateEvaluationMutationProps {
-    createEvaluation: (name: string, projectId: string, previousEvaluationId?: string) => void
+    createEvaluation: (name: string, projectId: string, projectCategoryId: string, previousEvaluationId?: string) => void
     loading: boolean
     evaluation: Evaluation | undefined
     error: ApolloError | undefined
@@ -94,11 +95,13 @@ const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
             $name: String!
             $projectId: String!
             $previousEvaluationId: String
+            $projectCategoryId: String!
         ) {
             createEvaluation(
                 name: $name
                 projectId: $projectId
                 previousEvaluationId: $previousEvaluationId
+                projectCategoryId: $projectCategoryId
             ) {
                 ...EvaluationFields
             }
@@ -125,10 +128,11 @@ const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
     const createEvaluation = (
         name: string,
         projectId: string,
+        projectCategoryId: string,
         previousEvaluationId?: string
     ) => {
         createEvaluationApolloFunc({
-            variables: { name, projectId, previousEvaluationId },
+            variables: { name, projectId, previousEvaluationId, projectCategoryId },
         })
     }
 

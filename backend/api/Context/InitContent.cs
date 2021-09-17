@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 using api.Models;
 using api.Utils;
@@ -11,8 +12,9 @@ namespace api.Context
 {
     public static class InitContent
     {
-        public static readonly List<Project> Projects = GetProjects();
         public static readonly List<QuestionTemplate> QuestionTemplates = GetQuestionTemplates();
+        public static readonly List<ProjectCategory> ProjectCategories = GetProjectCategories();
+        public static readonly List<Project> Projects = GetProjects();
         public static readonly List<Evaluation> Evaluations = GetEvaluations();
         public static readonly List<Participant> Participants = GetParticipants();
         public static readonly List<Question> Questions = GetQuestions();
@@ -36,6 +38,7 @@ namespace api.Context
                 q.CreateDate = DateTimeOffset.UtcNow;
                 q.Status = Status.Active;
                 q.Order = order;
+
                 order += 1;
             }
             return questions;
@@ -251,6 +254,21 @@ namespace api.Context
             return projects;
         }
 
+        private static List<ProjectCategory> GetProjectCategories()
+        {
+            var category1 = new ProjectCategory
+            {
+                Name = "CircleField"
+            };
+
+            var category2 = new ProjectCategory
+            {
+                Name = "SquareField"
+            };
+
+            return new List<ProjectCategory> { category1, category2 };
+        }
+
         public static void PopulateDb(BmtDbContext context)
         {
             if (context == null)
@@ -259,6 +277,7 @@ namespace api.Context
             }
 
             context.AddRange(Projects);
+            context.AddRange(ProjectCategories);
             context.AddRange(QuestionTemplates);
             context.AddRange(Evaluations);
             context.AddRange(Participants);
@@ -268,6 +287,17 @@ namespace api.Context
             context.AddRange(Notes);
             context.AddRange(ClosingRemarks);
 
+            context.SaveChanges();
+
+            var templates = context.QuestionTemplates.Include(x => x.ProjectCategories);
+            var categories = context.ProjectCategories;
+            foreach (var template in templates)
+            {
+                foreach(var category in categories)
+                {
+                    template.ProjectCategories.Add(category);
+                }
+            }
             context.SaveChanges();
         }
     }

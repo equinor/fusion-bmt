@@ -22,8 +22,13 @@ export default class ProjectPage {
             return cy.contains('Previous Evaluation').parent()
         }
 
-        createEvaluation = (name: string, previousEvaluation?: string) => {
+        projectCategoryTextField = () => {
+            return cy.contains('Project Category').parent()
+        }
+
+        createEvaluation = (name: string, projectCategory: string, previousEvaluation?: string) => {
             this.nameTextField().type(name)
+            this.projectCategoryTextField().type(`${projectCategory}{enter}`)
 
             if (previousEvaluation) {
                 this.previousEvaluation().click().type(`${previousEvaluation}{enter}`)
