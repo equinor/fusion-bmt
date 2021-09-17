@@ -11,7 +11,7 @@ const BarrierQuestionList = ({ barrierQuestions }: Props) => {
     return (
         <div>
             {orderedQuestions.map(q => {
-                return <AdminQuestionItem question={q} />
+                return <AdminQuestionItem key={q.id} question={q} />
             })}
         </div>
     )
