@@ -1,4 +1,4 @@
-import { SideSheet } from './common'
+import { DropdownSelect, SideSheet } from './common'
 import { Action, Note } from './mocks'
 import { FUSION_DATE_LOCALE } from './helpers'
 import { Priority, Question } from '../../src/api/models'
@@ -131,6 +131,16 @@ export class EditActionDialog extends ActionDialog {
         return cy.getByDataTestid('action_completed_text')
     }
 
+    assertClosingNoteExists = (note: Note) => {
+        cy.getByDataTestid('closing_note', 10000)
+            .should('contain.text', note.createdBy.user.name + ' closed action')
+            .within(() => {
+                if (note.text) {
+                    cy.getByDataTestid('note_text').should('have.text', note.text)
+                }
+            })
+    }
+
     assertSaved = () => {
         this.body()
             .parent()
@@ -151,6 +161,14 @@ export class EditActionDialog extends ActionDialog {
         this.assignedToInput().should('have.value', action.assignedTo.user.name)
         this.priorityInput().should('have.text', mapPriority(action.priority))
         this.dueDateInput().should('have.value', action.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
+        this.assertNotesValues(notes)
+    }
+
+    /**
+     * Check that all expected notes are present and contain correct values.
+     * @param notes Pass all notes in the order of creation
+     */
+    assertNotesValues = (notes: Note[]) => {
         ;[...notes].reverse().forEach((note, index) => {
             this.notesDiv().children().eq(index).as('note')
             if (note.__typename === 'ClosingRemark') {
@@ -166,12 +184,52 @@ export class EditActionDialog extends ActionDialog {
         })
     }
 
-    assertNoClosingMessageInNotes = (notes: Note[]) => {
-        ;[...notes].reverse().forEach((note, index) => {
-            this.notesDiv().children().eq(index).as('note')
-            cy.get('@note').should('contain.text', note.createdBy.user.name + ' wrote')
-            cy.get('@note').contains(note.text).should('exist')
+    /**
+     * Insert provided new values into action input fields and dropdown
+     * @param notes All new notes to add
+     */
+    editAction = (updatedAction: Action, newNotes: Note[], oldNotesLength: number) => {
+        const dropdownSelect = new DropdownSelect()
+
+        this.titleInput().replace(updatedAction.title)
+        dropdownSelect.select(this.assignedToInput(), updatedAction.assignedTo.user.name)
+        this.dueDateInput().replace(updatedAction.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
+        dropdownSelect.select(this.priorityInput(), mapPriority(updatedAction.priority))
+        this.descriptionInput().replace(updatedAction.description)
+        this.assertSaved()
+        newNotes.forEach((note, index) => {
+            this.notesInput().replace(note.text)
+            this.addNoteButton().click()
+            this.verifyNoteAdded(oldNotesLength, index + 1)
         })
+    }
+
+    /**
+     * Verify that the note is added in the view
+     */
+    verifyNoteAdded = (oldNotesLength: number, numberOfAddedNotes: number) => {
+        cy.getByDataTestid(`notes_list`)
+            .children({ timeout: 10000 })
+            .should('have.length', oldNotesLength + numberOfAddedNotes)
+    }
+
+    /**
+     * Check that the view reflects whether or not the action is completed
+     */
+    assertCompletedInView = (completed = false) => {
+        this.actionCompletedText().should(completed ? 'be.visible' : 'not.exist')
+        this.completeActionButton().should(completed ? 'not.exist' : 'be.visible')
+    }
+
+    /**
+     * Check complete view elements visibility and attributes
+     @param completeViewOpen is view open
+     */
+    assertCompleteConfirmViewVisible = (completeViewOpen = false) => {
+        this.completeActionButton().should(completeViewOpen ? 'be.disabled' : 'be.enabled')
+        this.completedReasonInput().should(completeViewOpen ? 'be.visible' : 'not.exist')
+        this.completeActionConfirmButton().should(completeViewOpen ? 'be.visible' : 'not.exist')
+        this.completeActionCancelButton().should(completeViewOpen ? 'be.visible' : 'not.exist')
     }
 }
 

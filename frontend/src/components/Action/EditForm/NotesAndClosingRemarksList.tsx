@@ -42,6 +42,7 @@ const NotesAndClosingRemarksList = ({ notesAndClosingRemarks, participantsDetail
 
                 return (
                     <Box
+                        data-testid={isClosingRemark ? 'closing_note' : 'note'}
                         key={noteOrRemark.id}
                         display="flex"
                         flexDirection="column"
@@ -57,7 +58,9 @@ const NotesAndClosingRemarksList = ({ notesAndClosingRemarks, participantsDetail
                                 {hoursPadded}:{minutesPadded} - {dateString}
                             </Box>
                         </Box>
-                        <Box mt={1}>{noteOrRemark.text}</Box>
+                        <Box mt={1} data-testid={'note_text'}>
+                            {noteOrRemark.text}
+                        </Box>
                     </Box>
                 )
             })}
