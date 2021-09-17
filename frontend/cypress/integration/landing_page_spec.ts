@@ -2,7 +2,7 @@ import * as faker from 'faker'
 import { Progression, Role } from '../../src/api/models'
 
 import { EvaluationSeed } from '../support/evaluation_seed'
-import { getUsers, User } from '../support/mock/external/users'
+import { getUsers } from '../support/mock/external/users'
 import { EvaluationPage } from '../support/evaluation'
 
 describe('Landing page', () => {
@@ -54,7 +54,8 @@ describe('Landing page', () => {
         evaluationIAmIn.plant()
         evaluationIAmNotIn.plant()
         evaluationNotInProject.plant()
-
+    })
+    beforeEach(() => {
         cy.visitProject(user)
     })
 
@@ -79,7 +80,7 @@ describe('Landing page', () => {
             ]
 
             testdata.forEach(t => {
-                it(`Verify that evaluation ${t.ofProject ? '' : 'not '} of project that user ${
+                it(`Evaluation ${t.ofProject ? '' : 'not '} of project that user ${
                     t.isListed ? 'participates in ' : 'does not participate in '
                 } is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
                     const evalName = eval(t.eval).name
@@ -89,20 +90,11 @@ describe('Landing page', () => {
                 })
             })
 
-            it('Verify that user can view evaluation user does not participate in', () => {
-                cy.visitProject(user)
+            it('User can open own evaluation', () => {
                 const myEvalName = evaluationIAmIn.name
                 cy.contains(myEvalName).click()
                 const evaluationPage = new EvaluationPage()
                 evaluationPage.progressionStepLink(evaluationIAmIn.progression).should('be.visible')
-                cy.go('back')
-            })
-        })
-
-        context('Navigate', () => {
-            it('Navigate to Project evaluations from My evaluations', () => {
-                cy.contains('Project evaluations').click()
-                cy.get(`[data-testid=table]`).should('exist')
             })
         })
 
@@ -125,17 +117,11 @@ describe('Landing page', () => {
                 },
             ]
 
-            const visitProjectAndGoToProjectEvaluations = () => {
-                cy.visitProject(user)
-                cy.contains('Project evaluations').click()
-                cy.get(`[data-testid=table]`).should('exist')
-            }
-
             testdata.forEach(t => {
-                it(`Verify that evaluation ${t.isListed ? '' : 'not '} of project the user is ${t.userIsIn ? '' : 'not '} in is ${
+                it(`Evaluation ${t.isListed ? '' : 'not '} of project the user is ${t.userIsIn ? '' : 'not '} in is ${
                     t.isListed ? '' : 'not'
                 } listed under Project evaluations`, () => {
-                    visitProjectAndGoToProjectEvaluations()
+                    cy.contains('Project evaluations').click()
                     const evalName = eval(t.eval).name
                     cy.get(`[data-testid=table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
@@ -143,40 +129,43 @@ describe('Landing page', () => {
                 })
             })
 
-            it('Verify that user can click evaluationIAmNotIn from project evaluations', () => {
-                visitProjectAndGoToProjectEvaluations()
+            it('User can open evaluation user is not part of', () => {
+                cy.contains('Project evaluations').click()
                 const notMyEvalName = evaluationIAmNotIn.name
                 cy.contains(notMyEvalName).click()
                 const evaluationPage = new EvaluationPage()
                 evaluationPage.progressionStepLink(evaluationIAmNotIn.progression).should('be.visible')
-                cy.go('back')
             })
         })
     })
 
-    const visitProjectAndGoToActionsTable = () => {
-        cy.visitProject(user)
-        cy.get('button').contains('Actions').click()
-    }
-
     context('Actions', () => {
         context('Action table', () => {
-            it('Navigate to Actions tab', () => {
-                visitProjectAndGoToActionsTable()
-                cy.get(`[data-testid=action-table]`).should('be.visible')
-            })
-            it('Action assigned to me is listed', () => {
-                visitProjectAndGoToActionsTable()
+            it('Action assigned to user is listed', () => {
+                cy.get('button').contains('Actions').click()
                 cy.get(`[data-testid=action-table]`).within(() => {
                     cy.contains(evaluationIAmIn.actions.find(a => a.assignedTo.user === user)!.title).should('exist')
                 })
             })
-            it('Action not assigned to me is not listed', () => {
-                visitProjectAndGoToActionsTable()
+            it('Action not assigned to user is not listed', () => {
+                cy.get('button').contains('Actions').click()
                 cy.get(`[data-testid=action-table]`).within(() => {
                     cy.contains(evaluationIAmIn.actions.find(a => a.assignedTo.user !== user)!.title).should('not.exist')
                 })
             })
+        })
+    })
+
+    context('Page navigation', () => {
+        it('User can navigate to Actions tab from Dashboard', () => {
+            cy.get('button').contains('Actions').click()
+            cy.get(`[data-testid=action-table]`).should('be.visible')
+        })
+        it('User can navigate to Project evaluations from My evaluations', () => {
+            cy.contains('Project evaluations').click()
+            cy.get(`[data-testid=table]`).should('exist')
+            const notMyEvalName = evaluationIAmNotIn.name
+            cy.contains(notMyEvalName).should('exist')
         })
     })
 })
