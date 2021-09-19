@@ -8,49 +8,48 @@ import { EvaluationPage } from '../support/evaluation'
 describe('Landing page', () => {
     const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
-    let evaluationIAmIn: EvaluationSeed
-    let evaluationIAmNotIn: EvaluationSeed
-    let evaluationNotInProject: EvaluationSeed
     const user = users[2]
+
+    const evaluationIAmIn = new EvaluationSeed({
+        progression: faker.random.arrayElement(Object.values(Progression)),
+        users,
+        roles,
+        fusionProjectId: '123',
+        namePrefix: 'myEval',
+    })
+    evaluationIAmIn
+        .addAction(
+            evaluationIAmIn.createAction({
+                completed: false,
+                assignedTo: evaluationIAmIn.participants.find(p => p.user === user),
+                title: 'My action' + faker.lorem.words(),
+                description: 'My action' + faker.lorem.words(),
+            })
+        )
+        .addAction(
+            evaluationIAmIn.createAction({
+                completed: false,
+                assignedTo: evaluationIAmIn.participants.find(p => p.user !== user),
+                title: 'Not my action' + faker.lorem.words(),
+                description: 'Not my action' + faker.lorem.words(),
+            })
+        )
+    const evaluationIAmNotIn = new EvaluationSeed({
+        progression: faker.random.arrayElement(Object.values(Progression)),
+        users: users.slice(0, 2),
+        roles: roles.slice(0, 2),
+        fusionProjectId: '123',
+        namePrefix: 'notMyEval',
+    })
+    const evaluationNotInProject = new EvaluationSeed({
+        progression: faker.random.arrayElement(Object.values(Progression)),
+        users: users,
+        roles: roles,
+        fusionProjectId: '456',
+        namePrefix: 'notProjectEval',
+    })
+
     before(() => {
-        evaluationIAmIn = new EvaluationSeed({
-            progression: faker.random.arrayElement(Object.values(Progression)),
-            users,
-            roles,
-            fusionProjectId: '123',
-            namePrefix: 'myEval',
-        })
-        evaluationIAmIn
-            .addAction(
-                evaluationIAmIn.createAction({
-                    completed: false,
-                    assignedTo: evaluationIAmIn.participants.find(p => p.user === user),
-                    title: 'My action' + faker.lorem.words(),
-                    description: 'My action' + faker.lorem.words(),
-                })
-            )
-            .addAction(
-                evaluationIAmIn.createAction({
-                    completed: false,
-                    assignedTo: evaluationIAmIn.participants.find(p => p.user !== user),
-                    title: 'Not my action' + faker.lorem.words(),
-                    description: 'Not my action' + faker.lorem.words(),
-                })
-            )
-        evaluationIAmNotIn = new EvaluationSeed({
-            progression: faker.random.arrayElement(Object.values(Progression)),
-            users: users.slice(0, 2),
-            roles: roles.slice(0, 2),
-            fusionProjectId: '123',
-            namePrefix: 'notMyEval',
-        })
-        evaluationNotInProject = new EvaluationSeed({
-            progression: faker.random.arrayElement(Object.values(Progression)),
-            users: users,
-            roles: roles,
-            fusionProjectId: '456',
-            namePrefix: 'notProjectEval',
-        })
         evaluationIAmIn.plant()
         evaluationIAmNotIn.plant()
         evaluationNotInProject.plant()
@@ -63,17 +62,17 @@ describe('Landing page', () => {
         context('My evaluations', () => {
             const testdata = [
                 {
-                    eval: 'evaluationIAmIn',
+                    eval: evaluationIAmIn,
                     isListed: true,
                     ofProject: true,
                 },
                 {
-                    eval: 'evaluationIAmNotIn',
+                    eval: evaluationIAmNotIn,
                     isListed: false,
                     ofProject: true,
                 },
                 {
-                    eval: 'evaluationNotInProject',
+                    eval: evaluationNotInProject,
                     isListed: true,
                     ofProject: false,
                 },
@@ -83,7 +82,7 @@ describe('Landing page', () => {
                 it(`Evaluation ${t.ofProject ? '' : 'not '} of project that user ${
                     t.isListed ? 'participates in ' : 'does not participate in '
                 } is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
-                    const evalName = eval(t.eval).name
+                    const evalName = t.eval.name
                     cy.get(`[data-testid=table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
@@ -101,17 +100,17 @@ describe('Landing page', () => {
         context('Project evaluations', () => {
             const testdata = [
                 {
-                    eval: 'evaluationIAmIn',
+                    eval: evaluationIAmIn,
                     userIsIn: true,
                     isListed: true,
                 },
                 {
-                    eval: 'evaluationIAmNotIn',
+                    eval: evaluationIAmNotIn,
                     userIsIn: false,
                     isListed: true,
                 },
                 {
-                    eval: 'evaluationNotInProject',
+                    eval: evaluationNotInProject,
                     userIsIn: true,
                     isListed: false,
                 },
@@ -122,7 +121,7 @@ describe('Landing page', () => {
                     t.isListed ? '' : 'not'
                 } listed under Project evaluations`, () => {
                     cy.contains('Project evaluations').click()
-                    const evalName = eval(t.eval).name
+                    const evalName = t.eval.name
                     cy.get(`[data-testid=table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
