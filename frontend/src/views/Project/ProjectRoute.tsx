@@ -14,7 +14,7 @@ import ActionTableForOneUserWithApi from '../../components/ActionTable/ActionTab
 import { Project } from '../../api/models'
 import AdminView from '../Admin/AdminView'
 
-const { TabList, Tab, TabPanels } = Tabs
+const { List, Tab, Panels } = Tabs
 
 interface Params {
     fusionProjectId: string
@@ -44,12 +44,12 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
     return (
         <ProjectContext.Provider value={project}>
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
-                <TabList>
+                <List>
                     <Tab>Dashboard</Tab>
                     <Tab>Actions</Tab>
                     {isAdmin ? <Tab>Admin</Tab> : <></>}
-                </TabList>
-                <TabPanels>
+                </List>
+                <Panels>
                     <StyledTabPanel>
                         <ProjectDashboardView project={project} />
                     </StyledTabPanel>
@@ -63,7 +63,7 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
                     ) : (
                         <></>
                     )}
-                </TabPanels>
+                </Panels>
             </Tabs>
         </ProjectContext.Provider>
     )

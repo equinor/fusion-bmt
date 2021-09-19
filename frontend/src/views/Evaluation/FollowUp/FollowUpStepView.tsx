@@ -9,7 +9,7 @@ import { StyledTabPanel } from '../../../components/StyledTabs'
 import ActionTableWithApi from '../../../components/ActionTable/ActionTableWithApi'
 import FollowUpSummaryView from './Summaries/FollowUpSummaryView'
 
-const { TabList, Tab, TabPanels } = Tabs
+const { List, Tab, Panels } = Tabs
 
 interface Props {
     evaluation: Evaluation
@@ -21,13 +21,13 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
     return (
         <>
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
-                <TabList id="fixed-tablist">
+                <List id="fixed-tablist">
                     <Tab>Follow-up</Tab>
                     <Tab>Workshop Summary</Tab>
                     <Tab>Follow-up Summary</Tab>
                     <Tab>Actions</Tab>
-                </TabList>
-                <TabPanels>
+                </List>
+                <Panels>
                     <StyledTabPanel>
                         <FollowUpView evaluation={evaluation} />
                     </StyledTabPanel>
@@ -40,7 +40,7 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
                     <StyledTabPanel>
                         <ActionTableWithApi evaluations={[evaluation]} />
                     </StyledTabPanel>
-                </TabPanels>
+                </Panels>
             </Tabs>
         </>
     )

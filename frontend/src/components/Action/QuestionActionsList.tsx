@@ -13,6 +13,7 @@ import ActionCreateSidebarWithApi from './CreateForm/ActionCreateSidebarWithApi'
 import ConfirmationDialog from './../ConfirmationDialog'
 import { useParticipant } from '../../globals/contexts'
 import { participantCanCreateAction, participantCanDeleteAction } from '../../utils/RoleBasedAccess'
+import { barrierToString } from '../../utils/EnumToString'
 
 interface Props {
     question: Question
@@ -50,12 +51,14 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                             Actions
                         </Typography>
                     </Box>
-                    {participantCanCreateAction(participant) && <Box>
-                        <Button variant="ghost" onClick={() => setIsCreateSidebarOpen(true)}>
-                            <Icon data={add}></Icon>
-                            Add action
-                        </Button>
-                    </Box>}
+                    {participantCanCreateAction(participant) && (
+                        <Box>
+                            <Button variant="ghost" onClick={() => setIsCreateSidebarOpen(true)}>
+                                <Icon data={add}></Icon>
+                                Add action
+                            </Button>
+                        </Box>
+                    )}
                 </Box>
                 {actions
                     .sort((a1, a2) => {
@@ -87,21 +90,25 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                                         </Typography>
                                         {action.completed && (
                                             <Box p="0.1rem">
-                                                <Tooltip placement="bottom" title="Completed" data-testid={`action_complete_${action.id}`}>
-                                                    <DoneIcon />
+                                                <Tooltip placement="bottom" title="Completed">
+                                                    <Typography>
+                                                        <DoneIcon data-testid={`action_complete_${action.id}`} />
+                                                    </Typography>
                                                 </Tooltip>
                                             </Box>
                                         )}
                                     </Box>
-                                    {participantCanDeleteAction(participant) && <IconButton
-                                        data-testid={`delete_action_button_${action.id}`}
-                                        onClick={() => {
-                                            setIsConfirmDeleteDialogOpen(true)
-                                            setActionToDelete(action.id)
-                                        }}
-                                    >
-                                        <DeleteIcon />
-                                    </IconButton>}
+                                    {participantCanDeleteAction(participant) && (
+                                        <IconButton
+                                            data-testid={`delete_action_button_${action.id}`}
+                                            onClick={() => {
+                                                setIsConfirmDeleteDialogOpen(true)
+                                                setActionToDelete(action.id)
+                                            }}
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    )}
                                 </Box>
                             </div>
                         )

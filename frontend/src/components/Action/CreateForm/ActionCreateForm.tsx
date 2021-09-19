@@ -178,7 +178,7 @@ const ActionCreateForm = ({
                     />
                 </Grid>
             </Grid>
-            <Grid container spacing={3} justify="flex-end">
+            <Grid container spacing={3} justify="flex-end" style={{ marginTop: '20px' }}>
                 <Grid item>
                     <Button variant="outlined" onClick={onCancelClick}>
                         Cancel

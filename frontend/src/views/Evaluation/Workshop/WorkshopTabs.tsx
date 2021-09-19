@@ -7,7 +7,7 @@ import { StyledTabPanel } from '../../../components/StyledTabs'
 import WorkshopSummaryWithApi from './WorkshopSummaryWithApi'
 import { participantCanEditWorkshopSummary, participantCanViewWorkshopSummary } from '../../../utils/RoleBasedAccess'
 
-const { TabList, Tab, TabPanels } = Tabs
+const { List, Tab, Panels } = Tabs
 
 interface WorkshopTabsProps {
     evaluation: Evaluation
@@ -19,16 +19,16 @@ const WorkshopTabs = ({ children, evaluation }: React.PropsWithChildren<Workshop
 
     return (
         <Tabs activeTab={activeTab} onChange={setActiveTab}>
-            <TabList>
+            <List>
                 <Tab>Questionaire</Tab>
                 <Tab disabled={!participantCanViewWorkshopSummary(participant)}>Workshop Summary</Tab>
-            </TabList>
-            <TabPanels>
+            </List>
+            <Panels>
                 <StyledTabPanel>{children}</StyledTabPanel>
                 <StyledTabPanel>
                     <WorkshopSummaryWithApi evaluation={evaluation} disable={!participantCanEditWorkshopSummary(participant)} />
                 </StyledTabPanel>
-            </TabPanels>
+            </Panels>
         </Tabs>
     )
 }

@@ -5,7 +5,7 @@ import { Evaluation, Progression, Role } from '../api/models'
 import ProgressSummary from './ProgressSummary'
 import { StyledTabPanel } from './StyledTabs'
 
-const { TabList, Tab, TabPanels } = Tabs
+const { List, Tab, Panels } = Tabs
 
 interface QuestionnaireStatusTabsProps {
     evaluation: Evaluation
@@ -23,16 +23,16 @@ const QuestionnaireStatusTabs = ({
 
     return (
         <Tabs activeTab={activeTab} onChange={setActiveTab}>
-            <TabList>
+            <List>
                 <Tab>Questionaire</Tab>
                 <Tab>Progress</Tab>
-            </TabList>
-            <TabPanels>
+            </List>
+            <Panels>
                 <StyledTabPanel>{children}</StyledTabPanel>
                 <StyledTabPanel>
                     <ProgressSummary evaluation={evaluation} viewProgression={viewProgression} allowedRoles={allowedRoles} />
                 </StyledTabPanel>
-            </TabPanels>
+            </Panels>
         </Tabs>
     )
 }
