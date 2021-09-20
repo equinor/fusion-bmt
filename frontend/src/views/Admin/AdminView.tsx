@@ -1,18 +1,58 @@
 import React from 'react'
 import { Button, Divider, Icon, Typography } from '@equinor/eds-core-react'
+import { add, more_vertical } from '@equinor/eds-icons'
+import { useRef, useState } from 'react'
+import { ApolloError, gql, useQuery } from '@apollo/client'
+import { SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
 import { Box } from '@material-ui/core'
 
 import BarrierSidebar from './BarrierSidebar'
-import { Barrier } from '../../api/models'
+import { Barrier, ProjectCategory } from '../../api/models'
 import QuestionListWithApi from './QuestionListWithApi'
 import { barrierToString } from '../../utils/EnumToString'
-import { add, more_vertical } from '@equinor/eds-icons'
+import { apiErrorMessage } from '../../api/error'
 
 interface Props {}
 
 const AdminView = ({}: Props) => {
-    const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
-    const headerRef = React.useRef<HTMLElement>(null)
+    const [selectedBarrier, setSelectedBarrier] = useState<Barrier>(Barrier.Gm)
+    const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>('all')
+    const headerRef = useRef<HTMLElement>(null)
+
+    const {
+        loading: loadingProjectCategoryQuery,
+        projectCategories,
+        error: errorProjectCategoryQuery,
+    } = useGetAllProjectCategoriesQuery()
+
+    if (loadingProjectCategoryQuery) {
+        return <>Loading...</>
+    }
+
+    if (errorProjectCategoryQuery !== undefined || projectCategories === undefined) {
+        return (
+            <div>
+                <TextArea
+                    value={apiErrorMessage('Could not load Project Categories')}
+                    onChange={() => {}}
+                />
+            </div>
+        )
+    }
+
+    const projectCategoryOptions: SearchableDropdownOption[] = [{
+        title: 'All project categories',
+        key: 'all',
+        isSelected: 'all' == selectedProjectCategory,
+    }]
+    
+    projectCategories.forEach(
+        (projectCategory: ProjectCategory) => (projectCategoryOptions.push({
+            title: projectCategory.name,
+            key: projectCategory.id,
+            isSelected: projectCategory.id == selectedProjectCategory,
+        }))
+    )
 
     const onBarrierSelected = (barrier: Barrier) => {
         setSelectedBarrier(barrier)
@@ -26,6 +66,17 @@ const AdminView = ({}: Props) => {
         <>
             <Box m={2}>
                 <Typography variant="h2">Project configuration: Questionnaire</Typography>
+            </Box>
+            <Divider />
+            <Box m={2} width={'250px'}>
+                <SearchableDropdown
+                    label="Project Category"
+                    placeholder="Select Project Category"
+                    onSelect={option =>
+                        setSelectedProjectCategory(option.key)
+                    }
+                    options={projectCategoryOptions}
+                />
             </Box>
             <Divider />
             <Box display="flex" height={1}>
@@ -50,7 +101,7 @@ const AdminView = ({}: Props) => {
                             </Button>
                         </Box>
                     </Box>
-                    <QuestionListWithApi barrier={selectedBarrier} />
+                    <QuestionListWithApi barrier={selectedBarrier} projectCategory={selectedProjectCategory} />
                 </Box>
             </Box>
         </>
@@ -58,3 +109,29 @@ const AdminView = ({}: Props) => {
 }
 
 export default AdminView
+
+interface ProjectCategoriesQueryProps {
+    loading: boolean
+    projectCategories: ProjectCategory[] | undefined
+    error: ApolloError | undefined
+}
+
+const useGetAllProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
+    const GET_PROJECT_CATEGORY = gql`
+        query {
+            projectCategory {
+                id
+                name
+            }
+        }
+    `
+    const { loading, data, error } = useQuery<{ projectCategory: ProjectCategory[] }>(
+        GET_PROJECT_CATEGORY
+    )
+
+    return {
+        loading,
+        projectCategories: data?.projectCategory,
+        error,
+    }
+}

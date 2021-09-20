@@ -1,7 +1,7 @@
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
-import { apiErrorMessage } from '../../api/error'
 
+import { apiErrorMessage } from '../../api/error'
 import { QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 import { Barrier, Organization, QuestionTemplate, Status } from '../../api/models'
 import { useEffectNotOnMount } from '../../utils/hooks'
@@ -9,9 +9,10 @@ import AdminQuestionItem from './AdminQuestionItem'
 
 interface Props {
     barrier: Barrier
+    projectCategory: string
 }
 
-const QuestionListWithApi = ({ barrier }: Props) => {
+const QuestionListWithApi = ({ barrier, projectCategory }: Props) => {
     const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
     const {
         editQuestionTemplate,
@@ -46,7 +47,15 @@ const QuestionListWithApi = ({ barrier }: Props) => {
         )
     }
 
-    const sortedBarrierQuestions = questions.filter(q => q.barrier === barrier).sort((q1, q2) => q1.order - q2.order)
+    const projectCategoryQuestions = questions.filter(
+        q =>
+            q.projectCategories
+                .map(pc => {
+                    return pc.id
+                })
+                .includes(projectCategory) || projectCategory === 'all'
+    )
+    const sortedBarrierQuestions = projectCategoryQuestions.filter(q => q.barrier === barrier).sort((q1, q2) => q1.order - q2.order)
 
     return (
         <div>
