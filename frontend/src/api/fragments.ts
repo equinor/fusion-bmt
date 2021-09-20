@@ -66,6 +66,10 @@ export const QUESTIONTEMPLATE_FIELDS_FRAGMENT = gql`
         order
         organization
         status
+        projectCategories {
+            id
+            name
+        }
         __typename
     }
 `
