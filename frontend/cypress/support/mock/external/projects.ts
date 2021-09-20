@@ -10,32 +10,32 @@ export class FusionProject {
     }
 }
 
-const fusionProject1 = new FusionProject({
+export const fusionProject1 = new FusionProject({
     id: '123',
     name: 'Banana Banana',
 })
 
-const fusionProject2 = new FusionProject({
+export const fusionProject2 = new FusionProject({
     id: '234',
     name: 'Sweet Lemon',
 })
 
-const fusionProject3 = new FusionProject({
+export const fusionProject3 = new FusionProject({
     id: '345',
     name: 'Happy Papaya',
 })
 
-const fusionProject4 = new FusionProject({
+export const fusionProject4 = new FusionProject({
     id: '456',
     name: 'Rotten Mango',
 })
 
-const fusionProject5 = new FusionProject({
+export const fusionProject5 = new FusionProject({
     id: '567',
     name: 'Tired Avocado',
 })
 
-const fusionProject6 = new FusionProject({
+export const fusionProject6 = new FusionProject({
     id: '678',
     name: 'Broken Coconut',
 })

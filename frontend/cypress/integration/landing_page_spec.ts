@@ -4,8 +4,11 @@ import { Progression, Role } from '../../src/api/models'
 import { EvaluationSeed } from '../support/evaluation_seed'
 import { getUsers } from '../support/mock/external/users'
 import { EvaluationPage } from '../support/evaluation'
+import { fusionProject1, fusionProject4 } from '../support/mock/external/projects'
 
-describe('Landing page', () => {
+describe(`Landing page
+        Initiate system with projects ${fusionProject1.name} (id=${fusionProject1.id}) & ${fusionProject4.name} (id=${fusionProject4.id})
+        User enters ${fusionProject1.name} (id=${fusionProject1.id})`, () => {
     const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
     const user = users[2]
@@ -14,7 +17,7 @@ describe('Landing page', () => {
         progression: faker.random.arrayElement(Object.values(Progression)),
         users,
         roles,
-        fusionProjectId: '123',
+        fusionProjectId: fusionProject1.id,
         namePrefix: 'myEval',
     })
     evaluationIAmIn
@@ -38,14 +41,14 @@ describe('Landing page', () => {
         progression: faker.random.arrayElement(Object.values(Progression)),
         users: users.slice(0, 2),
         roles: roles.slice(0, 2),
-        fusionProjectId: '123',
+        fusionProjectId: fusionProject1.id,
         namePrefix: 'notMyEval',
     })
     const evaluationNotInProject = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
         users: users,
         roles: roles,
-        fusionProjectId: '456',
+        fusionProjectId: fusionProject4.id,
         namePrefix: 'notProjectEval',
     })
 
@@ -58,28 +61,25 @@ describe('Landing page', () => {
         cy.visitProject(user)
     })
 
-    context('Dashboard', () => {
+    context(`Dashboard `, () => {
         context('My evaluations', () => {
             const testdata = [
                 {
                     eval: evaluationIAmIn,
                     isListed: true,
-                    ofProject: true,
                 },
                 {
                     eval: evaluationIAmNotIn,
                     isListed: false,
-                    ofProject: true,
                 },
                 {
                     eval: evaluationNotInProject,
                     isListed: true,
-                    ofProject: false,
                 },
             ]
 
             testdata.forEach(t => {
-                it(`Evaluation ${t.ofProject ? '' : 'not '} of project that user ${
+                it(`Evaluation of project (id=${t.eval.fusionProjectId}) that user ${
                     t.isListed ? 'participates in ' : 'does not participate in '
                 } is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
                     const evalName = t.eval.name
@@ -117,7 +117,7 @@ describe('Landing page', () => {
             ]
 
             testdata.forEach(t => {
-                it(`Evaluation ${t.isListed ? '' : 'not '} of project the user is ${t.userIsIn ? '' : 'not '} in is ${
+                it(`Evaluation of project (id=${t.eval.fusionProjectId}) the user is ${t.userIsIn ? '' : 'not '} in is ${
                     t.isListed ? '' : 'not'
                 } listed under Project evaluations`, () => {
                     cy.contains('Project evaluations').click()
