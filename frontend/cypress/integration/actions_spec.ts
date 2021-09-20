@@ -287,33 +287,35 @@ describe('Actions management', () => {
         let newNote: Note
 
         const roleThatCanComplete = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
-        const saveWithReason = faker.datatype.boolean()
+        const testdata = [{ completeWithReason: true }, { completeWithReason: false }]
 
-        it(`Action can be completed by ${roleThatCanComplete} ${saveWithReason ? 'with a reason' : 'without a reason'}`, () => {
-            let user = logInUser(roleThatCanComplete)
-            ;({ actionNotes, action } = findActionWithNotes(seed))
-            ;({ updatedAction, newNote } = createCompleteAction(user, action, saveWithReason))
+        testdata.forEach(t => {
+            it(`Action can be completed by ${roleThatCanComplete} ${t.completeWithReason ? 'with a reason' : 'without a reason'}`, () => {
+                let user = logInUser(roleThatCanComplete)
+                ;({ actionNotes, action } = findActionWithNotes(seed))
+                ;({ updatedAction, newNote } = createCompleteAction(user, action, t.completeWithReason))
 
-            actionsGrid.actionLink(action.questionOrder, action.title).click()
+                actionsGrid.actionLink(action.questionOrder, action.title).click()
 
-            editActionDialog.assertCompletedInView(action.completed)
-            editActionDialog.assertCompleteConfirmViewVisible(false)
+                editActionDialog.assertCompletedInView(action.completed)
+                editActionDialog.assertCompleteConfirmViewVisible(false)
 
-            editActionDialog.completeActionButton().click()
-            editActionDialog.assertCompleteConfirmViewVisible(true)
+                editActionDialog.completeActionButton().click()
+                editActionDialog.assertCompleteConfirmViewVisible(true)
 
-            editActionDialog.completedReasonInput().replace(newNote.text)
-            editActionDialog.completeActionConfirmButton().click()
+                editActionDialog.completedReasonInput().replace(newNote.text)
+                editActionDialog.completeActionConfirmButton().click()
 
-            editActionDialog.assertSaved()
-            editActionDialog.actionCompletedText().should('exist')
-            editActionDialog.assertClosingNoteExists(newNote)
-            editActionDialog.close()
-
-            cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
-                actionsGrid.actionLink(updatedAction.questionOrder, updatedAction.title).click()
+                editActionDialog.assertSaved()
+                editActionDialog.actionCompletedText().should('exist')
                 editActionDialog.assertClosingNoteExists(newNote)
+                editActionDialog.close()
+
+                cy.testCacheAndDB(() => {
+                    evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                    actionsGrid.actionLink(updatedAction.questionOrder, updatedAction.title).click()
+                    editActionDialog.assertClosingNoteExists(newNote)
+                })
             })
         })
 
