@@ -56,7 +56,7 @@ const SortableTable = <DataType,>({ columns, data, sortOnAccessor, renderRow }: 
 
     return (
         <>
-            <Table style={{ width: '100%' }} data-testid="table">
+            <Table style={{ width: '100%' }} data-testid="project-table">
                 <Head>
                     <Row>
                         {columns.map(column => {

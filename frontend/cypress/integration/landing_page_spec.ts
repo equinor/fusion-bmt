@@ -83,7 +83,7 @@ describe(`Landing page
                     t.isListed ? 'participates in ' : 'does not participate in '
                 } is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
                     const evalName = t.eval.name
-                    cy.get(`[data-testid=table]`).within(() => {
+                    cy.get(`[data-testid=project-table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
                 })
@@ -122,7 +122,7 @@ describe(`Landing page
                 } listed under Project evaluations`, () => {
                     cy.contains('Project evaluations').click()
                     const evalName = t.eval.name
-                    cy.get(`[data-testid=table]`).within(() => {
+                    cy.get(`[data-testid=project-table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
                 })
@@ -162,7 +162,7 @@ describe(`Landing page
         })
         it('User can navigate to Project evaluations from My evaluations', () => {
             cy.contains('Project evaluations').click()
-            cy.get(`[data-testid=table]`).should('exist')
+            cy.get(`[data-testid=project-table]`).should('exist')
             const notMyEvalName = evaluationIAmNotIn.name
             cy.contains(notMyEvalName).should('exist')
         })
