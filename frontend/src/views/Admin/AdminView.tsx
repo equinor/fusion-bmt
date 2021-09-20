@@ -1,13 +1,12 @@
 import React from 'react'
-import { MoreIcon, AddIcon } from '@equinor/fusion-components'
-import { Divider, Typography } from '@equinor/eds-core-react'
-import { tokens } from '@equinor/eds-tokens'
+import { Button, Divider, Icon, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 
 import BarrierSidebar from './BarrierSidebar'
 import { Barrier } from '../../api/models'
 import QuestionListWithApi from './QuestionListWithApi'
 import { barrierToString } from '../../utils/EnumToString'
+import { add, more_vertical } from '@equinor/eds-icons'
 
 interface Props {}
 
@@ -40,11 +39,15 @@ const AdminView = ({}: Props) => {
                                 {barrierToString(selectedBarrier)}
                             </Typography>
                         </Box>
-                        <Box mr={2} mt={2.5}>
-                            <AddIcon cursor="pointer" color={tokens.colors.interactive.primary__resting.rgba} />
+                        <Box mt={2.5}>
+                            <Button variant="ghost" color="primary">
+                                <Icon data={add}></Icon>
+                            </Button>
                         </Box>
                         <Box mt={2.5}>
-                            <MoreIcon cursor="pointer" color={tokens.colors.interactive.primary__resting.rgba} />
+                            <Button variant="ghost" color="primary">
+                                <Icon data={more_vertical}></Icon>
+                            </Button>
                         </Box>
                     </Box>
                     <QuestionListWithApi barrier={selectedBarrier} />
