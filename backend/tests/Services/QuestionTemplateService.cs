@@ -93,6 +93,7 @@ namespace tests
             Assert.Equal(newOrganization,  updatedQT.Organization);
 
             Assert.Equal(originalQT,       updatedQT.previous);
+            Assert.True(updatedQT.ProjectCategories.Count() == 1);
         }
 
         [Fact]

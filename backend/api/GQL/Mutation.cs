@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 using api.Services;
 using api.Models;
@@ -299,8 +300,19 @@ namespace api.GQL
             Status status
         )
         {
-            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
-            return _questionTemplateService.Edit(questionTemplate, barrier, organization, text, supportNotes, status);
+            var questionTemplate = _questionTemplateService
+                .GetAll()
+                .Include(x => x.ProjectCategories)
+                .Single(x => x.Id == questionTemplateId)
+            ;
+            return _questionTemplateService.Edit(
+                questionTemplate, 
+                barrier, 
+                organization, 
+                text, 
+                supportNotes, 
+                status
+            );
         }
 
         public QuestionTemplate ReorderQuestionTemplate(
