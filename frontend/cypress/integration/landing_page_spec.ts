@@ -6,9 +6,7 @@ import { getUsers } from '../support/mock/external/users'
 import { EvaluationPage } from '../support/evaluation'
 import { fusionProject1, fusionProject4 } from '../support/mock/external/projects'
 
-describe(`Landing page
-        Initiate system with projects ${fusionProject1.name} (id=${fusionProject1.id}) & ${fusionProject4.name} (id=${fusionProject4.id})
-        User enters ${fusionProject1.name} (id=${fusionProject1.id})`, () => {
+describe('Landing page', () => {
     const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
     const user = users[2]
@@ -57,12 +55,13 @@ describe(`Landing page
         evaluationIAmNotIn.plant()
         evaluationNotInProject.plant()
     })
+
     beforeEach(() => {
         cy.visitProject(user)
     })
 
     context(`Dashboard `, () => {
-        context('My evaluations', () => {
+        context('My evaluations (only my evaluations are listed)', () => {
             const testdata = [
                 {
                     eval: evaluationIAmIn,
@@ -79,9 +78,11 @@ describe(`Landing page
             ]
 
             testdata.forEach(t => {
-                it(`Evaluation of project (id=${t.eval.fusionProjectId}) that user ${
-                    t.isListed ? 'participates in ' : 'does not participate in '
-                } is ${t.isListed ? '' : 'not'} listed under My evaluations`, () => {
+                it(`Evaluation of ${t.eval.fusionProjectId === evaluationIAmIn.fusionProjectId ? 'selected' : ' different'} project (id=${
+                    t.eval.fusionProjectId
+                }) that user ${t.isListed ? 'participates in ' : 'does not participate in '} is ${
+                    t.isListed ? '' : 'not'
+                } listed under My evaluations`, () => {
                     const evalName = t.eval.name
                     cy.get(`[data-testid=project-table]`).within(() => {
                         t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
@@ -89,52 +90,52 @@ describe(`Landing page
                 })
             })
 
-            it('User can open own evaluation', () => {
+            it('User can open own evaluation of selected project', () => {
                 const myEvalName = evaluationIAmIn.name
                 cy.contains(myEvalName).click()
                 const evaluationPage = new EvaluationPage()
                 evaluationPage.progressionStepLink(evaluationIAmIn.progression).should('be.visible')
             })
         })
+    })
 
-        context('Project evaluations', () => {
-            const testdata = [
-                {
-                    eval: evaluationIAmIn,
-                    userIsIn: true,
-                    isListed: true,
-                },
-                {
-                    eval: evaluationIAmNotIn,
-                    userIsIn: false,
-                    isListed: true,
-                },
-                {
-                    eval: evaluationNotInProject,
-                    userIsIn: true,
-                    isListed: false,
-                },
-            ]
+    context('Project evaluations (only evaluation of selected project are listed)', () => {
+        const testdata = [
+            {
+                eval: evaluationIAmIn,
+                userIsIn: true,
+                isListed: true,
+            },
+            {
+                eval: evaluationIAmNotIn,
+                userIsIn: false,
+                isListed: true,
+            },
+            {
+                eval: evaluationNotInProject,
+                userIsIn: true,
+                isListed: false,
+            },
+        ]
 
-            testdata.forEach(t => {
-                it(`Evaluation of project (id=${t.eval.fusionProjectId}) the user is ${t.userIsIn ? '' : 'not '} in is ${
-                    t.isListed ? '' : 'not'
-                } listed under Project evaluations`, () => {
-                    cy.contains('Project evaluations').click()
-                    const evalName = t.eval.name
-                    cy.get(`[data-testid=project-table]`).within(() => {
-                        t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
-                    })
+        testdata.forEach(t => {
+            it(`Evaluation of ${
+                t.eval.fusionProjectId === evaluationIAmIn.fusionProjectId ? 'selected' : ' different'
+            } project the user is ${t.userIsIn ? '' : 'not '} in is ${t.isListed ? '' : 'not'} listed under Project evaluations`, () => {
+                cy.contains('Project evaluations').click()
+                const evalName = t.eval.name
+                cy.get(`[data-testid=project-table]`).within(() => {
+                    t.isListed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                 })
             })
+        })
 
-            it('User can open evaluation user is not part of', () => {
-                cy.contains('Project evaluations').click()
-                const notMyEvalName = evaluationIAmNotIn.name
-                cy.contains(notMyEvalName).click()
-                const evaluationPage = new EvaluationPage()
-                evaluationPage.progressionStepLink(evaluationIAmNotIn.progression).should('be.visible')
-            })
+        it('User can open evaluation user is not part of', () => {
+            cy.contains('Project evaluations').click()
+            const notMyEvalName = evaluationIAmNotIn.name
+            cy.contains(notMyEvalName).click()
+            const evaluationPage = new EvaluationPage()
+            evaluationPage.progressionStepLink(evaluationIAmNotIn.progression).should('be.visible')
         })
     })
 
