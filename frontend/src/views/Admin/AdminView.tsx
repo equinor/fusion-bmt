@@ -19,11 +19,7 @@ const AdminView = ({}: Props) => {
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>('all')
     const headerRef = useRef<HTMLElement>(null)
 
-    const {
-        loading: loadingProjectCategoryQuery,
-        projectCategories,
-        error: errorProjectCategoryQuery,
-    } = useGetAllProjectCategoriesQuery()
+    const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
 
     if (loadingProjectCategoryQuery) {
         return <>Loading...</>
@@ -32,26 +28,25 @@ const AdminView = ({}: Props) => {
     if (errorProjectCategoryQuery !== undefined || projectCategories === undefined) {
         return (
             <div>
-                <TextArea
-                    value={apiErrorMessage('Could not load Project Categories')}
-                    onChange={() => {}}
-                />
+                <TextArea value={apiErrorMessage('Could not load Project Categories')} onChange={() => {}} />
             </div>
         )
     }
 
-    const projectCategoryOptions: SearchableDropdownOption[] = [{
-        title: 'All project categories',
-        key: 'all',
-        isSelected: 'all' == selectedProjectCategory,
-    }]
-    
-    projectCategories.forEach(
-        (projectCategory: ProjectCategory) => (projectCategoryOptions.push({
+    const projectCategoryOptions: SearchableDropdownOption[] = [
+        {
+            title: 'All project categories',
+            key: 'all',
+            isSelected: 'all' == selectedProjectCategory,
+        },
+    ]
+
+    projectCategories.forEach((projectCategory: ProjectCategory) =>
+        projectCategoryOptions.push({
             title: projectCategory.name,
             key: projectCategory.id,
             isSelected: projectCategory.id == selectedProjectCategory,
-        }))
+        })
     )
 
     const onBarrierSelected = (barrier: Barrier) => {
@@ -72,9 +67,7 @@ const AdminView = ({}: Props) => {
                 <SearchableDropdown
                     label="Project Category"
                     placeholder="Select Project Category"
-                    onSelect={option =>
-                        setSelectedProjectCategory(option.key)
-                    }
+                    onSelect={option => setSelectedProjectCategory(option.key)}
                     options={projectCategoryOptions}
                 />
             </Box>
@@ -101,7 +94,11 @@ const AdminView = ({}: Props) => {
                             </Button>
                         </Box>
                     </Box>
-                    <QuestionListWithApi barrier={selectedBarrier} projectCategory={selectedProjectCategory} />
+                    <QuestionListWithApi
+                        barrier={selectedBarrier}
+                        projectCategory={selectedProjectCategory}
+                        projectCategories={projectCategories}
+                    />
                 </Box>
             </Box>
         </>
@@ -125,9 +122,7 @@ const useGetAllProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
             }
         }
     `
-    const { loading, data, error } = useQuery<{ projectCategory: ProjectCategory[] }>(
-        GET_PROJECT_CATEGORY
-    )
+    const { loading, data, error } = useQuery<{ projectCategory: ProjectCategory[] }>(GET_PROJECT_CATEGORY)
 
     return {
         loading,
