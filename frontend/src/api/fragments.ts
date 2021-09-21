@@ -66,12 +66,20 @@ export const QUESTIONTEMPLATE_FIELDS_FRAGMENT = gql`
         order
         organization
         status
+        __typename
+    }
+`
+
+export const QUESTIONTEMPLATE_PROJECT_CATEGORY_FIELDS_FRAGMENT = gql`
+    fragment QuestionTemplateProjectCategoryFields on QuestionTemplate {
+        ...QuestionTemplateFields
         projectCategories {
             id
             name
         }
         __typename
     }
+    ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
 `
 
 export const QUESTION_ANSWERS_FRAGMENT = gql`

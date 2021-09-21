@@ -1,7 +1,6 @@
-import React from 'react'
+import { useRef, useState } from 'react'
 import { Button, Divider, Icon, Typography } from '@equinor/eds-core-react'
 import { add, more_vertical } from '@equinor/eds-icons'
-import { useRef, useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
 import { Box } from '@material-ui/core'
@@ -12,6 +11,7 @@ import QuestionListWithApi from './QuestionListWithApi'
 import { barrierToString } from '../../utils/EnumToString'
 import { apiErrorMessage } from '../../api/error'
 import BarrierMenu from './BarrierMenu'
+import CreateQuestionItem from './CreateQuestionItem'
 
 interface Props {}
 
@@ -20,6 +20,7 @@ const AdminView = ({}: Props) => {
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>('all')
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
     const [isInAddCategoryMode, setIsInAddCategoryMode] = useState<boolean>(false)
+    const [isAddingQuestion, setIsAddingQuestion] = useState<boolean>(false)
     const headerRef = useRef<HTMLElement>(null)
     const menuAnchorRef = useRef<HTMLButtonElement>(null)
 
@@ -31,6 +32,10 @@ const AdminView = ({}: Props) => {
     }
 
     const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
+
+    const createNewQuestion = () => {
+        setIsAddingQuestion(true)
+    }
 
     if (loadingProjectCategoryQuery) {
         return <>Loading...</>
@@ -95,7 +100,7 @@ const AdminView = ({}: Props) => {
                             </Typography>
                         </Box>
                         <Box mt={2.5}>
-                            <Button variant="ghost" color="primary">
+                            <Button variant="ghost" color="primary" onClick={() => createNewQuestion()}>
                                 <Icon data={add}></Icon>
                             </Button>
                         </Box>
@@ -117,6 +122,15 @@ const AdminView = ({}: Props) => {
                         setIsInAddCategoryMode={setIsInAddCategoryMode}
                         isInAddCategoryMode={isInAddCategoryMode}
                     />
+                    {isAddingQuestion && (
+                        <>
+                            <Divider />
+                            <CreateQuestionItem 
+                                setIsAddingQuestion={setIsAddingQuestion}
+                                barrier={selectedBarrier}
+                            />
+                        </>
+                    )}
                     <QuestionListWithApi
                         barrier={selectedBarrier}
                         projectCategory={selectedProjectCategory}

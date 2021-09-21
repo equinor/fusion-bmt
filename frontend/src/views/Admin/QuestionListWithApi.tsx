@@ -2,8 +2,8 @@ import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
 
 import { apiErrorMessage } from '../../api/error'
-import { QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
+import { QUESTIONTEMPLATE_PROJECT_CATEGORY_FIELDS_FRAGMENT } from '../../api/fragments'
 import { useEffectNotOnMount } from '../../utils/hooks'
 import AdminQuestionItem from './AdminQuestionItem'
 
@@ -93,10 +93,10 @@ const useQuestionTemplatesQuery = (): QuestionTemplatesQueryProps => {
     const GET_QUESTIONTEMPLATES = gql`
         query {
             questionTemplates (where: {status: {eq: ${Status.Active}} }) {
-                ...QuestionTemplateFields
+                ...QuestionTemplateProjectCategoryFields
             }
         }
-        ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
+        ${QUESTIONTEMPLATE_PROJECT_CATEGORY_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error, refetch } = useQuery<{ questionTemplates: QuestionTemplate[] }>(GET_QUESTIONTEMPLATES)
@@ -143,10 +143,10 @@ const useQuestionTemplateMutation = (): QuestionTemplateMutationProps => {
                 supportNotes: $supportNotes
                 status: $status
             ) {
-                ...QuestionTemplateFields
+                ...QuestionTemplateProjectCategoryFields
             }
         }
-        ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
+        ${QUESTIONTEMPLATE_PROJECT_CATEGORY_FIELDS_FRAGMENT}
     `
 
     const [editQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(EDIT_QUESTION_TEMPLATE)
