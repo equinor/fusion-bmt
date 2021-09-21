@@ -107,7 +107,7 @@ export function getUsers(n: number): User[] {
         throw new RangeError("Requested number of users can't be negative")
     }
 
-    return faker.helpers.shuffle([...users]).slice(0, n)
+    return users.slice(0, n)
 }
 
 export function findUserByID(id: string) {

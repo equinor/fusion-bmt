@@ -5,7 +5,7 @@ function setupEnvironment() {
     cy.viewport(1800, 1000) //until we decide to test on various resolutions
 }
 
-function waitForProjectPageLoad() {
+export function waitForProjectPageLoad() {
     cy.get('body').then(body => {
         /**
          * Two cases possible: either we already are on the Project page

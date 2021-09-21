@@ -134,7 +134,7 @@ const ActionTable = ({
     return (
         <>
             {!isFetchingProjects && (
-                <Table style={{ width: '100%' }}>
+                <Table style={{ width: '100%' }} data-testid="action-table">
                     <Head>
                         <Row>
                             {actionTableColumns
