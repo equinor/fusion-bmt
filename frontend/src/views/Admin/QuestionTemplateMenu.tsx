@@ -1,4 +1,4 @@
-import React, { MutableRefObject, RefObject } from 'react'
+import React, { RefObject } from 'react'
 import { Icon, Menu, Typography } from '@equinor/eds-core-react'
 import { arrow_up, arrow_down, delete_to_trash } from '@equinor/eds-icons'
 

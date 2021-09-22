@@ -6,6 +6,7 @@ import { Evaluation } from '../../../api/models'
 import { useEffectNotOnMount } from '../../../utils/hooks'
 import { SavingState } from '../../../utils/Variables'
 import WorkshopSummary from './WorkshopSummary'
+import { deriveNewSavingState } from '../../helpers'
 
 const WRITE_DELAY_MS = 1000
 
@@ -25,15 +26,7 @@ const WorkshopSummaryWithApi = ({ evaluation, disable }: React.PropsWithChildren
     }
 
     useEffect(() => {
-        if (loading) {
-            setSavingState(SavingState.Saving)
-        } else {
-            if (savingState === SavingState.Saving) {
-                setSavingState(SavingState.Saved)
-            } else {
-                setSavingState(SavingState.None)
-            }
-        }
+        setSavingState(deriveNewSavingState(loading, savingState))
     }, [loading])
 
     useEffectNotOnMount(() => {
@@ -55,12 +48,7 @@ const WorkshopSummaryWithApi = ({ evaluation, disable }: React.PropsWithChildren
 
     return (
         <div style={{ padding: '30px' }}>
-            <WorkshopSummary 
-                localSummary={localSummary} 
-                onChange={onChange} 
-                savingState={savingState} 
-                disable={disable} 
-            />
+            <WorkshopSummary localSummary={localSummary} onChange={onChange} savingState={savingState} disable={disable} />
         </div>
     )
 }

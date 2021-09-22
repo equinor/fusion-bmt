@@ -8,6 +8,7 @@ import { useEffectNotOnMount } from '../../utils/hooks'
 import { apiErrorMessage } from '../../api/error'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { ANSWER_FIELDS_FRAGMENT, QUESTION_ANSWERS_FRAGMENT } from '../../api/fragments'
+import { deriveNewSavingState } from '../../views/helpers'
 
 interface QuestionAndAnswerFormWithApiProps {
     question: Question
@@ -35,15 +36,7 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
     const [localSeverity, setLocalSeverity] = useState<Severity>(answer && answer.severity ? answer.severity : Severity.Na)
 
     useEffect(() => {
-        if (loading) {
-            setSavingState(SavingState.Saving)
-        } else {
-            if (savingState === SavingState.Saving) {
-                setSavingState(SavingState.Saved)
-            } else {
-                setSavingState(SavingState.None)
-            }
-        }
+        setSavingState(deriveNewSavingState(loading, savingState))
     }, [loading])
 
     useEffectNotOnMount(() => {
