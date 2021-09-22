@@ -6,7 +6,6 @@ describe('Admin page', () => {
     beforeEach(() => {
         const user = users[users.length - 1]
         cy.visitProject(user)
-        cy.get('[id^=question-]').as('qs')
     })
 
     it.only('Edit question - change title, support notes and  ', () => {
@@ -27,13 +26,13 @@ describe('Admin page', () => {
                     cy.get('[id=editor]').replace(newSupportNotes)
                 })
             const organization = faker.random.arrayElement(Object.keys(Organization))
-            cy.get(`[id=question-${questionNo}]`).within(() => {
-                cy.contains('Organization')
-                    .next()
-                    .click()
-                    .clear()
-                    .type(organization + '{enter}')
-            })
+            cy.get('label')
+                .contains('Organization')
+                .next()
+                .click()
+                .clear()
+                .type(organization + '{enter}')
+            cy.get('label').contains('Organization').next().invoke('attr', 'value').should('eq', organization)
 
             cy.getByDataTestid('save-question').click()
             cy.getByDataTestid('question-title-' + questionNo).should('have.text', newTitle)
