@@ -1,6 +1,6 @@
 import React from 'react'
 import { Divider } from '@equinor/eds-core-react'
-import { QuestionTemplate } from '../../api/models'
+import { ProjectCategory, QuestionTemplate } from '../../api/models'
 import StaticQuestionItem from './StaticQuestionItem'
 import EditableQuestionItem from './EditableQuestionItem'
 import { DataToEditQuestionTemplate } from './QuestionListWithApi'
@@ -12,9 +12,16 @@ interface Props {
     isQuestionTemplateSaving: boolean
     editQuestionTemplate: (data: DataToEditQuestionTemplate) => void
     questionTemplateSaveError: ApolloError | undefined
+    projectCategories: ProjectCategory[]
 }
 
-const AdminQuestionItem = ({ question, editQuestionTemplate, isQuestionTemplateSaving, questionTemplateSaveError }: Props) => {
+const AdminQuestionItem = ({
+    question,
+    editQuestionTemplate,
+    isQuestionTemplateSaving,
+    questionTemplateSaveError,
+    projectCategories,
+}: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
     useEffectNotOnMount(() => {

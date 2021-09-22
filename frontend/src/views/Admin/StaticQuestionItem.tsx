@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react'
-import { Chip, MarkdownViewer } from '@equinor/fusion-components'
-import { Button, Icon, Typography } from '@equinor/eds-core-react'
+import { tokens } from '@equinor/eds-tokens'
+import { MarkdownViewer } from '@equinor/fusion-components'
+import { Button, Chip, Icon, Tooltip, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
-import { more_vertical, edit } from '@equinor/eds-icons'
+import { more_vertical, edit, work, platform } from '@equinor/eds-icons'
 
 import { QuestionTemplate } from '../../api/models'
 import { organizationToString } from '../../utils/EnumToString'
@@ -33,9 +34,26 @@ const StaticQuestionItem = ({ question, setIsInEditmode }: Props) => {
                     </Box>
                     <Box>
                         <Typography variant="h4">{question.text}</Typography>
-                        <div style={{ marginBottom: 20, marginTop: 5 }}>
-                            <Chip primary title={organizationToString(question.organization)} />
-                        </div>
+                        <Box display="flex" flexDirection="row" mb={3} mt={1}>
+                            <Box mr={1}>
+                                <Chip style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}>
+                                    <Tooltip title={'Responsible discipline'} placement={'bottom'}>
+                                        <Icon data={work} size={16}></Icon>
+                                    </Tooltip>
+                                    {organizationToString(question.organization)}
+                                </Chip>
+                            </Box>
+                            {question.projectCategories.map(category => (
+                                <Box mr={1}>
+                                    <Chip style={{ backgroundColor: tokens.colors.infographic.primary__mist_blue.rgba }}>
+                                        <Tooltip title={'Project category'} placement={'bottom'}>
+                                            <Icon data={platform} size={16}></Icon>
+                                        </Tooltip>
+                                        {category.name}
+                                    </Chip>
+                                </Box>
+                            ))}
+                        </Box>
                         <MarkdownViewer markdown={question.supportNotes} />
                     </Box>
                 </Box>
