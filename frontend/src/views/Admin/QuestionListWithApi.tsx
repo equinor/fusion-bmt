@@ -11,9 +11,11 @@ interface Props {
     barrier: Barrier
     projectCategory: string
     projectCategories: ProjectCategory[]
+    isInAddCategoryMode: boolean
+    setIsInAddCategoryMode: (inMode: boolean) => void
 }
 
-const QuestionListWithApi = ({ barrier, projectCategory, projectCategories }: Props) => {
+const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode }: Props) => {
     const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
     const {
         editQuestionTemplate,
@@ -69,6 +71,8 @@ const QuestionListWithApi = ({ barrier, projectCategory, projectCategories }: Pr
                         isQuestionTemplateSaving={isQuestionTemplateSaving}
                         questionTemplateSaveError={questionTemplateSaveError}
                         projectCategories={projectCategories}
+                        isInAddCategoryMode={isInAddCategoryMode}
+                        setIsInAddCategoryMode={setIsInAddCategoryMode}
                     />
                 )
             })}

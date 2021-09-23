@@ -12,6 +12,7 @@ import NotesAndClosingRemarksList from './NotesAndClosingRemarksList'
 import NoteCreateForm from './NoteCreateForm'
 import { useParticipant } from '../../../globals/contexts'
 import { participantCanEditAction } from '../../../utils/RoleBasedAccess'
+import { deriveNewSavingState } from '../../../views/helpers'
 
 const WRITE_DELAY_MS = 1000
 
@@ -68,15 +69,7 @@ const ActionEditSidebar = ({
     }
 
     useEffect(() => {
-        if (isActionSaving) {
-            setSavingState(SavingState.Saving)
-        } else {
-            if (savingState === SavingState.Saving) {
-                setSavingState(SavingState.Saved)
-            } else {
-                setSavingState(SavingState.None)
-            }
-        }
+        setSavingState(deriveNewSavingState(isActionSaving, savingState))
     }, [isActionSaving])
 
     useEffect(() => {

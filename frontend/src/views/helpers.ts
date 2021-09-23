@@ -1,5 +1,6 @@
 import { Progression, Question } from '../api/models'
 import { Validity } from '../components/Action/utils'
+import { SavingState } from '../utils/Variables'
 
 export const isQuestionStillInView = (selectedQuestionElement: HTMLElement | null, topPlacementInPixels: number | null) => {
     if (selectedQuestionElement !== null && topPlacementInPixels !== null) {
@@ -90,6 +91,20 @@ export const updateValidity = (isFieldValid: boolean, validityStatus: Validity, 
     } else if (validityStatus === 'success') {
         if (!isFieldValid) {
             setValidity('error')
+        }
+    }
+}
+
+export const deriveNewSavingState = (isLoading: boolean, currentSavingState: SavingState, errorHappened = false) => {
+    if (isLoading) {
+        return SavingState.Saving
+    } else {
+        if (currentSavingState === SavingState.Saving && !errorHappened) {
+            return SavingState.Saved
+        } else if (!errorHappened) {
+            return SavingState.None
+        } else {
+            return SavingState.NotSaved
         }
     }
 }

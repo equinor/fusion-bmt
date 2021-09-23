@@ -102,7 +102,7 @@ const EditableQuestionItem = ({
                 <Box display="flex" flexDirection={'column'}>
                     <Box flexGrow={1}>
                         <SearchableDropdown
-                            label="Responsible discipline"
+                            label="Organization"
                             options={organizationOptions}
                             onSelect={option => setOrganization(option.key as Organization)}
                         />
@@ -112,7 +112,7 @@ const EditableQuestionItem = ({
                             <SaveIndicator savingState={SavingState.Saving} />
                         </Box>
                     )}
-                    <Box alignSelf={'flex-end'}>
+                    <Box alignSelf={'flex-end'} style={{ minWidth: '170px' }}>
                         <Button
                             variant="outlined"
                             style={{ marginRight: '20px' }}
