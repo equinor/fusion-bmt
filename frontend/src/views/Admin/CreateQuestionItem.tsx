@@ -97,7 +97,7 @@ const CreateQuestionItem = ({
                         isQuestionTemplateSaving={isCreateQuestionTemplateSaving}
                         setIsInMode={setIsAddingQuestion}
                         onClickSave={createQuestion}
-                        textValidity={textValidity}
+                        questionTitle={text}
                     />
                 </Box>
             </Box>

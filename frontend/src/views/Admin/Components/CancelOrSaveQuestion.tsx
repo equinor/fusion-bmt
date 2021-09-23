@@ -7,10 +7,10 @@ interface Props {
     isQuestionTemplateSaving: boolean
     setIsInMode: (isInMode: boolean) => void
     onClickSave: () => void
-    textValidity: string
+    questionTitle: string
 }
 
-const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSave, textValidity }: Props) => {
+const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSave, questionTitle }: Props) => {
     return (
         <>
             {isQuestionTemplateSaving && (
@@ -27,7 +27,7 @@ const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSa
                 >
                     Cancel
                 </Button>
-                <Button onClick={() => onClickSave()} disabled={isQuestionTemplateSaving || textValidity === 'error'}>
+                <Button onClick={() => onClickSave()} disabled={isQuestionTemplateSaving || questionTitle.length === 0}>
                     Save
                 </Button>
             </Box>

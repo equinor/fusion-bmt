@@ -70,16 +70,13 @@ export const QUESTIONTEMPLATE_FIELDS_FRAGMENT = gql`
     }
 `
 
-export const QUESTIONTEMPLATE_PROJECT_CATEGORY_FIELDS_FRAGMENT = gql`
-    fragment QuestionTemplateProjectCategoryFields on QuestionTemplate {
-        ...QuestionTemplateFields
+export const PROJECT_CATEGORY_FIELDS_FRAGMENT = gql`
+    fragment ProjectCategoryFields on QuestionTemplate {
         projectCategories {
             id
             name
         }
-        __typename
     }
-    ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
 `
 
 export const QUESTION_ANSWERS_FRAGMENT = gql`

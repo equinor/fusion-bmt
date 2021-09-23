@@ -102,7 +102,7 @@ const EditableQuestionItem = ({
                         isQuestionTemplateSaving={isQuestionTemplateSaving}
                         setIsInMode={setIsInEditmode}
                         onClickSave={saveQuestion}
-                        textValidity={textValidity}
+                        questionTitle={text}
                     />
                 </Box>
             </Box>
