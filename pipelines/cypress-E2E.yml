@@ -52,6 +52,7 @@ jobs:
 
           - script: |
                 dotnet run --no-launch-profile &
+                sleep 5
             env:
                 ASPNETCORE_ENVIRONMENT: "Test"
             workingDirectory: "backend/api"
