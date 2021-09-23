@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { RefObject, useEffect, useState } from 'react'
 import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
 import { TextField } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
@@ -15,12 +15,10 @@ import { QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 interface Props {
     setIsAddingQuestion: (isAddingQuestion: boolean) => void
     barrier: Barrier
+    questionTitleRef: RefObject<HTMLElement>
 }
 
-const CreateQuestionItem = ({
-    setIsAddingQuestion,
-    barrier,
-}: Props) => {
+const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef }: Props) => {
     const [text, setText] = React.useState<string>('')
     const [organization, setOrganization] = React.useState<Organization>(Organization.All)
     const [supportNotes, setSupportNotes] = React.useState<string>('')
@@ -56,6 +54,9 @@ const CreateQuestionItem = ({
         }
         createQuestionTemplate(newQuestion)
         setIsAddingQuestion(false)
+        if (questionTitleRef !== null && questionTitleRef.current !== null) {
+            questionTitleRef.current.scrollIntoView({ behavior: 'smooth' })
+        }
     }
 
     return (

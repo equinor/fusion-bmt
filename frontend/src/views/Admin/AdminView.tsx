@@ -23,6 +23,7 @@ const AdminView = ({}: Props) => {
     const [isAddingQuestion, setIsAddingQuestion] = useState<boolean>(false)
     const headerRef = useRef<HTMLElement>(null)
     const menuAnchorRef = useRef<HTMLButtonElement>(null)
+    const quesstionTitleRef = useRef<HTMLElement>(null)
 
     const openMenu = () => {
         setIsMenuOpen(true)
@@ -128,6 +129,7 @@ const AdminView = ({}: Props) => {
                             <CreateQuestionItem 
                                 setIsAddingQuestion={setIsAddingQuestion}
                                 barrier={selectedBarrier}
+                                questionTitleRef={quesstionTitleRef}
                             />
                         </>
                     )}
@@ -137,6 +139,7 @@ const AdminView = ({}: Props) => {
                         projectCategories={projectCategories}
                         isInAddCategoryMode={isInAddCategoryMode}
                         setIsInAddCategoryMode={setIsInAddCategoryMode}
+                        questionTitleRef={quesstionTitleRef}
                     />
                 </Box>
             </Box>

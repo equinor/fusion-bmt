@@ -6,6 +6,7 @@ import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from
 import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 import { useEffectNotOnMount } from '../../utils/hooks'
 import AdminQuestionItem from './AdminQuestionItem'
+import { RefObject } from 'react'
 
 interface Props {
     barrier: Barrier
@@ -13,9 +14,10 @@ interface Props {
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (inMode: boolean) => void
+    questionTitleRef: RefObject<HTMLElement>
 }
 
-const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode }: Props) => {
+const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode, questionTitleRef }: Props) => {
     const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
     const {
         editQuestionTemplate,
@@ -73,6 +75,7 @@ const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isIn
                         projectCategories={projectCategories}
                         isInAddCategoryMode={isInAddCategoryMode}
                         setIsInAddCategoryMode={setIsInAddCategoryMode}
+                        questionTitleRef={questionTitleRef}
                     />
                 )
             })}
