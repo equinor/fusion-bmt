@@ -77,7 +77,9 @@ const AdminView = ({}: Props) => {
     return (
         <>
             <Box m={2}>
-                <Typography variant="h2">Project configuration: Questionnaire</Typography>
+                <Typography variant="h2" data-testid="admin-page-title">
+                    Project configuration: Questionnaire
+                </Typography>
             </Box>
             <Divider />
             <Box m={2} width={'250px'}>
@@ -96,7 +98,7 @@ const AdminView = ({}: Props) => {
                 <Box p="20px" width="1">
                     <Box display="flex" flexDirection="row">
                         <Box flexGrow={1} m={1}>
-                            <Typography variant="h3" ref={headerRef}>
+                            <Typography variant="h3" ref={headerRef} data-testid="barrier-name">
                                 {barrierToString(selectedBarrier)}
                             </Typography>
                         </Box>
