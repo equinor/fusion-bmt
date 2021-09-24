@@ -18,8 +18,9 @@ const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSa
                     <SaveIndicator savingState={SavingState.Saving} />
                 </Box>
             )}
-            <Box alignSelf={'flex-end'} style={{ minWidth: '170px'}} >
+            <Box alignSelf={'flex-end'} style={{ minWidth: '170px' }}>
                 <Button
+                    data-testid="cancel-edit-question"
                     variant="outlined"
                     style={{ marginRight: '20px' }}
                     onClick={() => setIsInMode(false)}
@@ -27,7 +28,11 @@ const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSa
                 >
                     Cancel
                 </Button>
-                <Button onClick={() => onClickSave()} disabled={isQuestionTemplateSaving || questionTitle.length === 0}>
+                <Button
+                    data-testid="save-question"
+                    onClick={() => onClickSave()}
+                    disabled={isQuestionTemplateSaving || questionTitle.length === 0}
+                >
                     Save
                 </Button>
             </Box>
