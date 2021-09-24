@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core'
 
 import { Organization, QuestionTemplate } from '../../api/models'
 import { ErrorIcon, TextFieldChangeEvent, Validity } from '../../components/Action/utils'
-import { DataToEditQuestionTemplate } from './QuestionListWithApi'
+import { DataToEditQuestionTemplate } from './AdminQuestionItem'
 import { ApolloError } from '@apollo/client'
 import { getOrganizationOptionsForDropdown, updateValidity } from '../helpers'
 import { useEffectNotOnMount } from '../../utils/hooks'

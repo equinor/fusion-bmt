@@ -7,7 +7,6 @@ import { Box } from '@material-ui/core'
 
 import BarrierSidebar from './BarrierSidebar'
 import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
-import QuestionListWithApi from './QuestionListWithApi'
 import { barrierToString } from '../../utils/EnumToString'
 import { apiErrorMessage } from '../../api/error'
 import BarrierMenu from './BarrierMenu'
@@ -16,6 +15,7 @@ import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } fr
 import OrganizationFilter from '../../components/OrganizationFilter'
 import { useFilter } from '../../utils/hooks'
 import { hasOrganization } from '../../utils/QuestionAndAnswerUtils'
+import AdminQuestionItem from './AdminQuestionItem'
 
 interface Props {}
 
@@ -56,6 +56,26 @@ const AdminView = ({}: Props) => {
         )
     }
 
+    if (loading) {
+        return <>Loading...</>
+    }
+
+    if (error !== undefined) {
+        return (
+            <div>
+                <TextArea value={apiErrorMessage('Could not load questions')} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    if (questions === undefined) {
+        return (
+            <div>
+                <TextArea value={apiErrorMessage('Questions are undefined')} onChange={() => {}} />
+            </div>
+        )
+    }
+
     const projectCategoryOptions: SearchableDropdownOption[] = [
         {
             title: 'All project categories',
@@ -78,14 +98,6 @@ const AdminView = ({}: Props) => {
         if (headerRef !== null && headerRef.current) {
             headerRef.current.scrollIntoView()
         }
-    }
-
-    if (questions === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Questions are undefined')} onChange={() => {}} />
-            </div>
-        )
     }
 
     const projectCategoryQuestions = questions.filter(
@@ -168,16 +180,21 @@ const AdminView = ({}: Props) => {
                             />
                         </>
                     )}
-                    <QuestionListWithApi
-                        projectCategories={projectCategories}
-                        isInAddCategoryMode={isInAddCategoryMode}
-                        setIsInAddCategoryMode={setIsInAddCategoryMode}
-                        questionTitleRef={questionTitleRef}
-                        questions={sortedBarrierQuestions}
-                        loadingQuestions={loading}
-                        errorQuestionsQuery={error}
-                        refetchQuestionTemplates={refetchQuestionTemplates}
-                    />
+                    <div>
+                        {sortedBarrierQuestions.map(q => {
+                            return (
+                                <AdminQuestionItem
+                                    key={q.id}
+                                    question={q}
+                                    projectCategories={projectCategories}
+                                    isInAddCategoryMode={isInAddCategoryMode}
+                                    setIsInAddCategoryMode={setIsInAddCategoryMode}
+                                    questionTitleRef={questionTitleRef}
+                                    refetchQuestionTemplates={refetchQuestionTemplates}
+                                />
+                            )
+                        })}
+                    </div>
                 </Box>
             </Box>
         </>
