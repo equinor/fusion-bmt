@@ -1,13 +1,13 @@
-import React, { RefObject, useEffect, useState } from 'react'
+import React, { RefObject } from 'react'
 import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
 import { TextField } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 
-import { Barrier, Organization, QuestionTemplate } from '../../api/models'
-import { ErrorIcon, TextFieldChangeEvent, Validity } from '../../components/Action/utils'
+import { Barrier, Organization } from '../../api/models'
+import { ErrorIcon, TextFieldChangeEvent } from '../../components/Action/utils'
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { getOrganizationOptionsForDropdown, updateValidity } from '../helpers'
-import { useEffectNotOnMount } from '../../utils/hooks'
+import { getOrganizationOptionsForDropdown } from '../helpers'
+import { useValidityCheck } from '../../utils/hooks'
 import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
 import ErrorSavingQuestion from './Components/ErrorSavingQuestion'
 import { QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
@@ -16,32 +16,23 @@ interface Props {
     setIsAddingQuestion: (isAddingQuestion: boolean) => void
     barrier: Barrier
     questionTitleRef: RefObject<HTMLElement>
+    selectedProjectCategory: string
 }
 
-const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef }: Props) => {
+const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, selectedProjectCategory }: Props) => {
     const [text, setText] = React.useState<string>('')
     const [organization, setOrganization] = React.useState<Organization>(Organization.All)
     const [supportNotes, setSupportNotes] = React.useState<string>('')
-    const [textValidity, setTextValidity] = useState<Validity>('default')
 
     const isTextfieldValid = () => {
         return text.length > 0
     }
 
-    useEffectNotOnMount(() => {
-        if (!isTextfieldValid()) {
-            setTextValidity('error')
-        }
-    }, [text])
-
-    useEffect(() => {
-        updateValidity(isTextfieldValid(), textValidity, setTextValidity)
-    }, [text, textValidity])
+    const { valueValidity } = useValidityCheck<string>(text, isTextfieldValid)
 
     const {
         createQuestionTemplate,
         loading: isCreateQuestionTemplateSaving,
-        newQuestionTemplate,
         error: createQuestionTemplateSaveError,
     } = useCreateQuestionTemplateMutation()
 
@@ -51,7 +42,9 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef }: 
             organization,
             text,
             supportNotes,
+            projectCategoryIds: selectedProjectCategory !== 'all' ? [selectedProjectCategory] : [],
         }
+
         createQuestionTemplate(newQuestion)
         setIsAddingQuestion(false)
         if (questionTitleRef !== null && questionTitleRef.current !== null) {
@@ -62,7 +55,7 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef }: 
     return (
         <Box display="flex" flexDirection="column">
             <Box display="flex" flexDirection="row">
-                <Box display="flex" flexGrow={1} flexDirection={'column'} mt={0.75} >
+                <Box display="flex" flexGrow={1} flexDirection={'column'} mt={0.75}>
                     <Box display="flex" ml={4} mr={2}>
                         <TextField
                             id={'title'}
@@ -72,9 +65,9 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef }: 
                             onChange={(event: TextFieldChangeEvent) => {
                                 setText(event.target.value)
                             }}
-                            variant={textValidity}
-                            helperText={textValidity === 'error' ? 'required' : ''}
-                            helperIcon={textValidity === 'error' ? ErrorIcon : <></>}
+                            variant={valueValidity}
+                            helperText={valueValidity === 'error' ? 'required' : ''}
+                            helperIcon={valueValidity === 'error' ? ErrorIcon : <></>}
                         />
                     </Box>
                     <Box ml={3} mt={3} mr={1} mb={10}>
@@ -114,19 +107,31 @@ export interface DataToCreateQuestionTemplate {
     organization: Organization
     text: string
     supportNotes: string
+    projectCategoryIds: string[]
 }
 
 interface createQuestionTemplateMutationProps {
     createQuestionTemplate: (data: DataToCreateQuestionTemplate) => void
     loading: boolean
-    newQuestionTemplate: QuestionTemplate | undefined
     error: ApolloError | undefined
 }
 
 const useCreateQuestionTemplateMutation = (): createQuestionTemplateMutationProps => {
     const CREATE_QUESTION_TEMPLATE = gql`
-        mutation CreateQuestionTemplate($barrier: Barrier!, $organization: Organization!, $text: String!, $supportNotes: String!) {
-            createQuestionTemplate(barrier: $barrier, organization: $organization, text: $text, supportNotes: $supportNotes) {
+        mutation CreateQuestionTemplate(
+            $barrier: Barrier!
+            $organization: Organization!
+            $text: String!
+            $supportNotes: String!
+            $projectCategoryIds: [String]
+        ) {
+            createQuestionTemplate(
+                barrier: $barrier
+                organization: $organization
+                text: $text
+                supportNotes: $supportNotes
+                projectCategoryIds: $projectCategoryIds
+            ) {
                 ...QuestionTemplateFields
             }
         }
@@ -159,7 +164,6 @@ const useCreateQuestionTemplateMutation = (): createQuestionTemplateMutationProp
     return {
         createQuestionTemplate,
         loading,
-        newQuestionTemplate: data?.createQuestionTemplate,
         error,
     }
 }

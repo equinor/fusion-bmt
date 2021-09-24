@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Button, Divider, Icon, Typography } from '@equinor/eds-core-react'
 import { add, more_vertical } from '@equinor/eds-icons'
 import { ApolloError, gql, useQuery } from '@apollo/client'
@@ -16,35 +16,41 @@ import OrganizationFilter from '../../components/OrganizationFilter'
 import { useFilter } from '../../utils/hooks'
 import { hasOrganization } from '../../utils/QuestionAndAnswerUtils'
 import AdminQuestionItem from './AdminQuestionItem'
+import CreateProjectCategorySidebar from './CreateProjectCategorySidebar'
 
 interface Props {}
 
 const AdminView = ({}: Props) => {
+    const {
+        loading: isFetchingProjectCategories,
+        projectCategories,
+        error: errorProjectCategoryQuery,
+        refetch: refetchProjectCategories,
+    } = useProjectCategoriesQuery()
+    const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
+    const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
+
     const [selectedBarrier, setSelectedBarrier] = useState<Barrier>(Barrier.Gm)
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>('all')
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
     const [isInAddCategoryMode, setIsInAddCategoryMode] = useState<boolean>(false)
     const [isAddingQuestion, setIsAddingQuestion] = useState<boolean>(false)
+    const [isInCreateProjectCategoryMode, setIsInCreateProjectCategoryMode] = useState<boolean>(false)
+
     const headerRef = useRef<HTMLElement>(null)
     const menuAnchorRef = useRef<HTMLButtonElement>(null)
     const questionTitleRef = useRef<HTMLElement>(null)
-    const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
 
-    const openMenu = () => {
-        setIsMenuOpen(true)
-    }
-    const closeMenu = () => {
-        setIsMenuOpen(false)
-    }
-
-    const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
-    const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
-
-    const createNewQuestion = () => {
-        setIsAddingQuestion(true)
+    const onProjectCategoryCreated = (projectCategory: string, isCopy: boolean) => {
+        setIsInCreateProjectCategoryMode(false)
+        refetchProjectCategories()
+        if (isCopy) {
+            refetchQuestionTemplates()
+        }
+        setSelectedProjectCategory(projectCategory)
     }
 
-    if (loadingProjectCategoryQuery) {
+    if (isFetchingProjectCategories) {
         return <>Loading...</>
     }
 
@@ -109,11 +115,8 @@ const AdminView = ({}: Props) => {
                 .includes(selectedProjectCategory) || selectedProjectCategory === 'all'
     )
     const barrierQuestions = projectCategoryQuestions.filter(q => q.barrier === selectedBarrier)
-    const organizationFilteredQuestions = organizationFilter !== undefined
-        ? barrierQuestions.filter(q =>
-            hasOrganization(q, organizationFilter)
-        )
-        : barrierQuestions
+    const organizationFilteredQuestions =
+        organizationFilter !== undefined ? barrierQuestions.filter(q => hasOrganization(q, organizationFilter)) : barrierQuestions
     const sortedBarrierQuestions = organizationFilteredQuestions.sort((q1, q2) => q1.order - q2.order)
 
     return (
@@ -124,13 +127,31 @@ const AdminView = ({}: Props) => {
                 </Typography>
             </Box>
             <Divider />
-            <Box m={2} width={'250px'}>
-                <SearchableDropdown
-                    label="Project Category"
-                    placeholder="Select Project Category"
-                    onSelect={option => setSelectedProjectCategory(option.key)}
-                    options={projectCategoryOptions}
-                />
+            <Box display={'flex'} flexDirection={'row'}>
+                <Box flexGrow={1}>
+                    <Box ml={4} width={'250px'}>
+                        <SearchableDropdown
+                            label="Project Category"
+                            placeholder="Select Project Category"
+                            onSelect={option => setSelectedProjectCategory(option.key)}
+                            options={projectCategoryOptions}
+                        />
+                    </Box>
+                </Box>
+                <Box alignSelf={'center'} mr={4}>
+                    <Button variant="outlined" onClick={() => setIsInCreateProjectCategoryMode(true)}>
+                        <Icon data={add}></Icon>
+                        Add project category
+                    </Button>
+                </Box>
+                {isInCreateProjectCategoryMode && (
+                    <CreateProjectCategorySidebar
+                        isOpen={isInCreateProjectCategoryMode}
+                        setIsOpen={setIsInCreateProjectCategoryMode}
+                        onProjectCategoryCreated={onProjectCategoryCreated}
+                        projectCategories={projectCategories}
+                    />
+                )}
             </Box>
             <Divider />
             <Box display="flex" height={1}>
@@ -150,7 +171,7 @@ const AdminView = ({}: Props) => {
                             />
                         </Box>
                         <Box mt={2.5}>
-                            <Button variant="ghost" color="primary" onClick={() => createNewQuestion()}>
+                            <Button variant="ghost" color="primary" onClick={() => setIsAddingQuestion(true)}>
                                 <Icon data={add}></Icon>
                             </Button>
                         </Box>
@@ -159,7 +180,7 @@ const AdminView = ({}: Props) => {
                                 variant="ghost"
                                 color="primary"
                                 ref={menuAnchorRef}
-                                onClick={() => (isMenuOpen ? closeMenu() : openMenu())}
+                                onClick={() => (isMenuOpen ? setIsMenuOpen(false) : setIsMenuOpen(true))}
                             >
                                 <Icon data={more_vertical}></Icon>
                             </Button>
@@ -168,34 +189,44 @@ const AdminView = ({}: Props) => {
                     <BarrierMenu
                         isOpen={isMenuOpen}
                         anchorRef={menuAnchorRef}
-                        closeMenu={closeMenu}
+                        closeMenu={() => setIsMenuOpen(false)}
                         setIsInAddCategoryMode={setIsInAddCategoryMode}
                         isInAddCategoryMode={isInAddCategoryMode}
                     />
                     {isAddingQuestion && (
                         <>
                             <Divider />
-                            <CreateQuestionItem 
+                            <CreateQuestionItem
                                 setIsAddingQuestion={setIsAddingQuestion}
                                 barrier={selectedBarrier}
                                 questionTitleRef={questionTitleRef}
+                                selectedProjectCategory={selectedProjectCategory}
                             />
                         </>
                     )}
                     <div>
-                        {sortedBarrierQuestions.map(q => {
-                            return (
-                                <AdminQuestionItem
-                                    key={q.id}
-                                    question={q}
-                                    projectCategories={projectCategories}
-                                    isInAddCategoryMode={isInAddCategoryMode}
-                                    setIsInAddCategoryMode={setIsInAddCategoryMode}
-                                    questionTitleRef={questionTitleRef}
-                                    refetchQuestionTemplates={refetchQuestionTemplates}
-                                />
-                            )
-                        })}
+                        {sortedBarrierQuestions.length > 0 &&
+                            sortedBarrierQuestions.map(q => {
+                                return (
+                                    <AdminQuestionItem
+                                        key={q.id}
+                                        question={q}
+                                        projectCategories={projectCategories}
+                                        isInAddCategoryMode={isInAddCategoryMode}
+                                        questionTitleRef={questionTitleRef}
+                                        refetchQuestionTemplates={refetchQuestionTemplates}
+                                    />
+                                )
+                            })}
+                        {sortedBarrierQuestions.length === 0 && (
+                            <Box display="flex" flexDirection={'column'} alignItems={'center'} mt={8}>
+                                <Typography style={{ marginBottom: '5px' }}>Nothing here yet.</Typography>
+                                <Typography>
+                                    Add a new question or select "All project categories" to find questions that can be assigned to your new
+                                    category.
+                                </Typography>
+                            </Box>
+                        )}
                     </div>
                 </Box>
             </Box>
@@ -209,10 +240,11 @@ interface ProjectCategoriesQueryProps {
     loading: boolean
     projectCategories: ProjectCategory[] | undefined
     error: ApolloError | undefined
+    refetch: () => void
 }
 
-const useGetAllProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
-    const GET_PROJECT_CATEGORY = gql`
+const useProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
+    const GET_PROJECT_CATEGORIES = gql`
         query {
             projectCategory {
                 id
@@ -220,12 +252,13 @@ const useGetAllProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
             }
         }
     `
-    const { loading, data, error } = useQuery<{ projectCategory: ProjectCategory[] }>(GET_PROJECT_CATEGORY)
+    const { loading, data, error, refetch } = useQuery<{ projectCategory: ProjectCategory[] }>(GET_PROJECT_CATEGORIES)
 
     return {
         loading,
         projectCategories: data?.projectCategory,
         error,
+        refetch,
     }
 }
 

@@ -20,7 +20,7 @@ const BarrierMenu = ({ isOpen, anchorRef, closeMenu, setIsInAddCategoryMode, isI
             >
                 <Icon data={isInAddCategoryMode ? close_circle_outlined : add_circle_outlined} size={16} />
                 <Typography group="navigation" variant="menu_title" as="span">
-                    {isInAddCategoryMode ? 'Close category view' : 'Add project categories'}
+                    {isInAddCategoryMode ? 'Close add to category view' : 'Add questions to project categories'}
                 </Typography>
             </Menu.Item>
         </Menu>

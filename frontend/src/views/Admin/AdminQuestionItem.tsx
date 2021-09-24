@@ -11,19 +11,11 @@ interface Props {
     question: QuestionTemplate
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
-    setIsInAddCategoryMode: (inMode: boolean) => void
     questionTitleRef: RefObject<HTMLElement>
     refetchQuestionTemplates: () => void
 }
 
-const AdminQuestionItem = ({
-    question,
-    projectCategories,
-    isInAddCategoryMode,
-    setIsInAddCategoryMode,
-    questionTitleRef,
-    refetchQuestionTemplates
-}: Props) => {
+const AdminQuestionItem = ({ question, projectCategories, isInAddCategoryMode, questionTitleRef, refetchQuestionTemplates }: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
     const {
@@ -59,7 +51,6 @@ const AdminQuestionItem = ({
                     setIsInEditmode={setIsInEditmode}
                     projectCategories={projectCategories}
                     isInAddCategoryMode={isInAddCategoryMode}
-                    setIsInAddCategoryMode={setIsInAddCategoryMode}
                     questionTitleRef={questionTitleRef}
                 />
             )}
