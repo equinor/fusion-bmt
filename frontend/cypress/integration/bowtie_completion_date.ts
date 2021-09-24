@@ -1,7 +1,7 @@
 import { EvaluationSeed } from '../support/evaluation_seed'
 import { Progression, Role } from '../../src/api/models'
-import FollowUpTabs from '../support/followup'
-import { EvaluationPage } from '../support/evaluation'
+import FollowUpTabs from '../page_objects/followup'
+import { EvaluationPage } from '../page_objects/evaluation'
 import { getUsers } from '../support/mock/external/users'
 import * as faker from 'faker'
 

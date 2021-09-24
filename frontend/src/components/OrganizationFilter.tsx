@@ -1,10 +1,9 @@
-import React from 'react'
 import { Chip } from '@equinor/eds-core-react'
-import { Organization, Question } from '../api/models'
+import { Organization, Question, QuestionTemplate } from '../api/models'
 import { organizationToString } from '../utils/EnumToString'
 
 interface Props {
-    questions: Question[]
+    questions: Question[] | QuestionTemplate[]
     organizationFilter: Organization[]
     onOrganizationFilterToggled: (org: Organization) => void
 }
@@ -13,7 +12,7 @@ const OrganizationFilter = ({ organizationFilter, onOrganizationFilterToggled, q
     return (
         <div style={{ display: 'flex', flexDirection: 'row', marginTop: '10px' }}>
             {Object.entries(Organization).map(([key, org]) => {
-                const questionsWithOrg = questions.filter(q => q.organization === org)
+                const questionsWithOrg = questions.map((q: Question | QuestionTemplate) => {return q.organization}).filter(organization => organization === org)
                 const numQuestionsWithOrg = questionsWithOrg.length
 
                 return (

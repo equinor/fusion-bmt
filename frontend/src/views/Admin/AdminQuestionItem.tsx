@@ -1,38 +1,44 @@
 import React, { RefObject } from 'react'
 import { Divider } from '@equinor/eds-core-react'
-import { ProjectCategory, QuestionTemplate } from '../../api/models'
+import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
 import StaticQuestionItem from './StaticQuestionItem'
 import EditableQuestionItem from './EditableQuestionItem'
-import { DataToEditQuestionTemplate } from './QuestionListWithApi'
 import { useEffectNotOnMount } from '../../utils/hooks'
-import { ApolloError } from '@apollo/client'
+import { ApolloError, gql, useMutation } from '@apollo/client'
+import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 
 interface Props {
     question: QuestionTemplate
-    isQuestionTemplateSaving: boolean
-    editQuestionTemplate: (data: DataToEditQuestionTemplate) => void
-    questionTemplateSaveError: ApolloError | undefined
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (inMode: boolean) => void
     questionTitleRef: RefObject<HTMLElement>
+    refetchQuestionTemplates: () => void
 }
 
 const AdminQuestionItem = ({
     question,
-    editQuestionTemplate,
-    isQuestionTemplateSaving,
-    questionTemplateSaveError,
     projectCategories,
     isInAddCategoryMode,
     setIsInAddCategoryMode,
     questionTitleRef,
+    refetchQuestionTemplates
 }: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
+    const {
+        editQuestionTemplate,
+        loading: isQuestionTemplateSaving,
+        questionTemplate,
+        error: questionTemplateSaveError,
+    } = useQuestionTemplateMutation()
+
     useEffectNotOnMount(() => {
-        if (!isQuestionTemplateSaving && !questionTemplateSaveError) {
-            setIsInEditmode(false)
+        if (!isQuestionTemplateSaving) {
+            if (!questionTemplateSaveError) {
+                setIsInEditmode(false)
+            }
+            refetchQuestionTemplates()
         }
     }, [isQuestionTemplateSaving])
 
@@ -62,3 +68,61 @@ const AdminQuestionItem = ({
 }
 
 export default AdminQuestionItem
+
+export interface DataToEditQuestionTemplate {
+    questionTemplateId: string
+    barrier: Barrier
+    organization: Organization
+    text: string
+    supportNotes: string
+    status: Status
+}
+
+interface QuestionTemplateMutationProps {
+    editQuestionTemplate: (data: DataToEditQuestionTemplate) => void
+    loading: boolean
+    questionTemplate: QuestionTemplate | undefined
+    error: ApolloError | undefined
+}
+
+const useQuestionTemplateMutation = (): QuestionTemplateMutationProps => {
+    const EDIT_QUESTION_TEMPLATE = gql`
+        mutation EditQuestionTemplate(
+            $questionTemplateId: String!
+            $barrier: Barrier!
+            $organization: Organization!
+            $text: String!
+            $supportNotes: String!
+            $status: Status!
+        ) {
+            editQuestionTemplate(
+                questionTemplateId: $questionTemplateId
+                barrier: $barrier
+                organization: $organization
+                text: $text
+                supportNotes: $supportNotes
+                status: $status
+            ) {
+                ...QuestionTemplateFields
+                ...ProjectCategoryFields
+            }
+        }
+        ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
+        ${PROJECT_CATEGORY_FIELDS_FRAGMENT}
+    `
+
+    const [editQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(EDIT_QUESTION_TEMPLATE)
+
+    const editQuestionTemplate = (data: DataToEditQuestionTemplate) => {
+        editQuestionTemplateApolloFunc({
+            variables: { ...data },
+        })
+    }
+
+    return {
+        editQuestionTemplate,
+        loading,
+        questionTemplate: data?.editQuestionTemplate,
+        error,
+    }
+}

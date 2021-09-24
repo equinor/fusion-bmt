@@ -1,6 +1,6 @@
-import { DropdownSelect, SideSheet } from './common'
-import { Action, Note } from './mocks'
-import { FUSION_DATE_LOCALE } from './helpers'
+import { DropdownSelect, SideSheet } from '../page_objects/common'
+import { Action, Note } from '../support/mocks'
+import { FUSION_DATE_LOCALE } from '../support/helpers'
 import { Priority, Question } from '../../src/api/models'
 import { barrierToString, organizationToString } from '../../src/utils/EnumToString'
 
