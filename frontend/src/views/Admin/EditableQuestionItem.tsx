@@ -68,6 +68,7 @@ const EditableQuestionItem = ({
                         </Box>
                         <Box display="flex" width={'100%'} mr={2}>
                             <TextField
+                                data-testid={'question-title-' + question.order}
                                 id={question.id}
                                 value={text}
                                 autoFocus={true}
@@ -83,6 +84,7 @@ const EditableQuestionItem = ({
                     </Box>
                     <Box ml={3} mt={3} mr={1} mb={10}>
                         <MarkdownEditor
+                            data-testid="markdown-editor"
                             onChange={markdown => setSupportNotes(markdown)}
                             menuItems={['strong', 'em', 'bullet_list', 'ordered_list', 'blockquote', 'h1', 'h2', 'h3', 'paragraph']}
                         >
