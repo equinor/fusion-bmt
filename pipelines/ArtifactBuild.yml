@@ -98,7 +98,7 @@ stages:
           forceReplaceExisting: true
 
 - stage: deploybackend
-  dependsOn: deployfrontendqa  
+  dependsOn: deployfrontendci  
   displayName: 'Deploy CI Backend'
   jobs:
   - job: 'DeployCIBackend'
