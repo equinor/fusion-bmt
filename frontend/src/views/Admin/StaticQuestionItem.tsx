@@ -25,7 +25,14 @@ interface Props {
     questionTitleRef: RefObject<HTMLElement>
 }
 
-const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode, questionTitleRef }: Props) => {
+const StaticQuestionItem = ({
+    question,
+    setIsInEditmode,
+    projectCategories,
+    isInAddCategoryMode,
+    setIsInAddCategoryMode,
+    questionTitleRef,
+}: Props) => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const anchorRef = useRef<HTMLButtonElement>(null)
@@ -106,10 +113,15 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
                         <Typography variant="h4">{question.order}.</Typography>
                     </Box>
                     <Box>
-                        <Typography variant="h4" ref={questionTitleRef}>{question.text}</Typography>
+                        <Typography variant="h4" data-testid={'question-title-' + question.order}>
+                            {question.text}
+                        </Typography>
                         <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
                             <Box mr={1} mb={1}>
-                                <Chip style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}>
+                                <Chip
+                                    style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}
+                                    data-testid={'organization-' + question.order}
+                                >
                                     <Tooltip title={'Organization'} placement={'bottom'}>
                                         <Icon data={work} size={16}></Icon>
                                     </Tooltip>
@@ -146,7 +158,12 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
                 </Box>
                 <Box display="flex" flexDirection={'column'}>
                     <Box flexGrow={1} style={{ minWidth: '120px' }}>
-                        <Button variant="ghost" color="primary" onClick={() => setIsInEditmode(true)}>
+                        <Button
+                            variant="ghost"
+                            color="primary"
+                            onClick={() => setIsInEditmode(true)}
+                            data-testid={'edit-question-' + question.order}
+                        >
                             <Icon data={edit}></Icon>
                         </Button>
                         <Button
