@@ -6,12 +6,16 @@ import { SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor
 import { Box } from '@material-ui/core'
 
 import BarrierSidebar from './BarrierSidebar'
-import { Barrier, ProjectCategory } from '../../api/models'
-import QuestionListWithApi from './QuestionListWithApi'
+import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
 import { barrierToString } from '../../utils/EnumToString'
 import { apiErrorMessage } from '../../api/error'
 import BarrierMenu from './BarrierMenu'
 import CreateQuestionItem from './CreateQuestionItem'
+import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
+import OrganizationFilter from '../../components/OrganizationFilter'
+import { useFilter } from '../../utils/hooks'
+import { hasOrganization } from '../../utils/QuestionAndAnswerUtils'
+import AdminQuestionItem from './AdminQuestionItem'
 
 interface Props {}
 
@@ -24,6 +28,7 @@ const AdminView = ({}: Props) => {
     const headerRef = useRef<HTMLElement>(null)
     const menuAnchorRef = useRef<HTMLButtonElement>(null)
     const questionTitleRef = useRef<HTMLElement>(null)
+    const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
 
     const openMenu = () => {
         setIsMenuOpen(true)
@@ -33,6 +38,7 @@ const AdminView = ({}: Props) => {
     }
 
     const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
+    const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
 
     const createNewQuestion = () => {
         setIsAddingQuestion(true)
@@ -46,6 +52,26 @@ const AdminView = ({}: Props) => {
         return (
             <div>
                 <TextArea value={apiErrorMessage('Could not load Project Categories')} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    if (loading) {
+        return <>Loading...</>
+    }
+
+    if (error !== undefined) {
+        return (
+            <div>
+                <TextArea value={apiErrorMessage('Could not load questions')} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    if (questions === undefined) {
+        return (
+            <div>
+                <TextArea value={apiErrorMessage('Questions are undefined')} onChange={() => {}} />
             </div>
         )
     }
@@ -74,6 +100,22 @@ const AdminView = ({}: Props) => {
         }
     }
 
+    const projectCategoryQuestions = questions.filter(
+        q =>
+            q.projectCategories
+                .map(pc => {
+                    return pc.id
+                })
+                .includes(selectedProjectCategory) || selectedProjectCategory === 'all'
+    )
+    const barrierQuestions = projectCategoryQuestions.filter(q => q.barrier === selectedBarrier)
+    const organizationFilteredQuestions = organizationFilter !== undefined
+        ? barrierQuestions.filter(q =>
+            hasOrganization(q, organizationFilter)
+        )
+        : barrierQuestions
+    const sortedBarrierQuestions = organizationFilteredQuestions.sort((q1, q2) => q1.order - q2.order)
+
     return (
         <>
             <Box m={2}>
@@ -99,6 +141,11 @@ const AdminView = ({}: Props) => {
                             <Typography variant="h3" ref={headerRef}>
                                 {barrierToString(selectedBarrier)}
                             </Typography>
+                            <OrganizationFilter
+                                organizationFilter={organizationFilter}
+                                onOrganizationFilterToggled={onOrganizationFilterToggled}
+                                questions={barrierQuestions}
+                            />
                         </Box>
                         <Box mt={2.5}>
                             <Button variant="ghost" color="primary" onClick={() => createNewQuestion()}>
@@ -133,14 +180,21 @@ const AdminView = ({}: Props) => {
                             />
                         </>
                     )}
-                    <QuestionListWithApi
-                        barrier={selectedBarrier}
-                        projectCategory={selectedProjectCategory}
-                        projectCategories={projectCategories}
-                        isInAddCategoryMode={isInAddCategoryMode}
-                        setIsInAddCategoryMode={setIsInAddCategoryMode}
-                        questionTitleRef={questionTitleRef}
-                    />
+                    <div>
+                        {sortedBarrierQuestions.map(q => {
+                            return (
+                                <AdminQuestionItem
+                                    key={q.id}
+                                    question={q}
+                                    projectCategories={projectCategories}
+                                    isInAddCategoryMode={isInAddCategoryMode}
+                                    setIsInAddCategoryMode={setIsInAddCategoryMode}
+                                    questionTitleRef={questionTitleRef}
+                                    refetchQuestionTemplates={refetchQuestionTemplates}
+                                />
+                            )
+                        })}
+                    </div>
                 </Box>
             </Box>
         </>
@@ -170,5 +224,34 @@ const useGetAllProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
         loading,
         projectCategories: data?.projectCategory,
         error,
+    }
+}
+
+interface QuestionTemplatesQueryProps {
+    loading: boolean
+    questions: QuestionTemplate[] | undefined
+    error: ApolloError | undefined
+    refetch: () => void
+}
+
+const useQuestionTemplatesQuery = (): QuestionTemplatesQueryProps => {
+    const GET_QUESTIONTEMPLATES = gql`
+        query {
+            questionTemplates (where: {status: {eq: ${Status.Active}} }) {
+                ...QuestionTemplateFields
+                ...ProjectCategoryFields
+            }
+        }
+        ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
+        ${PROJECT_CATEGORY_FIELDS_FRAGMENT}
+    `
+
+    const { loading, data, error, refetch } = useQuery<{ questionTemplates: QuestionTemplate[] }>(GET_QUESTIONTEMPLATES)
+
+    return {
+        loading,
+        questions: data?.questionTemplates,
+        error,
+        refetch,
     }
 }
