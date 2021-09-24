@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { PersonDetails, useApiClients } from '@equinor/fusion'
-import { Organization } from '../api/models'
+import { Validity } from '../components/Action/utils'
+import { deriveNewSavingState, updateValidity } from '../views/helpers'
+import { SavingState } from './Variables'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -58,4 +60,40 @@ export const useFilter = <Type>() => {
     }
 
     return { filter, onFilterToggled }
+}
+
+export const useValidityCheck = <Type>(value: Type, isValid: () => boolean) => {
+    const [valueValidity, setValueValidity] = useState<Validity>('default')
+
+    useEffectNotOnMount(() => {
+        if (!isValid()) {
+            setValueValidity('error')
+        }
+    }, [value])
+
+    useEffect(() => {
+        updateValidity(isValid(), valueValidity, setValueValidity)
+    }, [value, valueValidity])
+
+    return { valueValidity }
+}
+
+export const useSavingStateCheck = <Type>(isLoading: boolean, hasError: boolean, doWhenLoadingFinishes: () => void) => {
+    const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
+
+    useEffectNotOnMount(() => {
+        setSavingState(deriveNewSavingState(isLoading, savingState))
+
+        if (!isLoading && !hasError) {
+            doWhenLoadingFinishes()
+        }
+    }, [isLoading])
+
+    useEffect(() => {
+        if (hasError) {
+            setSavingState(SavingState.NotSaved)
+        }
+    }, [hasError])
+
+    return { savingState }
 }
