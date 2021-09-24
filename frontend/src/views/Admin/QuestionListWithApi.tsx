@@ -1,4 +1,4 @@
-import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
+import { ApolloError, gql, useMutation } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
 
 import { apiErrorMessage } from '../../api/error'
@@ -9,16 +9,26 @@ import AdminQuestionItem from './AdminQuestionItem'
 import { RefObject } from 'react'
 
 interface Props {
-    barrier: Barrier
-    projectCategory: string
     projectCategories: ProjectCategory[]
+    loadingQuestions: boolean
+    questions: QuestionTemplate[]
+    errorQuestionsQuery: ApolloError | undefined
+    refetchQuestionTemplates: () => void
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (inMode: boolean) => void
     questionTitleRef: RefObject<HTMLElement>
 }
 
-const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode, questionTitleRef }: Props) => {
-    const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
+const QuestionListWithApi = ({
+    projectCategories,
+    isInAddCategoryMode,
+    setIsInAddCategoryMode,
+    questionTitleRef,
+    loadingQuestions,
+    questions,
+    errorQuestionsQuery,
+    refetchQuestionTemplates,
+}: Props) => {
     const {
         editQuestionTemplate,
         loading: isQuestionTemplateSaving,
@@ -32,11 +42,11 @@ const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isIn
         }
     }, [isQuestionTemplateSaving])
 
-    if (loading) {
+    if (loadingQuestions) {
         return <>Loading...</>
     }
 
-    if (error !== undefined) {
+    if (errorQuestionsQuery !== undefined) {
         return (
             <div>
                 <TextArea value={apiErrorMessage('Could not load questions')} onChange={() => {}} />
@@ -44,27 +54,9 @@ const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isIn
         )
     }
 
-    if (questions === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Questions are undefined')} onChange={() => {}} />
-            </div>
-        )
-    }
-
-    const projectCategoryQuestions = questions.filter(
-        q =>
-            q.projectCategories
-                .map(pc => {
-                    return pc.id
-                })
-                .includes(projectCategory) || projectCategory === 'all'
-    )
-    const sortedBarrierQuestions = projectCategoryQuestions.filter(q => q.barrier === barrier).sort((q1, q2) => q1.order - q2.order)
-
     return (
         <div>
-            {sortedBarrierQuestions.map(q => {
+            {questions.map(q => {
                 return (
                     <AdminQuestionItem
                         key={q.id}
@@ -84,35 +76,6 @@ const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isIn
 }
 
 export default QuestionListWithApi
-
-interface QuestionTemplatesQueryProps {
-    loading: boolean
-    questions: QuestionTemplate[] | undefined
-    error: ApolloError | undefined
-    refetch: () => void
-}
-
-const useQuestionTemplatesQuery = (): QuestionTemplatesQueryProps => {
-    const GET_QUESTIONTEMPLATES = gql`
-        query {
-            questionTemplates (where: {status: {eq: ${Status.Active}} }) {
-                ...QuestionTemplateFields
-                ...ProjectCategoryFields
-            }
-        }
-        ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
-        ${PROJECT_CATEGORY_FIELDS_FRAGMENT}
-    `
-
-    const { loading, data, error, refetch } = useQuery<{ questionTemplates: QuestionTemplate[] }>(GET_QUESTIONTEMPLATES)
-
-    return {
-        loading,
-        questions: data?.questionTemplates,
-        error,
-        refetch,
-    }
-}
 
 export interface DataToEditQuestionTemplate {
     questionTemplateId: string

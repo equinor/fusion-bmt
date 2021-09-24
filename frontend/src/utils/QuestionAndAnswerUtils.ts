@@ -1,4 +1,4 @@
-import { Answer, Organization, Participant, Progression, Question, Severity } from '../api/models'
+import { Answer, Organization, Participant, Progression, Question, QuestionTemplate, Severity } from '../api/models'
 import { findCorrectAnswer, useSharedFacilitatorAnswer } from '../components/helpers'
 
 export const checkIfAnswerFilled = (answer: Answer): boolean => {
@@ -27,7 +27,7 @@ export const hasSeverity = (question: Question, severityFilter: Severity[], part
     }
 }
 
-export const hasOrganization = (question: Question, organizationFilter: Organization[]) => {
+export const hasOrganization = (question: Question | QuestionTemplate, organizationFilter: Organization[]) => {
     if (organizationFilter.length === 0) {
         return true
     } else {
