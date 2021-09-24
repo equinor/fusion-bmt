@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { RefObject, useRef, useState } from 'react'
 import { tokens } from '@equinor/eds-tokens'
 import { MarkdownViewer, TextArea } from '@equinor/fusion-components'
 import { Button, Chip, Icon, MultiSelect, Tooltip, Typography } from '@equinor/eds-core-react'
@@ -22,9 +22,10 @@ interface Props {
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (inMode: boolean) => void
+    questionTitleRef: RefObject<HTMLElement>
 }
 
-const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode }: Props) => {
+const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode, questionTitleRef }: Props) => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const anchorRef = useRef<HTMLButtonElement>(null)
@@ -105,7 +106,7 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
                         <Typography variant="h4">{question.order}.</Typography>
                     </Box>
                     <Box>
-                        <Typography variant="h4">{question.text}</Typography>
+                        <Typography variant="h4" ref={questionTitleRef}>{question.text}</Typography>
                         <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
                             <Box mr={1} mb={1}>
                                 <Chip style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}>

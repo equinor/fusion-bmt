@@ -2,10 +2,11 @@ import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
 
 import { apiErrorMessage } from '../../api/error'
-import { QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
+import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 import { useEffectNotOnMount } from '../../utils/hooks'
 import AdminQuestionItem from './AdminQuestionItem'
+import { RefObject } from 'react'
 
 interface Props {
     barrier: Barrier
@@ -13,9 +14,10 @@ interface Props {
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (inMode: boolean) => void
+    questionTitleRef: RefObject<HTMLElement>
 }
 
-const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode }: Props) => {
+const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode, questionTitleRef }: Props) => {
     const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
     const {
         editQuestionTemplate,
@@ -73,6 +75,7 @@ const QuestionListWithApi = ({ barrier, projectCategory, projectCategories, isIn
                         projectCategories={projectCategories}
                         isInAddCategoryMode={isInAddCategoryMode}
                         setIsInAddCategoryMode={setIsInAddCategoryMode}
+                        questionTitleRef={questionTitleRef}
                     />
                 )
             })}
@@ -94,9 +97,11 @@ const useQuestionTemplatesQuery = (): QuestionTemplatesQueryProps => {
         query {
             questionTemplates (where: {status: {eq: ${Status.Active}} }) {
                 ...QuestionTemplateFields
+                ...ProjectCategoryFields
             }
         }
         ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
+        ${PROJECT_CATEGORY_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error, refetch } = useQuery<{ questionTemplates: QuestionTemplate[] }>(GET_QUESTIONTEMPLATES)
@@ -144,9 +149,11 @@ const useQuestionTemplateMutation = (): QuestionTemplateMutationProps => {
                 status: $status
             ) {
                 ...QuestionTemplateFields
+                ...ProjectCategoryFields
             }
         }
         ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
+        ${PROJECT_CATEGORY_FIELDS_FRAGMENT}
     `
 
     const [editQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(EDIT_QUESTION_TEMPLATE)

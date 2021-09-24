@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { RefObject } from 'react'
 import { Divider } from '@equinor/eds-core-react'
 import { ProjectCategory, QuestionTemplate } from '../../api/models'
 import StaticQuestionItem from './StaticQuestionItem'
@@ -15,6 +15,7 @@ interface Props {
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (inMode: boolean) => void
+    questionTitleRef: RefObject<HTMLElement>
 }
 
 const AdminQuestionItem = ({
@@ -25,6 +26,7 @@ const AdminQuestionItem = ({
     projectCategories,
     isInAddCategoryMode,
     setIsInAddCategoryMode,
+    questionTitleRef,
 }: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
@@ -52,6 +54,7 @@ const AdminQuestionItem = ({
                     projectCategories={projectCategories}
                     isInAddCategoryMode={isInAddCategoryMode}
                     setIsInAddCategoryMode={setIsInAddCategoryMode}
+                    questionTitleRef={questionTitleRef}
                 />
             )}
         </div>
