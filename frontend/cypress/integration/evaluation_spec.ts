@@ -1,12 +1,12 @@
 import { Progression, Role } from '../../src/api/models'
 import { EvaluationSeed } from '../support/evaluation_seed'
 import { evaluationName } from '../support/helpers'
-import NominationPage from '../support/nomination'
-import ProjectPage from '../support/project'
+import NominationPage from '../page_objects/nomination'
+import ProjectPage from '../page_objects/project'
 import { getUsers, users, User } from '../support/mock/external/users'
 import * as faker from 'faker'
-import { EvaluationPage } from '../support/evaluation'
-import { ConfirmationDialog } from '../support/common'
+import { EvaluationPage } from '../page_objects/evaluation'
+import { ConfirmationDialog } from '../page_objects/common'
 
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
