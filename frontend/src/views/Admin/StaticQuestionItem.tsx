@@ -1,50 +1,123 @@
-import React, { useRef, useState } from 'react'
+import React, { RefObject, useRef, useState } from 'react'
 import { tokens } from '@equinor/eds-tokens'
-import { MarkdownViewer } from '@equinor/fusion-components'
-import { Button, Chip, Icon, Tooltip, Typography } from '@equinor/eds-core-react'
+import { MarkdownViewer, TextArea } from '@equinor/fusion-components'
+import { Button, Chip, Icon, MultiSelect, Tooltip, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
-import { more_vertical, edit, work, platform } from '@equinor/eds-icons'
+import { edit, more_vertical, platform, work } from '@equinor/eds-icons'
 
-import { QuestionTemplate } from '../../api/models'
+import { ProjectCategory, QuestionTemplate } from '../../api/models'
 import { organizationToString } from '../../utils/EnumToString'
 import QuestionTemplateMenu from './QuestionTemplateMenu'
+import { UseMultipleSelectionStateChange } from 'downshift'
+import { ApolloError, gql, useMutation } from '@apollo/client'
+import SaveIndicator from '../../components/SaveIndicator'
+import { SavingState } from '../../utils/Variables'
+import { deriveNewSavingState } from '../helpers'
+import { apiErrorMessage } from '../../api/error'
+import { useEffectNotOnMount } from '../../utils/hooks'
 
 interface Props {
     question: QuestionTemplate
     setIsInEditmode: (inEditmode: boolean) => void
+    projectCategories: ProjectCategory[]
+    isInAddCategoryMode: boolean
+    setIsInAddCategoryMode: (inMode: boolean) => void
+    questionTitleRef: RefObject<HTMLElement>
 }
 
-const StaticQuestionItem = ({ question, setIsInEditmode }: Props) => {
+const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isInAddCategoryMode, setIsInAddCategoryMode, questionTitleRef }: Props) => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const anchorRef = useRef<HTMLButtonElement>(null)
+    const projectCategoriesOptions = [...projectCategories].map(category => category.name)
 
-    const openMenu = () => {
-        setIsOpen(true)
+    const {
+        addToProjectCategory,
+        loading: addingToProjectCategory,
+        error: addingToProjectCategoryError,
+    } = useAddToProjectCategoryMutation()
+
+    const {
+        removeFromProjectCategory,
+        loading: removingFromProjectCategory,
+        error: removingFromProjectCategoryError,
+    } = useRemoveFromProjectCategoryMutation()
+
+    useEffectNotOnMount(() => {
+        setSavingState(deriveNewSavingState(addingToProjectCategory, savingState, addingToProjectCategoryError !== undefined))
+    }, [addingToProjectCategory])
+
+    useEffectNotOnMount(() => {
+        setSavingState(deriveNewSavingState(removingFromProjectCategory, savingState, removingFromProjectCategoryError !== undefined))
+    }, [removingFromProjectCategory])
+
+    const checkIfNewItem = (selection: string[]): ProjectCategory | undefined => {
+        let newItem: ProjectCategory | undefined = undefined
+
+        selection.forEach(selectedCategoryString => {
+            if (
+                question.projectCategories.findIndex(questionProjectCategory => questionProjectCategory.name === selectedCategoryString) < 0
+            ) {
+                newItem = projectCategories.find(projectCategory => projectCategory.name === selectedCategoryString)
+            }
+        })
+
+        return newItem
     }
-    const closeMenu = () => {
-        setIsOpen(false)
+
+    const checkIfDeletedItem = (selection: string[]): ProjectCategory | undefined => {
+        let deletedItem = undefined
+
+        question.projectCategories.forEach(questionProjectCategory => {
+            if (selection.findIndex(selectedCategoryString => selectedCategoryString === questionProjectCategory.name) < 0) {
+                deletedItem = questionProjectCategory
+            }
+        })
+
+        return deletedItem
+    }
+
+    const updateProjectCategories = (selection: string[] | undefined) => {
+        if (selection) {
+            const newItemInSelection = checkIfNewItem(selection)
+            const deletedItemInSelection = checkIfDeletedItem(selection)
+
+            if (newItemInSelection) {
+                addToProjectCategory({
+                    questionTemplateId: question.id,
+                    projectCategoryId: newItemInSelection.id,
+                })
+            }
+
+            if (deletedItemInSelection) {
+                removeFromProjectCategory({
+                    questionTemplateId: question.id,
+                    projectCategoryId: deletedItemInSelection.id,
+                })
+            }
+        }
     }
 
     return (
         <>
             <Box display="flex" flexDirection="row">
-                <Box display="flex" flexGrow={1} mb={3} mr={22}>
+                <Box display="flex" flexGrow={1} mb={3} mr={5}>
                     <Box ml={2} mr={1}>
                         <Typography variant="h4">{question.order}.</Typography>
                     </Box>
                     <Box>
-                        <Typography variant="h4">{question.text}</Typography>
-                        <Box display="flex" flexDirection="row" mb={3} mt={1}>
-                            <Box mr={1}>
+                        <Typography variant="h4" ref={questionTitleRef}>{question.text}</Typography>
+                        <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
+                            <Box mr={1} mb={1}>
                                 <Chip style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}>
-                                    <Tooltip title={'Responsible discipline'} placement={'bottom'}>
+                                    <Tooltip title={'Organization'} placement={'bottom'}>
                                         <Icon data={work} size={16}></Icon>
                                     </Tooltip>
                                     {organizationToString(question.organization)}
                                 </Chip>
                             </Box>
-                            {question.projectCategories.map(category => (
-                                <Box mr={1}>
+                            {question.projectCategories.map((category, index) => (
+                                <Box mr={1} mb={1} key={index}>
                                     <Chip style={{ backgroundColor: tokens.colors.infographic.primary__mist_blue.rgba }}>
                                         <Tooltip title={'Project category'} placement={'bottom'}>
                                             <Icon data={platform} size={16}></Icon>
@@ -53,24 +126,166 @@ const StaticQuestionItem = ({ question, setIsInEditmode }: Props) => {
                                     </Chip>
                                 </Box>
                             ))}
+                            {isInAddCategoryMode && (
+                                <Box width={200} mb={1}>
+                                    <MultiSelect
+                                        label=""
+                                        items={projectCategoriesOptions}
+                                        initialSelectedItems={question.projectCategories.map(cat => cat.name)}
+                                        handleSelectedItemsChange={(changes: UseMultipleSelectionStateChange<string>) => {
+                                            updateProjectCategories(changes.selectedItems)
+                                        }}
+                                    />
+                                </Box>
+                            )}
                         </Box>
-                        <MarkdownViewer markdown={question.supportNotes} />
+                        <Box mt={3}>
+                            <MarkdownViewer markdown={question.supportNotes} />
+                        </Box>
                     </Box>
                 </Box>
-                <Box>
-                    <Button variant="ghost" color="primary" onClick={() => setIsInEditmode(true)}>
-                        <Icon data={edit}></Icon>
-                    </Button>
+                <Box display="flex" flexDirection={'column'}>
+                    <Box flexGrow={1} style={{ minWidth: '120px' }}>
+                        <Button variant="ghost" color="primary" onClick={() => setIsInEditmode(true)}>
+                            <Icon data={edit}></Icon>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            color="primary"
+                            ref={anchorRef}
+                            onClick={() => (isOpen ? setIsOpen(false) : setIsOpen(true))}
+                        >
+                            <Icon data={more_vertical}></Icon>
+                        </Button>
+                    </Box>
+                    <Box alignSelf={'flex-end'} mr={2}>
+                        <SaveIndicator savingState={savingState} />
+                    </Box>
                 </Box>
-                <Box>
-                    <Button variant="ghost" color="primary" ref={anchorRef} onClick={() => (isOpen ? closeMenu() : openMenu())}>
-                        <Icon data={more_vertical}></Icon>
-                    </Button>
-                    <QuestionTemplateMenu isOpen={isOpen} anchorRef={anchorRef} closeMenu={closeMenu} />
-                </Box>
+                <QuestionTemplateMenu isOpen={isOpen} anchorRef={anchorRef} closeMenu={() => setIsOpen(false)} />
             </Box>
+            {addingToProjectCategoryError && (
+                <Box mt={2} ml={4}>
+                    <Box>
+                        <TextArea value={apiErrorMessage('Not able to add project category to question template')} onChange={() => {}} />
+                    </Box>
+                </Box>
+            )}
+            {removingFromProjectCategoryError && (
+                <Box mt={2} ml={4}>
+                    <Box>
+                        <TextArea
+                            value={apiErrorMessage('Not able to remove project category from question template')}
+                            onChange={() => {}}
+                        />
+                    </Box>
+                </Box>
+            )}
         </>
     )
 }
 
 export default StaticQuestionItem
+
+export interface DataToAddToOrRemoveFromProjectCategory {
+    questionTemplateId: string
+    projectCategoryId: string
+}
+
+interface AddToProjectCategoryMutationProps {
+    addToProjectCategory: (data: DataToAddToOrRemoveFromProjectCategory) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useAddToProjectCategoryMutation = (): AddToProjectCategoryMutationProps => {
+    const ADD_TO_PROJECT_CATEGORY = gql`
+        mutation AddToProjectCategory($questionTemplateId: String!, $projectCategoryId: String!) {
+            addToProjectCategory(questionTemplateId: $questionTemplateId, projectCategoryId: $projectCategoryId) {
+                id
+                projectCategories {
+                    id
+                    name
+                }
+            }
+        }
+    `
+
+    const [addToProjectCategoryApolloFunc, { loading, data, error }] = useMutation(ADD_TO_PROJECT_CATEGORY, {
+        update(cache, mutationResult) {
+            const questionTemplateAddedTo = mutationResult.data.addToProjectCategory
+            cache.modify({
+                id: cache.identify({
+                    __typename: 'QuestionTemplate',
+                    id: questionTemplateAddedTo.id,
+                }),
+                fields: {
+                    projectCategories() {
+                        return questionTemplateAddedTo.projectCategories
+                    },
+                },
+            })
+        },
+    })
+
+    const addToProjectCategory = (data: DataToAddToOrRemoveFromProjectCategory) => {
+        addToProjectCategoryApolloFunc({
+            variables: { ...data },
+        })
+    }
+
+    return {
+        addToProjectCategory,
+        loading,
+        error,
+    }
+}
+
+interface RemoveFromProjectCategoryMutationProps {
+    removeFromProjectCategory: (data: DataToAddToOrRemoveFromProjectCategory) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useRemoveFromProjectCategoryMutation = (): RemoveFromProjectCategoryMutationProps => {
+    const REMOVE_FROM_PROJECT_CATEGORY = gql`
+        mutation RemoveFromProjectCategory($questionTemplateId: String!, $projectCategoryId: String!) {
+            removeFromProjectCategory(questionTemplateId: $questionTemplateId, projectCategoryId: $projectCategoryId) {
+                id
+                projectCategories {
+                    id
+                    name
+                }
+            }
+        }
+    `
+
+    const [removeFromProjectCategoryApolloFunc, { loading, data, error }] = useMutation(REMOVE_FROM_PROJECT_CATEGORY, {
+        update(cache, mutationResult) {
+            const questionTemplateRemovedFrom = mutationResult.data.removeFromProjectCategory
+            cache.modify({
+                id: cache.identify({
+                    __typename: 'QuestionTemplate',
+                    id: questionTemplateRemovedFrom.id,
+                }),
+                fields: {
+                    projectCategories() {
+                        return questionTemplateRemovedFrom.projectCategories
+                    },
+                },
+            })
+        },
+    })
+
+    const removeFromProjectCategory = (data: DataToAddToOrRemoveFromProjectCategory) => {
+        removeFromProjectCategoryApolloFunc({
+            variables: { ...data },
+        })
+    }
+
+    return {
+        removeFromProjectCategory,
+        loading,
+        error,
+    }
+}

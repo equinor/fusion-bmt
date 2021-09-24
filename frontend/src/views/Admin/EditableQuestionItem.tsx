@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { MarkdownEditor, SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
-import { Button, TextField, Typography } from '@equinor/eds-core-react'
+import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
+import { TextField, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 
 import { Organization, QuestionTemplate } from '../../api/models'
 import { ErrorIcon, TextFieldChangeEvent, Validity } from '../../components/Action/utils'
 import { DataToEditQuestionTemplate } from './QuestionListWithApi'
-import SaveIndicator from '../../components/SaveIndicator'
-import { SavingState } from '../../utils/Variables'
 import { ApolloError } from '@apollo/client'
-import { apiErrorMessage } from '../../api/error'
-import { updateValidity } from '../helpers'
+import { getOrganizationOptionsForDropdown, updateValidity } from '../helpers'
 import { useEffectNotOnMount } from '../../utils/hooks'
+import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
+import ErrorSavingQuestion from './Components/ErrorSavingQuestion'
 
 interface Props {
     question: QuestionTemplate
@@ -46,14 +45,6 @@ const EditableQuestionItem = ({
     useEffect(() => {
         updateValidity(isTextfieldValid(), textValidity, setTextValidity)
     }, [text, textValidity])
-
-    const organizationOptions: SearchableDropdownOption[] = Object.entries(Organization).map(([key, value]) => {
-        return {
-            title: key,
-            key: value,
-            isSelected: organization === value,
-        }
-    })
 
     const saveQuestion = () => {
         const newQuestion: DataToEditQuestionTemplate = {
@@ -102,38 +93,20 @@ const EditableQuestionItem = ({
                 <Box display="flex" flexDirection={'column'}>
                     <Box flexGrow={1}>
                         <SearchableDropdown
-                            label="Responsible discipline"
-                            options={organizationOptions}
+                            label="Organization"
+                            options={getOrganizationOptionsForDropdown(organization)}
                             onSelect={option => setOrganization(option.key as Organization)}
                         />
                     </Box>
-                    {isQuestionTemplateSaving && (
-                        <Box alignSelf={'flex-end'} mb={1}>
-                            <SaveIndicator savingState={SavingState.Saving} />
-                        </Box>
-                    )}
-                    <Box alignSelf={'flex-end'}>
-                        <Button
-                            variant="outlined"
-                            style={{ marginRight: '20px' }}
-                            onClick={() => setIsInEditmode(false)}
-                            disabled={isQuestionTemplateSaving}
-                        >
-                            Cancel
-                        </Button>
-                        <Button onClick={saveQuestion} disabled={isQuestionTemplateSaving || textValidity === 'error'}>
-                            Save
-                        </Button>
-                    </Box>
+                    <CancelOrSaveQuestion
+                        isQuestionTemplateSaving={isQuestionTemplateSaving}
+                        setIsInMode={setIsInEditmode}
+                        onClickSave={saveQuestion}
+                        questionTitle={text}
+                    />
                 </Box>
             </Box>
-            {questionTemplateSaveError && (
-                <Box mt={2} ml={4}>
-                    <Box>
-                        <TextArea value={apiErrorMessage('Not able to save')} onChange={() => {}} />
-                    </Box>
-                </Box>
-            )}
+            <ErrorSavingQuestion questionTemplateSaveError={questionTemplateSaveError} />
         </Box>
     )
 }

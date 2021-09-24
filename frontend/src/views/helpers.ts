@@ -1,5 +1,7 @@
-import { Progression, Question } from '../api/models'
+import { SearchableDropdownOption } from '@equinor/fusion-components'
+import { Organization, Progression, Question } from '../api/models'
 import { Validity } from '../components/Action/utils'
+import { SavingState } from '../utils/Variables'
 
 export const isQuestionStillInView = (selectedQuestionElement: HTMLElement | null, topPlacementInPixels: number | null) => {
     if (selectedQuestionElement !== null && topPlacementInPixels !== null) {
@@ -92,4 +94,29 @@ export const updateValidity = (isFieldValid: boolean, validityStatus: Validity, 
             setValidity('error')
         }
     }
+}
+
+export const deriveNewSavingState = (isLoading: boolean, currentSavingState: SavingState, errorHappened = false) => {
+    if (isLoading) {
+        return SavingState.Saving
+    } else {
+        if (currentSavingState === SavingState.Saving && !errorHappened) {
+            return SavingState.Saved
+        } else if (!errorHappened) {
+            return SavingState.None
+        } else {
+            return SavingState.NotSaved
+        }
+    }
+}
+
+export const getOrganizationOptionsForDropdown = (selectedOrganization: Organization) => {
+    const organizationOptions: SearchableDropdownOption[] = Object.entries(Organization).map(([key, value]) => {
+        return {
+            title: key,
+            key: value,
+            isSelected: selectedOrganization === value,
+        }
+    })
+    return organizationOptions
 }

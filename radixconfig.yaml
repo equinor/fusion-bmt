@@ -16,7 +16,13 @@ spec:
     - name: prod
       build:
         from: prod
-
+    - name: cicd
+      build:
+        from: master
+  privateImageHubs:
+    fusionbmt.azurecr.io:
+      username: fusionbmt
+      email: radix@statoilsrm.onmicrosoft.com
   components:
     - name: frontend
       src: frontend
@@ -109,6 +115,18 @@ spec:
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString
+
+    - name: backendacr    
+      image: fusionbmt.azurecr.io/fusionbmt:latest
+      ports:
+        - name: http
+          port: 5000
+      publicPort: http      
+      environmentConfig:
+        - environment: cicd    
+      secrets:
+        - ACR__ClientSecret
+        - ACR__Password                
 
   dnsAppAlias:
     environment: test
