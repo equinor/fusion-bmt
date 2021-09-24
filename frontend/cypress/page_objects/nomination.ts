@@ -1,5 +1,5 @@
-import { User } from './mock/external/users'
-import { SideSheet } from './common'
+import { User } from '../support/mock/external/users'
+import { SideSheet } from '../page_objects/common'
 
 export default class NominationPage {
     evaluationTitle = () => {
