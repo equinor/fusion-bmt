@@ -116,7 +116,7 @@ spec:
         - AzureAd__ClientSecret
         - Database__ConnectionString
 
-    - name: backend_acr    
+    - name: backendacr    
       image: fusionbmt.azurecr.io/fusionbmt:latest
       ports:
         - name: http
