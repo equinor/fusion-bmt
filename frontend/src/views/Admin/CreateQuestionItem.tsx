@@ -62,7 +62,7 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef }: 
     return (
         <Box display="flex" flexDirection="column">
             <Box display="flex" flexDirection="row">
-                <Box display="flex" flexGrow={1} flexDirection={'column'}>
+                <Box display="flex" flexGrow={1} flexDirection={'column'} mt={0.75} >
                     <Box display="flex" ml={4} mr={2}>
                         <TextField
                             id={'title'}
@@ -89,7 +89,7 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef }: 
                 <Box display="flex" flexDirection={'column'}>
                     <Box flexGrow={1}>
                         <SearchableDropdown
-                            label="Responsible discipline"
+                            label="Organization"
                             options={getOrganizationOptionsForDropdown(organization)}
                             onSelect={option => setOrganization(option.key as Organization)}
                         />

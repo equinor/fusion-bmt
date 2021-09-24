@@ -18,7 +18,7 @@ const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSa
                     <SaveIndicator savingState={SavingState.Saving} />
                 </Box>
             )}
-            <Box alignSelf={'flex-end'}>
+            <Box alignSelf={'flex-end'} style={{ minWidth: '170px'}} >
                 <Button
                     variant="outlined"
                     style={{ marginRight: '20px' }}
