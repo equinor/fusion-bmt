@@ -60,7 +60,7 @@ describe('Admin page', () => {
 const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNotes: string, organization: string) => {
     adminPage.editQuestionButton(questionNo).click()
     adminPage.questionTitle(questionNo).replace(newTitle)
-    adminPage.deleteAndInsertSupportNotes(newSupportNotes)
+    adminPage.setSupportNotes(newSupportNotes)
     adminPage.changeOrganization(organization)
 }
 

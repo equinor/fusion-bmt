@@ -38,7 +38,7 @@ export class AdminPage {
         return cy.getByDataTestid('edit-question-' + questionNo)
     }
 
-    deleteAndInsertSupportNotes = (supportNotes: string) => {
+    setSupportNotes = (supportNotes: string) => {
         return cy
             .getByDataTestid('markdown-editor')
             .shadow()
