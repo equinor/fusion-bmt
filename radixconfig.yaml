@@ -18,7 +18,7 @@ spec:
         from: prod
     - name: cicd
       build:
-        from: master
+        from: cicd
   privateImageHubs:
     fusionbmt.azurecr.io:
       username: fusionbmt
@@ -116,17 +116,17 @@ spec:
         - AzureAd__ClientSecret
         - Database__ConnectionString
 
-    - name: backendacr    
+    - name: backend-acr
       image: fusionbmt.azurecr.io/fusionbmt:latest
       ports:
         - name: http
           port: 5000
-      publicPort: http      
+      publicPort: http
       environmentConfig:
-        - environment: cicd    
+        - environment: cicd
       secrets:
         - ACR__ClientSecret
-        - ACR__Password                
+        - ACR__Password
 
   dnsAppAlias:
     environment: test

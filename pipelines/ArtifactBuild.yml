@@ -1,6 +1,6 @@
-#Build docker image, save image to ACR and trigger image pull from Radix. 
+#Build docker image, save image to ACR and trigger image pull from Radix.
 trigger:
-- master
+- cicd
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -39,15 +39,14 @@ stages:
           command: 'custom'
           workingDir: 'frontend'
           customCommand: 'run-script build'
-      
+
       - task: PublishPipelineArtifact@1
         inputs:
           targetPath: '$(Pipeline.Workspace)/s/frontend/out/bmt.zip'
-          artifactName: FusionBMT 
+          artifactName: FusionBMT
 
 - stage: buildbackend
   displayName: 'Build Backend'
-  dependsOn: []
   jobs:
   - job: 'BuildimageandpushtoACR'
     steps:
@@ -56,25 +55,25 @@ stages:
           containerRegistry: 'BMT Registry'
           repository: 'fusionbmt'
           command: 'build'
-          Dockerfile: './backend/Dockerfile'
-          arguments: '--build-arg $(dturl) --build-arg $(dttenant)'  
+          Dockerfile: './backend/dynatrace.Dockerfile'
+          arguments: '--build-arg $(dturl) --build-arg $(dttenant)'
       - task: Docker@2
         inputs:
           containerRegistry: 'BMT Registry'
           repository: 'fusionbmt'
-          command: 'push'       
+          command: 'push'
 
 - stage: deployfrontendci
   dependsOn:         # this stage runs after buildfrontend and buildbackend
   - buildfrontend
-  - buildbackend 
-  displayName: 'Deploy CI'  
+  - buildbackend
+  displayName: 'Deploy CI'
   jobs:
   - job: 'DeployCIFrontend'
-    steps:      
+    steps:
       - task: DownloadPipelineArtifact@2
         inputs:
-          artifact: FusionBMT      
+          artifact: FusionBMT
       - task: FusionApp@2
         displayName: 'Deploy frontend'
         inputs:
@@ -86,7 +85,7 @@ stages:
           tokenResource: '$(tokenResource)'
           ignoreVersionConflict: true
           forceReplaceExisting: true
-  
+
       - task: FusionApp@2
         displayName: 'Publish frontend'
         inputs:
@@ -98,11 +97,11 @@ stages:
           forceReplaceExisting: true
 
 - stage: deploybackend
-  dependsOn: deployfrontendci  
+  dependsOn: deployfrontendci
   displayName: 'Deploy CI Backend'
   jobs:
   - job: 'DeployCIBackend'
-    steps:         
+    steps:
       - task: DownloadPipelineArtifact@2
         inputs:
-          artifact: FusionBMT 
+          artifact: FusionBMT
