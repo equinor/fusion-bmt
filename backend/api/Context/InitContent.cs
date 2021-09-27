@@ -291,11 +291,17 @@ namespace api.Context
 
             var templates = context.QuestionTemplates.Include(x => x.ProjectCategories);
             var categories = context.ProjectCategories;
+            int qCounter = 0;
             foreach (var template in templates)
             {
-                foreach(var category in categories)
+                qCounter++;
+                foreach (var category in categories)
                 {
                     template.ProjectCategories.Add(category);
+                    if (qCounter % 2 == 1)
+                    {
+                        break;
+                    }
                 }
             }
             context.SaveChanges();
