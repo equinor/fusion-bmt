@@ -259,7 +259,7 @@ const ActionEditForm = ({
                                 id="completed-reason"
                                 value={completingReason}
                                 autoFocus={true}
-                                label={'Optional reason for closing action'}
+                                label={'Reason for closing action (mandatory)'}
                                 onChange={(event: TextFieldChangeEvent) => {
                                     setCompletingReason(event.target.value)
                                 }}
@@ -291,6 +291,7 @@ const ActionEditForm = ({
                                             createClosingRemark(completingReason)
                                         }
                                     }}
+                                    disabled={completingReason === ''}
                                 >
                                     {!apiErrorClosingRemark ? 'Confirm' : 'Try again'}
                                 </Button>
