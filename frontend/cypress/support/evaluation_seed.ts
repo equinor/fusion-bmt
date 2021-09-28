@@ -15,6 +15,8 @@ import {
     SET_SUMMARY,
     PROGRESS_PARTICIPANT,
     GET_PROJECT_CATEGORY,
+    GET_EVALUATIONS,
+    GET_QUESTION_TEMPLATES,
 } from './gql'
 
 type EvaluationSeedInput = {
@@ -334,4 +336,14 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
         .then(() => {
             cy.login(facilitator.user)
         })
+}
+
+export class EvaluationQuery {
+    evaluations() {
+        return cy.gql(GET_EVALUATIONS, { variables: {} })
+    }
+
+    questionTemplates() {
+        return cy.gql(GET_QUESTION_TEMPLATES, { variables: {} })
+    }
 }
