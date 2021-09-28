@@ -94,6 +94,21 @@ namespace api.Services
             return newQuestionTemplate;
         }
 
+        public QuestionTemplate Delete(QuestionTemplate questionTemplate)
+        {
+            /* ReorderQuestionTemplate gives the question template 
+            *  that should be deleted the highest order, and gives the 
+            *  remaining question templates the correct order. The
+            *  consquence is that all active question templates are 
+            *  ordered correctly.
+            */
+            ReorderQuestionTemplate(questionTemplate);
+            questionTemplate.Status = Status.Voided;
+            _context.QuestionTemplates.Update(questionTemplate);
+            _context.SaveChanges();
+            return questionTemplate;
+        }
+
         public QuestionTemplate AddToProjectCategory(
             string questionTemplateId,
             string projectCategoryId

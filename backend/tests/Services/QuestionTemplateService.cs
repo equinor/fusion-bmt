@@ -97,6 +97,28 @@ namespace tests
         }
 
         [Fact]
+        public void DeleteQuestionTemplate()
+        {
+            var service = new QuestionTemplateService(_context);
+            var questionTemplateToDelete = service.Create(
+                barrier:      Randomize.Barrier(),
+                organization: Randomize.Organization(),
+                text:         Randomize.String(),
+                supportNotes: Randomize.String()
+            );
+            var projectCategory  = new ProjectCategoryService(_context).GetAll().First();
+            questionTemplateToDelete = service.AddToProjectCategory(questionTemplateToDelete.Id, projectCategory.Id);
+
+            var deletedQuestionTemplate = service.Delete(questionTemplateToDelete);
+            
+            int maxOrder = _context.QuestionTemplates.Max(qt => qt.Order);
+
+            Assert.Equal(deletedQuestionTemplate.Order, maxOrder);
+            Assert.True(deletedQuestionTemplate.Status == Status.Voided);
+            Assert.Equal(deletedQuestionTemplate.ProjectCategories, questionTemplateToDelete.ProjectCategories);
+        }
+
+        [Fact]
         public void ReorderQuestionTemplate()
         {
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
