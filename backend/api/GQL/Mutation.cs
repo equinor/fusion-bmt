@@ -280,6 +280,12 @@ namespace api.GQL
             return _projectCategoryService.Create(name);
         }
 
+        public ProjectCategory DeleteProjectCategory(string projectCategoryId)
+        {
+            var projectCategory = _projectCategoryService.Get(projectCategoryId);
+            return _projectCategoryService.Delete(projectCategory);
+        }
+
         public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
         {
             var other = _projectCategoryService.Get(projectCategoryId);

@@ -7,6 +7,8 @@ using Xunit;
 using api.Models;
 using api.Services;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace tests
 {
     [Collection("UsesDbContext")]
@@ -29,6 +31,29 @@ namespace tests
             service.Create(Randomize.String());
 
             Assert.Equal(nCategories + 1, service.GetAll().Count());
+        }
+
+        [Fact]
+        public void Delete()
+        {
+            var service = new ProjectCategoryService(_context);
+            int nCategories = service.GetAll().Count();
+            var oldProjectCategory = service.GetAll().First();
+            var newProjectCategory = service.CopyFrom(Randomize.String(), oldProjectCategory);
+
+            var qtService = new QuestionTemplateService(_context);
+            var questionTemplate  = qtService
+                .GetAll()
+                .Include(x => x.ProjectCategories)
+                .First(x => x.ProjectCategories.Contains(newProjectCategory))
+            ;
+
+            service.Delete(newProjectCategory);
+
+            questionTemplate = qtService.GetQuestionTemplate(questionTemplate.Id);
+            Assert.False(questionTemplate.ProjectCategories.Contains(newProjectCategory));
+
+            Assert.Equal(nCategories, service.GetAll().Count());
         }
 
         [Fact]
