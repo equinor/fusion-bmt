@@ -155,14 +155,11 @@ once more.
 
 ##### When to apply the migration to our databases
 
-You can apply migrations to the test database at any time to test that it
+You can apply migrations to the dev database at any time to test that it
 behaves as expected.
 
-Once the changes are merged to master you should apply the migration to the dev
-database.
-
-The prod database doesn't need to be updated manually, as all migrations are
-applied to it automatically as part of the release to prod pipelines.
+The prod and test databases doesn't need to be updated manually, as all migrations are
+applied to it automatically as part of the pipelines when pushed to test and prod.
 
 #### Populating databases with Questions
 
