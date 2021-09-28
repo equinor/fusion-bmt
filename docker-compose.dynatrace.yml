@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+    frontend:
+        build:
+            dockerfile: ./dynatrace.Dockerfile
+            context: ./frontend
+            args:
+                dt_tenant: da982f2e-adc0-4062-a06c-67889dfe4e1a
+                dt_url: spa-equinor.kanari.com
+        depends_on:
+            - backend
+        ports:
+            - "3000:3000"
+        environment:
+            - API_URL=http://localhost:5000
+            - APP_INSIGHTS_KEY
+    backend:
+        build:
+            dockerfile: ./dynatrace.Dockerfile
+            context: ./backend
+            args:
+                dt_tenant: da982f2e-adc0-4062-a06c-67889dfe4e1a
+                dt_url: spa-equinor.kanari.com
+        ports:
+            - "5000:5000"
+        environment:
+            - BUILD_MODE=development
+            - ApplicationInsights__InstrumentationKey
+            - AzureAd__ClientSecret
+            - Database__ConnectionString
