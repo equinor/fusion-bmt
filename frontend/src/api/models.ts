@@ -704,7 +704,8 @@ export type SeverityOperationFilterInput = {
 
 export enum Status {
   Active = 'ACTIVE',
-  Inactive = 'INACTIVE'
+  Inactive = 'INACTIVE',
+  Voided = 'VOIDED'
 }
 
 export type StatusOperationFilterInput = {
