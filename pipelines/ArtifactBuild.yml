@@ -1,117 +1,119 @@
-#Build docker image, save image to ACR and trigger image pull from Radix. 
+#Build docker image, save image to ACR and trigger image pull from Radix.
 trigger:
-- cicd
+    - cicd
 
 pool:
-  vmImage: 'ubuntu-latest'
+    vmImage: "ubuntu-latest"
 
 stages:
-- stage: buildfrontend
-  displayName: 'Build Frontend App'
-  jobs:
-    - job: 'Deploy_Fusion_BMT'
-      steps:
-      - task: UseDotNet@2
-        displayName: 'Install Dotnet'
-        inputs:
-          packageType: 'sdk'
-          version: '5.0.x'
+    - stage: buildfrontend
+      displayName: "Build Frontend App"
+      jobs:
+          - job: "Deploy_Fusion_BMT"
+            steps:
+                - task: UseDotNet@2
+                  displayName: "Install Dotnet"
+                  inputs:
+                      packageType: "sdk"
+                      version: "5.0.x"
 
-      - task: DotNetCoreCLI@2
-        displayName: Install dotnet-ef
-        inputs:
-          command: 'custom'
-          custom: 'tool'
-          arguments: 'install --global dotnet-ef'
+                - task: DotNetCoreCLI@2
+                  displayName: Install dotnet-ef
+                  inputs:
+                      command: "custom"
+                      custom: "tool"
+                      arguments: "install --global dotnet-ef"
 
-      - task: NodeTool@0
-        inputs:
-          versionSpec: "16.x"
-      - task: Npm@1
-        displayName: 'Install frontend'
-        inputs:
-          command: 'install'
-          workingDir: 'frontend'
+                - task: NodeTool@0
+                  inputs:
+                      versionSpec: "16.x"
+                - task: Npm@1
+                  displayName: "Install frontend"
+                  inputs:
+                      command: "install"
+                      workingDir: "frontend"
 
-      - task: Npm@1
-        displayName: 'Bundle frontend'
-        inputs:
-          command: 'custom'
-          workingDir: 'frontend'
-          customCommand: 'run-script build'
-      
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: '$(Pipeline.Workspace)/s/frontend/out/bmt.zip'
-          artifactName: FusionBMT 
+                - task: Npm@1
+                  displayName: "Bundle frontend"
+                  inputs:
+                      command: "custom"
+                      workingDir: "frontend"
+                      customCommand: "run-script build"
 
-- stage: buildbackend
-  displayName: 'Build Backend'
-  dependsOn: []
-  jobs:
-  - job: 'BuildimageandpushtoACR'
-    steps:
-      - task: Bash@3
-        inputs:
-          targetType: 'inline'
-          script: 'docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)'
-      - task: Bash@3
-        inputs:
-          targetType: 'inline'
-          script: 'docker build -f $(Build.SourcesDirectory)/backend/dynatrace.Dockerfile --build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant) $(Build.SourcesDirectory)/backend/'
-      - task: Docker@2
-        inputs:
-          containerRegistry: 'BMT Registry'
-          repository: 'fusionbmt'
-          command: 'build'
-          Dockerfile: './backend/dynatrace.Dockerfile'
-          arguments: '--build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant)'  
-      - task: Docker@2
-        inputs:
-          containerRegistry: 'BMT Registry'
-          repository: 'fusionbmt'
-          command: 'push'       
+                - task: PublishPipelineArtifact@1
+                  inputs:
+                      targetPath: "$(Pipeline.Workspace)/s/frontend/out/bmt.zip"
+                      artifactName: FusionBMT
 
-- stage: deployfrontendci
-  dependsOn:         # this stage runs after buildfrontend and buildbackend
-  - buildfrontend
-  - buildbackend 
-  displayName: 'Deploy CI'  
-  jobs:
-  - job: 'DeployCIFrontend'
-    steps:      
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: FusionBMT      
-      - task: FusionApp@2
-        displayName: 'Deploy frontend'
-        inputs:
-          fusionCredentials: 'Fusion BMT'
-          portalUrl: 'https://pro-s-portal-ci.azurewebsites.net'
-          action: 'Deploy'
-          appKey: 'bmt'
-          bundlePath: '$(Build.Sourcesdirectory)/bmt.zip'
-          tokenResource: '$(tokenResource)'
-          ignoreVersionConflict: true
-          forceReplaceExisting: true
-  
-      - task: FusionApp@2
-        displayName: 'Publish frontend'
-        inputs:
-          fusionCredentials: 'Fusion BMT'
-          portalUrl: 'https://pro-s-portal-ci.azurewebsites.net'
-          action: 'Publish'
-          appKey: 'bmt'
-          tokenResource: '$(tokenResource)'
-          forceReplaceExisting: true
+    - stage: buildbackend
+      displayName: "Build Backend"
+      dependsOn: []
+      jobs:
+          - job: "BuildimageandpushtoACR"
+            steps:
+                - task: Bash@3
+                  inputs:
+                      targetType: "inline"
+                      script: "docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)"
+                - task: Bash@3
+                  inputs:
+                      targetType: "inline"
+                      script: "docker build -f $(Build.SourcesDirectory)/backend/dynatrace.Dockerfile --build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant) $(Build.SourcesDirectory)/backend/"
+                - task: Docker@2
+                  inputs:
+                      containerRegistry: "BMT Registry"
+                      repository: "fusionbmt"
+                      command: "build"
+                      Dockerfile: "./backend/dynatrace.Dockerfile"
+                      arguments: "--build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant)"
+                - task: Docker@2
+                  inputs:
+                      containerRegistry: "BMT Registry"
+                      repository: "fusionbmt"
+                      command: "push"
+                      tags: |
+                          $(Build.BuildId)
+                          Latest
 
-- stage: deploybackend
-  dependsOn: deployfrontendci  
-  displayName: 'Deploy CI Backend'
-  jobs:
-  - job: 'DeployCIBackend'
-    steps:         
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: FusionBMT    
- 
+    - stage: deployfrontendci
+      dependsOn: # this stage runs after buildfrontend and buildbackend
+          - buildfrontend
+          - buildbackend
+      displayName: "Deploy CI"
+      jobs:
+          - job: "DeployCIFrontend"
+            steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                      artifact: FusionBMT
+                - task: FusionApp@2
+                  displayName: "Deploy frontend"
+                  inputs:
+                      fusionCredentials: "Fusion BMT"
+                      portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
+                      action: "Deploy"
+                      appKey: "bmt"
+                      bundlePath: "$(Agent.BuildDirectory)/bmt.zip"
+                      tokenResource: "$(tokenResource)"
+                      ignoreVersionConflict: true
+                      forceReplaceExisting: true
+
+                - task: FusionApp@2
+                  displayName: "Publish frontend"
+                  inputs:
+                      fusionCredentials: "Fusion BMT"
+                      portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
+                      action: "Publish"
+                      appKey: "bmt"
+                      tokenResource: "$(tokenResource)"
+                      forceReplaceExisting: true
+
+    - stage: deploybackend
+      dependsOn: deployfrontendci
+      displayName: "Deploy CI Backend"
+      jobs:
+          - job: "DeployCIBackend"
+            steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                      artifact: FusionBMT
