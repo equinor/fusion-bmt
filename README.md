@@ -215,7 +215,14 @@ before performing this.
 -   [prod radix](https://fusion-bmt.app.radix.equinor.com/)
 -   [prod fusion](https://fusion.equinor.com/apps/bmt)
 
-### Model overview
+## Monitoring
+
+We use both Azure Application Insight and dynatrace to monitor our applications.
+To start components with Dynatrace OneAgent locally, simply run
+```
+docker-compose -f docker-compose.dynatrace.yml up --build
+```
+## Model overview
 
 ![alt text](docs/model.png?raw=true "Simple domain model diagram")
 

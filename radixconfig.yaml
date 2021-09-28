@@ -55,6 +55,9 @@ spec:
             API_URL: 'https://backend-fusion-bmt-pr.radix.equinor.com'
         - environment: test
           replicas: 0
+        - environment: prod
+          replicas: 0
+        - environment: cicd
           resources:
             requests:
               memory: "300Mi"
@@ -63,21 +66,7 @@ spec:
               memory: "3000Mi"
               cpu: "1000m"
           variables:
-            API_URL: 'https://backend-fusion-bmt-test.radix.equinor.com'
-        - environment: prod
-          replicas: 0
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "100m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
-          horizontalScaling:
-            minReplicas: 1
-            maxReplicas: 6
-          variables:
-            API_URL: 'https://backend-fusion-bmt-prod.radix.equinor.com'
+            API_URL: 'https://backend-fusion-bmt-cicd.radix.equinor.com'
 
     - name: backend
       src: backend
@@ -125,8 +114,8 @@ spec:
       environmentConfig:
         - environment: cicd
       secrets:
-        - ACR__ClientSecret
-        - ACR__Password
+        - AzureAd__ClientSecret
+        - Database__ConnectionString
 
   dnsAppAlias:
     environment: test
