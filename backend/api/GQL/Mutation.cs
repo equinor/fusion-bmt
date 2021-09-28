@@ -286,9 +286,16 @@ namespace api.GQL
             return _projectCategoryService.CopyFrom(newName, other);
         }
 
-        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes)
+        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes, string[] projectCategoryIds)
         {
-            return _questionTemplateService.Create(barrier, organization, text, supportNotes);
+            var qt = _questionTemplateService.Create(barrier, organization, text, supportNotes);
+
+            foreach (var projectCategoryId in projectCategoryIds)
+            {
+                _questionTemplateService.AddToProjectCategory(qt.Id, projectCategoryId);
+            }
+
+            return qt;
         }
 
         public QuestionTemplate EditQuestionTemplate(
@@ -306,11 +313,11 @@ namespace api.GQL
                 .Single(x => x.Id == questionTemplateId)
             ;
             return _questionTemplateService.Edit(
-                questionTemplate, 
-                barrier, 
-                organization, 
-                text, 
-                supportNotes, 
+                questionTemplate,
+                barrier,
+                organization,
+                text,
+                supportNotes,
                 status
             );
         }

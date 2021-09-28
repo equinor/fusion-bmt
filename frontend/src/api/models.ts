@@ -463,6 +463,7 @@ export type MutationCreateQuestionTemplateArgs = {
   organization: Organization;
   text?: Maybe<Scalars['String']>;
   supportNotes?: Maybe<Scalars['String']>;
+  projectCategoryIds?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 
