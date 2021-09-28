@@ -172,7 +172,11 @@ namespace api.Services
 
         private QuestionTemplate ReorderQuestionTemplateInternal(QuestionTemplate questionTemplate, int newOrder)
         {
-            List<QuestionTemplate> questionTemplates = _context.QuestionTemplates.OrderBy(qt => qt.Order).ToList();
+            List<QuestionTemplate> questionTemplates = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .OrderBy(qt => qt.Order)
+                .ToList()
+            ;
 
             questionTemplates.Remove(questionTemplate);
             questionTemplates.Insert(newOrder - 1, questionTemplate);
