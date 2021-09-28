@@ -40,6 +40,13 @@ namespace api.Services
             return newProjectCategory;
         }
 
+        public ProjectCategory Delete(ProjectCategory projectCategory)
+        {
+            _context.ProjectCategories.Remove(projectCategory);
+            _context.SaveChanges();
+            return projectCategory;
+        }
+
         public ProjectCategory CopyFrom(string newName, ProjectCategory other)
         {
             var newProjectCategory = _Create(newName);
