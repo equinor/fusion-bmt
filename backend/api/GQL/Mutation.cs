@@ -282,7 +282,7 @@ namespace api.GQL
 
         public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
         {
-            var other = _projectCategoryService.Get(projectCategoryId);
+            var other = _projectCategoryService.GetAll().Include(x => x.QuestionTemplates).Single(x => x.Id ==projectCategoryId);
             return _projectCategoryService.CopyFrom(newName, other);
         }
 
