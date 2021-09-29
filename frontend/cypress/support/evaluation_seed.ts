@@ -197,10 +197,10 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
         })
         .then(res => {
             seed.projectId = res.body.data.project.id
-            return cy.gql(GET_PROJECT_CATEGORY, { variables: { name: "SquareField" } })
+            return cy.gql(GET_PROJECT_CATEGORY, { variables: { name: 'CircleField' } })
         })
         .then(res => {
-            const projectCategoryId = res.body.data.projectCategory[0].id;
+            const projectCategoryId = res.body.data.projectCategory[0].id
             cy.log(`EvaluationSeed: Creating Evaluation by ${seed.participants[0].user}`)
             cy.gql(ADD_EVALUATION, {
                 variables: { name: seed.name, projectId: seed.projectId, projectCategoryId: projectCategoryId },
