@@ -32,17 +32,6 @@ describe('Actions management', () => {
         evaluationPage.progressionStepLink(progression).click()
         return user
     }
-    const logInUser = (role: Role, progression: Progression = getRandomProgressionWorkshopOrFollowUp()): User => {
-        const participant = seed.participants.find(x => {
-            return x.role === role
-        })
-        if (participant === undefined) {
-            throw 'No user with role ' + role + ' found'
-        }
-        cy.visitEvaluation(seed.evaluationId, participant.user)
-        evaluationPage.progressionStepLink(progression).click()
-        return participant.user
-    }
 
     beforeEach(() => {
         seed = createSeedWithActions(users, roles, { completed: false })
@@ -69,7 +58,7 @@ describe('Actions management', () => {
         ]
         roles.forEach(r => {
             it(`${r.role} can create action = ${r.canCreateAction}`, () => {
-                logInUser(r.role)
+                cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
                 let action = createActionTestData(users)
                 r.canCreateAction
                     ? actionsGrid.addActionButton(action.questionOrder).should('be.enabled')
@@ -80,7 +69,7 @@ describe('Actions management', () => {
         const randomRole = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
 
         it(`Action creation by ${randomRole} and verification that action was created`, () => {
-            logInUser(randomRole)
+            cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(randomRole).user)
             let action = createActionTestData(users)
             actionsGrid.addActionButton(action.questionOrder).click()
             createActionDialog.titleInput().type(action.title)
@@ -121,7 +110,8 @@ describe('Actions management', () => {
         let newNotes: Note[]
 
         it(`Editing action by ${randomRole} - assign action, add notes and verify notes were added`, () => {
-            let user = logInUser(randomRole)
+            let user = seed.findParticipantByRole(randomRole).user
+            cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, user)
             ;({ actionNotes, action } = findActionWithNotes(seed))
             ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
 
@@ -169,7 +159,7 @@ describe('Actions management', () => {
         ]
         roles.forEach(r => {
             it(`${r.role} delete button exists = ${r.deleteButtonExists} can delete action = ${r.canDeleteAction}`, () => {
-                logInUser(r.role)
+                cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
                 const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
                 if (!r.deleteButtonExists) {
                     actionsGrid.deleteActionButton(actionToDelete.id).should('not.exist')
@@ -196,7 +186,11 @@ describe('Actions management', () => {
         }
 
         it(`Cancel delete action by Facilitator, then verify action was not deleted`, () => {
-            logInUser(Role.Facilitator)
+            cy.visitProgression(
+                getRandomProgressionWorkshopOrFollowUp(),
+                seed.evaluationId,
+                seed.findParticipantByRole(Role.Facilitator).user
+            )
             const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
             actionsGrid.deleteActionButton(actionToDelete.id).click()
             confirmationDialog.noButton().click()
@@ -209,7 +203,11 @@ describe('Actions management', () => {
         })
         context('Error handling when facilitator has two browser windows open', () => {
             it('Deleted action in one window cannot be deleted in other window', () => {
-                logInUser(Role.Facilitator)
+                cy.visitProgression(
+                    getRandomProgressionWorkshopOrFollowUp(),
+                    seed.evaluationId,
+                    seed.findParticipantByRole(Role.Facilitator).user
+                )
                 const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
                 cy.gql(DELETE_ACTION, {
                     variables: {
@@ -289,7 +287,8 @@ describe('Actions management', () => {
         const roleThatCanComplete = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
 
         it(`Action can be completed by ${roleThatCanComplete} and must have a reason`, () => {
-            let user = logInUser(roleThatCanComplete)
+            let user = seed.findParticipantByRole(roleThatCanComplete).user
+            cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, user)
             ;({ actionNotes, action } = findActionWithNotes(seed))
             ;({ updatedAction, newNote } = createCompleteAction(user, action))
 
@@ -317,7 +316,11 @@ describe('Actions management', () => {
         })
 
         it(`Completing Action can be cancelled by ${roleThatCanComplete}`, () => {
-            let user = logInUser(roleThatCanComplete)
+            cy.visitProgression(
+                getRandomProgressionWorkshopOrFollowUp(),
+                seed.evaluationId,
+                seed.findParticipantByRole(roleThatCanComplete).user
+            )
             ;({ actionNotes, action } = findActionWithNotes(seed))
 
             actionsGrid.actionLink(action.questionOrder, action.title).click()
