@@ -47,7 +47,7 @@ const WorkshopSummaryWithApi = ({ evaluation, disable }: React.PropsWithChildren
     }
 
     return (
-        <div style={{ padding: '30px' }}>
+        <div style={{ padding: '30px' }} data-testid="workshop_summary_div">
             <WorkshopSummary localSummary={localSummary} onChange={onChange} savingState={savingState} disable={disable} />
         </div>
     )

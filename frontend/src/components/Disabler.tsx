@@ -21,6 +21,7 @@ const Disabler = ({ disable, children }: PropsWithChildren<Props>) => {
                         height: '100%',
                         width: '100%',
                     }}
+                    data-testid="disabler_box_div"
                 />
                 {children}
             </div>
