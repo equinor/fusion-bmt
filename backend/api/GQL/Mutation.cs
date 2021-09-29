@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 
+using HotChocolate.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
@@ -72,16 +73,16 @@ namespace api.GQL
 
             var project = _projectService.GetProject(projectId);
             var evaluation = _evaluationService.Create(
-                name:                 name,
-                project:              project,
+                name: name,
+                project: project,
                 previousEvaluationId: previousEvaluationId
             );
 
             _participantService.Create(
                 azureUniqueId: azureUniqueId,
-                evaluation:    evaluation,
-                organization:  Organization.All,
-                role:          Role.Facilitator
+                evaluation: evaluation,
+                organization: Organization.All,
+                role: Role.Facilitator
             );
 
             var projectCategory = _projectCategoryService.Get(projectCategoryId);
@@ -242,8 +243,8 @@ namespace api.GQL
             Role[] canBePerformedBy = { Role.Facilitator };
             AssertCanPerformMutation(evaluation, canBePerformedBy);
 
-             _actionService.Remove(action);
-             return action;
+            _actionService.Remove(action);
+            return action;
         }
 
         public Note CreateNote(string actionId, string text)
@@ -272,26 +273,33 @@ namespace api.GQL
 
         /* Admin mutations
          *
-         * There are no role based restictions to these mutations as the
-         * concept "Role" only exists withing an Evaluation.
+         * These mutations will check if the user has the
+         * user role Role.Admin in the jwt token. Note that
+         * this role is different from the role used in the
+         * application
          */
+
+        [Authorize(Roles = new [] {"Role.Admin"})]
         public ProjectCategory CreateProjectCategory(string name)
         {
             return _projectCategoryService.Create(name);
         }
 
+        [Authorize(Roles = new [] {"Role.Admin"})]
         public ProjectCategory DeleteProjectCategory(string projectCategoryId)
         {
             var projectCategory = _projectCategoryService.Get(projectCategoryId);
             return _projectCategoryService.Delete(projectCategory);
         }
 
+        [Authorize(Roles = new [] {"Role.Admin"})]
         public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
         {
             var other = _projectCategoryService.GetAll().Include(x => x.QuestionTemplates).Single(x => x.Id == projectCategoryId);
             return _projectCategoryService.CopyFrom(newName, other);
         }
 
+        [Authorize(Roles = new [] {"Role.Admin"})]
         public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes, string[] projectCategoryIds)
         {
             var qt = _questionTemplateService.Create(barrier, organization, text, supportNotes);
@@ -304,6 +312,7 @@ namespace api.GQL
             return qt;
         }
 
+        [Authorize(Roles = new[] { "Role.Admin" })]
         public QuestionTemplate EditQuestionTemplate(
             string questionTemplateId,
             Barrier barrier,
@@ -328,12 +337,14 @@ namespace api.GQL
             );
         }
 
+        [Authorize(Roles = new[] { "Role.Admin" })]
         public QuestionTemplate DeleteQuestionTemplate(string questionTemplateId)
         {
             QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
             return _questionTemplateService.Delete(questionTemplate);
         }
 
+        [Authorize(Roles = new[] { "Role.Admin" })]
         public QuestionTemplate ReorderQuestionTemplate(
             string questionTemplateId,
             string newNextQuestionTemplateId
@@ -351,6 +362,7 @@ namespace api.GQL
             }
         }
 
+        [Authorize(Roles = new[] { "Role.Admin" })]
         public QuestionTemplate AddToProjectCategory(
             string questionTemplateId,
             string projectCategoryId
@@ -359,6 +371,7 @@ namespace api.GQL
             return _questionTemplateService.AddToProjectCategory(questionTemplateId, projectCategoryId);
         }
 
+        [Authorize(Roles = new[] { "Role.Admin" })]
         public QuestionTemplate RemoveFromProjectCategory(
             string questionTemplateId,
             string projectCategoryId
@@ -374,7 +387,8 @@ namespace api.GQL
             return _participantService.GetParticipant(azureUniqueId, evaluation);
         }
 
-        private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles) {
+        private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles)
+        {
             string oid = _authService.GetOID();
             Role userRoleInEvaluation;
 
@@ -382,7 +396,8 @@ namespace api.GQL
             {
                 userRoleInEvaluation = _participantService.GetParticipant(oid, evaluation).Role;
             }
-            catch(NotFoundInDBException) {
+            catch (NotFoundInDBException)
+            {
                 string msg = "Non-participants cannot perform mutations on Evaluation";
                 throw new UnauthorizedAccessException(msg);
             }

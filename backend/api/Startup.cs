@@ -205,6 +205,9 @@ namespace api
              * Locally comment this line out to disable authorization. It will
              * allow you to connect to grahpql endpoints and run "schema"
              * command.
+
+             * For Admin mutations the @authorize directive for the given
+             * mutation also has to be commented out.
              */
             app.UseAuthorization();
 
