@@ -31,25 +31,9 @@ type EvaluationSeedInput = {
  * The class EvaluationSeed is a specification for the testdata.
  * EvaluationSeed provides methods for adding testdata.
  * Creation of randomized testdata is left to methods defined outside this class.
- * NOTE: The method AddParticipant enforces that the first participant
- * has the role facilitator. See documentation of plant() method for more.
- * The constructor of EvaluationSeed calls addParticipant to create participants from the users.
- *
- *
- * Example usage:
- *
- *      const seed = new EvaluationSeed({
- *          progression: Progression.Individual,
- *          users: getUsers(3)
- *      })
- *
- * 'seed' now contains 3 participants each backed by a mocked AD user.
- * To 'seed' answers, notes, actions and summary can be added.
  *
  * When you are done constructing the testdata for the Evaluation, it's time to
  * flush it to the database, by calling seed, a.k.a 'planting the seed'
- *
- *      seed.plant()
  *
  * This will create a new Evaluation in the backend DB and populate it for you.
  * You are now ready to write your test.
@@ -140,46 +124,6 @@ export class EvaluationSeed {
         return question.id
     }
 
-    /** Plant the seed
-     *
-     * After setting up a valid seed (state) for an Evaluation, we need to feed
-     * it to our database. plant() will do so by posting GraphQL mutations in
-     * the following order:
-     *
-     *      login(...)
-     *      CreateEvaluation(...)
-     *      ProgressEvaluation(...)
-     *
-     *      for participant in this.participants:
-     *          createParticipant(...)
-     *          progressParticipant(...)
-     *
-     *      for answer in this.answers:
-     *          login(...)
-     *          setAnswer(...)
-     *
-     *      for action in this.actions:
-     *          login(...)
-     *          createAction(...)
-     *
-     *      for note in action.notes:
-     *          login(...)
-     *          createNote(...)
-     *
-     *      login(...)
-     *      setSummary(...)
-     *      login(...)
-     *
-     *
-     *  Mutations for setting answers, actions, notes and evaluation summary
-     *  don't explicitly include the creator of the element. In these cases
-     *  the backend uses the JWT token to find the identity of the creator.
-     *  This means that we have to login to the correct users before POSTing
-     *  these mutations.
-     *
-     *  Note that multiple invocations of plant() will populate the database
-     *  again.
-     */
     plant() {
         const facilitator = this.participants.find(e => e.role === Role.Facilitator)
         if (facilitator === undefined) {
