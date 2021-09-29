@@ -1,5 +1,8 @@
 import { User } from '../mock/external/users'
 import { getFusionProjectData, findFusionProjectByID } from '../mock/external/projects'
+import { Evaluation, Progression } from '../../../src/api/models'
+import { EvaluationPage } from '../../page_objects/evaluation'
+
 function setupEnvironment() {
     cy.interceptExternal()
     cy.viewport(1800, 1000) //until we decide to test on various resolutions
@@ -66,6 +69,12 @@ Cypress.Commands.add('visitEvaluation', (evaluationId: string, user: User, fusio
     waitForEvaluationPageLoad()
 })
 
+Cypress.Commands.add('visitProgression', (progression: Progression, evaluationId: string, user: User, fusionProjectId: string = '123') => {
+    const evaluationPage = new EvaluationPage()
+    cy.visitEvaluation(evaluationId, user, fusionProjectId)
+    evaluationPage.progressionStepLink(progression).click()
+})
+
 Cypress.Commands.add('reloadBmt', (user: User, fusionProjectId: string = '123') => {
     /**
      * Situation with reload is quite weird. At the moment all problems are
@@ -105,6 +114,12 @@ declare global {
              * @example cy.visitEvaluation(evaluationId, extHire)
              */
             visitEvaluation(evaluationId: string, user: User, fusionProjectId?: string): Chainable<void>
+
+            /**
+             * Visit evaluation at a specific progression
+             * @example cy.visitProgression(progression, evaluation, user, project)
+             */
+            visitProgression(progression: Progression, evaluationId: string, user: User, fusionProjectId?: string): Chainable<void>
 
             /**
              * Reloads the page and attempts to deal with external dependencies issues

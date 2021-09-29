@@ -136,6 +136,16 @@ export class EvaluationSeed {
         return question.id
     }
 
+    findParticipantByRole(desiredRole: Role) {
+        const participant = this.participants.find(x => {
+            return x.role === desiredRole
+        })
+        if (participant === undefined) {
+            throw 'No user with role ' + desiredRole + ' found'
+        }
+        return participant
+    }
+
     plant() {
         const facilitator = this.participants.find(e => e.role === Role.Facilitator)
         if (facilitator === undefined) {
