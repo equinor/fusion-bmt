@@ -50,8 +50,9 @@ namespace api.Services
         public ProjectCategory CopyFrom(string newName, ProjectCategory other)
         {
             var newProjectCategory = _Create(newName);
+            var activeTemplates = other.QuestionTemplates.Where(qt => qt.Status == Status.Active);
 
-            foreach(var template in other.QuestionTemplates)
+            foreach(var template in activeTemplates)
             {
                 newProjectCategory.QuestionTemplates.Add(template);
             }
