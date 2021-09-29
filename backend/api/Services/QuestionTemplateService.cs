@@ -94,6 +94,21 @@ namespace api.Services
             return newQuestionTemplate;
         }
 
+        public QuestionTemplate Delete(QuestionTemplate questionTemplate)
+        {
+            /* ReorderQuestionTemplate gives the question template 
+            *  that should be deleted the highest order, and gives the 
+            *  remaining question templates the correct order. The
+            *  consquence is that all active question templates are 
+            *  ordered correctly.
+            */
+            ReorderQuestionTemplate(questionTemplate);
+            questionTemplate.Status = Status.Voided;
+            _context.QuestionTemplates.Update(questionTemplate);
+            _context.SaveChanges();
+            return questionTemplate;
+        }
+
         public QuestionTemplate AddToProjectCategory(
             string questionTemplateId,
             string projectCategoryId
@@ -172,7 +187,11 @@ namespace api.Services
 
         private QuestionTemplate ReorderQuestionTemplateInternal(QuestionTemplate questionTemplate, int newOrder)
         {
-            List<QuestionTemplate> questionTemplates = _context.QuestionTemplates.OrderBy(qt => qt.Order).ToList();
+            List<QuestionTemplate> questionTemplates = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .OrderBy(qt => qt.Order)
+                .ToList()
+            ;
 
             questionTemplates.Remove(questionTemplate);
             questionTemplates.Insert(newOrder - 1, questionTemplate);

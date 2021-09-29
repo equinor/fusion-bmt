@@ -225,7 +225,7 @@ namespace api.Models
 
     public enum Status
     {
-        Active, Inactive
+        Active, Inactive, Voided
     }
 
     public enum Progression

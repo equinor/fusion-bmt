@@ -328,6 +328,12 @@ namespace api.GQL
             );
         }
 
+        public QuestionTemplate DeleteQuestionTemplate(string questionTemplateId)
+        {
+            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
+            return _questionTemplateService.Delete(questionTemplate);
+        }
+
         public QuestionTemplate ReorderQuestionTemplate(
             string questionTemplateId,
             string newNextQuestionTemplateId

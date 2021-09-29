@@ -356,6 +356,7 @@ export type Mutation = {
   copyProjectCategory?: Maybe<ProjectCategory>;
   createQuestionTemplate?: Maybe<QuestionTemplate>;
   editQuestionTemplate?: Maybe<QuestionTemplate>;
+  deleteQuestionTemplate?: Maybe<QuestionTemplate>;
   reorderQuestionTemplate?: Maybe<QuestionTemplate>;
   addToProjectCategory?: Maybe<QuestionTemplate>;
   removeFromProjectCategory?: Maybe<QuestionTemplate>;
@@ -480,6 +481,11 @@ export type MutationEditQuestionTemplateArgs = {
   text?: Maybe<Scalars['String']>;
   supportNotes?: Maybe<Scalars['String']>;
   status: Status;
+};
+
+
+export type MutationDeleteQuestionTemplateArgs = {
+  questionTemplateId?: Maybe<Scalars['String']>;
 };
 
 
@@ -711,7 +717,8 @@ export type SeverityOperationFilterInput = {
 
 export enum Status {
   Active = 'ACTIVE',
-  Inactive = 'INACTIVE'
+  Inactive = 'INACTIVE',
+  Voided = 'VOIDED'
 }
 
 export type StatusOperationFilterInput = {
