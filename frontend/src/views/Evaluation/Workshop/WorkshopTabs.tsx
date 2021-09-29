@@ -18,8 +18,8 @@ const WorkshopTabs = ({ children, evaluation }: React.PropsWithChildren<Workshop
     const participant = useParticipant()
 
     return (
-        <Tabs activeTab={activeTab} onChange={setActiveTab}>
-            <List>
+        <Tabs activeTab={activeTab} onChange={setActiveTab} data-testid="workshop_assessment_tabs">
+            <List data-testid="workshop_assessment_tablist">
                 <Tab>Questionaire</Tab>
                 <Tab disabled={!participantCanViewWorkshopSummary(participant)}>Workshop Summary</Tab>
             </List>
