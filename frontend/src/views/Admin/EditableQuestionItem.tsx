@@ -10,7 +10,7 @@ import { ApolloError } from '@apollo/client'
 import { getOrganizationOptionsForDropdown, updateValidity } from '../helpers'
 import { useEffectNotOnMount } from '../../utils/hooks'
 import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
-import ErrorSavingQuestion from './Components/ErrorSavingQuestion'
+import ErrorMessage from './Components/ErrorMessage'
 
 interface Props {
     question: QuestionTemplate
@@ -108,7 +108,11 @@ const EditableQuestionItem = ({
                     />
                 </Box>
             </Box>
-            <ErrorSavingQuestion questionTemplateSaveError={questionTemplateSaveError} />
+            {questionTemplateSaveError && (
+                <Box mt={2} ml={4}>
+                    <ErrorMessage text={'Not able to save'} />
+                </Box>
+            )}
         </Box>
     )
 }

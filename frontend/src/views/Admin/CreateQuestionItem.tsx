@@ -9,8 +9,8 @@ import { ApolloError, gql, useMutation } from '@apollo/client'
 import { getOrganizationOptionsForDropdown } from '../helpers'
 import { useValidityCheck } from '../../utils/hooks'
 import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
-import ErrorSavingQuestion from './Components/ErrorSavingQuestion'
 import { QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
+import ErrorMessage from './Components/ErrorMessage'
 
 interface Props {
     setIsAddingQuestion: (isAddingQuestion: boolean) => void
@@ -95,7 +95,11 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
                     />
                 </Box>
             </Box>
-            <ErrorSavingQuestion questionTemplateSaveError={createQuestionTemplateSaveError} />
+            {createQuestionTemplateSaveError && (
+                <Box mt={2} ml={4}>
+                    <ErrorMessage text={'Not able to save'} />
+                </Box>
+            )}
         </Box>
     )
 }

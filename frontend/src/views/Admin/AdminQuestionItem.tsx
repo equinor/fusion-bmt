@@ -18,12 +18,7 @@ interface Props {
 const AdminQuestionItem = ({ question, projectCategories, isInAddCategoryMode, questionTitleRef, refetchQuestionTemplates }: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
-    const {
-        editQuestionTemplate,
-        loading: isQuestionTemplateSaving,
-        questionTemplate,
-        error: questionTemplateSaveError,
-    } = useQuestionTemplateMutation()
+    const { editQuestionTemplate, loading: isQuestionTemplateSaving, error: questionTemplateSaveError } = useQuestionTemplateMutation()
 
     useEffectNotOnMount(() => {
         if (!isQuestionTemplateSaving) {
@@ -72,7 +67,6 @@ export interface DataToEditQuestionTemplate {
 interface QuestionTemplateMutationProps {
     editQuestionTemplate: (data: DataToEditQuestionTemplate) => void
     loading: boolean
-    questionTemplate: QuestionTemplate | undefined
     error: ApolloError | undefined
 }
 
@@ -113,7 +107,6 @@ const useQuestionTemplateMutation = (): QuestionTemplateMutationProps => {
     return {
         editQuestionTemplate,
         loading,
-        questionTemplate: data?.editQuestionTemplate,
         error,
     }
 }

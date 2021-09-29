@@ -6,9 +6,10 @@ interface Props {
     isOpen: boolean
     anchorRef: RefObject<HTMLButtonElement>
     closeMenu: () => void
+    onDeleteClick: () => void
 }
 
-const QuestionTemplateMenu = ({ isOpen, anchorRef, closeMenu }: Props) => {
+const QuestionTemplateMenu = ({ isOpen, anchorRef, closeMenu, onDeleteClick }: Props) => {
     return (
         <Menu id="menu-complex" open={isOpen} anchorEl={anchorRef.current} onClose={closeMenu} placement={'bottom'}>
             <Menu.Item onClick={() => {}}>
@@ -23,7 +24,7 @@ const QuestionTemplateMenu = ({ isOpen, anchorRef, closeMenu }: Props) => {
                     Move down
                 </Typography>
             </Menu.Item>
-            <Menu.Item onClick={() => {}}>
+            <Menu.Item onClick={() => onDeleteClick()}>
                 <Icon data={delete_to_trash} size={16} />
                 <Typography group="navigation" variant="menu_title" as="span">
                     Delete
