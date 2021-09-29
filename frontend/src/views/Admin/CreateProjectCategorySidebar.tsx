@@ -1,15 +1,14 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
-import { Button, TextField, Typography } from '@equinor/eds-core-react'
+import { Button, TextField } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
-import { tokens } from '@equinor/eds-tokens'
 
 import { useSavingStateCheck, useValidityCheck } from '../../utils/hooks'
 import { ErrorIcon, TextFieldChangeEvent } from '../../components/Action/utils'
 import { ProjectCategory } from '../../api/models'
-import { apiErrorMessage } from '../../api/error'
 import SaveIndicator from '../../components/SaveIndicator'
+import ErrorMessage from './Components/ErrorMessage'
 
 interface Props {
     isOpen: boolean
@@ -106,17 +105,9 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                         Save
                     </Button>
                 </Grid>
-                {error !== undefined && (
-                    <Grid item xs={12}>
-                        <div
-                            style={{
-                                marginTop: 20,
-                                backgroundColor: tokens.colors.ui.background__light.rgba,
-                                padding: '10px',
-                            }}
-                        >
-                            <Typography>{apiErrorMessage('Could not save Project Category')}</Typography>
-                        </div>
+                {(error !== undefined || errorCreatingProjectCategoryCopy !== undefined) && (
+                    <Grid item xs={12} style={{ marginTop: '20px' }}>
+                        <ErrorMessage text={'Could not save Project Category'} />
                     </Grid>
                 )}
             </Grid>

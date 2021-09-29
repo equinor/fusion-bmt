@@ -1,26 +1,23 @@
 import React, { useRef, useState } from 'react'
-import { Button, Divider, Icon, Typography } from '@equinor/eds-core-react'
-import { add, more_vertical } from '@equinor/eds-icons'
+import { Divider, Typography } from '@equinor/eds-core-react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
-import { SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
+import { TextArea } from '@equinor/fusion-components'
 import { Box } from '@material-ui/core'
 
-import BarrierSidebar from './BarrierSidebar'
+import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
 import { barrierToString } from '../../utils/EnumToString'
-import { apiErrorMessage } from '../../api/error'
-import BarrierMenu from './BarrierMenu'
-import CreateQuestionItem from './CreateQuestionItem'
-import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
-import OrganizationFilter from '../../components/OrganizationFilter'
 import { useFilter } from '../../utils/hooks'
 import { hasOrganization } from '../../utils/QuestionAndAnswerUtils'
+import { apiErrorMessage } from '../../api/error'
+
+import CreateQuestionItem from './CreateQuestionItem'
 import AdminQuestionItem from './AdminQuestionItem'
-import CreateProjectCategorySidebar from './CreateProjectCategorySidebar'
+import BarrierHeader from './BarrierHeader'
+import CategoryHeader from './CategoryHeader'
+import BarrierSidebar from './BarrierSidebar'
 
-interface Props {}
-
-const AdminView = ({}: Props) => {
+const AdminView = () => {
     const {
         loading: isFetchingProjectCategories,
         projectCategories,
@@ -28,27 +25,15 @@ const AdminView = ({}: Props) => {
         refetch: refetchProjectCategories,
     } = useProjectCategoriesQuery()
     const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
-    const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
 
+    const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
     const [selectedBarrier, setSelectedBarrier] = useState<Barrier>(Barrier.Gm)
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>('all')
-    const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
     const [isInAddCategoryMode, setIsInAddCategoryMode] = useState<boolean>(false)
     const [isAddingQuestion, setIsAddingQuestion] = useState<boolean>(false)
-    const [isInCreateProjectCategoryMode, setIsInCreateProjectCategoryMode] = useState<boolean>(false)
 
     const headerRef = useRef<HTMLElement>(null)
-    const menuAnchorRef = useRef<HTMLButtonElement>(null)
     const questionTitleRef = useRef<HTMLElement>(null)
-
-    const onProjectCategoryCreated = (projectCategory: string, isCopy: boolean) => {
-        setIsInCreateProjectCategoryMode(false)
-        refetchProjectCategories()
-        if (isCopy) {
-            refetchQuestionTemplates()
-        }
-        setSelectedProjectCategory(projectCategory)
-    }
 
     if (isFetchingProjectCategories) {
         return <>Loading...</>
@@ -82,22 +67,6 @@ const AdminView = ({}: Props) => {
         )
     }
 
-    const projectCategoryOptions: SearchableDropdownOption[] = [
-        {
-            title: 'All project categories',
-            key: 'all',
-            isSelected: 'all' == selectedProjectCategory,
-        },
-    ]
-
-    projectCategories.forEach((projectCategory: ProjectCategory) =>
-        projectCategoryOptions.push({
-            title: projectCategory.name,
-            key: projectCategory.id,
-            isSelected: projectCategory.id == selectedProjectCategory,
-        })
-    )
-
     const onBarrierSelected = (barrier: Barrier) => {
         setSelectedBarrier(barrier)
 
@@ -128,30 +97,13 @@ const AdminView = ({}: Props) => {
             </Box>
             <Divider />
             <Box display={'flex'} flexDirection={'row'}>
-                <Box flexGrow={1}>
-                    <Box ml={4} width={'250px'}>
-                        <SearchableDropdown
-                            label="Project Category"
-                            placeholder="Select Project Category"
-                            onSelect={option => setSelectedProjectCategory(option.key)}
-                            options={projectCategoryOptions}
-                        />
-                    </Box>
-                </Box>
-                <Box alignSelf={'center'} mr={4}>
-                    <Button variant="outlined" onClick={() => setIsInCreateProjectCategoryMode(true)}>
-                        <Icon data={add}></Icon>
-                        Add project category
-                    </Button>
-                </Box>
-                {isInCreateProjectCategoryMode && (
-                    <CreateProjectCategorySidebar
-                        isOpen={isInCreateProjectCategoryMode}
-                        setIsOpen={setIsInCreateProjectCategoryMode}
-                        onProjectCategoryCreated={onProjectCategoryCreated}
-                        projectCategories={projectCategories}
-                    />
-                )}
+                <CategoryHeader
+                    selectedProjectCategory={selectedProjectCategory}
+                    setSelectedProjectCategory={setSelectedProjectCategory}
+                    projectCategories={projectCategories}
+                    refetchProjectCategories={refetchProjectCategories}
+                    refetchQuestionTemplates={refetchQuestionTemplates}
+                />
             </Box>
             <Divider />
             <Box display="flex" height={1}>
@@ -159,39 +111,15 @@ const AdminView = ({}: Props) => {
                     <BarrierSidebar barrier={selectedBarrier} onBarrierSelected={onBarrierSelected} />
                 </Box>
                 <Box p="20px" width="1">
-                    <Box display="flex" flexDirection="row">
-                        <Box flexGrow={1} m={1}>
-                            <Typography variant="h3" ref={headerRef} data-testid="barrier-name">
-                                {barrierToString(selectedBarrier)}
-                            </Typography>
-                            <OrganizationFilter
-                                organizationFilter={organizationFilter}
-                                onOrganizationFilterToggled={onOrganizationFilterToggled}
-                                questions={barrierQuestions}
-                            />
-                        </Box>
-                        <Box mt={2.5}>
-                            <Button variant="ghost" color="primary" onClick={() => setIsAddingQuestion(true)}>
-                                <Icon data={add}></Icon>
-                            </Button>
-                        </Box>
-                        <Box mt={2.5}>
-                            <Button
-                                variant="ghost"
-                                color="primary"
-                                ref={menuAnchorRef}
-                                onClick={() => (isMenuOpen ? setIsMenuOpen(false) : setIsMenuOpen(true))}
-                            >
-                                <Icon data={more_vertical}></Icon>
-                            </Button>
-                        </Box>
-                    </Box>
-                    <BarrierMenu
-                        isOpen={isMenuOpen}
-                        anchorRef={menuAnchorRef}
-                        closeMenu={() => setIsMenuOpen(false)}
-                        setIsInAddCategoryMode={setIsInAddCategoryMode}
+                    <BarrierHeader
+                        headerRef={headerRef}
+                        title={barrierToString(selectedBarrier)}
+                        barrierQuestions={barrierQuestions}
+                        setIsAddingQuestion={setIsAddingQuestion}
                         isInAddCategoryMode={isInAddCategoryMode}
+                        setIsInAddCategoryMode={setIsInAddCategoryMode}
+                        organizationFilter={organizationFilter}
+                        onOrganizationFilterToggled={onOrganizationFilterToggled}
                     />
                     {isAddingQuestion && (
                         <>
@@ -204,7 +132,7 @@ const AdminView = ({}: Props) => {
                             />
                         </>
                     )}
-                    <div>
+                    <>
                         {sortedBarrierQuestions.length > 0 &&
                             sortedBarrierQuestions.map(q => {
                                 return (
@@ -218,7 +146,7 @@ const AdminView = ({}: Props) => {
                                     />
                                 )
                             })}
-                        {sortedBarrierQuestions.length === 0 && (
+                        {projectCategoryQuestions.length === 0 && (
                             <Box display="flex" flexDirection={'column'} alignItems={'center'} mt={8}>
                                 <Typography style={{ marginBottom: '5px' }}>Nothing here yet.</Typography>
                                 <Typography>
@@ -227,7 +155,7 @@ const AdminView = ({}: Props) => {
                                 </Typography>
                             </Box>
                         )}
-                    </div>
+                    </>
                 </Box>
             </Box>
         </>

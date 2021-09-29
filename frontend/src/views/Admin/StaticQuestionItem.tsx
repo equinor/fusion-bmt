@@ -15,6 +15,8 @@ import { SavingState } from '../../utils/Variables'
 import { deriveNewSavingState } from '../helpers'
 import { apiErrorMessage } from '../../api/error'
 import { useEffectNotOnMount } from '../../utils/hooks'
+import ConfirmationDialog from '../../components/ConfirmationDialog'
+import ErrorMessage from './Components/ErrorMessage'
 
 interface Props {
     question: QuestionTemplate
@@ -27,6 +29,7 @@ interface Props {
 const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isInAddCategoryMode, questionTitleRef }: Props) => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
+    const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
     const anchorRef = useRef<HTMLButtonElement>(null)
     const projectCategoriesOptions = [...projectCategories].map(category => category.name)
 
@@ -42,6 +45,12 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
         error: removingFromProjectCategoryError,
     } = useRemoveFromProjectCategoryMutation()
 
+    const {
+        deleteQuestionTemplate,
+        loading: deletingQuestionTemplate,
+        error: deletingQuestionTemplateError,
+    } = useDeleteQuestionTemplateMutation()
+
     useEffectNotOnMount(() => {
         setSavingState(deriveNewSavingState(addingToProjectCategory, savingState, addingToProjectCategoryError !== undefined))
     }, [addingToProjectCategory])
@@ -50,7 +59,19 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
         setSavingState(deriveNewSavingState(removingFromProjectCategory, savingState, removingFromProjectCategoryError !== undefined))
     }, [removingFromProjectCategory])
 
-    const checkIfNewItem = (selection: string[]): ProjectCategory | undefined => {
+    useEffectNotOnMount(() => {
+        if (deletingQuestionTemplateError !== undefined) {
+            setIsInConfirmDeleteMode(false)
+        }
+    }, [deletingQuestionTemplateError])
+
+    useEffectNotOnMount(() => {
+        if (deletingQuestionTemplate === false) {
+            setIsInConfirmDeleteMode(false)
+        }
+    }, [deletingQuestionTemplate])
+
+    const checkIfAddedCategory = (selection: string[]): ProjectCategory | undefined => {
         let newItem: ProjectCategory | undefined = undefined
 
         selection.forEach(selectedCategoryString => {
@@ -64,7 +85,7 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
         return newItem
     }
 
-    const checkIfDeletedItem = (selection: string[]): ProjectCategory | undefined => {
+    const checkIfRemovedCategory = (selection: string[]): ProjectCategory | undefined => {
         let deletedItem = undefined
 
         question.projectCategories.forEach(questionProjectCategory => {
@@ -78,20 +99,20 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
 
     const updateProjectCategories = (selection: string[] | undefined) => {
         if (selection) {
-            const newItemInSelection = checkIfNewItem(selection)
-            const deletedItemInSelection = checkIfDeletedItem(selection)
+            const addedItemInSelection = checkIfAddedCategory(selection)
+            const removedItemInSelection = checkIfRemovedCategory(selection)
 
-            if (newItemInSelection) {
+            if (addedItemInSelection) {
                 addToProjectCategory({
                     questionTemplateId: question.id,
-                    projectCategoryId: newItemInSelection.id,
+                    projectCategoryId: addedItemInSelection.id,
                 })
             }
 
-            if (deletedItemInSelection) {
+            if (removedItemInSelection) {
                 removeFromProjectCategory({
                     questionTemplateId: question.id,
-                    projectCategoryId: deletedItemInSelection.id,
+                    projectCategoryId: removedItemInSelection.id,
                 })
             }
         }
@@ -99,79 +120,94 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
 
     return (
         <>
-            <Box display="flex" flexDirection="row">
-                <Box display="flex" flexGrow={1} mb={3} mr={5}>
-                    <Box ml={2} mr={1}>
-                        <Typography variant="h4">{question.order}.</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="h4" ref={questionTitleRef} data-testid={'question-title-' + question.order}>
-                            {question.text}
-                        </Typography>
-                        <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
-                            <Box mr={1} mb={1}>
-                                <Chip
-                                    style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}
-                                    data-testid={'organization-' + question.order}
-                                >
-                                    <Tooltip title={'Organization'} placement={'bottom'}>
-                                        <Icon data={work} size={16}></Icon>
-                                    </Tooltip>
-                                    {organizationToString(question.organization)}
-                                </Chip>
-                            </Box>
-                            {question.projectCategories.map((category, index) => (
-                                <Box mr={1} mb={1} key={index}>
-                                    <Chip style={{ backgroundColor: tokens.colors.infographic.primary__mist_blue.rgba }}>
-                                        <Tooltip title={'Project category'} placement={'bottom'}>
-                                            <Icon data={platform} size={16}></Icon>
+            <Box display="flex" flexDirection="column">
+                <Box display="flex" flexDirection="row">
+                    <Box display="flex" flexGrow={1} mb={3} mr={5}>
+                        <Box ml={2} mr={1}>
+                            <Typography variant="h4">{question.order}.</Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="h4" ref={questionTitleRef} data-testid={'question-title-' + question.order}>
+                                {question.text}
+                            </Typography>
+                            <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
+                                <Box mr={1} mb={1}>
+                                    <Chip
+                                        style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}
+                                        data-testid={'organization-' + question.order}
+                                    >
+                                        <Tooltip title={'Organization'} placement={'bottom'}>
+                                            <Icon data={work} size={16}></Icon>
                                         </Tooltip>
-                                        {category.name}
+                                        {organizationToString(question.organization)}
                                     </Chip>
                                 </Box>
-                            ))}
-                            {isInAddCategoryMode && (
-                                <Box width={200} mb={1}>
-                                    <MultiSelect
-                                        label=""
-                                        items={projectCategoriesOptions}
-                                        initialSelectedItems={question.projectCategories.map(cat => cat.name)}
-                                        handleSelectedItemsChange={(changes: UseMultipleSelectionStateChange<string>) => {
-                                            updateProjectCategories(changes.selectedItems)
-                                        }}
-                                    />
-                                </Box>
-                            )}
+                                {question.projectCategories.map((category, index) => (
+                                    <Box mr={1} mb={1} key={index}>
+                                        <Chip style={{ backgroundColor: tokens.colors.infographic.primary__mist_blue.rgba }}>
+                                            <Tooltip title={'Project category'} placement={'bottom'}>
+                                                <Icon data={platform} size={16}></Icon>
+                                            </Tooltip>
+                                            {category.name}
+                                        </Chip>
+                                    </Box>
+                                ))}
+                                {isInAddCategoryMode && (
+                                    <Box width={200} mb={1}>
+                                        <MultiSelect
+                                            label=""
+                                            items={projectCategoriesOptions}
+                                            initialSelectedItems={question.projectCategories.map(cat => cat.name)}
+                                            handleSelectedItemsChange={(changes: UseMultipleSelectionStateChange<string>) => {
+                                                updateProjectCategories(changes.selectedItems)
+                                            }}
+                                        />
+                                    </Box>
+                                )}
+                            </Box>
+                            <Box mt={3}>
+                                <MarkdownViewer markdown={question.supportNotes} />
+                            </Box>
                         </Box>
-                        <Box mt={3}>
-                            <MarkdownViewer markdown={question.supportNotes} />
+                    </Box>
+                    <Box display="flex" flexDirection={'column'}>
+                        <Box flexGrow={1} style={{ minWidth: '120px' }}>
+                            <Button
+                                variant="ghost"
+                                color="primary"
+                                onClick={() => setIsInEditmode(true)}
+                                data-testid={'edit-question-' + question.order}
+                            >
+                                <Icon data={edit}></Icon>
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                color="primary"
+                                ref={anchorRef}
+                                onClick={() => (isOpen ? setIsOpen(false) : setIsOpen(true))}
+                            >
+                                <Icon data={more_vertical}></Icon>
+                            </Button>
+                        </Box>
+                        <Box alignSelf={'flex-end'} mr={2}>
+                            <SaveIndicator savingState={savingState} />
                         </Box>
                     </Box>
+                    <QuestionTemplateMenu
+                        isOpen={isOpen}
+                        anchorRef={anchorRef}
+                        closeMenu={() => setIsOpen(false)}
+                        onDeleteClick={() => setIsInConfirmDeleteMode(true)}
+                    />
+                    <ConfirmationDialog
+                        isOpen={isInConfirmDeleteMode}
+                        title={'Delete question template'}
+                        description={'Are you sure you want to delete the question: ' + "'" + question.text + "'"}
+                        onConfirmClick={() => deleteQuestionTemplate(question.id)}
+                        onCancelClick={() => setIsInConfirmDeleteMode(false)}
+                    />
                 </Box>
-                <Box display="flex" flexDirection={'column'}>
-                    <Box flexGrow={1} style={{ minWidth: '120px' }}>
-                        <Button
-                            variant="ghost"
-                            color="primary"
-                            onClick={() => setIsInEditmode(true)}
-                            data-testid={'edit-question-' + question.order}
-                        >
-                            <Icon data={edit}></Icon>
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            color="primary"
-                            ref={anchorRef}
-                            onClick={() => (isOpen ? setIsOpen(false) : setIsOpen(true))}
-                        >
-                            <Icon data={more_vertical}></Icon>
-                        </Button>
-                    </Box>
-                    <Box alignSelf={'flex-end'} mr={2}>
-                        <SaveIndicator savingState={savingState} />
-                    </Box>
-                </Box>
-                <QuestionTemplateMenu isOpen={isOpen} anchorRef={anchorRef} closeMenu={() => setIsOpen(false)} />
+                {deletingQuestionTemplateError !== undefined && <ErrorMessage text={'Could not delete question template'} />}
             </Box>
             {addingToProjectCategoryError && (
                 <Box mt={2} ml={4}>
@@ -294,6 +330,45 @@ const useRemoveFromProjectCategoryMutation = (): RemoveFromProjectCategoryMutati
 
     return {
         removeFromProjectCategory,
+        loading,
+        error,
+    }
+}
+
+interface DeleteQuestionTemplateMutationProps {
+    deleteQuestionTemplate: (questionTemplateId: string) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useDeleteQuestionTemplateMutation = (): DeleteQuestionTemplateMutationProps => {
+    const DELETE_QUESTION_TEMPLATE = gql`
+        mutation DeleteQuestionTemplate($questionTemplateId: String!) {
+            deleteQuestionTemplate(questionTemplateId: $questionTemplateId) {
+                id
+            }
+        }
+    `
+
+    const [deleteQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(DELETE_QUESTION_TEMPLATE, {
+        update(cache, mutationResult) {
+            const questionTemplateDeleted = mutationResult.data.deleteQuestionTemplate
+            const id = cache.identify({
+                __typename: 'QuestionTemplate',
+                id: questionTemplateDeleted.id,
+            })
+            cache.evict({ id })
+        },
+    })
+
+    const deleteQuestionTemplate = (questionTemplateId: string) => {
+        deleteQuestionTemplateApolloFunc({
+            variables: { questionTemplateId },
+        })
+    }
+
+    return {
+        deleteQuestionTemplate,
         loading,
         error,
     }
