@@ -15,7 +15,7 @@
                         "givenName": "Fat",
                         "name": "Fat Cat",
                         "oid": "111",
-                        "roles": ["Reader"],
+                        "roles": ["Role.User"],
                         "tid": "common",
                         "upn": "Fat Cat",
                         "ver": "1.0"
@@ -30,7 +30,7 @@
                         "givenName": "Doggy",
                         "name": "Cool Doggy",
                         "oid": "222",
-                        "roles": ["Reader"],
+                        "roles": ["Role.User"],
                         "tid": "common",
                         "upn": "doggy",
                         "ver": "1.0"
@@ -45,7 +45,7 @@
                         "givenName": "Giraffe",
                         "name": "Scared Giraffe",
                         "oid": "333",
-                        "roles": ["Reader"],
+                        "roles": ["Role.User"],
                         "tid": "common",
                         "upn": "giraffe",
                         "ver": "1.0"
@@ -60,7 +60,7 @@
                         "givenName": "Unicorn",
                         "name": "Rainbow Unicorn",
                         "oid": "444",
-                        "roles": ["Reader"],
+                        "roles": ["Role.User"],
                         "tid": "common",
                         "upn": "unicorn",
                         "ver": "1.0"
@@ -75,7 +75,7 @@
                         "givenName": "Raccoon",
                         "name": "Trashy Raccoon",
                         "oid": "555",
-                        "roles": ["Reader"],
+                        "roles": ["Role.User"],
                         "tid": "common",
                         "upn": "raccoon",
                         "ver": "1.0"
