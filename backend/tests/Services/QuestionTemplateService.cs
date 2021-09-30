@@ -139,7 +139,7 @@ namespace tests
             IQueryable<QuestionTemplate> getAll = questionTemplateService.GetAll();
 
             QuestionTemplate questionTemplate = getAll.ToList()[3];
-            int newOrder = _context.QuestionTemplates.Max(qt => qt.Order);
+            int newOrder = _context.QuestionTemplates.Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
             QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(questionTemplate);
 
             Assert.Equal(newOrder, resultingQuestionTemplate.Order);
