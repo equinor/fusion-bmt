@@ -210,7 +210,7 @@ namespace api.Services
 
         public QuestionTemplate ReorderQuestionTemplate(QuestionTemplate questionTemplate)
         {
-            int newOrder = _context.QuestionTemplates.Max(qt => qt.Order);
+            int newOrder = _context.QuestionTemplates.Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
             return ReorderQuestionTemplateInternal(questionTemplate, newOrder);
         }
 
