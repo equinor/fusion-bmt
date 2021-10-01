@@ -1,19 +1,17 @@
-import React, { RefObject, useRef, useState } from 'react'
+import React, { RefObject, useState } from 'react'
 import { tokens } from '@equinor/eds-tokens'
-import { MarkdownViewer, TextArea } from '@equinor/fusion-components'
+import { MarkdownViewer } from '@equinor/fusion-components'
 import { Button, Chip, Icon, MultiSelect, Tooltip, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
-import { edit, more_vertical, platform, work } from '@equinor/eds-icons'
+import { arrow_down, arrow_up, delete_to_trash, edit, platform, work } from '@equinor/eds-icons'
 
 import { ProjectCategory, QuestionTemplate } from '../../api/models'
 import { organizationToString } from '../../utils/EnumToString'
-import QuestionTemplateMenu from './QuestionTemplateMenu'
 import { UseMultipleSelectionStateChange } from 'downshift'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import SaveIndicator from '../../components/SaveIndicator'
 import { SavingState } from '../../utils/Variables'
-import { deriveNewSavingState } from '../helpers'
-import { apiErrorMessage } from '../../api/error'
+import { deriveNewSavingState, getNextNextQuestion, getNextQuestion, getPrevQuestion } from '../helpers'
 import { useEffectNotOnMount } from '../../utils/hooks'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
 import ErrorMessage from './Components/ErrorMessage'
@@ -23,14 +21,26 @@ interface Props {
     setIsInEditmode: (inEditmode: boolean) => void
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
+    isInReorderMode: boolean
     questionTitleRef: RefObject<HTMLElement>
+    refetchQuestionTemplates: () => void
+    sortedBarrierQuestions: QuestionTemplate[]
+    projectCategoryQuestions: QuestionTemplate[]
 }
 
-const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isInAddCategoryMode, questionTitleRef }: Props) => {
-    const [isOpen, setIsOpen] = useState<boolean>(false)
+const StaticQuestionItem = ({
+    question,
+    setIsInEditmode,
+    projectCategories,
+    isInAddCategoryMode,
+    isInReorderMode,
+    questionTitleRef,
+    refetchQuestionTemplates,
+    sortedBarrierQuestions,
+    projectCategoryQuestions,
+}: Props) => {
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
-    const anchorRef = useRef<HTMLButtonElement>(null)
     const projectCategoriesOptions = [...projectCategories].map(category => category.name)
 
     const {
@@ -50,6 +60,30 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
         loading: deletingQuestionTemplate,
         error: deletingQuestionTemplateError,
     } = useDeleteQuestionTemplateMutation()
+
+    const {
+        reorderQuestionTemplate,
+        loading: reorderingQuestionTemplate,
+        error: reorderingQuestionTemplateError,
+    } = useReorderQuestionTemplateMutation()
+
+    const onReorderUpClick = (prevQuestion: QuestionTemplate | undefined, nextQuestion: QuestionTemplate | undefined) => {
+        if (prevQuestion !== undefined) {
+            const nextQuestionId = nextQuestion ? nextQuestion.id : ''
+            reorderQuestionTemplate(prevQuestion.id, nextQuestionId)
+        }
+    }
+
+    const onReorderDownClick = (question: QuestionTemplate, nextNextQuestion: QuestionTemplate | undefined) => {
+        const nextNextQuestionId = nextNextQuestion ? nextNextQuestion.id : ''
+        reorderQuestionTemplate(question.id, nextNextQuestionId)
+    }
+
+    useEffectNotOnMount(() => {
+        if (!reorderingQuestionTemplate) {
+            refetchQuestionTemplates()
+        }
+    }, [reorderingQuestionTemplate])
 
     useEffectNotOnMount(() => {
         setSavingState(deriveNewSavingState(addingToProjectCategory, savingState, addingToProjectCategoryError !== undefined))
@@ -118,6 +152,14 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
         }
     }
 
+    const barrierOrders: number[] = sortedBarrierQuestions.map(q => {return q.order})
+    const lowestBarrierOrder = Math.min(...barrierOrders)
+    const highestBarrierOrder = Math.max(...barrierOrders)
+
+    const prevQuestion = getPrevQuestion(projectCategoryQuestions, question)
+    const nextQuestion = getNextQuestion(projectCategoryQuestions, question)
+    const nextNextQuestion = getNextNextQuestion(projectCategoryQuestions, question)
+
     return (
         <>
             <Box display="flex" flexDirection="column">
@@ -180,25 +222,34 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
                             >
                                 <Icon data={edit}></Icon>
                             </Button>
-                            <Button
-                                variant="ghost"
-                                color="primary"
-                                ref={anchorRef}
-                                onClick={() => (isOpen ? setIsOpen(false) : setIsOpen(true))}
-                            >
-                                <Icon data={more_vertical}></Icon>
+                            <Button variant="ghost" color="primary" onClick={() => setIsInConfirmDeleteMode(true)}>
+                                <Icon data={delete_to_trash}></Icon>
                             </Button>
                         </Box>
+                        {isInReorderMode && (
+                            <Box>
+                                <Button
+                                    variant="ghost"
+                                    color="primary"
+                                    disabled={question.order === lowestBarrierOrder || reorderingQuestionTemplate}
+                                    onClick={() => onReorderUpClick(prevQuestion, nextQuestion)}
+                                >
+                                    <Icon data={arrow_up}></Icon>
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    color="primary"
+                                    disabled={question.order === highestBarrierOrder || reorderingQuestionTemplate}
+                                    onClick={() => onReorderDownClick(question, nextNextQuestion)}
+                                >
+                                    <Icon data={arrow_down}></Icon>
+                                </Button>
+                            </Box>
+                        )}
                         <Box alignSelf={'flex-end'} mr={2}>
                             <SaveIndicator savingState={savingState} />
                         </Box>
                     </Box>
-                    <QuestionTemplateMenu
-                        isOpen={isOpen}
-                        anchorRef={anchorRef}
-                        closeMenu={() => setIsOpen(false)}
-                        onDeleteClick={() => setIsInConfirmDeleteMode(true)}
-                    />
                     <ConfirmationDialog
                         isOpen={isInConfirmDeleteMode}
                         title={'Delete question template'}
@@ -210,21 +261,13 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
                 {deletingQuestionTemplateError !== undefined && <ErrorMessage text={'Could not delete question template'} />}
             </Box>
             {addingToProjectCategoryError && (
-                <Box mt={2} ml={4}>
-                    <Box>
-                        <TextArea value={apiErrorMessage('Not able to add project category to question template')} onChange={() => {}} />
-                    </Box>
-                </Box>
+                <ErrorMessage text={'Not able to add project category to question template'}/>
             )}
             {removingFromProjectCategoryError && (
-                <Box mt={2} ml={4}>
-                    <Box>
-                        <TextArea
-                            value={apiErrorMessage('Not able to remove project category from question template')}
-                            onChange={() => {}}
-                        />
-                    </Box>
-                </Box>
+                <ErrorMessage text={'Not able to remove project category from question template'}/>
+            )}
+            {reorderingQuestionTemplateError && (
+                <ErrorMessage text={'Not able to reorder question templates'}/>
             )}
         </>
     )
@@ -369,6 +412,36 @@ const useDeleteQuestionTemplateMutation = (): DeleteQuestionTemplateMutationProp
 
     return {
         deleteQuestionTemplate,
+        loading,
+        error,
+    }
+}
+
+interface ReorderQuestionTemplateMutationProps {
+    reorderQuestionTemplate: (questionTemplateId: string, newNextQuestionTemplateId: string | undefined) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useReorderQuestionTemplateMutation = (): ReorderQuestionTemplateMutationProps => {
+    const REORDER_QUESTION_TEMPLATE = gql`
+        mutation ReorderQuestionTemplate($questionTemplateId: String!, $newNextQuestionTemplateId: String!) {
+            reorderQuestionTemplate(questionTemplateId: $questionTemplateId, newNextQuestionTemplateId: $newNextQuestionTemplateId) {
+                id
+            }
+        }
+    `
+
+    const [reorderQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(REORDER_QUESTION_TEMPLATE)
+
+    const reorderQuestionTemplate = (questionTemplateId: string, newNextQuestionTemplateId: string | undefined) => {
+        reorderQuestionTemplateApolloFunc({
+            variables: { questionTemplateId, newNextQuestionTemplateId },
+        })
+    }
+
+    return {
+        reorderQuestionTemplate,
         loading,
         error,
     }

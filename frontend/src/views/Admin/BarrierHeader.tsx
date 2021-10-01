@@ -14,6 +14,8 @@ interface Props {
     setIsAddingQuestion: (val: boolean) => void
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (val: boolean) => void
+    isInReorderMode: boolean
+    setIsInReorderMode: (val: boolean) => void
     organizationFilter: Organization[]
     onOrganizationFilterToggled: (val: Organization) => void
 }
@@ -25,6 +27,8 @@ const BarrierHeader = ({
     setIsAddingQuestion,
     isInAddCategoryMode,
     setIsInAddCategoryMode,
+    isInReorderMode,
+    setIsInReorderMode,
     organizationFilter,
     onOrganizationFilterToggled,
 }: Props) => {
@@ -68,6 +72,8 @@ const BarrierHeader = ({
                 closeMenu={() => setIsMenuOpen(false)}
                 setIsInAddCategoryMode={setIsInAddCategoryMode}
                 isInAddCategoryMode={isInAddCategoryMode}
+                setIsInReorderMode={setIsInReorderMode}
+                isInReorderMode={isInReorderMode}
             />
         </>
     )

@@ -1,5 +1,5 @@
 import { SearchableDropdownOption } from '@equinor/fusion-components'
-import { Organization, Progression, Question } from '../api/models'
+import { Organization, Progression, Question, QuestionTemplate } from '../api/models'
 import { Validity } from '../components/Action/utils'
 import { SavingState } from '../utils/Variables'
 
@@ -119,4 +119,16 @@ export const getOrganizationOptionsForDropdown = (selectedOrganization: Organiza
         }
     })
     return organizationOptions
+}
+
+export const getPrevQuestion = (sortedQuestions: QuestionTemplate[], currentQuestion: QuestionTemplate) => {
+    return sortedQuestions.find(q => q.order === currentQuestion.order - 1)
+}
+
+export const getNextQuestion = (sortedQuestions: QuestionTemplate[], currentQuestion: QuestionTemplate) => {
+    return sortedQuestions.find(q => q.order === currentQuestion.order + 1)
+}
+
+export const getNextNextQuestion = (sortedQuestions: QuestionTemplate[], currentQuestion: QuestionTemplate) => {
+    return sortedQuestions.find(q => q.order === currentQuestion.order + 2)
 }

@@ -30,6 +30,7 @@ const AdminView = () => {
     const [selectedBarrier, setSelectedBarrier] = useState<Barrier>(Barrier.Gm)
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>('all')
     const [isInAddCategoryMode, setIsInAddCategoryMode] = useState<boolean>(false)
+    const [isInReorderMode, setIsInReorderMode] = useState<boolean>(false)
     const [isAddingQuestion, setIsAddingQuestion] = useState<boolean>(false)
 
     const headerRef = useRef<HTMLElement>(null)
@@ -118,6 +119,8 @@ const AdminView = () => {
                         setIsAddingQuestion={setIsAddingQuestion}
                         isInAddCategoryMode={isInAddCategoryMode}
                         setIsInAddCategoryMode={setIsInAddCategoryMode}
+                        isInReorderMode={isInReorderMode}
+                        setIsInReorderMode={setIsInReorderMode}
                         organizationFilter={organizationFilter}
                         onOrganizationFilterToggled={onOrganizationFilterToggled}
                     />
@@ -141,8 +144,11 @@ const AdminView = () => {
                                         question={q}
                                         projectCategories={projectCategories}
                                         isInAddCategoryMode={isInAddCategoryMode}
+                                        isInReorderMode={isInReorderMode}
                                         questionTitleRef={questionTitleRef}
                                         refetchQuestionTemplates={refetchQuestionTemplates}
+                                        sortedBarrierQuestions={sortedBarrierQuestions}
+                                        projectCategoryQuestions={projectCategoryQuestions}
                                     />
                                 )
                             })}
