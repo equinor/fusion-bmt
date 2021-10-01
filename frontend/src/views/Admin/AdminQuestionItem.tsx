@@ -11,11 +11,23 @@ interface Props {
     question: QuestionTemplate
     projectCategories: ProjectCategory[]
     isInAddCategoryMode: boolean
+    isInReorderMode: boolean
     questionTitleRef: RefObject<HTMLElement>
     refetchQuestionTemplates: () => void
+    sortedBarrierQuestions: QuestionTemplate[]
+    projectCategoryQuestions: QuestionTemplate[]
 }
 
-const AdminQuestionItem = ({ question, projectCategories, isInAddCategoryMode, questionTitleRef, refetchQuestionTemplates }: Props) => {
+const AdminQuestionItem = ({
+    question,
+    projectCategories,
+    isInAddCategoryMode,
+    isInReorderMode,
+    questionTitleRef,
+    refetchQuestionTemplates,
+    sortedBarrierQuestions,
+    projectCategoryQuestions,
+}: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
     const { editQuestionTemplate, loading: isQuestionTemplateSaving, error: questionTemplateSaveError } = useQuestionTemplateMutation()
@@ -46,7 +58,11 @@ const AdminQuestionItem = ({ question, projectCategories, isInAddCategoryMode, q
                     setIsInEditmode={setIsInEditmode}
                     projectCategories={projectCategories}
                     isInAddCategoryMode={isInAddCategoryMode}
+                    isInReorderMode={isInReorderMode}
                     questionTitleRef={questionTitleRef}
+                    refetchQuestionTemplates={refetchQuestionTemplates}
+                    sortedBarrierQuestions={sortedBarrierQuestions}
+                    projectCategoryQuestions={projectCategoryQuestions}
                 />
             )}
         </div>
