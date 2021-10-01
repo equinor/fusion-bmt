@@ -23,7 +23,6 @@ stages:
                       command: "custom"
                       custom: "tool"
                       arguments: "install --global dotnet-ef"
-
                 - task: NodeTool@0
                   inputs:
                       versionSpec: "16.x"
@@ -32,14 +31,12 @@ stages:
                   inputs:
                       command: "install"
                       workingDir: "frontend"
-
                 - task: Npm@1
                   displayName: "Bundle frontend"
                   inputs:
                       command: "custom"
                       workingDir: "frontend"
                       customCommand: "run-script build"
-
                 - task: PublishPipelineArtifact@1
                   inputs:
                       targetPath: "$(Pipeline.Workspace)/s/frontend/out/bmt.zip"
@@ -51,34 +48,61 @@ stages:
       jobs:
           - job: "BuildimageandpushtoACR"
             steps:
-                - task: Bash@3
-                  inputs:
-                      targetType: "inline"
-                      script: "docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)"
-                - task: Bash@3
-                  inputs:
-                      targetType: "inline"
-                      script: "docker build -f $(Build.SourcesDirectory)/backend/dynatrace.Dockerfile --build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant) $(Build.SourcesDirectory)/backend/"
+                - script: |
+                      docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)
+                  displayName: "docker login dynatrace"
+                - script: |
+                      docker build -f $(Build.SourcesDirectory)/backend/dynatrace.Dockerfile / 
+                      --build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant) / 
+                      $(Build.SourcesDirectory)/backend/ -t fusionbmt.azurecr.io/backend:release /
+                       -t fusionbmt.azurecr.io/backend:$(Build.BuildId)
+                  displayName: "docker build with OneAgent"
+
                 - task: Docker@2
+                  displayName: "Push container to ACR"
                   inputs:
                       containerRegistry: "BMT Registry"
-                      repository: "fusionbmt"
-                      command: "build"
-                      Dockerfile: "./backend/dynatrace.Dockerfile"
-                      arguments: "--build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant)"
-                - task: Docker@2
-                  inputs:
-                      containerRegistry: "BMT Registry"
-                      repository: "fusionbmt"
+                      repository: "backend"
                       command: "push"
                       tags: |
                           $(Build.BuildId)
-                          Latest
+                          release
+
+    - stage: buildfrontendcontainer
+      displayName: "Build frondendcontainer with OneAgent"
+      dependsOn: []
+      jobs:
+          - job: "BuildimageandpushtoACR"
+            steps:
+                - script: |
+                      docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)
+                  displayName: "docker login dynatrace"
+
+                - task: Bash@3
+                  displayName: "docker build with OneAgent"
+                  inputs:
+                      targetType: "inline"
+                      script: |
+                          docker build -f $(Build.SourcesDirectory)/frontend/dynatrace.Dockerfile / 
+                          --build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant) / 
+                          $(Build.SourcesDirectory)/frontend/ -t fusionbmt.azurecr.io/frontend:release -t / 
+                          fusionbmt.azurecr.io/frontend:$(Build.BuildId)
+                      workingDirectory: "$(Build.SourcesDirectory)/frontend/"
+                - task: Docker@2
+                  displayName: "Push container to ACR"
+                  inputs:
+                      containerRegistry: "BMT Registry"
+                      repository: "frontend"
+                      command: "push"
+                      tags: |
+                          $(Build.BuildId)
+                          release
 
     - stage: deployfrontendci
       dependsOn: # this stage runs after buildfrontend and buildbackend
           - buildfrontend
           - buildbackend
+          - buildfrontendcontainer
       displayName: "Deploy CI"
       jobs:
           - job: "DeployCIFrontend"

@@ -117,16 +117,30 @@ spec:
               - Database__ConnectionString
 
         - name: backend-acr
-          image: fusionbmt.azurecr.io/fusionbmt:latest
+          image: fusionbmt.azurecr.io/backend:{imageTagName}
           ports:
               - name: http
                 port: 5000
           publicPort: http
           environmentConfig:
               - environment: cicd
+                imageTagName: release
           secrets:
-              - ACR__ClientSecret
-              - ACR__Password
+              - AzureAd__ClientSecret
+              - Database__ConnectionString
+
+        - name: frontend-acr
+          image: fusionbmt.azurecr.io/frontend:{imageTagName}
+          ports:
+              - name: http
+                port: 5000
+          publicPort: http
+          environmentConfig:
+              - environment: cicd
+                imageTagName: release
+          secrets:
+              - App_Insight_Key
+              - API_URL
 
     dnsAppAlias:
         environment: test
