@@ -18,8 +18,8 @@ export class AdminPage {
         return cy.get('button').contains('Admin')
     }
 
-    allQuestions = () => {
-        return cy.get('[id^=question-]')
+    allQuestionNo = () => {
+        return cy.get('[data-testid^=question-number-]')
     }
 
     question = (questionNo: number) => {
@@ -30,8 +30,8 @@ export class AdminPage {
         return cy.getByDataTestid('cancel-edit-question')
     }
 
-    saveEditButton = () => {
-        return cy.getByDataTestid('save-question')
+    saveQuestionButton = () => {
+        return cy.getByDataTestid('save-question-button')
     }
 
     editQuestionButton = (questionNo: number) => {
@@ -65,5 +65,13 @@ export class AdminPage {
 
     adminPageTitle = () => {
         return cy.getByDataTestid('admin-page-title')
+    }
+
+    createNewQuestion = () => {
+        return cy.getByDataTestid('create-new-question-button')
+    }
+
+    newQuestionTitle = () => {
+        return cy.getByDataTestid('question-title-textfield')
     }
 }

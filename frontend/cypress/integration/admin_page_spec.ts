@@ -2,36 +2,44 @@ import { users } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { Organization } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
+import { DropdownSelect } from '../page_objects/common'
 
 const adminPage = new AdminPage()
+const selectOrganizationDropdown = 'select-organization-dropdown-box'
 describe('Admin page', () => {
-    beforeEach(() => {
+    const goToQuestionnaire = () => {
         const user = users[users.length - 1]
         cy.visitProject(user)
         adminPage.adminButton().click()
         adminPage.adminPageTitle().should('have.text', 'Project configuration: Questionnaire')
+    }
+    beforeEach(() => {
+        goToQuestionnaire()
     })
 
     it('Edit question - change title, support notes and organization', () => {
-        adminPage.allQuestions().then(questions => {
-            var questionsCount = Cypress.$(questions).length
-            const questionNo = faker.datatype.number({ min: 1, max: questionsCount })
+        adminPage.allQuestionNo().then(questions => {
+            const questionNo = parseInt(
+                questions.toArray()[faker.datatype.number({ min: 0, max: Cypress.$(questions).length - 1 })].innerText.replace('.', '')
+            )
             adminPage.organization(questionNo).then(t => {
                 const currentOrg = Cypress.$(t).text()
                 const newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
                 const newTitle = 'This is the new title' + faker.random.words(2)
-                const newSupportNotes = 'These are the new support notes!!!' + faker.random.words(2)
+                const newSupportNotes = 'These are the new support notes!!!' + faker.random.words(3)
                 changeQuestionFields(questionNo, newTitle, newSupportNotes, newOrganization)
-                adminPage.saveEditButton().click()
+                adminPage.saveQuestionButton().click()
                 verifyQuestion(questionNo, newTitle, newOrganization, newSupportNotes)
             })
         })
     })
 
     it('Cancel Edit question - changes to title, support notes and organization are not saved and original values visible', () => {
-        adminPage.allQuestions().then(questions => {
-            var questionsCount = Cypress.$(questions).length
-            const questionNo = faker.datatype.number({ min: 1, max: questionsCount })
+        adminPage.allQuestionNo().then(questions => {
+            const questionsCount = Cypress.$(questions).length - 1
+            const questionNo = parseInt(
+                questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', '')
+            )
             adminPage.organization(questionNo).then(t => {
                 let currentOrg = Cypress.$(t).text()
                 let newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
@@ -50,10 +58,57 @@ describe('Admin page', () => {
         })
     })
 
+    it('Add new question, fill in title, support notes, select organization, verify question was added', () => {
+        adminPage.createNewQuestion().click()
+        const title = 'title ' + faker.random.word()
+        adminPage.newQuestionTitle().type(title)
+        const supportNotes = 'supportNotes' + faker.random.words(3)
+        adminPage.setSupportNotes(supportNotes)
+        const organization = faker.random.arrayElement(Object.keys(Organization))
+        const dropdownSelect = new DropdownSelect()
+        dropdownSelect.select(cy.getByDataTestid(selectOrganizationDropdown).contains('Organization'), organization)
+        adminPage.saveQuestionButton().click()
+        cy.testCacheAndDB(() => {
+            goToQuestionnaire()
+            adminPage
+                .allQuestionNo()
+                .last()
+                .then(qn => {
+                    const createdQuestionNo = parseInt(Cypress.$(qn).text().replace('.', ''))
+                    adminPage.questionTitle(createdQuestionNo).should('have.text', title)
+                    adminPage.supportNotes(createdQuestionNo).should('contain.text', supportNotes)
+                    adminPage.organization(createdQuestionNo).should('have.text', organization)
+                })
+        })
+    })
+
+    it('Cancel create new question, verify new question is not added', () => {
+        adminPage.allQuestionNo().then(questions => {
+            const questionsCount = Cypress.$(questions).length - 1
+            adminPage.createNewQuestion().click()
+            adminPage.newQuestionTitle().type(faker.random.word())
+            adminPage.setSupportNotes(faker.random.words(3))
+            const dropdownSelect = new DropdownSelect()
+            dropdownSelect.select(
+                cy.getByDataTestid(selectOrganizationDropdown).contains('Organization'),
+                faker.random.arrayElement(Object.keys(Organization))
+            )
+            adminPage.cancelEditButton().click()
+            cy.testCacheAndDB(() => {
+                goToQuestionnaire()
+                adminPage.allQuestionNo().then(questions => {
+                    const questionsCountPostCancel = Cypress.$(questions).length - 1
+                    expect(questionsCount, 'number of questions before and after cancel edit differ').to.equal(questionsCountPostCancel)
+                })
+            })
+        })
+    })
+
     it('Navigate to a barrier', () => {
         adminPage.adminButton().click()
         adminPage.barrierInSideBar('PS1 Containment').click()
         adminPage.barrierTitleOnTopOfPage().should('have.text', 'Containment')
+        adminPage.createNewQuestion().should('be.visible')
     })
 })
 

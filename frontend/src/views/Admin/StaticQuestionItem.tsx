@@ -124,7 +124,9 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
                 <Box display="flex" flexDirection="row">
                     <Box display="flex" flexGrow={1} mb={3} mr={5}>
                         <Box ml={2} mr={1}>
-                            <Typography variant="h4">{question.order}.</Typography>
+                            <Typography variant="h4" data-testid={'question-number-' + question.order}>
+                                {question.order}.
+                            </Typography>
                         </Box>
                         <Box>
                             <Typography variant="h4" ref={questionTitleRef} data-testid={'question-title-' + question.order}>

@@ -58,6 +58,7 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
                 <Box display="flex" flexGrow={1} flexDirection={'column'} mt={0.75}>
                     <Box display="flex" ml={4} mr={2}>
                         <TextField
+                            data-testid="question-title-textfield"
                             id={'title'}
                             value={text}
                             autoFocus={true}
@@ -72,6 +73,7 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
                     </Box>
                     <Box ml={3} mt={3} mr={1} mb={10}>
                         <MarkdownEditor
+                            data-testid="markdown-editor"
                             onChange={markdown => setSupportNotes(markdown)}
                             menuItems={['strong', 'em', 'bullet_list', 'ordered_list', 'blockquote', 'h1', 'h2', 'h3', 'paragraph']}
                         >
@@ -80,7 +82,7 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
                     </Box>
                 </Box>
                 <Box display="flex" flexDirection={'column'}>
-                    <Box flexGrow={1}>
+                    <Box flexGrow={1} data-testid="select-organization-dropdown-box">
                         <SearchableDropdown
                             label="Organization"
                             options={getOrganizationOptionsForDropdown(organization)}

@@ -29,7 +29,7 @@ const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSa
                     Cancel
                 </Button>
                 <Button
-                    data-testid="save-question"
+                    data-testid="save-question-button"
                     onClick={() => onClickSave()}
                     disabled={isQuestionTemplateSaving || questionTitle.length === 0}
                 >

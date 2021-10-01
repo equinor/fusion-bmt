@@ -46,7 +46,12 @@ const BarrierHeader = ({
                 </Box>
                 <Box mt={2.5}>
                     <Tooltip placement="bottom" title={'Add new question'}>
-                        <Button variant="ghost" color="primary" onClick={() => setIsAddingQuestion(true)}>
+                        <Button
+                            variant="ghost"
+                            color="primary"
+                            onClick={() => setIsAddingQuestion(true)}
+                            data-testid="create-new-question-button"
+                        >
                             <Icon data={add}></Icon>
                         </Button>
                     </Tooltip>
