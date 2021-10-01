@@ -1,122 +1,147 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  name: fusion-bmt
+    name: fusion-bmt
 spec:
-  environments:
-    - name: dev
-      build:
-        from: master
-    - name: test
-      build:
-        from: test
-    - name: pr
-      build:
-        from: pr
-    - name: prod
-      build:
-        from: prod
-    - name: cicd
-      build:
-        from: cicd
-  privateImageHubs:
-    fusionbmt.azurecr.io:
-      username: fusionbmt
-      email: radix@statoilsrm.onmicrosoft.com
-  components:
-    - name: frontend
-      src: frontend
-      ports:
-        - name: http
-          port: 3000
-      publicPort: http
-      variables:
-        APP_INSIGHTS_KEY: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
-      environmentConfig:
-        - environment: dev
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
+    environments:
+        - name: dev
+          build:
+              from: master
+        - name: test
+          build:
+              from: test
+        - name: pr
+          build:
+              from: pr
+        - name: prod
+          build:
+              from: prod
+        - name: cicd
+          build:
+              from: cicd
+    privateImageHubs:
+        fusionbmt.azurecr.io:
+            username: fusionbmt
+            email: radix@statoilsrm.onmicrosoft.com
+    components:
+        - name: frontend
+          src: frontend
+          ports:
+              - name: http
+                port: 3000
+          publicPort: http
           variables:
-            API_URL: 'https://backend-fusion-bmt-dev.radix.equinor.com'
-        - environment: pr
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
-          variables:
-            API_URL: 'https://backend-fusion-bmt-pr.radix.equinor.com'
-        - environment: test
-          replicas: 0
-        - environment: prod
-          replicas: 0
-        - environment: cicd
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
-          variables:
-            API_URL: 'https://backend-fusion-bmt-cicd.radix.equinor.com'
+              APP_INSIGHTS_KEY: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
+          environmentConfig:
+              - environment: dev
+                resources:
+                    requests:
+                        memory: "300Mi"
+                        cpu: "50m"
+                    limits:
+                        memory: "3000Mi"
+                        cpu: "1000m"
+                variables:
+                    API_URL: "https://backend-fusion-bmt-dev.radix.equinor.com"
+              - environment: pr
+                resources:
+                    requests:
+                        memory: "300Mi"
+                        cpu: "50m"
+                    limits:
+                        memory: "3000Mi"
+                        cpu: "1000m"
+                variables:
+                    API_URL: "https://backend-fusion-bmt-pr.radix.equinor.com"
+              - environment: test
+                replicas: 0
+                resources:
+                    requests:
+                        memory: "300Mi"
+                        cpu: "50m"
+                    limits:
+                        memory: "3000Mi"
+                        cpu: "1000m"
+                variables:
+                    API_URL: "https://backend-fusion-bmt-test.radix.equinor.com"
+              - environment: prod
+                replicas: 0
+                resources:
+                    requests:
+                        memory: "500Mi"
+                        cpu: "100m"
+                    limits:
+                        memory: "3000Mi"
+                        cpu: "1000m"
+                horizontalScaling:
+                    minReplicas: 1
+                    maxReplicas: 6
+                variables:
+                    API_URL: "https://backend-fusion-bmt-prod.radix.equinor.com"
 
-    - name: backend
-      src: backend
-      ports:
-        - name: http
-          port: 5000
-      publicPort: http
-      variables:
-        ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
-        ASPNETCORE_ENVIRONMENT: 'Development'
-      environmentConfig:
-        - environment: test
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "100m"
-            limits:
-              memory: "1000Mi"
-              cpu: "1000m"
+        - name: backend
+          src: backend
+          ports:
+              - name: http
+                port: 5000
+          publicPort: http
           variables:
-            ASPNETCORE_ENVIRONMENT: 'Production'
-        - environment: prod
-          resources:
-            requests:
-              memory: "700Mi"
-              cpu: "500m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
-          horizontalScaling:
-            minReplicas: 2
-            maxReplicas: 6
-          variables:
-            ASPNETCORE_ENVIRONMENT: 'Production'
-      secrets:
-        - AzureAd__ClientSecret
-        - Database__ConnectionString
+              ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
+              ASPNETCORE_ENVIRONMENT: "Development"
+          environmentConfig:
+              - environment: test
+                resources:
+                    requests:
+                        memory: "500Mi"
+                        cpu: "100m"
+                    limits:
+                        memory: "1000Mi"
+                        cpu: "1000m"
+                variables:
+                    ASPNETCORE_ENVIRONMENT: "Production"
+              - environment: prod
+                resources:
+                    requests:
+                        memory: "700Mi"
+                        cpu: "500m"
+                    limits:
+                        memory: "3000Mi"
+                        cpu: "1000m"
+                horizontalScaling:
+                    minReplicas: 2
+                    maxReplicas: 6
+                variables:
+                    ASPNETCORE_ENVIRONMENT: "Production"
+          secrets:
+              - AzureAd__ClientSecret
+              - Database__ConnectionString
 
-    - name: backend-acr
-      image: fusionbmt.azurecr.io/fusionbmt:latest
-      ports:
-        - name: http
-          port: 5000
-      publicPort: http
-      environmentConfig:
-        - environment: cicd
-      secrets:
-        - AzureAd__ClientSecret
-        - Database__ConnectionString
+        - name: backend-acr
+          image: fusionbmt.azurecr.io/backend:{imageTagName}
+          ports:
+              - name: http
+                port: 5000
+          publicPort: http
+          environmentConfig:
+              - environment: cicd
+                imageTagName: release
+          secrets:
+              - AzureAd__ClientSecret
+              - Database__ConnectionString
 
-  dnsAppAlias:
-    environment: test
-    component: frontend
+        - name: frontend-acr
+          image: fusionbmt.azurecr.io/frontend:{imageTagName}
+          ports:
+              - name: http
+                port: 5000
+          publicPort: http
+          environmentConfig:
+              - environment: cicd
+                imageTagName: release
+          secrets:
+              - App_Insight_Key
+              - API_URL
+
+    dnsAppAlias:
+        environment: test
+        component: frontend
