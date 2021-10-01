@@ -7,6 +7,7 @@ import { getUsers, users, User } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { EvaluationPage } from '../page_objects/evaluation'
 import { ConfirmationDialog } from '../page_objects/common'
+import { Evaluation, QuestionTemplate } from '../support/mocks'
 
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
@@ -55,18 +56,12 @@ describe('Evaluation management', () => {
                 nominationPage.evaluationTitle().should('have.text', name)
 
                 const query = new EvaluationQuery()
-                query.evaluations().then(res => {
-                    const allEvaluations = res.body.data.evaluations
-                    const currentEvaluation = allEvaluations.find(e => e.name === name)
-
-                    query.questionTemplates().then(res2 => {
-                        const rt = res2.body.data.questionTemplates
-                        var qArray = rt.filter(x => {
-                            return x.projectCategories.find(y => y.name === t.projectCategory)
-                        })
-                        if (currentEvaluation.questions.length !== qArray.length) {
-                            throw new Error('Incorrect length of questions added to evaluation')
-                        }
+                query.evaluation(name).then(currentEvaluation => {
+                    query.questionTemplates(t.projectCategory).then(expectedTemplates => {
+                        //cy.log('QTs ' + expectedTemplates)
+                        expect(currentEvaluation.questions.length, 'number of questions before and after cancel edit differ').to.equal(
+                            expectedTemplates.length
+                        )
                     })
                 })
             })

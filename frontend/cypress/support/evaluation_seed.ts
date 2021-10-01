@@ -1,8 +1,8 @@
-import { Organization, Progression, Question, Role } from '../../src/api/models'
+import { Organization, Progression, ProjectCategory, Question, Role } from '../../src/api/models'
 import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
 import { createAction } from './testdata'
-import { Answer, Action, Participant, Note, Summary } from './mocks'
+import { Answer, Action, Participant, Note, Summary, Evaluation, QuestionTemplate } from './mocks'
 import {
     GET_PROJECT,
     ADD_EVALUATION,
@@ -18,6 +18,7 @@ import {
     GET_EVALUATIONS,
     GET_QUESTION_TEMPLATES,
 } from './gql'
+import { all } from 'cypress/types/bluebird'
 
 type EvaluationSeedInput = {
     progression: Progression
@@ -339,11 +340,20 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
 }
 
 export class EvaluationQuery {
-    evaluations() {
-        return cy.gql(GET_EVALUATIONS, { variables: {} })
+    evaluation(name: string): Cypress.Chainable<Evaluation> {
+        return cy.gql(GET_EVALUATIONS, { variables: {} }).then(res => {
+            const allEvaluations: Array<Evaluation> = res.body.data.evaluations
+            return allEvaluations.find(e => e.name === name)
+        })
     }
 
-    questionTemplates() {
-        return cy.gql(GET_QUESTION_TEMPLATES, { variables: {} })
+    questionTemplates(projectCategory: string): Cypress.Chainable<Array<QuestionTemplate>> {
+        return cy.gql(GET_QUESTION_TEMPLATES, { variables: {} }).then(res => {
+            const templates: Array<QuestionTemplate> = res.body.data.questionTemplates
+            return templates.filter(x => {
+                const projectCategories: Array<ProjectCategory> = x.projectCategories
+                return projectCategories.find(y => y.name === projectCategory)
+            })
+        })
     }
 }
