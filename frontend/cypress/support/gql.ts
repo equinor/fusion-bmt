@@ -25,12 +25,6 @@ export const GET_QUESTION_TEMPLATES = `
     }
 `
 
-export const GET_EVALUATION = `
-    query($name: String!) {
-        evaluation(where: { name : {eq : name}}) {id, name, questions {id, text }}
-    }
-`
-
 export const GET_EVALUATIONS = `
     query() {
         evaluations {id, name, questions {id, text }}
