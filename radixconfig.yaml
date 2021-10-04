@@ -55,30 +55,12 @@ spec:
             API_URL: "https://backend-fusion-bmt-pr.radix.equinor.com"
         - environment: test
           replicas: 0
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
           variables:
             API_URL: "https://backend-fusion-bmt-test.radix.equinor.com"
         - environment: prod
           replicas: 0
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "100m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
-          horizontalScaling:
-            minReplicas: 1
-            maxReplicas: 6
-          variables:
-            API_URL: "https://backend-fusion-bmt-prod.radix.equinor.com"
-
+        - environment: cicd
+          replicas: 0
     - name: backend
       src: backend
       ports:
@@ -100,6 +82,7 @@ spec:
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
         - environment: prod
+
           resources:
             requests:
               memory: "700Mi"
@@ -112,6 +95,8 @@ spec:
             maxReplicas: 6
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
+        - environment: cicd
+          replicas:
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString
@@ -134,13 +119,47 @@ spec:
       ports:
         - name: http
           port: 5000
+      variables:
+        APP_INSIGHTS_KEY: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
       publicPort: http
       environmentConfig:
         - environment: cicd
           imageTagName: release
-      secrets:
-        - App_Insight_Key
-        - API_URL
+          variables:
+            API_URL: "https://backend-fusion-bmt-cicd.radix.equinor.com"
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "50m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+        - environment: dev
+          imageTagName: release
+          variables:
+            API_URL: "https://backend-fusion-bmt-dev.radix.equinor.com"
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "50m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+        - environment: pr
+          imageTagName: release
+          variables:
+            API_URL: "https://backend-fusion-bmt-pr.radix.equinor.com"
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "50m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+        - environment: prod
+          replicas: 0
+        - environment: qa
+          replicas: 0
 
   dnsAppAlias:
     environment: test
