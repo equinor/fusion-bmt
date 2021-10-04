@@ -157,8 +157,10 @@ spec:
               memory: "3000Mi"
               cpu: "1000m"
         - environment: prod
+          imageTagName: release
           replicas: 0
-        - environment: qa
+        - environment: test
+          imageTagName: release
           replicas: 0
 
   dnsAppAlias:
