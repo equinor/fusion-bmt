@@ -1,4 +1,4 @@
-import { Organization, Priority, Progression, Role, Severity } from '../../src/api/models'
+import { Organization, Priority, Progression, ProjectCategory, Role, Severity, Status } from '../../src/api/models'
 import { User } from './mock/external/users'
 
 export interface IParticipant {
@@ -123,5 +123,39 @@ export class Summary {
     constructor(summary: string, createdBy: Participant) {
         this.summary = summary
         this.createdBy = createdBy
+    }
+}
+
+export class Question {
+    id: string
+    text: string
+
+    constructor(id: string, text: string) {
+        this.id = id
+        this.text = text
+    }
+}
+
+export class Evaluation {
+    id: string
+    name: string
+    questions: Array<Question>
+
+    constructor(id: string, name: string, questions: Array<Question>) {
+        this.id = id
+        this.name = name
+        this.questions = questions
+    }
+}
+
+export class QuestionTemplate {
+    id: string
+    projectCategories: Array<ProjectCategory>
+    status: Status
+
+    constructor(id: string, projectCategories: Array<ProjectCategory>, status: Status) {
+        this.id = id
+        this.projectCategories = projectCategories
+        this.status = status
     }
 }

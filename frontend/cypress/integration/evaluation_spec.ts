@@ -1,5 +1,5 @@
 import { Progression, Role } from '../../src/api/models'
-import { EvaluationSeed } from '../support/evaluation_seed'
+import { EvaluationSeed, evaluation, activeQuestionTemplates } from '../support/evaluation_seed'
 import { evaluationName } from '../support/helpers'
 import NominationPage from '../page_objects/nomination'
 import ProjectPage from '../page_objects/project'
@@ -22,46 +22,46 @@ describe('Evaluation management', () => {
     context('Creating a new Evaluation', () => {
         const user = users[2]
         const roles = [Role.Facilitator, Role.Participant]
-        const evalUserIsFacilitator = createEvaluation(user, users[0], roles, 'user is Facilitator')
-        const evalUserIsParticipant = createEvaluation(users[0], user, roles, 'user is Participant')
-        const evalUserIsNotInEvaluation = createEvaluation(users[0], users[1], roles, 'user is not in evaluation')
-        const previousEvaluations = [evalUserIsFacilitator, evalUserIsParticipant, evalUserIsNotInEvaluation]
+        const previousEvaluation = createEvaluation(user, users[0], roles, 'previous evaluation')
 
         before(() => {
-            evalUserIsFacilitator.plant()
-            evalUserIsParticipant.plant()
-            evalUserIsNotInEvaluation.plant()
+            previousEvaluation.plant()
         })
 
         beforeEach(() => {
             cy.visitProject(user)
         })
 
-        it('Without setting a previous evaluation', () => {
-            const name = evaluationName({ prefix: 'CreatedWithoutPrevLink' })
+        const testdata = [
+            { withPreviousEvaluation: false, projectCategory: 'SquareField' },
+            { withPreviousEvaluation: true, projectCategory: 'CircleField' },
+        ]
 
-            const projectPage = new ProjectPage()
-            projectPage.createEvaluationButton().click()
-
-            const dialog = new ProjectPage.CreateEvaluationDialog()
-            dialog.createEvaluation(name, 'SquareField')
-
-            const nominationPage = new NominationPage()
-            nominationPage.evaluationTitle().should('have.text', name)
-        })
-
-        previousEvaluations.forEach(previous => {
-            it(`Choosing a previous evaluation where ${previous.name}`, () => {
-                const name = evaluationName({ prefix: 'CreatedWithPrevLink' })
+        testdata.forEach(t => {
+            it(`Create evaluation ${
+                t.withPreviousEvaluation ? 'with' : 'without'
+            } previous evaluation, verify only questions in selected project category ${t.projectCategory} are present`, () => {
+                const name = evaluationName({ prefix: 'evaluation' })
 
                 const projectPage = new ProjectPage()
                 projectPage.createEvaluationButton().click()
 
                 const dialog = new ProjectPage.CreateEvaluationDialog()
-                dialog.createEvaluation(name, 'SquareField', previous.name)
+                t.withPreviousEvaluation
+                    ? dialog.createEvaluation(name, t.projectCategory, previousEvaluation.name)
+                    : dialog.createEvaluation(name, t.projectCategory)
 
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)
+
+                //const query = new EvaluationQuery()
+                evaluation(name).then(currentEvaluation => {
+                    activeQuestionTemplates(t.projectCategory).then(expectedTemplates => {
+                        expect(currentEvaluation.questions.length, 'not all active question templates added to evaluation').to.equal(
+                            expectedTemplates.length
+                        )
+                    })
+                })
             })
         })
     })

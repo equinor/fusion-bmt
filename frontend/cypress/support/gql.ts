@@ -19,6 +19,18 @@ declare global {
     }
 }
 
+export const GET_QUESTION_TEMPLATES = `
+    query() {
+        questionTemplates {id, projectCategories {name}, status}
+    }
+`
+
+export const GET_EVALUATIONS = `
+    query() {
+        evaluations {id, name, questions {id, text }}
+    }
+`
+
 export const GET_PROJECT = `
     query($fusionProjectId: String!) {
         project(fusionProjectID: $fusionProjectId) {
