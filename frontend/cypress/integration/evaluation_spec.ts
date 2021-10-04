@@ -7,7 +7,6 @@ import { getUsers, users, User } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { EvaluationPage } from '../page_objects/evaluation'
 import { ConfirmationDialog } from '../page_objects/common'
-import { Evaluation, QuestionTemplate } from '../support/mocks'
 
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
@@ -57,8 +56,7 @@ describe('Evaluation management', () => {
 
                 const query = new EvaluationQuery()
                 query.evaluation(name).then(currentEvaluation => {
-                    query.questionTemplates(t.projectCategory).then(expectedTemplates => {
-                        //cy.log('QTs ' + expectedTemplates)
+                    query.activeQuestionTemplates(t.projectCategory).then(expectedTemplates => {
                         expect(currentEvaluation.questions.length, 'number of questions before and after cancel edit differ').to.equal(
                             expectedTemplates.length
                         )

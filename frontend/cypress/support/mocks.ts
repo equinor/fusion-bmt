@@ -1,4 +1,4 @@
-import { Organization, Priority, Progression, ProjectCategory, Role, Severity } from '../../src/api/models'
+import { Organization, Priority, Progression, ProjectCategory, Role, Severity, Status } from '../../src/api/models'
 import { User } from './mock/external/users'
 
 export interface IParticipant {
@@ -151,9 +151,11 @@ export class Evaluation {
 export class QuestionTemplate {
     id: string
     projectCategories: Array<ProjectCategory>
+    status: Status
 
-    constructor(id: string, projectCategories: Array<ProjectCategory>) {
+    constructor(id: string, projectCategories: Array<ProjectCategory>, status: Status) {
         this.id = id
         this.projectCategories = projectCategories
+        this.status = status
     }
 }

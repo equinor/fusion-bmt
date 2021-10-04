@@ -21,7 +21,7 @@ declare global {
 
 export const GET_QUESTION_TEMPLATES = `
     query() {
-        questionTemplates {id, projectCategories {name}}
+        questionTemplates {id, projectCategories {name}, status}
     }
 `
 

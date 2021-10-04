@@ -1,4 +1,4 @@
-import { Organization, Progression, ProjectCategory, Question, Role } from '../../src/api/models'
+import { Organization, Progression, ProjectCategory, Question, Role, Status } from '../../src/api/models'
 import { User } from './mock/external/users'
 import { evaluationName } from './helpers'
 import { createAction } from './testdata'
@@ -347,10 +347,11 @@ export class EvaluationQuery {
         })
     }
 
-    questionTemplates(projectCategory: string): Cypress.Chainable<Array<QuestionTemplate>> {
+    activeQuestionTemplates(projectCategory: string): Cypress.Chainable<Array<QuestionTemplate>> {
         return cy.gql(GET_QUESTION_TEMPLATES, { variables: {} }).then(res => {
             const templates: Array<QuestionTemplate> = res.body.data.questionTemplates
-            return templates.filter(x => {
+            const activeTemplate: Array<QuestionTemplate> = templates.filter(t => t.status == Status.Active)
+            return activeTemplate.filter(x => {
                 const projectCategories: Array<ProjectCategory> = x.projectCategories
                 return projectCategories.find(y => y.name === projectCategory)
             })
