@@ -348,7 +348,7 @@ export function evaluation(name: string): Cypress.Chainable<Evaluation> {
 export function activeQuestionTemplates(projectCategory: string): Cypress.Chainable<Array<QuestionTemplate>> {
     return cy.gql(GET_QUESTION_TEMPLATES, { variables: {} }).then(res => {
         const templates: Array<QuestionTemplate> = res.body.data.questionTemplates
-        const activeTemplate: Array<QuestionTemplate> = templates.filter(t => t.status == Status.Active)
+        const activeTemplate: Array<QuestionTemplate> = templates.filter(t => t.status === Status.Active)
         return activeTemplate.filter(x => {
             const projectCategories: Array<ProjectCategory> = x.projectCategories
             return projectCategories.find(y => y.name === projectCategory)
