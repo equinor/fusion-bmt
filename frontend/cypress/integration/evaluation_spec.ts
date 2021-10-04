@@ -57,7 +57,7 @@ describe('Evaluation management', () => {
                 const query = new EvaluationQuery()
                 query.evaluation(name).then(currentEvaluation => {
                     query.activeQuestionTemplates(t.projectCategory).then(expectedTemplates => {
-                        expect(currentEvaluation.questions.length, 'number of questions before and after cancel edit differ').to.equal(
+                        expect(currentEvaluation.questions.length, 'not all active question templates added to evaluation').to.equal(
                             expectedTemplates.length
                         )
                     })
