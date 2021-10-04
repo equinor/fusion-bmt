@@ -110,6 +110,16 @@ spec:
       environmentConfig:
         - environment: cicd
           imageTagName: release
+        - environment: dev
+          imageTagName: release
+        - environment: pr
+          imageTagName: release
+        - environment: prod
+          imageTagName: release
+          replicas: 0
+        - environment: test
+          imageTagName: release
+          replicas: 0
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString
@@ -118,10 +128,10 @@ spec:
       image: fusionbmt.azurecr.io/frontend:{imageTagName}
       ports:
         - name: http
-          port: 5000
+          port: 3000
+      publicPort: http
       variables:
         APP_INSIGHTS_KEY: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
-      publicPort: http
       environmentConfig:
         - environment: cicd
           imageTagName: release
