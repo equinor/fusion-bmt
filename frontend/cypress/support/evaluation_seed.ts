@@ -338,22 +338,20 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
         })
 }
 
-export class EvaluationQuery {
-    evaluation(name: string): Cypress.Chainable<Evaluation> {
-        return cy.gql(GET_EVALUATIONS, { variables: {} }).then(res => {
-            const allEvaluations: Array<Evaluation> = res.body.data.evaluations
-            return allEvaluations.find(e => e.name === name)
-        })
-    }
+export function evaluation(name: string): Cypress.Chainable<Evaluation> {
+    return cy.gql(GET_EVALUATIONS, { variables: {} }).then(res => {
+        const allEvaluations: Array<Evaluation> = res.body.data.evaluations
+        return allEvaluations.find(e => e.name === name)
+    })
+}
 
-    activeQuestionTemplates(projectCategory: string): Cypress.Chainable<Array<QuestionTemplate>> {
-        return cy.gql(GET_QUESTION_TEMPLATES, { variables: {} }).then(res => {
-            const templates: Array<QuestionTemplate> = res.body.data.questionTemplates
-            const activeTemplate: Array<QuestionTemplate> = templates.filter(t => t.status == Status.Active)
-            return activeTemplate.filter(x => {
-                const projectCategories: Array<ProjectCategory> = x.projectCategories
-                return projectCategories.find(y => y.name === projectCategory)
-            })
+export function activeQuestionTemplates(projectCategory: string): Cypress.Chainable<Array<QuestionTemplate>> {
+    return cy.gql(GET_QUESTION_TEMPLATES, { variables: {} }).then(res => {
+        const templates: Array<QuestionTemplate> = res.body.data.questionTemplates
+        const activeTemplate: Array<QuestionTemplate> = templates.filter(t => t.status == Status.Active)
+        return activeTemplate.filter(x => {
+            const projectCategories: Array<ProjectCategory> = x.projectCategories
+            return projectCategories.find(y => y.name === projectCategory)
         })
-    }
+    })
 }

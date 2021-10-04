@@ -1,5 +1,5 @@
 import { Progression, Role } from '../../src/api/models'
-import { EvaluationSeed, EvaluationQuery } from '../support/evaluation_seed'
+import { EvaluationSeed, evaluation, activeQuestionTemplates } from '../support/evaluation_seed'
 import { evaluationName } from '../support/helpers'
 import NominationPage from '../page_objects/nomination'
 import ProjectPage from '../page_objects/project'
@@ -54,9 +54,9 @@ describe('Evaluation management', () => {
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)
 
-                const query = new EvaluationQuery()
-                query.evaluation(name).then(currentEvaluation => {
-                    query.activeQuestionTemplates(t.projectCategory).then(expectedTemplates => {
+                //const query = new EvaluationQuery()
+                evaluation(name).then(currentEvaluation => {
+                    activeQuestionTemplates(t.projectCategory).then(expectedTemplates => {
                         expect(currentEvaluation.questions.length, 'not all active question templates added to evaluation').to.equal(
                             expectedTemplates.length
                         )
