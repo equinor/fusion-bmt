@@ -8,8 +8,8 @@ const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
 describe('Admin page', () => {
     const goToQuestionnaire = () => {
-        const user = users[users.length - 1]
-        cy.visitProject(user)
+        const adminUser = users[users.length - 1]
+        cy.visitProject(adminUser)
         adminPage.adminButton().click()
         adminPage.adminPageTitle().should('have.text', 'Project configuration: Questionnaire')
     }
@@ -109,6 +109,17 @@ describe('Admin page', () => {
         adminPage.barrierInSideBar('PS1 Containment').click()
         adminPage.barrierTitleOnTopOfPage().should('have.text', 'Containment')
         adminPage.createNewQuestion().should('be.visible')
+    })
+
+    it('Non admin user does not see Admin tab', () => {
+        const nonAdminUser = users[users.length - 2]
+        cy.visitProject(nonAdminUser)
+        adminPage.adminButton().should('not.exist')
+    })
+
+    it('Non admin user cannot do GQL mutations to delete question', () => {
+        const nonAdminUser = users[users.length - 2]
+        cy.visitProject(nonAdminUser)
     })
 })
 
