@@ -1,6 +1,6 @@
-import { Organization, Progression, ProjectCategory, Question, Role, Status } from '../../src/api/models'
-import { User } from './mock/external/users'
-import { evaluationName } from './helpers'
+import { Organization, Progression, ProjectCategory, Question, Role, Status } from '../../../src/api/models'
+import { User } from '../mock/external/users'
+import { evaluationName } from '../helpers/helpers'
 import { createAction } from './testdata'
 import { Answer, Action, Participant, Note, Summary, Evaluation, QuestionTemplate } from './mocks'
 import {

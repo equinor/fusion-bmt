@@ -1,6 +1,6 @@
 import * as faker from 'faker'
-import { Action, Participant, IParticipant, IAction } from './mocks'
-import { Progression, Role, Organization, Priority } from '../../src/api/models'
+import { Action, IAction } from './mocks'
+import { Role, Priority } from '../../../src/api/models'
 import { EvaluationSeed } from './evaluation_seed'
 
 export function createAction(

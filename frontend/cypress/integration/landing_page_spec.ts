@@ -1,7 +1,7 @@
 import * as faker from 'faker'
 import { Progression, Role } from '../../src/api/models'
 
-import { EvaluationSeed } from '../support/evaluation_seed'
+import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
 import { getUsers } from '../support/mock/external/users'
 import { EvaluationPage } from '../page_objects/evaluation'
 import { fusionProject1, fusionProject4 } from '../support/mock/external/projects'
