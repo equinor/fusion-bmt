@@ -18,7 +18,6 @@ import {
     GET_EVALUATIONS,
     GET_QUESTION_TEMPLATES,
 } from './gql'
-import { all } from 'cypress/types/bluebird'
 
 type EvaluationSeedInput = {
     progression: Progression
