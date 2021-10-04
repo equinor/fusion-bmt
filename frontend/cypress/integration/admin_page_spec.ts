@@ -104,6 +104,16 @@ describe('Admin page', () => {
         })
     })
 
+    it('Delete question template, verify question template was deleted', () => {
+        adminPage.allQuestionNo().then(questions => {
+            const questionsCount = Cypress.$(questions).length - 1
+            const questionNo = parseInt(
+                questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', '')
+            )
+            adminPage.deleteMoveQuestion(questionNo).click()
+
+    })
+
     it('Navigate to a barrier', () => {
         adminPage.adminButton().click()
         adminPage.barrierInSideBar('PS1 Containment').click()

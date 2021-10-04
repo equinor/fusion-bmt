@@ -187,6 +187,7 @@ const StaticQuestionItem = ({ question, setIsInEditmode, projectCategories, isIn
                                 color="primary"
                                 ref={anchorRef}
                                 onClick={() => (isOpen ? setIsOpen(false) : setIsOpen(true))}
+                                data-testid={'move-delete-question-' + question.order}
                             >
                                 <Icon data={more_vertical}></Icon>
                             </Button>
