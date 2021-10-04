@@ -1,6 +1,6 @@
 import { Progression, Role } from '../../src/api/models'
-import { EvaluationSeed, evaluation, activeQuestionTemplates } from '../support/evaluation_seed'
-import { evaluationName } from '../support/helpers'
+import { EvaluationSeed, evaluation, activeQuestionTemplates } from '../support/testsetup/evaluation_seed'
+import { evaluationName } from '../support/helpers/helpers'
 import NominationPage from '../page_objects/nomination'
 import ProjectPage from '../page_objects/project'
 import { getUsers, users, User } from '../support/mock/external/users'

@@ -1,6 +1,6 @@
-import { EvaluationSeed } from '../support/evaluation_seed'
+import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
 import { Progression, Role } from '../../src/api/models'
-import { Participant } from '../support/mocks'
+import { Participant } from '../support/testsetup/mocks'
 import NominationPage from '../page_objects/nomination'
 import { getUsers } from '../support/mock/external/users'
 import * as faker from 'faker'

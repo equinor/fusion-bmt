@@ -1,4 +1,4 @@
-import { EvaluationSeed } from '../support/evaluation_seed'
+import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
 import { Progression, Role } from '../../src/api/models'
 import FollowUpTabs from '../page_objects/followup'
 import { EvaluationPage } from '../page_objects/evaluation'

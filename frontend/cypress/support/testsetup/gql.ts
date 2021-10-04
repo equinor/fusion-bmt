@@ -1,4 +1,4 @@
-import { getToken } from './auth'
+import { getToken } from '../commands/auth'
 const API_URL = Cypress.env('API_URL') || 'http://localhost:5000'
 Cypress.Commands.add('gql', (query: string, variables: {}) => {
     return cy.request({

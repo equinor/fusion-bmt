@@ -1,5 +1,5 @@
-import { Organization, Priority, Progression, ProjectCategory, Role, Severity, Status } from '../../src/api/models'
-import { User } from './mock/external/users'
+import { Organization, Priority, Progression, ProjectCategory, Role, Severity, Status } from '../../../src/api/models'
+import { User } from '../mock/external/users'
 
 export interface IParticipant {
     user: User

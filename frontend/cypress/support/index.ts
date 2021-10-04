@@ -13,8 +13,8 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import './auth'
-import './visit'
+import './commands/auth'
+import './commands/visit'
 import './mock/external/external'
-import './gql'
-import './common'
+import './testsetup/gql'
+import './commands/common'
