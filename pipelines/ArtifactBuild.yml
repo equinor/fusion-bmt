@@ -52,10 +52,12 @@ stages:
                       docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)
                   displayName: "docker login dynatrace"
                 - script: |
-                      docker build -f $(Build.SourcesDirectory)/backend/dynatrace.Dockerfile / 
-                      --build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant) / 
-                      $(Build.SourcesDirectory)/backend/ -t fusionbmt.azurecr.io/backend:release /
-                       -t fusionbmt.azurecr.io/backend:$(Build.BuildId)
+                      docker build -f $(Build.SourcesDirectory)/backend/dynatrace.Dockerfile \
+                      --build-arg dt_url=$(dt_url) \
+                      --build-arg dt_tenant=$(dt_tenant) \
+                      $(Build.SourcesDirectory)/backend/ \
+                      -t fusionbmt.azurecr.io/backend:release \
+                      -t fusionbmt.azurecr.io/backend:$(Build.BuildId)
                   displayName: "docker build with OneAgent"
 
                 - task: Docker@2
@@ -83,10 +85,12 @@ stages:
                   inputs:
                       targetType: "inline"
                       script: |
-                          docker build -f $(Build.SourcesDirectory)/frontend/dynatrace.Dockerfile / 
-                          --build-arg dt_url=$(dt_url) --build-arg dt_tenant=$(dt_tenant) / 
-                          $(Build.SourcesDirectory)/frontend/ -t fusionbmt.azurecr.io/frontend:release -t / 
-                          fusionbmt.azurecr.io/frontend:$(Build.BuildId)
+                          docker build -f $(Build.SourcesDirectory)/frontend/dynatrace.Dockerfile \
+                          --build-arg dt_url=$(dt_url) \
+                          --build-arg dt_tenant=$(dt_tenant) \
+                          $(Build.SourcesDirectory)/frontend/ \
+                          -t fusionbmt.azurecr.io/frontend:release \
+                          -t fusionbmt.azurecr.io/frontend:$(Build.BuildId)
                       workingDirectory: "$(Build.SourcesDirectory)/frontend/"
                 - task: Docker@2
                   displayName: "Push container to ACR"
