@@ -106,6 +106,25 @@ describe('Admin page', () => {
         })
     })
 
+    it('Delete question template, verify question template was deleted', () => {
+        adminPage.allQuestionNo().then(questions => {
+            const questionsCount = Cypress.$(questions).length - 1
+            const questionNo = parseInt(
+                questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', '')
+            )
+            activeQuestionTemplates().then(activeTemplatesPreDelete => {
+                adminPage.deleteMoveQuestion(questionNo).click()
+
+                adminPage.deleteQuestionTemplate().click({ force: true })
+                adminPage.deleteQuestionTemplateYes().click({ force: true })
+                cy.testCacheAndDB(() => goToQuestionnaire())
+                activeQuestionTemplates().then(activeTemplatePostDelete => {
+                    expect(activeTemplatesPreDelete.length, ' question template not deleted').to.equal(activeTemplatePostDelete.length + 1)
+                })
+            })
+        })
+    })
+
     it('Navigate to a barrier', () => {
         adminPage.adminButton().click()
         adminPage.barrierInSideBar('PS1 Containment').click()

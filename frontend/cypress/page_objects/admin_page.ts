@@ -38,6 +38,18 @@ export class AdminPage {
         return cy.getByDataTestid('edit-question-' + questionNo)
     }
 
+    deleteMoveQuestion = (questionNo: number) => {
+        return cy.getByDataTestid('move-delete-question-' + questionNo)
+    }
+
+    deleteQuestionTemplate = () => {
+        return cy.get('span').contains('Delete')
+    }
+
+    deleteQuestionTemplateYes = () => {
+        return cy.getByDataTestid('confirmation_dialog').get('span').contains('Yes')
+    }
+
     setSupportNotes = (supportNotes: string) => {
         return cy
             .getByDataTestid('markdown-editor')

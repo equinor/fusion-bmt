@@ -54,7 +54,6 @@ describe('Evaluation management', () => {
                 const nominationPage = new NominationPage()
                 nominationPage.evaluationTitle().should('have.text', name)
 
-                //const query = new EvaluationQuery()
                 evaluation(name).then(currentEvaluation => {
                     activeQuestionTemplates(t.projectCategory).then(expectedTemplates => {
                         expect(currentEvaluation.questions.length, 'not all active question templates added to evaluation').to.equal(
