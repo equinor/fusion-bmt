@@ -1,21 +1,34 @@
+import React from 'react'
+import { Box } from '@material-ui/core'
 import { tokens } from '@equinor/eds-tokens'
+import { Icon, Typography } from '@equinor/eds-core-react'
+import { close } from '@equinor/eds-icons'
 import { apiErrorMessage } from '../../../api/error'
-import { Typography } from '@equinor/eds-core-react'
 
 interface Props {
     text: string
+    onClose?: () => void
 }
 
-const ErrorMessage = ({ text }: Props) => {
+const ErrorMessage = ({ text, onClose }: Props) => {
     return (
-        <div
+        <Box
+            display={'flex'}
+            flexDirection={'row'}
             style={{
                 backgroundColor: tokens.colors.ui.background__light.rgba,
                 padding: '10px',
             }}
         >
-            <Typography>{apiErrorMessage(text)}</Typography>
-        </div>
+            <Box flexGrow={1}>
+                <Typography>{apiErrorMessage(text)}</Typography>
+            </Box>
+            {onClose && (
+                <Box alignSelf={'center'}>
+                    <Icon data={close} size={16} cursor={'pointer'} onClick={onClose}></Icon>
+                </Box>
+            )}
+        </Box>
     )
 }
 
