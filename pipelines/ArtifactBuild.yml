@@ -1,6 +1,11 @@
 #Build docker image, save image to ACR and trigger image pull from Radix.
 trigger:
-    - cicd
+    branches:
+        include:
+            - cicd
+    tags:
+        include:
+            - v1.*
 
 pool:
     vmImage: "ubuntu-latest"
