@@ -226,7 +226,12 @@ const StaticQuestionItem = ({
                             >
                                 <Icon data={edit}></Icon>
                             </Button>
-                            <Button variant="ghost" color="primary" onClick={() => setIsInConfirmDeleteMode(true)}>
+                            <Button
+                                variant="ghost"
+                                color="primary"
+                                onClick={() => setIsInConfirmDeleteMode(true)}
+                                data-testid={'delete-question-' + question.order}
+                            >
                                 <Icon data={delete_to_trash}></Icon>
                             </Button>
                         </Box>

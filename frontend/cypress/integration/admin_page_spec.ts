@@ -3,7 +3,6 @@ import * as faker from 'faker'
 import { Organization } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
-import { DELETE_QUESTION_TEMPLATE } from '../support/testsetup/gql'
 import { activeQuestionTemplates } from '../support/testsetup/evaluation_seed'
 
 const adminPage = new AdminPage()
@@ -21,9 +20,7 @@ describe('Admin page', () => {
 
     it('Edit question - change title, support notes and organization', () => {
         adminPage.allQuestionNo().then(questions => {
-            const questionNo = parseInt(
-                questions.toArray()[faker.datatype.number({ min: 0, max: Cypress.$(questions).length - 1 })].innerText.replace('.', '')
-            )
+            const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
             adminPage.organization(questionNo).then(t => {
                 const currentOrg = Cypress.$(t).text()
                 const newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
@@ -38,10 +35,7 @@ describe('Admin page', () => {
 
     it('Cancel Edit question - changes to title, support notes and organization are not saved and original values visible', () => {
         adminPage.allQuestionNo().then(questions => {
-            const questionsCount = Cypress.$(questions).length - 1
-            const questionNo = parseInt(
-                questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', '')
-            )
+            const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
             adminPage.organization(questionNo).then(t => {
                 let currentOrg = Cypress.$(t).text()
                 let newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
@@ -108,16 +102,11 @@ describe('Admin page', () => {
 
     it('Delete question template, verify question template was deleted', () => {
         adminPage.allQuestionNo().then(questions => {
-            const questionsCount = Cypress.$(questions).length - 1
-            const questionNo = parseInt(
-                questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', '')
-            )
+            const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
             activeQuestionTemplates().then(activeTemplatesPreDelete => {
-                adminPage.deleteMoveQuestion(questionNo).click()
-
-                adminPage.deleteQuestionTemplate().click({ force: true })
-                adminPage.deleteQuestionTemplateYes().click({ force: true })
-                cy.testCacheAndDB(() => goToQuestionnaire())
+                adminPage.deleteQuestionButton(questionNo).click()
+                adminPage.yesButton().click()
+                goToQuestionnaire()
                 activeQuestionTemplates().then(activeTemplatePostDelete => {
                     expect(activeTemplatesPreDelete.length, ' question template not deleted').to.equal(activeTemplatePostDelete.length + 1)
                 })
@@ -164,4 +153,8 @@ const verifyQuestion = (questionNo: number, title: string, organization: string,
     adminPage.questionTitle(questionNo).should('have.text', title)
     adminPage.organization(questionNo).should('have.text', organization)
     adminPage.question(questionNo).should('contain.text', supportNotes)
+}
+
+const getRandomQuestionNo = (questions: any, questionsCount: number): number => {
+    return parseInt(questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', ''))
 }

@@ -38,16 +38,12 @@ export class AdminPage {
         return cy.getByDataTestid('edit-question-' + questionNo)
     }
 
-    deleteMoveQuestion = (questionNo: number) => {
-        return cy.getByDataTestid('move-delete-question-' + questionNo)
+    deleteQuestionButton = (questionNo: number) => {
+        return cy.getByDataTestid('delete-question-' + questionNo)
     }
 
-    deleteQuestionTemplate = () => {
-        return cy.get('span').contains('Delete')
-    }
-
-    deleteQuestionTemplateYes = () => {
-        return cy.getByDataTestid('confirmation_dialog').get('span').contains('Yes')
+    yesButton = () => {
+        return cy.getByDataTestid('yes_button')
     }
 
     setSupportNotes = (supportNotes: string) => {
