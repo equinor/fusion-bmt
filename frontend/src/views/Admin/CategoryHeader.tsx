@@ -107,6 +107,7 @@ const CategoryHeader = ({
                     <Box mr={4} ml={1} alignSelf={'center'}>
                         <Tooltip placement="bottom" title={'Delete selected project category'}>
                             <Button
+                                data-testid="deleteProjectCategory"
                                 variant="ghost"
                                 color="primary"
                                 onClick={() => setIsInConfirmDeleteMode(true)}
