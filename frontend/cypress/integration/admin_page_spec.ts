@@ -3,6 +3,8 @@ import * as faker from 'faker'
 import { Organization } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
+import { DELETE_QUESTION_TEMPLATE } from '../support/testsetup/gql'
+import { activeQuestionTemplates } from '../support/testsetup/evaluation_seed'
 
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
@@ -120,6 +122,17 @@ describe('Admin page', () => {
     it('Non admin user cannot do GQL mutations to delete question', () => {
         const nonAdminUser = users[users.length - 2]
         cy.visitProject(nonAdminUser)
+        activeQuestionTemplates().then(templates => {
+            const idOfFirstTemplate = templates[0].id
+            cy.gql(DELETE_QUESTION_TEMPLATE, { variables: { questionTemplateId: idOfFirstTemplate } }).then(res => {
+                const errorCode = res.body.errors[0].extensions.code
+                const errorMessage = res.body.errors[0].message
+                const expectedErrorCode = 'AUTH_NOT_AUTHORIZED'
+                const expectedErrorMessage = 'The current user is not authorized to access this resource.'
+                expect(errorCode, `error code is not ${expectedErrorCode}`).to.equal(expectedErrorCode)
+                expect(errorMessage, `error message is not ${expectedErrorMessage}`).to.equal(expectedErrorMessage)
+            })
+        })
     })
 })
 

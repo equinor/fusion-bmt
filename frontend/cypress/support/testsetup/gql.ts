@@ -19,6 +19,14 @@ declare global {
     }
 }
 
+export const DELETE_QUESTION_TEMPLATE = `
+        mutation DeleteQuestionTemplate($questionTemplateId: String!) {
+            deleteQuestionTemplate(questionTemplateId: $questionTemplateId) {
+                id
+            }
+        }
+    `
+
 export const GET_QUESTION_TEMPLATES = `
     query() {
         questionTemplates {id, projectCategories {name}, status}
