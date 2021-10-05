@@ -2,10 +2,11 @@
 trigger:
     branches:
         include:
+            - master
             - cicd
     tags:
         include:
-            - v1.*
+            - v*
 
 pool:
     vmImage: "ubuntu-latest"
