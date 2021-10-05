@@ -23,6 +23,7 @@ type EvaluationSeedInput = {
     progression: Progression
     users: User[]
     roles: Role[]
+    projectCategory?: string
     fusionProjectId?: string
     namePrefix?: string
 }
@@ -57,6 +58,7 @@ export class EvaluationSeed {
     fusionProjectId: string
     projectId: string = ''
     evaluationId: string = ''
+    projectCategory: string
 
     progression: Progression
     summary: Summary | undefined = undefined
@@ -66,7 +68,14 @@ export class EvaluationSeed {
     actions: Action[] = []
     questions: Question[] = []
 
-    constructor({ progression, users, roles, fusionProjectId = '123', namePrefix = 'Evaluation' }: EvaluationSeedInput) {
+    constructor({
+        progression,
+        users,
+        roles,
+        projectCategory = 'CircleField',
+        fusionProjectId = '123',
+        namePrefix = 'Evaluation',
+    }: EvaluationSeedInput) {
         this.progression = progression
         let participants: Participant[] = []
 
@@ -86,7 +95,7 @@ export class EvaluationSeed {
         })
 
         participants.forEach(p => this.addParticipant(p))
-
+        this.projectCategory = projectCategory
         this.fusionProjectId = fusionProjectId
         this.name = evaluationName({ prefix: namePrefix })
     }
@@ -143,11 +152,11 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
         })
         .then(res => {
             seed.projectId = res.body.data.project.id
-            return cy.gql(GET_PROJECT_CATEGORY, { variables: { name: 'CircleField' } })
+            return cy.gql(GET_PROJECT_CATEGORY, { variables: { name: seed.projectCategory } })
         })
         .then(res => {
             const projectCategoryId = res.body.data.projectCategory[0].id
-            cy.log(`EvaluationSeed: Creating Evaluation by ${seed.participants[0].user}`)
+            cy.log(`EvaluationSeed: Creating Evaluation by ${facilitator.user}`)
             cy.gql(ADD_EVALUATION, {
                 variables: { name: seed.name, projectId: seed.projectId, projectCategoryId: projectCategoryId },
             }).then(res => {
