@@ -1,4 +1,4 @@
-import { users } from '../support/mock/external/users'
+import { users, getUserWithAdminRole, getUserWithNoAdminRole } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { Organization } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
@@ -10,7 +10,7 @@ const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
 describe('Admin page', () => {
     const goToQuestionnaire = () => {
-        const adminUser = users[users.length - 1]
+        const adminUser = getUserWithAdminRole()
         cy.visitProject(adminUser)
         adminPage.adminButton().click()
         adminPage.adminPageTitle().should('have.text', 'Project configuration: Questionnaire')
@@ -114,14 +114,12 @@ describe('Admin page', () => {
     })
 
     it('Non admin user does not see Admin tab', () => {
-        const nonAdminUser = users[users.length - 2]
-        cy.visitProject(nonAdminUser)
+        cy.visitProject(getUserWithNoAdminRole())
         adminPage.adminButton().should('not.exist')
     })
 
     it('Non admin user cannot do GQL mutations to delete question', () => {
-        const nonAdminUser = users[users.length - 2]
-        cy.visitProject(nonAdminUser)
+        cy.visitProject(getUserWithNoAdminRole())
         activeQuestionTemplates().then(templates => {
             const idOfFirstTemplate = templates[0].id
             cy.gql(DELETE_QUESTION_TEMPLATE, { variables: { questionTemplateId: idOfFirstTemplate } }).then(res => {
