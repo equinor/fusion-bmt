@@ -108,6 +108,7 @@ describe('Admin page', () => {
                 activeQuestionTemplates().then(activeTemplatesPreDelete => {
                     adminPage.deleteQuestionButton(questionNo).click()
                     adminPage.yesButton().click()
+                    cy.contains(questionTitleText).should('not.exist')
                     goToQuestionnaire()
                     activeQuestionTemplates().then(activeTemplatePostDelete => {
                         expect(activeTemplatesPreDelete.length, ' question template not deleted').to.equal(
