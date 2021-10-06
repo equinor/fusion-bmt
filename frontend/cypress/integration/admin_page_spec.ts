@@ -123,14 +123,12 @@ describe('Admin page', () => {
         activeQuestionTemplates().then(templates => {
             const idOfFirstTemplate = templates[0].id
             cy.gql(DELETE_QUESTION_TEMPLATE, { variables: { questionTemplateId: idOfFirstTemplate } }).then(res => {
-                expect(res.body.errors[0].extensions.code, 'error code not found').to.not.equal(undefined)
-                const errorCode = res.body.errors[0].extensions.code
-                expect(res.body.errors[0].message, 'error message not defined').to.not.equal(undefined)
-                const errorMessage = res.body.errors[0].message
+                const errorCode = res.body.errors?.[0].extensions?.code
+                const errorMessage = res.body.errors?.[0].message
                 const expectedErrorCode = 'AUTH_NOT_AUTHORIZED'
                 const expectedErrorMessage = 'The current user is not authorized to access this resource.'
-                expect(errorCode, `error code is not ${expectedErrorCode}`).to.equal(expectedErrorCode)
-                expect(errorMessage, `error message is not ${expectedErrorMessage}`).to.equal(expectedErrorMessage)
+                expect(errorCode, `error code is ${expectedErrorCode}`).to.equal(expectedErrorCode)
+                expect(errorMessage, `error message is ${expectedErrorMessage}`).to.equal(expectedErrorMessage)
             })
         })
     })
