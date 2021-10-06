@@ -1,15 +1,17 @@
-import { users } from '../support/mock/external/users'
+import { users, getUserWithAdminRole, getUserWithNoAdminRole } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { Organization } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
+import { DELETE_QUESTION_TEMPLATE } from '../support/testsetup/gql'
+import { activeQuestionTemplates } from '../support/testsetup/evaluation_seed'
 
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
 describe('Admin page', () => {
     const goToQuestionnaire = () => {
-        const user = users[users.length - 1]
-        cy.visitProject(user)
+        const adminUser = getUserWithAdminRole()
+        cy.visitProject(adminUser)
         adminPage.adminButton().click()
         adminPage.adminPageTitle().should('have.text', 'Project configuration: Questionnaire')
     }
@@ -109,6 +111,26 @@ describe('Admin page', () => {
         adminPage.barrierInSideBar('PS1 Containment').click()
         adminPage.barrierTitleOnTopOfPage().should('have.text', 'Containment')
         adminPage.createNewQuestion().should('be.visible')
+    })
+
+    it('Non admin user does not see Admin tab', () => {
+        cy.visitProject(getUserWithNoAdminRole())
+        adminPage.adminButton().should('not.exist')
+    })
+
+    it('Non admin user cannot do GQL mutations to delete question', () => {
+        cy.visitProject(getUserWithNoAdminRole())
+        activeQuestionTemplates().then(templates => {
+            const idOfFirstTemplate = templates[0].id
+            cy.gql(DELETE_QUESTION_TEMPLATE, { variables: { questionTemplateId: idOfFirstTemplate } }).then(res => {
+                const errorCode = res.body.errors?.[0].extensions?.code
+                const errorMessage = res.body.errors?.[0].message
+                const expectedErrorCode = 'AUTH_NOT_AUTHORIZED'
+                const expectedErrorMessage = 'The current user is not authorized to access this resource.'
+                expect(errorCode, `error code is ${expectedErrorCode}`).to.equal(expectedErrorCode)
+                expect(errorMessage, `error message is ${expectedErrorMessage}`).to.equal(expectedErrorMessage)
+            })
+        })
     })
 })
 

@@ -95,6 +95,22 @@ const local1 = new User({
 
 export const users = [employee1, external1, consultant1, extHire1, unknown1, local1]
 
+export function getUserWithAdminRole(): User {
+    const adminUser = users.find(u => u.roles.includes('Role.Admin'))
+    if (adminUser === undefined) {
+        throw new Error('Could not find user with admin role')
+    }
+    return adminUser
+}
+
+export function getUserWithNoAdminRole(): User {
+    const nonAdminUser = users.find(u => !u.roles.includes('Role.Admin'))
+    if (nonAdminUser === undefined) {
+        throw new Error('Could not find user with no roles')
+    }
+    return nonAdminUser
+}
+
 export function getUsers(n: number): User[] {
     if (n > users.length) {
         const msg = `You requested more mocked users (${n})
