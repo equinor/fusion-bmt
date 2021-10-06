@@ -6,8 +6,12 @@ export class AdminPage {
             .next()
     }
 
-    questionTitle = (questionNo: number) => {
+    questionTitleByNo = (questionNo: number) => {
         return cy.getByDataTestid('question-title-' + questionNo)
+    }
+
+    questionNoByTitle = (title: string) => {
+        return cy.get('[data-testid^=question-title-]').contains(title).parent().prev()
     }
 
     organization = (questionNo: number) => {
