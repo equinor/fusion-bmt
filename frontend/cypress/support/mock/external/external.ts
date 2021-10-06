@@ -86,11 +86,7 @@ Cypress.on('uncaught:exception', (err, runnable, promise) => {
             const message = messageMatch[1]
 
             /* It looks like majority of our stability issues fall under this message: */
-            if (
-                message === 'Failed to fetch' ||
-                message === 'NetworkError when attempting to fetch resource.' ||
-                message.includes('Index must be within the bounds of the List.')
-            ) {
+            if (message === 'Failed to fetch' || message === 'NetworkError when attempting to fetch resource.') {
                 console.log(`Swallowing unhandled "Failed to fetch" promise:\n\n%c${err.message}\n`, 'padding-left: 30px;')
                 return false
             }
