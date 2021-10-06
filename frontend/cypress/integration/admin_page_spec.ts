@@ -4,6 +4,7 @@ import { Organization } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
 import { activeQuestionTemplates } from '../support/testsetup/evaluation_seed'
+import { ConfirmationDialog } from '../page_objects/common'
 
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
@@ -107,7 +108,7 @@ describe('Admin page', () => {
                 const questionTitleText = Cypress.$(questionTitle).text()
                 activeQuestionTemplates().then(activeTemplatesPreDelete => {
                     adminPage.deleteQuestionButton(questionNo).click()
-                    adminPage.yesButton().click()
+                    new ConfirmationDialog().yesButton().click()
                     cy.contains(questionTitleText).should('not.exist')
                     goToQuestionnaire()
                     activeQuestionTemplates().then(activeTemplatePostDelete => {

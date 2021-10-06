@@ -42,10 +42,6 @@ export class AdminPage {
         return cy.getByDataTestid('delete-question-' + questionNo)
     }
 
-    yesButton = () => {
-        return cy.getByDataTestid('yes_button')
-    }
-
     setSupportNotes = (supportNotes: string) => {
         return cy
             .getByDataTestid('markdown-editor')
