@@ -100,21 +100,22 @@ describe('Admin page', () => {
         })
     })
 
-    it.only('Delete question template, verify question template was deleted', () => {
+    it('Delete question template, verify question template was deleted', () => {
         adminPage.allQuestionNo().then(questions => {
             const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
-            activeQuestionTemplates().then(activeTemplatesPreDelete => {
-                cy.log('Question No Pre ' + questionNo)
-                cy.log('QTitle ' + adminPage.questionTitle(questionNo).te)
-                adminPage.deleteQuestionButton(questionNo).click()
-                adminPage.yesButton().click()
-                goToQuestionnaire()
-                activeQuestionTemplates().then(activeTemplatePostDelete => {
-                    expect(activeTemplatesPreDelete.length, ' question template not deleted').to.equal(activeTemplatePostDelete.length + 1)
+            adminPage.questionTitle(questionNo).then(questionTitle => {
+                const questionTitleText = Cypress.$(questionTitle).text()
+                activeQuestionTemplates().then(activeTemplatesPreDelete => {
+                    adminPage.deleteQuestionButton(questionNo).click()
+                    adminPage.yesButton().click()
+                    goToQuestionnaire()
+                    activeQuestionTemplates().then(activeTemplatePostDelete => {
+                        expect(activeTemplatesPreDelete.length, ' question template not deleted').to.equal(
+                            activeTemplatePostDelete.length + 1
+                        )
+                    })
+                    cy.contains(questionTitleText).should('not.exist')
                 })
-                cy.log('Question No Post ' + questionNo)
-                cy.log('AP ' + adminPage.question(questionNo).should('not.exist'))
-                //expect(adminPage.question(questionNo), 'Deleted question is visible').to.be(undefined)
             })
         })
     })
