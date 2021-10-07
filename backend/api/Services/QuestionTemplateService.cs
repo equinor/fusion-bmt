@@ -43,7 +43,10 @@ namespace api.Services
         )
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;
-            int last = _context.QuestionTemplates.Max(qt => qt.Order) + 1;
+            int last = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order) + 1
+            ;
 
             QuestionTemplate newQuestionTemplate = new QuestionTemplate
             {
