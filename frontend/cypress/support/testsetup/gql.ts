@@ -27,6 +27,25 @@ export const DELETE_QUESTION_TEMPLATE = `
         }
     `
 
+export const CREATE_QUESTION_TEMPLATE = `
+mutation CreateQuestionTemplate(
+    $barrier: Barrier!
+    $organization: Organization!
+    $text: String!
+    $supportNotes: String!
+    $projectCategoryIds: [String]
+) {
+    createQuestionTemplate(
+        barrier: $barrier
+        organization: $organization
+        text: $text
+        supportNotes: $supportNotes
+        projectCategoryIds: $projectCategoryIds
+    ) {
+        id
+    }
+}`
+
 export const GET_QUESTION_TEMPLATES = `
     query() {
         questionTemplates {id, projectCategories {name}, status}

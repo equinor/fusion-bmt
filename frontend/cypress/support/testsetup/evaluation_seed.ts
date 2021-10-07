@@ -311,3 +311,11 @@ export function activeQuestionTemplates(projectCategory?: string): Cypress.Chain
         })
     })
 }
+
+export function projectCategoryId(categoryName: string): Cypress.Chainable<string> {
+    return cy.gql(GET_PROJECT_CATEGORY, { variables: { name: categoryName } }).then(res => {
+        const id = res.body.data.projectCategory?.[0].id
+
+        return id
+    })
+}

@@ -152,7 +152,9 @@ const StaticQuestionItem = ({
         }
     }
 
-    const barrierOrders: number[] = sortedBarrierQuestions.map(q => {return q.order})
+    const barrierOrders: number[] = sortedBarrierQuestions.map(q => {
+        return q.order
+    })
     const lowestBarrierOrder = Math.min(...barrierOrders)
     const highestBarrierOrder = Math.max(...barrierOrders)
 
@@ -224,7 +226,12 @@ const StaticQuestionItem = ({
                             >
                                 <Icon data={edit}></Icon>
                             </Button>
-                            <Button variant="ghost" color="primary" onClick={() => setIsInConfirmDeleteMode(true)}>
+                            <Button
+                                variant="ghost"
+                                color="primary"
+                                onClick={() => setIsInConfirmDeleteMode(true)}
+                                data-testid={'delete-question-' + question.order}
+                            >
                                 <Icon data={delete_to_trash}></Icon>
                             </Button>
                         </Box>
@@ -262,15 +269,9 @@ const StaticQuestionItem = ({
                 </Box>
                 {deletingQuestionTemplateError !== undefined && <ErrorMessage text={'Could not delete question template'} />}
             </Box>
-            {addingToProjectCategoryError && (
-                <ErrorMessage text={'Not able to add project category to question template'}/>
-            )}
-            {removingFromProjectCategoryError && (
-                <ErrorMessage text={'Not able to remove project category from question template'}/>
-            )}
-            {reorderingQuestionTemplateError && (
-                <ErrorMessage text={'Not able to reorder question templates'}/>
-            )}
+            {addingToProjectCategoryError && <ErrorMessage text={'Not able to add project category to question template'} />}
+            {removingFromProjectCategoryError && <ErrorMessage text={'Not able to remove project category from question template'} />}
+            {reorderingQuestionTemplateError && <ErrorMessage text={'Not able to reorder question templates'} />}
         </>
     )
 }

@@ -6,8 +6,12 @@ export class AdminPage {
             .next()
     }
 
-    questionTitle = (questionNo: number) => {
+    questionTitleByNo = (questionNo: number) => {
         return cy.getByDataTestid('question-title-' + questionNo)
+    }
+
+    questionNoByTitle = (title: string) => {
+        return cy.get('[data-testid^=question-title-]').contains(title).parent().prev()
     }
 
     organization = (questionNo: number) => {
@@ -36,6 +40,10 @@ export class AdminPage {
 
     editQuestionButton = (questionNo: number) => {
         return cy.getByDataTestid('edit-question-' + questionNo)
+    }
+
+    deleteQuestionButton = (questionNo: number) => {
+        return cy.getByDataTestid('delete-question-' + questionNo)
     }
 
     setSupportNotes = (supportNotes: string) => {

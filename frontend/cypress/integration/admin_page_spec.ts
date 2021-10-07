@@ -1,10 +1,11 @@
 import { users, getUserWithAdminRole, getUserWithNoAdminRole } from '../support/mock/external/users'
 import * as faker from 'faker'
-import { Organization } from '../../src/api/models'
+import { Organization, Barrier } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
-import { DELETE_QUESTION_TEMPLATE } from '../support/testsetup/gql'
-import { activeQuestionTemplates } from '../support/testsetup/evaluation_seed'
+import { activeQuestionTemplates, projectCategoryId } from '../support/testsetup/evaluation_seed'
+import { ConfirmationDialog } from '../page_objects/common'
+import { CREATE_QUESTION_TEMPLATE, GET_PROJECT_CATEGORY, DELETE_QUESTION_TEMPLATE } from '../support/testsetup/gql'
 
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
@@ -21,9 +22,7 @@ describe('Admin page', () => {
 
     it('Edit question - change title, support notes and organization', () => {
         adminPage.allQuestionNo().then(questions => {
-            const questionNo = parseInt(
-                questions.toArray()[faker.datatype.number({ min: 0, max: Cypress.$(questions).length - 1 })].innerText.replace('.', '')
-            )
+            const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
             adminPage.organization(questionNo).then(t => {
                 const currentOrg = Cypress.$(t).text()
                 const newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
@@ -38,14 +37,11 @@ describe('Admin page', () => {
 
     it('Cancel Edit question - changes to title, support notes and organization are not saved and original values visible', () => {
         adminPage.allQuestionNo().then(questions => {
-            const questionsCount = Cypress.$(questions).length - 1
-            const questionNo = parseInt(
-                questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', '')
-            )
+            const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
             adminPage.organization(questionNo).then(t => {
                 let currentOrg = Cypress.$(t).text()
                 let newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
-                adminPage.questionTitle(questionNo).then(title => {
+                adminPage.questionTitleByNo(questionNo).then(title => {
                     let currentTitle = Cypress.$(title).text()
                     adminPage.supportNotes(questionNo).then(supportNotes => {
                         let currentSupportNotes = Cypress.$(supportNotes).text()
@@ -77,7 +73,7 @@ describe('Admin page', () => {
                 .last()
                 .then(qn => {
                     const createdQuestionNo = parseInt(Cypress.$(qn).text().replace('.', ''))
-                    adminPage.questionTitle(createdQuestionNo).should('have.text', title)
+                    adminPage.questionTitleByNo(createdQuestionNo).should('have.text', title)
                     adminPage.supportNotes(createdQuestionNo).should('contain.text', supportNotes)
                     adminPage.organization(createdQuestionNo).should('have.text', organization)
                 })
@@ -101,6 +97,29 @@ describe('Admin page', () => {
                 adminPage.allQuestionNo().then(questions => {
                     const questionsCountPostCancel = Cypress.$(questions).length - 1
                     expect(questionsCount, 'number of questions before and after cancel edit differ').to.equal(questionsCountPostCancel)
+                })
+            })
+        })
+    })
+
+    it('Delete question template, verify question template was deleted', () => {
+        projectCategoryId('CircleField').then(projectCatId => {
+            const questionTitle = faker.lorem.words(2)
+            createNewQuestionTemplate(Barrier.Gm, Organization.All, questionTitle, faker.lorem.words(3), [projectCatId])
+            goToQuestionnaire()
+            adminPage.questionNoByTitle(questionTitle).then(qNo => {
+                const questionNo = parseInt(Cypress.$(qNo).text())
+                activeQuestionTemplates().then(activeTemplatesPreDelete => {
+                    adminPage.deleteQuestionButton(questionNo).click()
+                    new ConfirmationDialog().yesButton().click()
+                    cy.contains(questionTitle).should('not.exist')
+                    goToQuestionnaire()
+                    activeQuestionTemplates().then(activeTemplatePostDelete => {
+                        expect(activeTemplatesPreDelete.length, ' question template not deleted').to.equal(
+                            activeTemplatePostDelete.length + 1
+                        )
+                    })
+                    cy.contains(questionTitle).should('not.exist')
                 })
             })
         })
@@ -136,13 +155,27 @@ describe('Admin page', () => {
 
 const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNotes: string, organization: string) => {
     adminPage.editQuestionButton(questionNo).click()
-    adminPage.questionTitle(questionNo).replace(newTitle)
+    adminPage.questionTitleByNo(questionNo).replace(newTitle)
     adminPage.setSupportNotes(newSupportNotes)
     adminPage.changeOrganization(organization)
 }
 
 const verifyQuestion = (questionNo: number, title: string, organization: string, supportNotes: string) => {
-    adminPage.questionTitle(questionNo).should('have.text', title)
+    adminPage.questionTitleByNo(questionNo).should('have.text', title)
     adminPage.organization(questionNo).should('have.text', organization)
     adminPage.question(questionNo).should('contain.text', supportNotes)
+}
+
+const getRandomQuestionNo = (questions: any, questionsCount: number): number => {
+    return parseInt(questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', ''))
+}
+
+const createNewQuestionTemplate = (
+    barrier: Barrier,
+    organization: Organization,
+    text: string,
+    supportNotes: string,
+    projectCategoryIds: [string]
+) => {
+    cy.gql(CREATE_QUESTION_TEMPLATE, { variables: { barrier, organization, text, supportNotes, projectCategoryIds } })
 }
