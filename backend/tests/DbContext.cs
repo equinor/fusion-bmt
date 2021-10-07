@@ -31,50 +31,6 @@ namespace tests
 
 
         [Fact]
-        public void ParticipantAddedToEvaluation()
-        {
-            EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.GetAll().First();
-            ParticipantService participantService = new ParticipantService(_context);
-
-            int participantsBefore = evaluation.Participants.Count;
-            participantService.Create("ParticipantAddedToEvaluation_id", evaluation, Organization.Engineering, Role.Participant);
-            int participantsAfter = evaluation.Participants.Count;
-
-            Assert.Equal(participantsBefore + 1, participantsAfter);
-        }
-
-        [Fact]
-        public void ParticipantAddedToProject()
-        {
-            ProjectService projectService = new ProjectService(_context);
-            Project project = projectService.GetAll().First();
-            Evaluation evaluation = project.Evaluations.First();
-            ParticipantService participantService = new ParticipantService(_context);
-
-            int participantsBefore = project.Evaluations.First().Participants.Count;
-            participantService.Create("ParticipantAddedToProject", evaluation, Organization.Engineering, Role.Participant);
-            int participantsAfter = project.Evaluations.First().Participants.Count;
-
-            Assert.Equal(participantsBefore + 1, participantsAfter);
-        }
-
-        [Fact]
-        public void ParticipantDeletedFromEvaluation()
-        {
-            EvaluationService evaluationService = new EvaluationService(_context);
-            Evaluation evaluation = evaluationService.GetAll().First();
-            ParticipantService participantService = new ParticipantService(_context);
-            Participant participant = participantService.Create("ParticipantDeletedFromEvaluation_id", evaluation, Organization.Engineering, Role.Participant);
-
-            int participantsBefore = evaluation.Participants.Count;
-            participantService.Remove(participant.Id);
-            int participantsAfter = evaluation.Participants.Count;
-
-            Assert.Equal(participantsBefore - 1, participantsAfter);
-        }
-
-        [Fact]
         public void ParticipantUnique()
         {
             DbContextOptionsBuilder<BmtDbContext> builder = new DbContextOptionsBuilder<BmtDbContext>();
