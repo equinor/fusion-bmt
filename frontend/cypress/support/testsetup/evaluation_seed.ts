@@ -323,7 +323,6 @@ export function projectCategoryId(categoryName: string): Cypress.Chainable<strin
 
 export function allProjectCategoryNames(): Cypress.Chainable<Array<string>> {
     return cy.gql(GET_ALL_PROJECT_CATEGORY_NAMES, { variables: {} }).then(res => {
-        console.log(res)
         interface pname {
             name: string
         }

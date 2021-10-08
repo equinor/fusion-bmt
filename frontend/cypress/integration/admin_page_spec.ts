@@ -175,6 +175,7 @@ describe('Admin page', () => {
                     adminPage.deleteProjectCategory().click()
                     new ConfirmationDialog().yesButton().click()
                     adminPage.selectProjectCategoryDropdown().click()
+                    cy.contains(newCategoryName).should('not.exist')
                     dropdownSelect.assertSelectValues(projectCatArray.concat('All project categories'))
                     goToQuestionnaire()
                     cy.contains(newCategoryName).should('not.exist')
