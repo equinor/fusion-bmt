@@ -64,8 +64,9 @@ namespace tests
         public void EditQuestionTemplate()
         {
             var service = new QuestionTemplateService(fixture.context);
+            Barrier barrier = Randomize.Barrier();
             var originalQT = service.Create(
-                barrier:      Randomize.Barrier(),
+                barrier:      barrier,
                 organization: Randomize.Organization(),
                 text:         Randomize.String(),
                 supportNotes: Randomize.String()
@@ -80,11 +81,10 @@ namespace tests
             var newText         = Randomize.String();
             var newSupportNotes = Randomize.String();
             var newOrganization = Randomize.Organization();
-            var newBarrier      = Randomize.Barrier();
 
             var updatedQT = service.Edit(
                 questionTemplate: originalQT,
-                barrier:          newBarrier,
+                barrier:          barrier,
                 organization:     newOrganization,
                 text:             newText,
                 supportNotes:     newSupportNotes,
@@ -96,7 +96,7 @@ namespace tests
 
             Assert.Equal(newText,          updatedQT.Text);
             Assert.Equal(newSupportNotes,  updatedQT.SupportNotes);
-            Assert.Equal(newBarrier,       updatedQT.Barrier);
+            Assert.Equal(barrier,          updatedQT.Barrier);
             Assert.Equal(newOrganization,  updatedQT.Organization);
 
             Assert.Equal(originalQT,       updatedQT.previous);
