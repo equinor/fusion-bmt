@@ -3,7 +3,7 @@ import * as faker from 'faker'
 import { Organization, Barrier } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
-import { activeQuestionTemplates, projectCategoryId } from '../support/testsetup/evaluation_seed'
+import { activeQuestionTemplates, allProjectCategoryNames, projectCategoryId } from '../support/testsetup/evaluation_seed'
 import { ConfirmationDialog } from '../page_objects/common'
 import { CREATE_QUESTION_TEMPLATE, DELETE_QUESTION_TEMPLATE, CREATE_PROJECT_CATEGORY } from '../support/testsetup/gql'
 import { organizationToString } from '../../src/utils/EnumToString'
@@ -154,29 +154,31 @@ describe('Admin page', () => {
         })
     })
 
-    it.only('Select question template by category, delete project category & verify project category is no longer present', () => {
-        const newCategoryName = 'TheNewCategory' + faker.lorem.word()
-        createNewProjectCategory(newCategoryName).then(categoryId => {
-            const questionTitle = faker.lorem.words(2)
-            const organization = faker.random.arrayElement(Object.values(Organization))
-            const supportNotes = faker.lorem.words(3)
-            createNewQuestionTemplate(Barrier.Gm, organization, questionTitle, supportNotes, [categoryId])
-            goToQuestionnaire()
-            const dropdownSelect = new DropdownSelect()
-            dropdownSelect.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
-            cy.contains(newCategoryName).should('be.visible')
-            adminPage.allQuestionNo().then(questions => {
-                expect(questions.length, ' number of questions should be ').to.equal(1)
-            })
-            adminPage.questionNoByTitle(questionTitle).then(qNo => {
-                const questionNo = parseInt(Cypress.$(qNo).text())
-                verifyQuestion(questionNo, questionTitle, organizationToString(organization), supportNotes)
-                adminPage.deleteProjectCategory().click()
-                new ConfirmationDialog().yesButton().click()
-                adminPage.selectProjectCategoryDropdown().click()
-                dropdownSelect.assertSelectValues(['CircleField', 'SquareField', 'All project categories'])
+    it('Select question template by category, delete project category & verify project category is no longer present', () => {
+        allProjectCategoryNames().then(projectCatArray => {
+            const newCategoryName = 'TheNewCategory' + faker.lorem.word()
+            createNewProjectCategory(newCategoryName).then(categoryId => {
+                const questionTitle = faker.lorem.words(2)
+                const organization = faker.random.arrayElement(Object.values(Organization))
+                const supportNotes = faker.lorem.words(3)
+                createNewQuestionTemplate(Barrier.Gm, organization, questionTitle, supportNotes, [categoryId])
                 goToQuestionnaire()
-                cy.contains(newCategoryName).should('not.exist')
+                const dropdownSelect = new DropdownSelect()
+                dropdownSelect.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
+                cy.contains(newCategoryName).should('be.visible')
+                adminPage.allQuestionNo().then(questions => {
+                    expect(questions.length, ' number of questions should be ').to.equal(1)
+                })
+                adminPage.questionNoByTitle(questionTitle).then(qNo => {
+                    const questionNo = parseInt(Cypress.$(qNo).text())
+                    verifyQuestion(questionNo, questionTitle, organizationToString(organization), supportNotes)
+                    adminPage.deleteProjectCategory().click()
+                    new ConfirmationDialog().yesButton().click()
+                    adminPage.selectProjectCategoryDropdown().click()
+                    dropdownSelect.assertSelectValues(projectCatArray.concat('All project categories'))
+                    goToQuestionnaire()
+                    cy.contains(newCategoryName).should('not.exist')
+                })
             })
         })
     })

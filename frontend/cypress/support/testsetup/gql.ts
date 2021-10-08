@@ -83,6 +83,14 @@ export const GET_PROJECT_CATEGORY = `
     }
 `
 
+export const GET_ALL_PROJECT_CATEGORY_NAMES = `
+    query() {
+        projectCategory() {
+            name
+        }
+    }
+`
+
 export const ADD_EVALUATION = `
     mutation CreateEvaluation(
         $name: String!,
