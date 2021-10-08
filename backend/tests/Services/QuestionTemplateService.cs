@@ -132,8 +132,14 @@ namespace tests
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
             IQueryable<QuestionTemplate> getAll = questionTemplateService.GetAll();
 
-            QuestionTemplate questionTemplate = getAll.ToList()[3];
-            QuestionTemplate newNextQuestionTemplate = getAll.ToList()[10];
+            QuestionTemplate questionTemplate = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .First(qt => qt.Order == 3)
+            ;
+            QuestionTemplate newNextQuestionTemplate = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .First(qt => qt.Order == 10)
+            ;
             int newOrder = newNextQuestionTemplate.Order;
 
             QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
@@ -146,8 +152,14 @@ namespace tests
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
             IQueryable<QuestionTemplate> getAll = questionTemplateService.GetAll();
 
-            QuestionTemplate questionTemplate = getAll.ToList()[3];
-            int newOrder = fixture.context.QuestionTemplates.Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
+            QuestionTemplate questionTemplate = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .First(qt => qt.Order == 2)
+            ;
+            int newOrder = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order)
+            ;
             QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(questionTemplate);
 
             Assert.Equal(newOrder, resultingQuestionTemplate.Order);
