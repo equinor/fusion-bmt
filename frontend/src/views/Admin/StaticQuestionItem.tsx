@@ -102,6 +102,7 @@ const StaticQuestionItem = ({
     useEffectNotOnMount(() => {
         if (deletingQuestionTemplate === false) {
             setIsInConfirmDeleteMode(false)
+            refetchQuestionTemplates()
         }
     }, [deletingQuestionTemplate])
 
@@ -396,16 +397,7 @@ const useDeleteQuestionTemplateMutation = (): DeleteQuestionTemplateMutationProp
         }
     `
 
-    const [deleteQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(DELETE_QUESTION_TEMPLATE, {
-        update(cache, mutationResult) {
-            const questionTemplateDeleted = mutationResult.data.deleteQuestionTemplate
-            const id = cache.identify({
-                __typename: 'QuestionTemplate',
-                id: questionTemplateDeleted.id,
-            })
-            cache.evict({ id })
-        },
-    })
+    const [deleteQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(DELETE_QUESTION_TEMPLATE)
 
     const deleteQuestionTemplate = (questionTemplateId: string) => {
         deleteQuestionTemplateApolloFunc({
