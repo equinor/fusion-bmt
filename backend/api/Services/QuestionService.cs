@@ -64,6 +64,20 @@ namespace api.Services
             return questions;
         }
 
+        public ICollection<Question> SquashOrder(ICollection<Question> questions)
+        {
+            var orderedQuestions = questions.OrderBy(q => q.Order);
+            int order = 1;
+            foreach (var q in orderedQuestions)
+            {
+                q.Order = order++;
+                _context.Questions.Update(q);
+            }
+
+            _context.SaveChanges();
+            return questions;
+        }
+
         public IQueryable<Question> GetAll()
         {
             return _context.Questions;

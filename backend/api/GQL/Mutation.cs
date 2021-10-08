@@ -88,6 +88,7 @@ namespace api.GQL
             var projectCategory = _projectCategoryService.Get(projectCategoryId);
             var questions = _questionTemplateService.ActiveQuestions(projectCategory);
             _questionService.CreateBulk(questions, evaluation);
+            _questionService.SquashOrder(evaluation.Questions);
 
             var log = $"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}";
             _logger.LogInformation(log);
