@@ -32,12 +32,24 @@ namespace tests
         public void Create()
         {
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
+            Barrier barrier = Randomize.Barrier();
+            int maxBarrierOrder = questionTemplateService.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order)
+            ;
 
             int nQuestionTemplatesBefore = questionTemplateService.GetAll().Count();
-            questionTemplateService.Create(Barrier.GM, Organization.All, "text", "supportNotes");
+            int maxOrderBefore = questionTemplateService.GetAll().Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
+
+            var newQuestionTemplate = questionTemplateService.Create(barrier, Organization.All, "text", "supportNotes");
+
             int nQuestionTemplatesAfter = questionTemplateService.GetAll().Count();
+            int maxOrderAfter = questionTemplateService.GetAll().Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
 
             Assert.Equal(nQuestionTemplatesBefore + 1, nQuestionTemplatesAfter);
+            Assert.Equal(maxBarrierOrder + 1, newQuestionTemplate.Order);
+            Assert.Equal(maxOrderBefore + 1, maxOrderAfter);
         }
 
         [Fact]

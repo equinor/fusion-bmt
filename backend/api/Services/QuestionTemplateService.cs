@@ -48,6 +48,12 @@ namespace api.Services
                 .Max(qt => qt.Order) + 1
             ;
 
+            int newOrder = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order) + 1
+            ;
+
             QuestionTemplate newQuestionTemplate = new QuestionTemplate
             {
                 CreateDate = createDate,
@@ -60,9 +66,9 @@ namespace api.Services
             };
 
             _context.QuestionTemplates.Add(newQuestionTemplate);
-
             _context.SaveChanges();
-            return newQuestionTemplate;
+
+            return ReorderQuestionTemplateInternal(newQuestionTemplate, newOrder);
         }
 
         public QuestionTemplate Edit(
