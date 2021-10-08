@@ -154,6 +154,32 @@ namespace tests
         }
 
         [Fact]
+        public void DoNotReorderInactiveQuestionTemplate()
+        {
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
+            IQueryable<QuestionTemplate> getAll = questionTemplateService.GetAll();
+            // Edit a question template to make sure an inactive question template exists
+            var originalQT = getAll.First();
+            var updatedQT = questionTemplateService.Edit(
+                questionTemplate: originalQT,
+                barrier:          originalQT.Barrier,
+                organization:     Randomize.Organization(),
+                text:             Randomize.String(),
+                supportNotes:     Randomize.String(),
+                status:           Status.Active
+            );
+
+            var inactiveQuestionTemplate = getAll
+                .Where(qt => qt.Status == Status.Inactive)
+                .First()
+            ;
+
+            QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(inactiveQuestionTemplate);
+
+            Assert.Equal(inactiveQuestionTemplate.Order, resultingQuestionTemplate.Order);
+        }
+
+        [Fact]
         public void AddToProjectCategory()
         {
             var projectCategoryService = new ProjectCategoryService(fixture.context);
