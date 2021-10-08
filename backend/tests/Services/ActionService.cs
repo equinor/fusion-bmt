@@ -9,13 +9,19 @@ using api.Services;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class ActionServiceTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class ActionServiceTest
     {
+        DatabaseFixture fixture;
+
+        public ActionServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
         [Fact]
         public void GetQueryable()
         {
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
 
             IQueryable<Action> actionQueryable = actionService.GetAll();
 
@@ -25,12 +31,12 @@ namespace tests
         [Fact]
         public void Create()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
             int nActionBefore = actionService.GetAll().Count();
             actionService.Create(participant, participant, "description", DateTimeOffset.UtcNow, "title", Priority.Low, question);
             int nActionsAfter = actionService.GetAll().Count();
@@ -41,7 +47,7 @@ namespace tests
         [Fact]
         public void GetDoesNotExist()
         {
-            ActionService ActionService = new ActionService(_context);
+            ActionService ActionService = new ActionService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => ActionService.GetAction("some_action_id_that_does_not_exist"));
         }
@@ -49,10 +55,10 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            ActionService actionService = new ActionService(_context);
-            ParticipantService participantService = new ParticipantService(_context);
+            ActionService actionService = new ActionService(fixture.context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
             Action actionCreate = actionService.Create(participant, participant, "description", DateTimeOffset.UtcNow, "title", Priority.High, question);
@@ -65,13 +71,13 @@ namespace tests
         [Fact]
         public void EditAction()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
 
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
             string initialDescription = "initial description";
             Action action = actionService.Create(participant, participant, initialDescription, DateTimeOffset.UtcNow, "title", Priority.Medium, question);
             string actionId = action.Id;
@@ -86,8 +92,8 @@ namespace tests
         [Fact]
         public void DeleteAction()
         {
-            NoteService noteService = new NoteService(_context);
-            ActionService actionService = new ActionService(_context);
+            NoteService noteService = new NoteService(fixture.context);
+            ActionService actionService = new ActionService(fixture.context);
 
             Action action = actionService.GetAll().Where(a => a.Notes.Count() > 0).First();
             Note note = action.Notes.First();

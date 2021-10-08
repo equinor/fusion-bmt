@@ -9,13 +9,19 @@ using api.Services;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class AnswerServiceTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class AnswerServiceTest
     {
+        DatabaseFixture fixture;
+
+        public AnswerServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
         [Fact]
         public void GetQueryable()
         {
-            AnswerService answerService = new AnswerService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
 
             IQueryable<Answer> answerQueryable = answerService.GetAll();
 
@@ -25,12 +31,12 @@ namespace tests
         [Fact]
         public void Create()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().ToList()[0];
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
-            AnswerService answerService = new AnswerService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
             int nAnswerBefore = answerService.GetAll().Count();
             answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
             int nAnswersAfter = answerService.GetAll().Count();
@@ -41,7 +47,7 @@ namespace tests
         [Fact]
         public void GetDoesNotExist()
         {
-            AnswerService answerService = new AnswerService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => answerService.GetAnswer("some_answer_id_that_does_not_exist"));
         }
@@ -49,10 +55,10 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            AnswerService answerService = new AnswerService(_context);
-            ParticipantService participantService = new ParticipantService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().ToList()[1];
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
             Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
@@ -65,21 +71,21 @@ namespace tests
         [Fact]
         public void GetFromQuestionExists()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
             QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
             Project project = projectService.Create("AnswerService_GetFromQuestionExists");
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project, "");
 
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().ToList()[0];
 
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.Create(questionTemplate, evaluation);
 
-            AnswerService answerService = new AnswerService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
             Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
 
             Answer answerGet = answerService.GetAnswer(question, participant, question.Evaluation.Progression);
@@ -90,7 +96,7 @@ namespace tests
         [Fact]
         public void GetFromQuestionNull()
         {
-            AnswerService answerService = new AnswerService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
 
             Assert.Throws<ArgumentNullException>(() => answerService.GetAnswer(null, null, Progression.Preparation));
         }
@@ -98,16 +104,16 @@ namespace tests
         [Fact]
         public void GetFromQuestionNotExists()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.GetAll().First();
 
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.Create("GetFromQuestionNotExists_id", evaluation, Organization.All, Role.ReadOnly);
 
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
-            AnswerService answerService = new AnswerService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => answerService.GetAnswer(question, participant, Progression.Nomination));
         }
@@ -115,13 +121,13 @@ namespace tests
         [Fact]
         public void UpdateAnswer()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().ToList()[2];
 
-            QuestionService questionService = new QuestionService(_context);
+            QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
-            AnswerService answerService = new AnswerService(_context);
+            AnswerService answerService = new AnswerService(fixture.context);
             string initialText = "test answer";
             Answer answer = answerService.Create(participant, question, Severity.High, initialText, participant.Progression);
             string answerId = answer.Id;
@@ -136,17 +142,17 @@ namespace tests
         [Fact]
         public void CreateFollowUpAnswers()
         {
-            ParticipantService participantService = new ParticipantService(_context);
-            QuestionService questionService = new QuestionService(_context);
-            AnswerService answerService = new AnswerService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
+            QuestionService questionService = new QuestionService(fixture.context);
+            AnswerService answerService = new AnswerService(fixture.context);
 
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
             Project project = projectService.Create("AnswerService_GetFromQuestionExists");
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project, "");
 
             Participant participant = participantService.Create("CreateFollowUpAnswers_id", evaluation, Organization.All, Role.Facilitator);
-            QuestionTemplateService qts = new QuestionTemplateService(_context);
+            QuestionTemplateService qts = new QuestionTemplateService(fixture.context);
             List<Question> questions = questionService.CreateBulk(qts.GetAll().ToList(), evaluation);
             answerService.Create(participant, questions[0], Severity.High, "test_answer_0", Progression.Workshop);
             answerService.Create(participant, questions[1], Severity.High, "test_answer_1", Progression.Workshop);

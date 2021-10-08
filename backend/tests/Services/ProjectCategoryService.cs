@@ -11,13 +11,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class ProjectCategoryServiceTest  : DbContextTestSetup
+    [Collection("Database collection")]
+    public class ProjectCategoryServiceTest
     {
+        DatabaseFixture fixture;
+
+        public ProjectCategoryServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
         [Fact]
         public void GetQueryable()
         {
-            var service = new AnswerService(_context);
+            var service = new AnswerService(fixture.context);
 
             Assert.True(service.GetAll().Count() > 0);
         }
@@ -25,7 +31,7 @@ namespace tests
         [Fact]
         public void Create()
         {
-            var service = new ProjectCategoryService(_context);
+            var service = new ProjectCategoryService(fixture.context);
 
             int nCategories = service.GetAll().Count();
             service.Create(Randomize.String());
@@ -36,12 +42,12 @@ namespace tests
         [Fact]
         public void Delete()
         {
-            var service = new ProjectCategoryService(_context);
+            var service = new ProjectCategoryService(fixture.context);
             int nCategories = service.GetAll().Count();
             var oldProjectCategory = service.GetAll().First();
             var newProjectCategory = service.CopyFrom(Randomize.String(), oldProjectCategory);
 
-            var qtService = new QuestionTemplateService(_context);
+            var qtService = new QuestionTemplateService(fixture.context);
             var questionTemplate  = qtService
                 .GetAll()
                 .Include(x => x.ProjectCategories)
@@ -59,7 +65,7 @@ namespace tests
         [Fact]
         public void CopyFrom()
         {
-            var service = new ProjectCategoryService(_context);
+            var service = new ProjectCategoryService(fixture.context);
             var nProjectCategories = service.GetAll().Count();
             var other = service.GetAll().First();
             var nTemplates = other.QuestionTemplates.Count();
@@ -73,7 +79,7 @@ namespace tests
         [Fact]
         public void GetExising()
         {
-            var service = new ProjectCategoryService(_context);
+            var service = new ProjectCategoryService(fixture.context);
 
             var name = Randomize.String();
             var exisingId = service.Create(name).Id;
@@ -85,7 +91,7 @@ namespace tests
         [Fact]
         public void GetNonExisting()
         {
-            var service = new ProjectCategoryService(_context);
+            var service = new ProjectCategoryService(fixture.context);
 
             var nonExistingId = Randomize.String();
 

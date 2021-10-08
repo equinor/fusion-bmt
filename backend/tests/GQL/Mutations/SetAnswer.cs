@@ -9,6 +9,7 @@ using api.GQL;
 
 namespace tests
 {
+    [Collection("Database collection")]
     public class SetAnswerMutation : MutationTest
     {
         private readonly Evaluation _evaluation;
@@ -18,7 +19,7 @@ namespace tests
         private readonly Participant _readonly;
         private readonly Question _question;
 
-        public SetAnswerMutation() {
+        public SetAnswerMutation(DatabaseFixture fixture) : base(fixture) {
             _evaluation = CreateEvaluation();
             _facilitator = _evaluation.Participants.First();
             _authService.LoginUser(_facilitator);

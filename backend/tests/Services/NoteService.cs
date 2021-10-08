@@ -9,13 +9,19 @@ using api.Services;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class NoteServiceTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class NoteServiceTest
     {
+        DatabaseFixture fixture;
+
+        public NoteServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
         [Fact]
         public void GetQueryable()
         {
-            NoteService noteService = new NoteService(_context);
+            NoteService noteService = new NoteService(fixture.context);
 
             IQueryable<Note> noteQueryable = noteService.GetAll();
 
@@ -25,12 +31,12 @@ namespace tests
         [Fact]
         public void Create()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
             Action action = actionService.GetAll().First();
 
-            NoteService noteService = new NoteService(_context);
+            NoteService noteService = new NoteService(fixture.context);
             int nNoteBefore = noteService.GetAll().Count();
             noteService.Create(participant, "text", action);
             int nNotesAfter = noteService.GetAll().Count();
@@ -41,7 +47,7 @@ namespace tests
         [Fact]
         public void GetDoesNotExist()
         {
-            NoteService noteService = new NoteService(_context);
+            NoteService noteService = new NoteService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => noteService.GetNote("some_note_id_that_does_not_exist"));
         }
@@ -49,10 +55,10 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            NoteService noteService = new NoteService(_context);
-            ParticipantService participantService = new ParticipantService(_context);
+            NoteService noteService = new NoteService(fixture.context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
             Action action = actionService.GetAll().First();
 
             Note NoteCreate = noteService.Create(participant, "text", action);
@@ -65,13 +71,13 @@ namespace tests
         [Fact]
         public void EditNote()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
 
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
             Action action = actionService.GetAll().First();
 
-            NoteService noteService = new NoteService(_context);
+            NoteService noteService = new NoteService(fixture.context);
             string initialText = "initial text";
             Note note = noteService.Create(participant, initialText, action);
             string noteId = note.Id;
