@@ -175,6 +175,7 @@ describe('Admin page', () => {
                 new ConfirmationDialog().yesButton().click()
                 adminPage.selectProjectCategoryDropdown().click()
                 dropdownSelect.assertSelectValues(['CircleField', 'SquareField', 'All project categories'])
+                goToQuestionnaire()
                 cy.contains(newCategoryName).should('not.exist')
             })
         })
