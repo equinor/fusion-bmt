@@ -178,6 +178,7 @@ describe('Admin page', () => {
                     cy.contains(newCategoryName).should('not.exist')
                     dropdownSelect.assertSelectValues(projectCatArray.concat('All project categories'))
                     goToQuestionnaire()
+                    adminPage.selectProjectCategoryDropdown().click()
                     cy.contains(newCategoryName).should('not.exist')
                 })
             })
