@@ -1,14 +1,15 @@
-import { users, getUserWithAdminRole, getUserWithNoAdminRole } from '../support/mock/external/users'
+import { getUserWithAdminRole, getUserWithNoAdminRole } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { Organization, Barrier } from '../../src/api/models'
 import { AdminPage } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
-import { activeQuestionTemplates, projectCategoryId } from '../support/testsetup/evaluation_seed'
+import { activeQuestionTemplates, allProjectCategoryNames, projectCategoryId } from '../support/testsetup/evaluation_seed'
 import { ConfirmationDialog } from '../page_objects/common'
-import { CREATE_QUESTION_TEMPLATE, GET_PROJECT_CATEGORY, DELETE_QUESTION_TEMPLATE } from '../support/testsetup/gql'
-
+import { CREATE_QUESTION_TEMPLATE, DELETE_QUESTION_TEMPLATE, CREATE_PROJECT_CATEGORY } from '../support/testsetup/gql'
+import { organizationToString } from '../../src/utils/EnumToString'
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
+
 describe('Admin page', () => {
     const goToQuestionnaire = () => {
         const adminUser = getUserWithAdminRole()
@@ -16,6 +17,7 @@ describe('Admin page', () => {
         adminPage.adminButton().click()
         adminPage.adminPageTitle().should('have.text', 'Project configuration: Questionnaire')
     }
+
     beforeEach(() => {
         goToQuestionnaire()
     })
@@ -151,6 +153,37 @@ describe('Admin page', () => {
             })
         })
     })
+
+    it('Select question template by category, delete project category & verify project category is no longer present', () => {
+        allProjectCategoryNames().then(projectCatArray => {
+            const newCategoryName = 'TheNewCategory' + faker.lorem.word()
+            createNewProjectCategory(newCategoryName).then(categoryId => {
+                const questionTitle = faker.lorem.words(2)
+                const organization = faker.random.arrayElement(Object.values(Organization))
+                const supportNotes = faker.lorem.words(3)
+                createNewQuestionTemplate(Barrier.Gm, organization, questionTitle, supportNotes, [categoryId])
+                goToQuestionnaire()
+                const dropdownSelect = new DropdownSelect()
+                dropdownSelect.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
+                cy.contains(newCategoryName).should('be.visible')
+                adminPage.allQuestionNo().then(questions => {
+                    expect(questions.length, ' number of questions should be ').to.equal(1)
+                })
+                adminPage.questionNoByTitle(questionTitle).then(qNo => {
+                    const questionNo = parseInt(Cypress.$(qNo).text())
+                    verifyQuestion(questionNo, questionTitle, organizationToString(organization), supportNotes)
+                    adminPage.deleteProjectCategory().click()
+                    new ConfirmationDialog().yesButton().click()
+                    adminPage.selectProjectCategoryDropdown().click()
+                    cy.contains(newCategoryName).should('not.exist')
+                    dropdownSelect.assertSelectValues(projectCatArray.concat('All project categories'))
+                    goToQuestionnaire()
+                    adminPage.selectProjectCategoryDropdown().click()
+                    cy.contains(newCategoryName).should('not.exist')
+                })
+            })
+        })
+    })
 })
 
 const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNotes: string, organization: string) => {
@@ -178,4 +211,11 @@ const createNewQuestionTemplate = (
     projectCategoryIds: [string]
 ) => {
     cy.gql(CREATE_QUESTION_TEMPLATE, { variables: { barrier, organization, text, supportNotes, projectCategoryIds } })
+}
+
+const createNewProjectCategory = (categoryName: string) => {
+    return cy.gql(CREATE_PROJECT_CATEGORY, { variables: { name: categoryName } }).then(res => {
+        const id = res.body.data.createProjectCategory.id
+        return id
+    })
 }

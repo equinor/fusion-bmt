@@ -1,4 +1,5 @@
 import { getToken } from '../commands/auth'
+
 const API_URL = Cypress.env('API_URL') || 'http://localhost:5000'
 Cypress.Commands.add('gql', (query: string, variables: {}) => {
     return cy.request({
@@ -26,6 +27,14 @@ export const DELETE_QUESTION_TEMPLATE = `
             }
         }
     `
+export const CREATE_PROJECT_CATEGORY = `
+mutation CreateProjectCategory($name: String!) {
+    createProjectCategory(name: $name) {
+        id
+        name
+    }
+}
+`
 
 export const CREATE_QUESTION_TEMPLATE = `
 mutation CreateQuestionTemplate(
@@ -70,6 +79,14 @@ export const GET_PROJECT_CATEGORY = `
     query($name: String!) {
         projectCategory(where: { name: { eq: $name } }) {
             id
+        }
+    }
+`
+
+export const GET_ALL_PROJECT_CATEGORY_NAMES = `
+    query() {
+        projectCategory() {
+            name
         }
     }
 `

@@ -17,6 +17,7 @@ import {
     GET_PROJECT_CATEGORY,
     GET_EVALUATIONS,
     GET_QUESTION_TEMPLATES,
+    GET_ALL_PROJECT_CATEGORY_NAMES,
 } from './gql'
 
 type EvaluationSeedInput = {
@@ -317,5 +318,16 @@ export function projectCategoryId(categoryName: string): Cypress.Chainable<strin
         const id = res.body.data.projectCategory?.[0].id
 
         return id
+    })
+}
+
+export function allProjectCategoryNames(): Cypress.Chainable<Array<string>> {
+    return cy.gql(GET_ALL_PROJECT_CATEGORY_NAMES, { variables: {} }).then(res => {
+        interface pname {
+            name: string
+        }
+        const nameArray: Array<pname> = res.body.data.projectCategory
+        var returnVal = nameArray.map(v => v.name)
+        return returnVal
     })
 }

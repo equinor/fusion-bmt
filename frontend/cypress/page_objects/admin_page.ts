@@ -1,4 +1,8 @@
 export class AdminPage {
+    deleteProjectCategory = () => {
+        return cy.getByDataTestid('deleteProjectCategory')
+    }
+
     supportNotes = (questionNo: number) => {
         return cy
             .getByDataTestid('question-title-' + questionNo)
@@ -24,6 +28,10 @@ export class AdminPage {
 
     allQuestionNo = () => {
         return cy.get('[data-testid^=question-number-]')
+    }
+
+    selectProjectCategoryDropdown = () => {
+        return cy.contains('label', 'Project Category').next()
     }
 
     question = (questionNo: number) => {
