@@ -119,20 +119,43 @@ namespace tests
         public void DeleteQuestionTemplate()
         {
             var service = new QuestionTemplateService(fixture.context);
+            Barrier barrier = Randomize.Barrier();
             var questionTemplateToDelete = service.Create(
-                barrier:      Randomize.Barrier(),
+                barrier:      barrier,
                 organization: Randomize.Organization(),
                 text:         Randomize.String(),
                 supportNotes: Randomize.String()
             );
-            
+
             var projectCategory  = new ProjectCategoryService(fixture.context).GetAll().First();
             questionTemplateToDelete = service.AddToProjectCategory(questionTemplateToDelete.Id, projectCategory.Id);
 
+            int maxOrderActive = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order)
+            ;
+            int maxBarrierOrder = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order)
+            ;
+
             var deletedQuestionTemplate = service.Delete(questionTemplateToDelete);
+
+            int maxOrderActiveAfter = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order)
+            ;
+            int maxBarrierOrderAfter = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order)
+            ;
             
             int maxOrder = fixture.context.QuestionTemplates.Max(qt => qt.Order);
 
+            Assert.Equal(maxOrderActive - 1, maxOrderActiveAfter);
+            Assert.Equal(maxBarrierOrder - 1, maxBarrierOrderAfter);
             Assert.Equal(deletedQuestionTemplate.Order, maxOrder);
             Assert.True(deletedQuestionTemplate.Status == Status.Voided);
             Assert.Equal(deletedQuestionTemplate.ProjectCategories, questionTemplateToDelete.ProjectCategories);
