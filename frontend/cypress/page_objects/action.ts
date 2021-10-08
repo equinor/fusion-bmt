@@ -1,8 +1,9 @@
-import { DropdownSelect, SideSheet } from '../page_objects/common'
+import { DropdownSelect, SideSheet, SaveIndicator } from '../page_objects/common'
 import { Action, Note } from '../support/testsetup/mocks'
 import { FUSION_DATE_LOCALE } from '../support/helpers/helpers'
 import { Priority, Question } from '../../src/api/models'
 import { barrierToString, organizationToString } from '../../src/utils/EnumToString'
+import { SavingState } from '../../src/utils/Variables'
 
 /**
  * List of actions under every question
@@ -147,7 +148,7 @@ export class EditActionDialog extends ActionDialog {
             .parent()
             .parent()
             .within(() => {
-                cy.getByDataTestid('save_indicator', 10000).should('have.text', 'Saved')
+                new SaveIndicator().assertState(SavingState.Saved)
             })
     }
 
