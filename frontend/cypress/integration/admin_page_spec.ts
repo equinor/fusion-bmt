@@ -6,7 +6,7 @@ import { DropdownSelect } from '../page_objects/common'
 import { activeQuestionTemplates, projectCategoryId } from '../support/testsetup/evaluation_seed'
 import { ConfirmationDialog } from '../page_objects/common'
 import { CREATE_QUESTION_TEMPLATE, DELETE_QUESTION_TEMPLATE, CREATE_PROJECT_CATEGORY } from '../support/testsetup/gql'
-
+import { organizationToString } from '../../src/utils/EnumToString'
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
 
@@ -154,15 +154,13 @@ describe('Admin page', () => {
         })
     })
 
-    it('Select question template by category, delete project category & verify project category is no longer present', () => {
+    it.only('Select question template by category, delete project category & verify project category is no longer present', () => {
         const newCategoryName = 'TheNewCategory' + faker.lorem.word()
         createNewProjectCategory(newCategoryName).then(categoryId => {
             const questionTitle = faker.lorem.words(2)
-            const organization = faker.random.arrayElement(Object.keys(Organization))
+            const organization = faker.random.arrayElement(Object.values(Organization))
             const supportNotes = faker.lorem.words(3)
-            // @ts-ignore
-            let org: Organization = Organization[organization]
-            createNewQuestionTemplate(Barrier.Gm, org, questionTitle, supportNotes, [categoryId])
+            createNewQuestionTemplate(Barrier.Gm, organization, questionTitle, supportNotes, [categoryId])
             goToQuestionnaire()
             const dropdownSelect = new DropdownSelect()
             dropdownSelect.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
@@ -172,7 +170,7 @@ describe('Admin page', () => {
             })
             adminPage.questionNoByTitle(questionTitle).then(qNo => {
                 const questionNo = parseInt(Cypress.$(qNo).text())
-                verifyQuestion(questionNo, questionTitle, organization, supportNotes)
+                verifyQuestion(questionNo, questionTitle, organizationToString(organization), supportNotes)
                 adminPage.deleteProjectCategory().click()
                 new ConfirmationDialog().yesButton().click()
                 adminPage.selectProjectCategoryDropdown().click()
