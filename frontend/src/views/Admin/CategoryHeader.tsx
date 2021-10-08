@@ -99,7 +99,7 @@ const CategoryHeader = ({
                         </Box>
                     </Box>
                     <Box alignSelf={'center'}>
-                        <Button variant="outlined" onClick={() => setIsInCreateProjectCategoryMode(true)}>
+                        <Button variant="outlined" onClick={() => setIsInCreateProjectCategoryMode(true)} data-testid="addProjectCategory">
                             <Icon data={add}></Icon>
                             Add project category
                         </Button>

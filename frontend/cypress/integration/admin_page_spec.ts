@@ -1,7 +1,7 @@
 import { getUserWithAdminRole, getUserWithNoAdminRole } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { Organization, Barrier } from '../../src/api/models'
-import { AdminPage } from '../page_objects/admin_page'
+import { AdminPage, CreateProjectCategory } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
 import { activeQuestionTemplates, allProjectCategoryNames, projectCategoryId } from '../support/testsetup/evaluation_seed'
 import { ConfirmationDialog } from '../page_objects/common'
@@ -123,6 +123,47 @@ describe('Admin page', () => {
                     })
                     cy.contains(questionTitle).should('not.exist')
                 })
+            })
+        })
+    })
+    const testdata = [{ addQuestionsFromCategory: 'SquareField' }, { addQuestionsFromCategory: undefined }]
+    testdata.forEach(t => {
+        it.only(`Add project category ${
+            t.addQuestionsFromCategory !== undefined ? ' and copy from ' + t.addQuestionsFromCategory : ' and do not copy'
+        }`, () => {
+            adminPage.addProjectCategoryButton().click()
+            const newCategoryName: string = 'NewCat' + faker.lorem.word()
+            const projectCategory = new CreateProjectCategory()
+            projectCategory.nameTextField().type(newCategoryName)
+            const dropdown = new DropdownSelect()
+            if (t.addQuestionsFromCategory !== undefined) {
+                dropdown.select(projectCategory.dropdownField(), t.addQuestionsFromCategory)
+            }
+            projectCategory.save().click()
+            activeQuestionTemplates(newCategoryName).then(questionTemplates => {
+                dropdown.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
+                if (t.addQuestionsFromCategory !== undefined) {
+                    activeQuestionTemplates(t.addQuestionsFromCategory).then(questionTemplatesSrc => {
+                        expect(questionTemplates.length, ' number of questions in new category matches category copied from ').to.equal(
+                            questionTemplatesSrc.length
+                        )
+                    })
+                    cy.contains(newCategoryName).then($questions => {
+                        expect($questions).to.not.equal(undefined)
+                        const length = $questions.length
+                        cy.contains(t.addQuestionsFromCategory).then($copiedFrom => {
+                            expect(length, ' number of questions in newly added category is equals category copied from in GUI').to.equal(
+                                $copiedFrom.length
+                            )
+                        })
+                    })
+                } else {
+                    expect(questionTemplates.length, ' no questions were added to newly created category').to.equal(0)
+                    cy.contains('Nothing here yet.')
+                    cy.contains(
+                        'Add a new question or select "All project categories" to find questions that can be assigned to your new category.'
+                    )
+                }
             })
         })
     })

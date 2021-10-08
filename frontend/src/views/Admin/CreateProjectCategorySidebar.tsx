@@ -77,6 +77,7 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
             <Grid container style={{ padding: 20 }}>
                 <Grid item xs={12}>
                     <TextField
+                        data-testid="projectCategoryName"
                         id="name"
                         value={projectCategoryName}
                         autoFocus={true}
@@ -98,10 +99,16 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                     />
                 </Grid>
                 <Grid container justify="flex-end" style={{ marginTop: '20px' }}>
-                    <Button variant="outlined" style={{ marginRight: '10px' }} onClick={() => setIsOpen(false)} disabled={loading}>
+                    <Button
+                        data-testid="cancelCreateProjectCategory"
+                        variant="outlined"
+                        style={{ marginRight: '10px' }}
+                        onClick={() => setIsOpen(false)}
+                        disabled={loading}
+                    >
                         Cancel
                     </Button>
-                    <Button onClick={onCreateProjectCategory} disabled={!isNameValid() || loading}>
+                    <Button data-testid="saveCreateProjectCategory" onClick={onCreateProjectCategory} disabled={!isNameValid() || loading}>
                         Save
                     </Button>
                 </Grid>

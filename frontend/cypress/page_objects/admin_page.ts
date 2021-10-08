@@ -22,6 +22,10 @@ export class AdminPage {
         return cy.getByDataTestid('organization-' + questionNo)
     }
 
+    addProjectCategoryButton = () => {
+        return cy.getByDataTestid('addProjectCategory')
+    }
+
     adminButton = () => {
         return cy.get('button').contains('Admin')
     }
@@ -89,5 +93,23 @@ export class AdminPage {
 
     newQuestionTitle = () => {
         return cy.getByDataTestid('question-title-textfield')
+    }
+}
+
+export class CreateProjectCategory {
+    nameTextField = () => {
+        return cy.getByDataTestid('projectCategoryName')
+    }
+
+    cancel = () => {
+        return cy.getByDataTestid('cancelCreateProjectCategory')
+    }
+
+    save = () => {
+        return cy.getByDataTestid('saveCreateProjectCategory')
+    }
+
+    dropdownField = () => {
+        return cy.contains('Add questions from project category (optional)', { includeShadowDom: true })
     }
 }
