@@ -194,23 +194,28 @@ namespace api.Services
             if (questionTemplate.Status != Status.Active) {
                 return questionTemplate;
             }
-            List<QuestionTemplate> questionTemplates = _context.QuestionTemplates
-                .Where(qt => qt.Status == Status.Active)
-                .OrderBy(qt => qt.Order)
-                .ToList()
-            ;
 
-            questionTemplates.Remove(questionTemplate);
-            questionTemplates.Insert(newOrder - 1, questionTemplate);
+            questionTemplate.Order = newOrder;
+            _context.QuestionTemplates.Update(questionTemplate);
+
+            var questionTemplates = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Id != questionTemplate.Id)
+                .OrderBy(qt => qt.Order)
+            ;
 
             int order = 1;
             foreach (QuestionTemplate qt in questionTemplates)
             {
-                qt.Order = order;
-                order += 1;
+                if (order == newOrder)
+                {
+                    // Skip new order to make room for updated QT
+                    order += 1;
+                }
+                qt.Order = order++;
+                _context.QuestionTemplates.Update(qt);
             }
 
-            _context.QuestionTemplates.UpdateRange(questionTemplates);
             _context.SaveChanges();
             return questionTemplate;
         }
