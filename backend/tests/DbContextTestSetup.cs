@@ -18,7 +18,7 @@ namespace tests
         protected DbContextTestSetup()
         {
             DbContextOptionsBuilder<BmtDbContext> builder = new DbContextOptionsBuilder<BmtDbContext>();
-            string connectionString = new SqliteConnectionStringBuilder { DataSource = "file::memory:", Cache = SqliteCacheMode.Shared }.ToString();
+            string connectionString = new SqliteConnectionStringBuilder { DataSource = ":memory:", Cache = SqliteCacheMode.Shared }.ToString();
             _connection = new SqliteConnection(connectionString);
             _connection.Open();
             builder.EnableSensitiveDataLogging();
