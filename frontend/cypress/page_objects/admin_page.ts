@@ -31,7 +31,7 @@ export class AdminPage {
     }
 
     selectProjectCategoryDropdown = () => {
-        return cy.get('[value="All project categories"]')
+        return cy.contains('label', 'Project Category').next()
     }
 
     question = (questionNo: number) => {
