@@ -6,13 +6,19 @@ using api.Services;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class ProjectServiceTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class ProjectServiceTest
     {
+        DatabaseFixture fixture;
+
+        public ProjectServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
         [Fact]
         public void GetQueryable()
         {
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
             IQueryable<Project> projectQueryable = projectService.GetAll();
 
             Assert.True(projectQueryable.Count() > 0);
@@ -21,7 +27,7 @@ namespace tests
         [Fact]
         public void Create()
         {
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
             int nProjectsBefore = projectService.GetAll().Count();
             projectService.Create("some_id_that_does_not_exist");
             int nProjectsAfter = projectService.GetAll().Count();
@@ -32,7 +38,7 @@ namespace tests
         [Fact]
         public void GetProjectFromFusionIdException()
         {
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => projectService.GetProjectFromFusionId("some_project_id_that_does_not_exist"));
         }
@@ -40,7 +46,7 @@ namespace tests
         [Fact]
         public void GetProjectFromFusionId()
         {
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
 
             Project projectExsists = projectService.GetAll().First();
 
@@ -52,7 +58,7 @@ namespace tests
         [Fact]
         public void GetDoesNotExist()
         {
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => projectService.GetProject("some_project_id_that_does_not_exist"));
         }
@@ -60,7 +66,7 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            ProjectService projectService = new ProjectService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
 
             Project projectCreate = projectService.Create("some_fusion_project_id");
 

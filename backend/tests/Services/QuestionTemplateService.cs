@@ -8,13 +8,20 @@ using api.Services;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class QuestionTemplateServiceTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class QuestionTemplateServiceTest
     {
+        DatabaseFixture fixture;
+
+        public QuestionTemplateServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
+
         [Fact]
         public void GetQueryable()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
 
             IQueryable<QuestionTemplate> questions = questionTemplateService.GetAll();
 
@@ -24,19 +31,31 @@ namespace tests
         [Fact]
         public void Create()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
+            Barrier barrier = Randomize.Barrier();
+            int maxBarrierOrder = questionTemplateService.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order)
+            ;
 
             int nQuestionTemplatesBefore = questionTemplateService.GetAll().Count();
-            questionTemplateService.Create(Barrier.GM, Organization.All, "text", "supportNotes");
+            int maxOrderBefore = questionTemplateService.GetAll().Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
+
+            var newQuestionTemplate = questionTemplateService.Create(barrier, Organization.All, "text", "supportNotes");
+
             int nQuestionTemplatesAfter = questionTemplateService.GetAll().Count();
+            int maxOrderAfter = questionTemplateService.GetAll().Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
 
             Assert.Equal(nQuestionTemplatesBefore + 1, nQuestionTemplatesAfter);
+            Assert.Equal(maxBarrierOrder + 1, newQuestionTemplate.Order);
+            Assert.Equal(maxOrderBefore + 1, maxOrderAfter);
         }
 
         [Fact]
         public void GetDoesNotExist()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => questionTemplateService.GetQuestionTemplate("some_action_id_that_does_not_exist"));
         }
@@ -44,7 +63,7 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
 
             QuestionTemplate questionTemplateCreate = questionTemplateService.Create(Barrier.GM, Organization.All, "text", "supportNotes");
 
@@ -56,15 +75,16 @@ namespace tests
         [Fact]
         public void EditQuestionTemplate()
         {
-            var service = new QuestionTemplateService(_context);
+            var service = new QuestionTemplateService(fixture.context);
+            Barrier barrier = Randomize.Barrier();
             var originalQT = service.Create(
-                barrier:      Randomize.Barrier(),
+                barrier:      barrier,
                 organization: Randomize.Organization(),
                 text:         Randomize.String(),
                 supportNotes: Randomize.String()
             );
 
-            var projectCategory  = new ProjectCategoryService(_context).GetAll().First();
+            var projectCategory  = new ProjectCategoryService(fixture.context).GetAll().First();
             originalQT = service.AddToProjectCategory(originalQT.Id, projectCategory.Id);
 
             var nTemplates = service.GetAll().Count();
@@ -73,11 +93,10 @@ namespace tests
             var newText         = Randomize.String();
             var newSupportNotes = Randomize.String();
             var newOrganization = Randomize.Organization();
-            var newBarrier      = Randomize.Barrier();
 
             var updatedQT = service.Edit(
                 questionTemplate: originalQT,
-                barrier:          newBarrier,
+                barrier:          barrier,
                 organization:     newOrganization,
                 text:             newText,
                 supportNotes:     newSupportNotes,
@@ -89,7 +108,7 @@ namespace tests
 
             Assert.Equal(newText,          updatedQT.Text);
             Assert.Equal(newSupportNotes,  updatedQT.SupportNotes);
-            Assert.Equal(newBarrier,       updatedQT.Barrier);
+            Assert.Equal(barrier,          updatedQT.Barrier);
             Assert.Equal(newOrganization,  updatedQT.Organization);
 
             Assert.Equal(originalQT,       updatedQT.previous);
@@ -99,20 +118,44 @@ namespace tests
         [Fact]
         public void DeleteQuestionTemplate()
         {
-            var service = new QuestionTemplateService(_context);
+            var service = new QuestionTemplateService(fixture.context);
+            Barrier barrier = Randomize.Barrier();
             var questionTemplateToDelete = service.Create(
-                barrier:      Randomize.Barrier(),
+                barrier:      barrier,
                 organization: Randomize.Organization(),
                 text:         Randomize.String(),
                 supportNotes: Randomize.String()
             );
-            var projectCategory  = new ProjectCategoryService(_context).GetAll().First();
+
+            var projectCategory  = new ProjectCategoryService(fixture.context).GetAll().First();
             questionTemplateToDelete = service.AddToProjectCategory(questionTemplateToDelete.Id, projectCategory.Id);
 
-            var deletedQuestionTemplate = service.Delete(questionTemplateToDelete);
-            
-            int maxOrder = _context.QuestionTemplates.Max(qt => qt.Order);
+            int maxOrderActive = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order)
+            ;
+            int maxBarrierOrder = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order)
+            ;
 
+            var deletedQuestionTemplate = service.Delete(questionTemplateToDelete);
+
+            int maxOrderActiveAfter = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order)
+            ;
+            int maxBarrierOrderAfter = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order)
+            ;
+            
+            int maxOrder = fixture.context.QuestionTemplates.Max(qt => qt.Order);
+
+            Assert.Equal(maxOrderActive - 1, maxOrderActiveAfter);
+            Assert.Equal(maxBarrierOrder - 1, maxBarrierOrderAfter);
             Assert.Equal(deletedQuestionTemplate.Order, maxOrder);
             Assert.True(deletedQuestionTemplate.Status == Status.Voided);
             Assert.Equal(deletedQuestionTemplate.ProjectCategories, questionTemplateToDelete.ProjectCategories);
@@ -121,11 +164,17 @@ namespace tests
         [Fact]
         public void ReorderQuestionTemplate()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
             IQueryable<QuestionTemplate> getAll = questionTemplateService.GetAll();
 
-            QuestionTemplate questionTemplate = getAll.ToList()[3];
-            QuestionTemplate newNextQuestionTemplate = getAll.ToList()[10];
+            QuestionTemplate questionTemplate = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .First(qt => qt.Order == 3)
+            ;
+            QuestionTemplate newNextQuestionTemplate = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .First(qt => qt.Order == 10)
+            ;
             int newOrder = newNextQuestionTemplate.Order;
 
             QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
@@ -135,23 +184,55 @@ namespace tests
         [Fact]
         public void ReorderQuestionTemplateToLast()
         {
-            QuestionTemplateService questionTemplateService = new QuestionTemplateService(_context);
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
             IQueryable<QuestionTemplate> getAll = questionTemplateService.GetAll();
 
-            QuestionTemplate questionTemplate = getAll.ToList()[3];
-            int newOrder = _context.QuestionTemplates.Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
+            QuestionTemplate questionTemplate = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .First(qt => qt.Order == 2)
+            ;
+            int newOrder = getAll
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order)
+            ;
             QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(questionTemplate);
 
             Assert.Equal(newOrder, resultingQuestionTemplate.Order);
         }
 
         [Fact]
+        public void DoNotReorderInactiveQuestionTemplate()
+        {
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
+            IQueryable<QuestionTemplate> getAll = questionTemplateService.GetAll();
+            // Edit a question template to make sure an inactive question template exists
+            var originalQT = getAll.First();
+            var updatedQT = questionTemplateService.Edit(
+                questionTemplate: originalQT,
+                barrier:          originalQT.Barrier,
+                organization:     Randomize.Organization(),
+                text:             Randomize.String(),
+                supportNotes:     Randomize.String(),
+                status:           Status.Active
+            );
+
+            var inactiveQuestionTemplate = getAll
+                .Where(qt => qt.Status == Status.Inactive)
+                .First()
+            ;
+
+            QuestionTemplate resultingQuestionTemplate = questionTemplateService.ReorderQuestionTemplate(inactiveQuestionTemplate);
+
+            Assert.Equal(inactiveQuestionTemplate.Order, resultingQuestionTemplate.Order);
+        }
+
+        [Fact]
         public void AddToProjectCategory()
         {
-            var projectCategoryService = new ProjectCategoryService(_context);
+            var projectCategoryService = new ProjectCategoryService(fixture.context);
             var projectCategory = projectCategoryService.Create(Randomize.String());
 
-            var service = new QuestionTemplateService(_context);
+            var service = new QuestionTemplateService(fixture.context);
             var nActive = service.ActiveQuestions(projectCategory).Count();
             var nTemplates = service.GetAll().Count();
             var template = service.GetAll().First();
@@ -174,10 +255,10 @@ namespace tests
         [Fact]
         public void RemoveFromProjectCategory()
         {
-            var projectCategoryService = new ProjectCategoryService(_context);
+            var projectCategoryService = new ProjectCategoryService(fixture.context);
             var projectCategory = projectCategoryService.Create(Randomize.String());
 
-            var service = new QuestionTemplateService(_context);
+            var service = new QuestionTemplateService(fixture.context);
             var template = service.GetAll().First();
 
             service.AddToProjectCategory(template.Id, projectCategory.Id);

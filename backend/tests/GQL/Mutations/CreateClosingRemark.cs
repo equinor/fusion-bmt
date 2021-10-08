@@ -9,6 +9,7 @@ using api.GQL;
 
 namespace tests
 {
+    [Collection("Database collection")]
     public class CreateClosingRemarkMutation : MutationTest
     {
         private readonly Evaluation _evaluation;
@@ -19,7 +20,7 @@ namespace tests
         private readonly Question _question;
         private readonly api.Models.Action _action;
 
-        public CreateClosingRemarkMutation() {
+        public CreateClosingRemarkMutation(DatabaseFixture fixture) : base(fixture) {
             _evaluation = CreateEvaluation();
             _facilitator = _evaluation.Participants.First();
             _authService.LoginUser(_facilitator);

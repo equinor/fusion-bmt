@@ -48,6 +48,12 @@ namespace api.Services
                 .Max(qt => qt.Order) + 1
             ;
 
+            int newOrder = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Max(qt => qt.Order) + 1
+            ;
+
             QuestionTemplate newQuestionTemplate = new QuestionTemplate
             {
                 CreateDate = createDate,
@@ -60,9 +66,9 @@ namespace api.Services
             };
 
             _context.QuestionTemplates.Add(newQuestionTemplate);
-
             _context.SaveChanges();
-            return newQuestionTemplate;
+
+            return ReorderQuestionTemplateInternal(newQuestionTemplate, newOrder);
         }
 
         public QuestionTemplate Edit(
@@ -190,23 +196,32 @@ namespace api.Services
 
         private QuestionTemplate ReorderQuestionTemplateInternal(QuestionTemplate questionTemplate, int newOrder)
         {
-            List<QuestionTemplate> questionTemplates = _context.QuestionTemplates
-                .Where(qt => qt.Status == Status.Active)
-                .OrderBy(qt => qt.Order)
-                .ToList()
-            ;
+            // Reordering is not necessary for question templates that are not Active
+            if (questionTemplate.Status != Status.Active) {
+                return questionTemplate;
+            }
 
-            questionTemplates.Remove(questionTemplate);
-            questionTemplates.Insert(newOrder - 1, questionTemplate);
+            questionTemplate.Order = newOrder;
+            _context.QuestionTemplates.Update(questionTemplate);
+
+            var questionTemplates = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Id != questionTemplate.Id)
+                .OrderBy(qt => qt.Order)
+            ;
 
             int order = 1;
             foreach (QuestionTemplate qt in questionTemplates)
             {
-                qt.Order = order;
-                order += 1;
+                if (order == newOrder)
+                {
+                    // Skip new order to make room for updated QT
+                    order += 1;
+                }
+                qt.Order = order++;
+                _context.QuestionTemplates.Update(qt);
             }
 
-            _context.QuestionTemplates.UpdateRange(questionTemplates);
             _context.SaveChanges();
             return questionTemplate;
         }

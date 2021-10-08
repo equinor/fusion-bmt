@@ -7,24 +7,26 @@ using Xunit;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class QueryTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class QueryTest
     {
         private readonly GraphQuery _query;
-        public QueryTest()
+        DatabaseFixture fixture;
+        public QueryTest(DatabaseFixture fixture)
         {
+            this.fixture = fixture;
             ILoggerFactory factory = new NullLoggerFactory();
             _query = new GraphQuery(
-                new ProjectService(_context),
-                new EvaluationService(_context),
-                new ParticipantService(_context),
-                new QuestionService(_context),
-                new QuestionTemplateService(_context),
-                new AnswerService(_context),
-                new ActionService(_context),
-                new NoteService(_context),
-                new ClosingRemarkService(_context),
-                new ProjectCategoryService(_context),
+                new ProjectService(fixture.context),
+                new EvaluationService(fixture.context),
+                new ParticipantService(fixture.context),
+                new QuestionService(fixture.context),
+                new QuestionTemplateService(fixture.context),
+                new AnswerService(fixture.context),
+                new ActionService(fixture.context),
+                new NoteService(fixture.context),
+                new ClosingRemarkService(fixture.context),
+                new ProjectCategoryService(fixture.context),
                 new Logger<GraphQuery>(factory)
             );
         }

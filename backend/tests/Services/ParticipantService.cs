@@ -7,13 +7,19 @@ using System;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class ParticipantServiceTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class ParticpantServiceTest
     {
+        DatabaseFixture fixture;
+
+        public ParticpantServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
         [Fact]
         public void GetQueryable()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             IQueryable<Participant> participantQueryable = participantService.GetAll();
 
             Assert.True(participantQueryable.Count() > 0);
@@ -22,10 +28,10 @@ namespace tests
         [Fact]
         public void Create()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.GetAll().First();
 
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
 
             int nParticipantsBefore = participantService.GetAll().Count();
             participantService.Create("Create_id", evaluation, Organization.Engineering, Role.Participant);
@@ -37,8 +43,8 @@ namespace tests
         [Fact]
         public void CreateGetsCorrectEvaluationId()
         {
-            ParticipantService participantService = new ParticipantService(_context);
-            EvaluationService evaluationService = new EvaluationService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.GetAll().First();
 
             string evaluationIdBefore = evaluation.Id;
@@ -51,7 +57,7 @@ namespace tests
         [Fact]
         public void GetDoesNotExists()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant("some_participant_id_that_does_not_exist"));
         }
@@ -59,10 +65,10 @@ namespace tests
         [Fact]
         public void GetExist()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.GetAll().First();
 
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participantCreate = participantService.Create("GetExist_id", evaluation, Organization.Engineering, Role.Participant);
 
             Participant participantGet = participantService.GetParticipant(participantCreate.Id);
@@ -73,10 +79,10 @@ namespace tests
         [Fact]
         public void GetAzureId()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.GetAll().First();
 
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             string azureUniqueId = "GetAzureId_id";
             Participant participantCreated = participantService.Create(azureUniqueId, evaluation, Organization.Engineering, Role.Participant);
 
@@ -88,10 +94,10 @@ namespace tests
         [Fact]
         public void GetAzureIdNotExists()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.GetAll().First();
 
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             string azureUniqueId = "get_azure_unique_id_not_exists";
 
             Assert.Throws<NotFoundInDBException>(() => participantService.GetParticipant(azureUniqueId, evaluation));
@@ -100,10 +106,10 @@ namespace tests
         [Fact]
         public void Delete()
         {
-            EvaluationService evaluationService = new EvaluationService(_context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.GetAll().First();
 
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
 
             Participant participantCreate = participantService.Create("Delete_id", evaluation, Organization.Engineering, Role.Participant);
 
@@ -115,9 +121,9 @@ namespace tests
         [Fact]
         public void ProgressAllParticipants()
         {
-            ProjectService projectService = new ProjectService(_context);
-            ParticipantService participantService = new ParticipantService(_context);
-            EvaluationService evaluationService = new EvaluationService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Project project = projectService.Create("ProgressAllParticipants");
             Evaluation evaluation = evaluationService.Create("ProgressAllParticipants", project, "");
             Participant participant1 = participantService.Create("ProgressAllParticipants1", evaluation, Organization.All, Role.Facilitator);
@@ -136,9 +142,9 @@ namespace tests
         [Fact]
         public void ProgressParticipant()
         {
-            ProjectService projectService = new ProjectService(_context);
-            ParticipantService participantService = new ParticipantService(_context);
-            EvaluationService evaluationService = new EvaluationService(_context);
+            ProjectService projectService = new ProjectService(fixture.context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
             Project project = projectService.Create("ProgressParticipant");
             Evaluation evaluation = evaluationService.Create("ProgressParticipant", project, "");
             Participant participant = participantService.Create("ProgressParticipant", evaluation, Organization.All, Role.Facilitator);
@@ -150,5 +156,50 @@ namespace tests
             Assert.Equal(Progression.Nomination, progressionBefore);
             Assert.Equal(Progression.Individual, progressionAfter);
         }
+
+        [Fact]
+        public void ParticipantAddedToEvaluation()
+        {
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+            ParticipantService participantService = new ParticipantService(fixture.context);
+
+            int participantsBefore = evaluation.Participants.Count;
+            participantService.Create("ParticipantAddedToEvaluation_id", evaluation, Organization.Engineering, Role.Participant);
+            int participantsAfter = evaluation.Participants.Count;
+
+            Assert.Equal(participantsBefore + 1, participantsAfter);
+        }
+
+        [Fact]
+        public void ParticipantAddedToProject()
+        {
+            ProjectService projectService = new ProjectService(fixture.context);
+            Project project = projectService.GetAll().First();
+            Evaluation evaluation = project.Evaluations.First();
+            ParticipantService participantService = new ParticipantService(fixture.context);
+
+            int participantsBefore = project.Evaluations.First().Participants.Count;
+            participantService.Create("ParticipantAddedToProject", evaluation, Organization.Engineering, Role.Participant);
+            int participantsAfter = project.Evaluations.First().Participants.Count;
+
+            Assert.Equal(participantsBefore + 1, participantsAfter);
+        }
+
+        [Fact]
+        public void ParticipantDeletedFromEvaluation()
+        {
+            EvaluationService evaluationService = new EvaluationService(fixture.context);
+            Evaluation evaluation = evaluationService.GetAll().First();
+            ParticipantService participantService = new ParticipantService(fixture.context);
+            Participant participant = participantService.Create("ParticipantDeletedFromEvaluation_id", evaluation, Organization.Engineering, Role.Participant);
+
+            int participantsBefore = evaluation.Participants.Count;
+            participantService.Remove(participant.Id);
+            int participantsAfter = evaluation.Participants.Count;
+
+            Assert.Equal(participantsBefore - 1, participantsAfter);
+        }
+
     }
 }

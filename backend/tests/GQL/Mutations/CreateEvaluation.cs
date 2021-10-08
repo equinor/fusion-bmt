@@ -9,8 +9,12 @@ using api.GQL;
 
 namespace tests
 {
+    [Collection("Database collection")]
     public class CreateEvaluationMutation : MutationTest
     {
+        public CreateEvaluationMutation(DatabaseFixture fixture) : base(fixture) {
+
+        }
         /* Tests */
         [Fact]
         public void CreateAddsCorrectQuestions()

@@ -9,13 +9,19 @@ using api.Services;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class ClosingRemarkServiceTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class ClosingRemarkServiceTest
     {
+        DatabaseFixture fixture;
+
+        public ClosingRemarkServiceTest(DatabaseFixture fixture)
+        {
+            this.fixture = fixture;
+        }
         [Fact]
         public void GetQueryable()
         {
-            ClosingRemarkService closingRemarkService = new ClosingRemarkService(_context);
+            ClosingRemarkService closingRemarkService = new ClosingRemarkService(fixture.context);
 
             IQueryable<ClosingRemark> closingRemarkQueryable = closingRemarkService.GetAll();
 
@@ -25,12 +31,12 @@ namespace tests
         [Fact]
         public void Create()
         {
-            ParticipantService participantService = new ParticipantService(_context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
             Action action = actionService.GetAll().First();
 
-            ClosingRemarkService closingRemarkService = new ClosingRemarkService(_context);
+            ClosingRemarkService closingRemarkService = new ClosingRemarkService(fixture.context);
             int nClosingRemarksBefore = closingRemarkService.GetAll().Count();
             closingRemarkService.Create(participant, "text", action);
             int nClosingRemarksAfter = closingRemarkService.GetAll().Count();
@@ -41,7 +47,7 @@ namespace tests
         [Fact]
         public void GetDoesNotExist()
         {
-            ClosingRemarkService closingRemarkService = new ClosingRemarkService(_context);
+            ClosingRemarkService closingRemarkService = new ClosingRemarkService(fixture.context);
 
             Assert.Throws<NotFoundInDBException>(() => closingRemarkService.GetClosingRemark("some_closingRemark_id_that_does_not_exist"));
         }
@@ -49,10 +55,10 @@ namespace tests
         [Fact]
         public void GetExists()
         {
-            ClosingRemarkService closingRemarkService = new ClosingRemarkService(_context);
-            ParticipantService participantService = new ParticipantService(_context);
+            ClosingRemarkService closingRemarkService = new ClosingRemarkService(fixture.context);
+            ParticipantService participantService = new ParticipantService(fixture.context);
             Participant participant = participantService.GetAll().First();
-            ActionService actionService = new ActionService(_context);
+            ActionService actionService = new ActionService(fixture.context);
             Action action = actionService.GetAll().First();
 
             ClosingRemark ClosingRemarkCreate = closingRemarkService.Create(participant, "text", action);

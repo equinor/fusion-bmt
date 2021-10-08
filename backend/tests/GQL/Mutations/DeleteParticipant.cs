@@ -9,6 +9,7 @@ using api.GQL;
 
 namespace tests
 {
+    [Collection("Database collection")]
     public class DeleteParticipantMutation : MutationTest
     {
         private readonly Evaluation _evaluation;
@@ -17,7 +18,7 @@ namespace tests
         private readonly Participant _participant;
         private readonly Participant _readonly;
 
-        public DeleteParticipantMutation() {
+        public DeleteParticipantMutation(DatabaseFixture fixture) : base(fixture) {
             _evaluation = CreateEvaluation();
             _facilitator = _evaluation.Participants.First();
             _authService.LoginUser(_facilitator);

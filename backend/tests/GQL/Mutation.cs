@@ -10,9 +10,11 @@ using Xunit;
 
 namespace tests
 {
-    [Collection("UsesDbContext")]
-    public class MutationTest : DbContextTestSetup
+    [Collection("Database collection")]
+    public class MutationTest
     {
+        DatabaseFixture fixture;
+
         /* Primary Services*/
         protected readonly Mutation _mutation;
         protected readonly ProjectService _projectService;
@@ -34,19 +36,21 @@ namespace tests
         /* Helpers */
         private readonly Project _project;
 
-        public MutationTest()
+        public MutationTest(DatabaseFixture fixture)
         {
+            this.fixture = fixture;
+
             ILoggerFactory factory = new NullLoggerFactory();
-            _projectService = new ProjectService(_context);
-            _evaluationService = new EvaluationService(_context);
-            _participantService = new ParticipantService(_context);
-            _questionService = new QuestionService(_context);
-            _answerService = new AnswerService(_context);
-            _actionService = new ActionService(_context);
-            _noteService = new NoteService(_context);
-            _closingRemarkService = new ClosingRemarkService(_context);
-            _questionTemplateService = new QuestionTemplateService(_context);
-            _projectCategoryService = new ProjectCategoryService(_context);
+            _projectService = new ProjectService(fixture.context);
+            _evaluationService = new EvaluationService(fixture.context);
+            _participantService = new ParticipantService(fixture.context);
+            _questionService = new QuestionService(fixture.context);
+            _answerService = new AnswerService(fixture.context);
+            _actionService = new ActionService(fixture.context);
+            _noteService = new NoteService(fixture.context);
+            _closingRemarkService = new ClosingRemarkService(fixture.context);
+            _questionTemplateService = new QuestionTemplateService(fixture.context);
+            _projectCategoryService = new ProjectCategoryService(fixture.context);
             _authService = new MockAuthService();
             _mutation = new Mutation(
                 _projectService,
