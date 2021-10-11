@@ -226,6 +226,26 @@ describe('Admin page', () => {
             })
         })
     })
+
+    it('Change order on question templates, question templates can be moved up and down', () => {
+        adminPage.allQuestionNo().then(questionTemplates => {
+            const length = Cypress.$(questionTemplates).length
+            adminPage.addToCategoryReorderQuestion().click()
+            adminPage.reorderQuestions().click()
+            adminPage.moveQuestionUp(getQuestionNo(questionTemplates, 0)).should('be.disabled')
+            adminPage.moveQuestionDown(getQuestionNo(questionTemplates, length - 1)).should('be.disabled')
+            adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 0)).then(titleElement => {
+                const t = Cypress.$(titleElement).text()
+                adminPage.moveQuestionDown(getQuestionNo(questionTemplates, 0)).click()
+                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 1)).should('have.text', t)
+            })
+            adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 1)).then(titleElement => {
+                const t = Cypress.$(titleElement).text()
+                adminPage.moveQuestionUp(getQuestionNo(questionTemplates, length - 1)).click()
+                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 2)).should('have.text', t)
+            })
+        })
+    })
 })
 
 const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNotes: string, organization: string) => {
@@ -243,6 +263,10 @@ const verifyQuestion = (questionNo: number, title: string, organization: string,
 
 const getRandomQuestionNo = (questions: any, questionsCount: number): number => {
     return parseInt(questions.toArray()[faker.datatype.number({ min: 0, max: questionsCount })].innerText.replace('.', ''))
+}
+
+const getQuestionNo = (questions: any, questionNo: number): number => {
+    return parseInt(questions.toArray()[questionNo].innerText.replace('.', ''))
 }
 
 const createNewQuestionTemplate = (

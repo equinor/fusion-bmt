@@ -239,6 +239,7 @@ const StaticQuestionItem = ({
                         {isInReorderMode && (
                             <Box>
                                 <Button
+                                    data-testid={'move-question-up-' + question.order}
                                     variant="ghost"
                                     color="primary"
                                     disabled={question.order === lowestBarrierOrder || reorderingQuestionTemplate}
@@ -247,6 +248,7 @@ const StaticQuestionItem = ({
                                     <Icon data={arrow_up}></Icon>
                                 </Button>
                                 <Button
+                                    data-testid={'move-question-down-' + question.order}
                                     variant="ghost"
                                     color="primary"
                                     disabled={question.order === highestBarrierOrder || reorderingQuestionTemplate}
