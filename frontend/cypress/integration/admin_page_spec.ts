@@ -234,39 +234,19 @@ describe('Admin page', () => {
             adminPage.reorderQuestions().click()
             adminPage.moveQuestionUp(getQuestionNo(questionTemplates, 0)).should('be.disabled')
             adminPage.moveQuestionDown(getQuestionNo(questionTemplates, length - 1)).should('be.disabled')
-            testMoveQuestionTemplate(questionTemplates, 0, Direction.Down)
-            testMoveQuestionTemplate(questionTemplates, length - 1, Direction.Up)
-            // adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 0)).then(titleElement => {
-            //     const t = Cypress.$(titleElement).text()
-            //     adminPage.moveQuestionDown(getQuestionNo(questionTemplates, 0)).click()
-            //     adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 1)).should('have.text', t)
-            // })
-            // adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 1)).then(titleElement => {
-            //     const t = Cypress.$(titleElement).text()
-            //     adminPage.moveQuestionUp(getQuestionNo(questionTemplates, length - 1)).click()
-            //     adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 2)).should('have.text', t)
-            // })
+            adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 0)).then(titleElement => {
+                const t = Cypress.$(titleElement).text()
+                adminPage.moveQuestionDown(getQuestionNo(questionTemplates, 0)).click()
+                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 1)).should('have.text', t)
+            })
+            adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 1)).then(titleElement => {
+                const t = Cypress.$(titleElement).text()
+                adminPage.moveQuestionUp(getQuestionNo(questionTemplates, length - 1)).click()
+                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 2)).should('have.text', t)
+            })
         })
     })
 })
-enum Direction {
-    Up,
-    Down,
-}
-const testMoveQuestionTemplate = (questionTemplates: any, questionNo: number, direction: Direction) => {
-    adminPage.questionTitleByNo(getQuestionNo(questionTemplates, questionNo)).then(titleElement => {
-        const t = Cypress.$(titleElement).text()
-        switch (direction) {
-            case Direction.Up:
-                adminPage.moveQuestionUp(getQuestionNo(questionTemplates, questionNo)).click()
-                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, questionNo - 1)).should('have.text', t)
-                break
-            case Direction.Down:
-                adminPage.moveQuestionDown(getQuestionNo(questionTemplates, questionNo)).click()
-                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, questionNo + 1)).should('have.text', t)
-        }
-    })
-}
 
 const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNotes: string, organization: string) => {
     adminPage.editQuestionButton(questionNo).click()
