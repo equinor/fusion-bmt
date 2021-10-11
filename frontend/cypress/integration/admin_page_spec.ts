@@ -128,7 +128,7 @@ describe('Admin page', () => {
     })
     const testdata = [{ addQuestionsFromCategory: 'SquareField' }, { addQuestionsFromCategory: undefined }]
     testdata.forEach(t => {
-        it.only(`Add project category ${
+        it(`Add project category ${
             t.addQuestionsFromCategory !== undefined ? ' and copy from ' + t.addQuestionsFromCategory : ' and do not copy'
         }`, () => {
             adminPage.addProjectCategoryButton().click()
@@ -148,12 +148,12 @@ describe('Admin page', () => {
                             questionTemplatesSrc.length
                         )
                     })
-                    cy.contains(newCategoryName).then($questions => {
-                        expect($questions).to.not.equal(undefined)
-                        const length = $questions.length
-                        cy.contains(t.addQuestionsFromCategory).then($copiedFrom => {
-                            expect(length, ' number of questions in newly added category is equals category copied from in GUI').to.equal(
-                                $copiedFrom.length
+                    adminPage.allQuestionNo().then(questions => {
+                        const length = questions.toArray().length
+                        dropdown.select(adminPage.selectProjectCategoryDropdown(), 'SquareField')
+                        adminPage.allQuestionNo().then(questionsSrc => {
+                            expect(length, ' number of questions in new category matches category copied from in GUI ').to.equal(
+                                questionsSrc.length
                             )
                         })
                     })
