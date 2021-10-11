@@ -1,7 +1,7 @@
 import { getUserWithAdminRole, getUserWithNoAdminRole } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { Organization, Barrier } from '../../src/api/models'
-import { AdminPage } from '../page_objects/admin_page'
+import { AdminPage, CreateProjectCategory } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
 import { activeQuestionTemplates, allProjectCategoryNames, projectCategoryId } from '../support/testsetup/evaluation_seed'
 import { ConfirmationDialog } from '../page_objects/common'
@@ -123,6 +123,48 @@ describe('Admin page', () => {
                     })
                     cy.contains(questionTitle).should('not.exist')
                 })
+            })
+        })
+    })
+    const testdata = [{ categoryToCopyFrom: 'SquareField' }, { categoryToCopyFrom: undefined }]
+    testdata.forEach(t => {
+        it(`Add project category ${
+            t.categoryToCopyFrom !== undefined ? ' and copy from ' + t.categoryToCopyFrom : ' and do not copy'
+        }`, () => {
+            adminPage.addProjectCategoryButton().click()
+            const newCategoryName: string = 'NewCat' + faker.lorem.word()
+            const projectCategory = new CreateProjectCategory()
+            projectCategory.nameTextField().type(newCategoryName)
+            const dropdown = new DropdownSelect()
+            if (t.categoryToCopyFrom !== undefined) {
+                dropdown.select(projectCategory.dropdownField(), t.categoryToCopyFrom)
+            }
+            projectCategory.save().click()
+            activeQuestionTemplates(newCategoryName).then(questionTemplates => {
+                dropdown.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
+                if (t.categoryToCopyFrom !== undefined) {
+                    activeQuestionTemplates(t.categoryToCopyFrom).then(questionTemplatesSrc => {
+                        expect(
+                            questionTemplates.length,
+                            ' number of questions in new category retrieved by GQL matches category copied from '
+                        ).to.equal(questionTemplatesSrc.length)
+                    })
+                    adminPage.allQuestionNo().then(visibleQuestionTemplates => {
+                        const length = visibleQuestionTemplates.toArray().length
+                        dropdown.select(adminPage.selectProjectCategoryDropdown(), t.categoryToCopyFrom)
+                        adminPage.allQuestionNo().then(visibleQuestionTemplatesSrc => {
+                            expect(length, ' number of questions in new category visible in GUI matches category copied from ').to.equal(
+                                visibleQuestionTemplatesSrc.length
+                            )
+                        })
+                    })
+                } else {
+                    expect(questionTemplates.length, ' no questions were added to newly created category').to.equal(0)
+                    cy.contains('Nothing here yet.')
+                    cy.contains(
+                        'Add a new question or select "All project categories" to find questions that can be assigned to your new category.'
+                    )
+                }
             })
         })
     })
