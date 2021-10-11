@@ -91,7 +91,7 @@ export class AdminPage {
         return cy.getByDataTestid('create-new-question-button')
     }
 
-    addToCategoryReorderQuestion = () => {
+    questionTemplateMenu = () => {
         return cy.getByDataTestid('add-to-category-reorder-questions')
     }
 
