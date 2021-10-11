@@ -38,5 +38,29 @@ namespace tests
 
             Assert.Equal(evaluation.Questions.Count(), nActiveTemplates);
         }
+
+        [Fact]
+        public void QuestionsHaveCorrectOrder()
+        {
+            var projectCategory = _projectCategoryService
+                .GetAll()
+                .Where(pc => pc.Name == "SquareField")
+                .First()
+            ;
+
+            var evaluation = _mutation.CreateEvaluation(
+                name: Randomize.String(),
+                projectId: _projectService.GetAll().First().Id,
+                previousEvaluationId: "",
+                projectCategoryId: projectCategory.Id
+            );
+
+            var createdEvaluation = _evaluationService.GetEvaluation(evaluation.Id);
+            int maxQuestionOrder = createdEvaluation.Questions.Max(q => q.Order);
+            var firstQuestion = createdEvaluation.Questions.OrderBy(q => q.Order).First();
+
+            Assert.Equal(1, firstQuestion.Order);
+            Assert.Equal(createdEvaluation.Questions.Count(), maxQuestionOrder);
+        }
     }
 }
