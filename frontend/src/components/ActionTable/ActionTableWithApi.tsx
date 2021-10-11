@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { Box } from '@material-ui/core'
-import { Action, Evaluation } from '../../api/models'
+import { Evaluation } from '../../api/models'
 import { useAllPersonDetailsAsync } from '../../utils/hooks'
 import ActionTable from './ActionTable'
 import ActionEditSidebarWithApi from '../Action/EditForm/ActionEditSidebarWithApi'
-import { ActionQuestionAndEvaluation, getActionQuestionsAndEvaluations } from '../../utils/actionUtils'
+import { getActionQuestionsAndEvaluations } from '../../utils/actionUtils'
 
 interface Props {
     evaluations: Evaluation[]

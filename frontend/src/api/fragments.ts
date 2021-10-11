@@ -102,6 +102,7 @@ export const ACTION_FIELDS_FRAGMENT = gql`
         assignedTo {
             ...ParticipantFields
         }
+        isVoided
     }
     ${PARTICIPANT_FIELDS_FRAGMENT}
 `

@@ -25,8 +25,8 @@ export class ActionsGrid {
         return cy.getByDataTestid(`action_complete_${id}`)
     }
 
-    deleteActionButton = (id: string) => {
-        return cy.getByDataTestid(`delete_action_button_${id}`)
+    voidActionButton = (id: string) => {
+        return cy.getByDataTestid(`void_action_button_${id}`)
     }
 }
 
