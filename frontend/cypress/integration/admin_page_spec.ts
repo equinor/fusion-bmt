@@ -144,15 +144,16 @@ describe('Admin page', () => {
                 dropdown.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
                 if (t.categoryToCopyFrom !== undefined) {
                     activeQuestionTemplates(t.categoryToCopyFrom).then(questionTemplatesSrc => {
-                        expect(questionTemplates.length, ' number of questions in new category matches category copied from ').to.equal(
-                            questionTemplatesSrc.length
-                        )
+                        expect(
+                            questionTemplates.length,
+                            ' number of questions in new category retrieved by GQL matches category copied from '
+                        ).to.equal(questionTemplatesSrc.length)
                     })
                     adminPage.allQuestionNo().then(questions => {
                         const length = questions.toArray().length
                         dropdown.select(adminPage.selectProjectCategoryDropdown(), t.categoryToCopyFrom)
                         adminPage.allQuestionNo().then(questionsSrc => {
-                            expect(length, ' number of questions in new category matches category copied from in GUI ').to.equal(
+                            expect(length, ' number of questions in new category visible in GUI matches category copied from ').to.equal(
                                 questionsSrc.length
                             )
                         })
