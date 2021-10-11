@@ -3,8 +3,8 @@ import { ApolloError } from '@apollo/client'
 
 import { Box } from '@material-ui/core'
 import { Button, Typography, Icon, Tooltip } from '@equinor/eds-core-react'
-import { add } from '@equinor/eds-icons'
-import { IconButton, DeleteIcon, DoneIcon, TextArea } from '@equinor/fusion-components'
+import { add, clear } from '@equinor/eds-icons'
+import { IconButton, DoneIcon, TextArea } from '@equinor/fusion-components'
 
 import { Action, Participant, Question } from '../../api/models'
 import PriorityIndicator from './PriorityIndicator'
@@ -12,22 +12,21 @@ import ActionEditSidebarWithApi from './EditForm/ActionEditSidebarWithApi'
 import ActionCreateSidebarWithApi from './CreateForm/ActionCreateSidebarWithApi'
 import ConfirmationDialog from './../ConfirmationDialog'
 import { useParticipant } from '../../globals/contexts'
-import { participantCanCreateAction, participantCanDeleteAction } from '../../utils/RoleBasedAccess'
-import { barrierToString } from '../../utils/EnumToString'
+import { participantCanCreateAction, participantCanCancelAction } from '../../utils/RoleBasedAccess'
 
 interface Props {
     question: Question
     participants: Participant[]
-    deleteAction: (actionId: string) => void
+    cancelAction: (actionId: string) => void
     errorDeletingAction: ApolloError | undefined
 }
 
-const QuestionActionsList = ({ question, participants, deleteAction, errorDeletingAction }: Props) => {
+const QuestionActionsList = ({ question, participants, cancelAction, errorDeletingAction }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState<boolean>(false)
     const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState<boolean>(false)
     const [actionIdToEdit, setActionIdToEdit] = useState<string | undefined>()
-    const [actionToDelete, setActionToDelete] = useState<string | undefined>()
+    const [actionToCancel, setActionToCancel] = useState<string | undefined>()
     const actions = [...question.actions]
     const participant = useParticipant()
 
@@ -71,7 +70,7 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                         return 0
                     })
                     .map(action => {
-                        if (errorDeletingAction !== undefined && actionToDelete === action.id) {
+                        if (errorDeletingAction !== undefined && actionToCancel === action.id) {
                             return (
                                 <div>
                                     <TextArea value={`Error deleting action: ${JSON.stringify(errorDeletingAction)}`} onChange={() => {}} />
@@ -85,7 +84,14 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                                         <PriorityIndicator priority={action.priority} />
                                     </Box>
                                     <Box display="flex" alignItems="center">
-                                        <Typography link onClick={() => openActionEditSidebar(action)}>
+                                        <Typography
+                                            link
+                                            onClick={() => openActionEditSidebar(action)}
+                                            style={{
+                                                color: action.isVoided ? 'lightgrey' : '',
+                                                textDecorationLine: action.isVoided ? 'line-through' : '',
+                                            }}
+                                        >
                                             {action.title}
                                         </Typography>
                                         {action.completed && (
@@ -98,16 +104,18 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
                                             </Box>
                                         )}
                                     </Box>
-                                    {participantCanDeleteAction(participant) && (
-                                        <IconButton
-                                            data-testid={`delete_action_button_${action.id}`}
-                                            onClick={() => {
-                                                setIsConfirmDeleteDialogOpen(true)
-                                                setActionToDelete(action.id)
-                                            }}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
+                                    {participantCanCancelAction(participant) && !action.isVoided && (
+                                        <Tooltip placement="bottom" title={'Cancel action'}>
+                                            <IconButton
+                                                data-testid={`void_action_button_${action.id}`}
+                                                onClick={() => {
+                                                    setIsConfirmDeleteDialogOpen(true)
+                                                    setActionToCancel(action.id)
+                                                }}
+                                            >
+                                                <Icon data={clear} />
+                                            </IconButton>
+                                        </Tooltip>
                                     )}
                                 </Box>
                             </div>
@@ -132,15 +140,15 @@ const QuestionActionsList = ({ question, participants, deleteAction, errorDeleti
             />
             <ConfirmationDialog
                 isOpen={isConfirmDeleteDialogOpen}
-                title="Delete Action?"
-                description="Deleting an action will permanently delete it from evaluation."
+                title="Cancel action"
+                description="Are you sure you want to cancel the action?"
                 onConfirmClick={() => {
-                    deleteAction(actionToDelete!)
+                    cancelAction(actionToCancel!)
                     setIsConfirmDeleteDialogOpen(false)
                 }}
                 onCancelClick={() => {
                     setIsConfirmDeleteDialogOpen(false)
-                    setActionToDelete(undefined)
+                    setActionToCancel(undefined)
                 }}
             />
         </>

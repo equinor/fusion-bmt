@@ -18,7 +18,9 @@ export const getActionQuestionsAndEvaluations = (evaluations: Evaluation[]): Act
     evaluations.forEach(evaluation => {
         evaluation.questions.forEach((question: Question) => {
             question.actions.forEach(action => {
-                actionQuestionAndEvaluations.push({ action, question, evaluation })
+                if (!action.isVoided) {
+                    actionQuestionAndEvaluations.push({ action, question, evaluation })
+                }
             })
         })
     })

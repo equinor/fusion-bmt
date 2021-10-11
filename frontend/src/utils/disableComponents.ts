@@ -1,7 +1,24 @@
-import { Evaluation, Participant, Progression, Role } from "../api/models"
-import { participantCanInputFollowUp, participantCanInputIndividual, participantCanInputPreparation, participantCanInputWorkshop, participantCanProgressEvaluation } from "./RoleBasedAccess"
+import { Action, Evaluation, Participant, Progression, Role } from '../api/models'
+import {
+    participantCanEditAction,
+    participantCanInputFollowUp,
+    participantCanInputIndividual,
+    participantCanInputPreparation,
+    participantCanInputWorkshop,
+    participantCanProgressEvaluation,
+} from './RoleBasedAccess'
 
- export const disableProgression = (evaluation: Evaluation, participant: Participant | undefined, viewProgression: Progression) => {
+export const disableActionEdit = (isEditingFromDashboard: boolean, participant: Participant | undefined, isVoided: boolean) => {
+    if (isVoided) {
+        return true
+    }
+    if (isEditingFromDashboard) {
+        return false
+    }
+    return !participantCanEditAction(participant)
+}
+
+export const disableProgression = (evaluation: Evaluation, participant: Participant | undefined, viewProgression: Progression) => {
     if (evaluation.progression !== viewProgression) {
         return true
     }
@@ -51,5 +68,4 @@ export const disableAnswer = (participant: Participant | undefined, evaluation: 
         default:
             return true
     }
-    
 }

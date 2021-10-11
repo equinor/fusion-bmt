@@ -11,14 +11,14 @@ interface Props {
 
 const QuestionActionsListWithApi = ({ question }: Props) => {
     const evaluation = useEvaluation()
-    const { deleteAction, error: errorDeletingAction } = useDeleteActionMutation(question.id)
+    const { cancelAction, error: errorDeletingAction } = useCancelActionMutation()
 
     return (
         <>
             <QuestionActionsList
                 question={question}
                 participants={evaluation.participants}
-                deleteAction={deleteAction}
+                cancelAction={cancelAction}
                 errorDeletingAction={errorDeletingAction}
             />
         </>
@@ -27,38 +27,32 @@ const QuestionActionsListWithApi = ({ question }: Props) => {
 
 export default QuestionActionsListWithApi
 
-interface DeleteActionMutationProps {
-    deleteAction: (actionId: string) => void
+interface CancelActionMutationProps {
+    cancelAction: (actionId: string) => void
     loading: boolean
     action: Action | undefined
     error: ApolloError | undefined
 }
 
-/**
- * Removes the action from view.
- * Note that cache update is configured to only deal with situation where
- * action is loaded via question.
- *
- * @param questionId Id of question action is assigned to
- */
-const useDeleteActionMutation = (questionId: string): DeleteActionMutationProps => {
-    const DELETE_ACTION = gql`
+const useCancelActionMutation = (): CancelActionMutationProps => {
+    const VOID_ACTION = gql`
         mutation VoidAction($actionId: String) {
             voidAction(actionId: $actionId) {
                 id
+                isVoided
             }
         }
     `
-    const [deleteActionApolloFunc, { loading, data, error }] = useMutation(DELETE_ACTION)
+    const [cancelActionApolloFunc, { loading, data, error }] = useMutation(VOID_ACTION)
 
-    const deleteAction = (actionId: string) => {
-        deleteActionApolloFunc({ variables: { actionId } })
+    const cancelAction = (actionId: string) => {
+        cancelActionApolloFunc({ variables: { actionId } })
     }
 
     return {
-        deleteAction,
+        cancelAction,
         loading,
-        action: data?.deleteAction,
+        action: data?.voidAction,
         error,
     }
 }

@@ -11,8 +11,8 @@ import { useAllPersonDetailsAsync, useEffectNotOnMount } from '../../../utils/ho
 import NotesAndClosingRemarksList from './NotesAndClosingRemarksList'
 import NoteCreateForm from './NoteCreateForm'
 import { useParticipant } from '../../../globals/contexts'
-import { participantCanEditAction } from '../../../utils/RoleBasedAccess'
 import { deriveNewSavingState } from '../../../views/helpers'
+import { disableActionEdit } from '../../../utils/disableComponents'
 
 const WRITE_DELAY_MS = 1000
 
@@ -53,7 +53,7 @@ const ActionEditSidebar = ({
     apiErrorAction,
     apiErrorNote,
     apiErrorClosingRemark,
-    isEditingFromDashboard
+    isEditingFromDashboard = false,
 }: Props) => {
     const { personDetailsList, isLoading: isLoadingPersonDetails } = useAllPersonDetailsAsync(
         possibleAssignees.map(assignee => assignee.azureUniqueId)
@@ -137,7 +137,7 @@ const ActionEditSidebar = ({
                         isClosingRemarkSaved={isClosingRemarkSaved}
                         apiErrorClosingRemark={apiErrorClosingRemark}
                         apiErrorAction={apiErrorAction}
-                        disableEditAction={!isEditingFromDashboard && !participantCanEditAction(participant)}
+                        disableEditAction={disableActionEdit(isEditingFromDashboard, participant, action.isVoided)}
                     />
                     {apiErrorAction && (
                         <div style={{ marginTop: 20 }}>
@@ -153,7 +153,7 @@ const ActionEditSidebar = ({
                         text={note}
                         onChange={onChangeNote}
                         onCreateClick={onCreateNote}
-                        disabled={isNoteSaving || (!isEditingFromDashboard && !participantCanEditAction(participant))}
+                        disabled={isNoteSaving || disableActionEdit(isEditingFromDashboard, participant, action.isVoided)}
                     />
                     <NotesAndClosingRemarksList notesAndClosingRemarks={notesAndClosingRemarks} participantsDetails={personDetailsList} />
                 </div>

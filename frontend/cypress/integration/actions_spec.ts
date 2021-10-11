@@ -6,7 +6,6 @@ import { Action, Note, Participant } from '../support/testsetup/mocks'
 import { ActionsGrid, ActionsTab, CreateActionDialog, EditActionDialog, mapPriority } from '../page_objects/action'
 import { EvaluationPage, QuestionnaireSidePanel } from '../page_objects/evaluation'
 import { ConfirmationDialog, DropdownSelect } from '../page_objects/common'
-import { VOID_ACTION } from '../support/testsetup/gql'
 import * as faker from 'faker'
 import { getUsers, User } from '../support/mock/external/users'
 
@@ -129,119 +128,76 @@ describe('Actions management', () => {
             })
         })
     })
-    context('Deleting Actions', () => {
-        const deleteAction = (actionToDelete: Action) => {
-            actionsGrid.deleteActionButton(actionToDelete.id).click()
+    context('Voiding Actions', () => {
+        const voidAction = (actionToVoid: Action) => {
+            actionsGrid.voidActionButton(actionToVoid.id).click()
             confirmationDialog.yesButton().click()
         }
 
         const roles = [
             {
                 role: Role.Facilitator,
-                canDeleteAction: true,
-                deleteButtonExists: true,
+                canVoidAction: true,
+                voidButtonExists: true,
             },
             {
                 role: Role.OrganizationLead,
-                canDeleteAction: false,
-                deleteButtonExists: false,
+                canVoidAction: false,
+                voidButtonExists: false,
             },
             {
                 role: Role.Participant,
-                canDeleteAction: false,
-                deleteButtonExists: false,
+                canVoidAction: false,
+                voidButtonExists: false,
             },
             {
                 role: Role.ReadOnly,
-                canDeleteAction: false, // This value is irrelevant
-                deleteButtonExists: false,
+                canVoidAction: false, // This value is irrelevant
+                voidButtonExists: false,
             },
         ]
         roles.forEach(r => {
-            it(`${r.role} delete button exists = ${r.deleteButtonExists} can delete action = ${r.canDeleteAction}`, () => {
+            it(`${r.role} Cancel button exists = ${r.voidButtonExists} can void action = ${r.canVoidAction}`, () => {
                 cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
-                const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
-                if (!r.deleteButtonExists) {
-                    actionsGrid.deleteActionButton(actionToDelete.id).should('not.exist')
+                const { actionToVoid, actionToStay } = getActionToVoidActionToStay()
+                if (!r.voidButtonExists) {
+                    actionsGrid.voidActionButton(actionToVoid.id).should('not.exist')
                 } else {
-                    deleteAction(actionToDelete)
-                    if (r.canDeleteAction === false) {
+                    voidAction(actionToVoid)
+                    if (r.canVoidAction === false) {
                         cy.contains('are not allowed to perform this operation')
                     } else {
                         cy.testCacheAndDB(() => {
                             evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
-                            // This line has been commented out to avoid the test to fail.
-                            // It may has to be changed when the frontend for voiding actions is changed.
-                            // cy.contains(actionToDelete.title).should('not.exist')
-                            cy.contains(actionToStay.title).should('exist')
+                            cy.contains(actionToVoid.title).should('have.css', 'textDecorationLine', 'line-through')
+                            cy.contains(actionToStay.title).should('not.have.css', 'textDecorationLine', 'line-through')
                         })
                     }
                 }
             })
         })
 
-        const getActionToDeleteActionToStay = () => {
+        const getActionToVoidActionToStay = () => {
             let actions = faker.random.arrayElements(seed.actions, 2)
-            let actionToDelete = actions[0]
+            let actionToVoid = actions[0]
             let actionToStay = actions[1]
-            return { actionToDelete, actionToStay }
+            return { actionToVoid, actionToStay }
         }
 
-        it(`Cancel delete action by Facilitator, then verify action was not deleted`, () => {
+        it(`Cancel void action by Facilitator, then verify action was not voided`, () => {
             cy.visitProgression(
                 getRandomProgressionWorkshopOrFollowUp(),
                 seed.evaluationId,
                 seed.findParticipantByRole(Role.Facilitator).user
             )
-            const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
-            actionsGrid.deleteActionButton(actionToDelete.id).click()
+            const { actionToVoid, actionToStay } = getActionToVoidActionToStay()
+            actionsGrid.voidActionButton(actionToVoid.id).click()
             confirmationDialog.noButton().click()
 
             cy.testCacheAndDB(() => {
                 evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
-                cy.contains(actionToDelete.title).should('exist')
-                cy.contains(actionToStay.title).should('exist')
-            })
-        })
-        context('Error handling when facilitator has two browser windows open', () => {
-            it('Deleted action in one window cannot be deleted in other window', () => {
-                cy.visitProgression(
-                    getRandomProgressionWorkshopOrFollowUp(),
-                    seed.evaluationId,
-                    seed.findParticipantByRole(Role.Facilitator).user
-                )
-                const { actionToDelete, actionToStay } = getActionToDeleteActionToStay()
-                cy.gql(VOID_ACTION, {
-                    variables: {
-                        actionId: actionToDelete.id,
-                    },
-                }).then(() => {
-                    cy.on('uncaught:exception', (err, runnable) => {
-                        if (err.message.includes('Action not found')) {
-                            console.log("Swallowing unhandled 'Action not found'")
-                            return false
-                        }
-                    })
-
-                    deleteAction(actionToDelete)
-
-                    cy.testCacheAndDB(
-                        () => {
-                            cy.contains(actionToStay.title).should('exist')
-                            // This line has been commented out to avoid the test to fail.
-                            // It may has to be changed when the frontend for voiding actions is changed.
-                            // cy.contains('Action not found').should('exist')
-                        },
-                        () => {
-                            evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
-                            // This line has been commented out to avoid the test to fail.
-                            // It may has to be changed when the frontend for voiding actions is changed.
-                            // cy.contains(actionToDelete.title).should('not.exist')
-                            cy.contains(actionToStay.title).should('exist')
-                            cy.contains('Action not found').should('not.exist')
-                        }
-                    )
-                })
+                cy.contains(actionToVoid.title).should('not.have.css', 'textDecorationLine', 'line-through')
+                cy.contains(actionToStay.title).should('not.have.css', 'textDecorationLine', 'line-through')
             })
         })
     })

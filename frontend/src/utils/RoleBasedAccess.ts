@@ -97,7 +97,7 @@ export const participantCanEditAction = (participant: Participant | undefined) =
 }
 
 /* Role-based rule for deleting an action */
-export const participantCanDeleteAction = (participant: Participant | undefined) => {
+export const participantCanCancelAction = (participant: Participant | undefined) => {
     if (!participant) {
         return false
     }

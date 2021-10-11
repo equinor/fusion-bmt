@@ -22,7 +22,8 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
     const apiClients = useApiClients()
 
     const { actions } = useActionsQuery(azureUniqueId)
-    const actionsWithAdditionalInfo = actions.map(action => {
+    const nonCancelledActions = actions.filter(a => !a.isVoided)
+    const actionsWithAdditionalInfo = nonCancelledActions.map(action => {
         return { action: action, barrier: action.question.barrier, organization: action.question.organization }
     })
 
