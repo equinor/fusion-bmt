@@ -126,31 +126,31 @@ describe('Admin page', () => {
             })
         })
     })
-    const testdata = [{ addQuestionsFromCategory: 'SquareField' }, { addQuestionsFromCategory: undefined }]
+    const testdata = [{ categoryToCopyFrom: 'SquareField' }, { categoryToCopyFrom: undefined }]
     testdata.forEach(t => {
         it(`Add project category ${
-            t.addQuestionsFromCategory !== undefined ? ' and copy from ' + t.addQuestionsFromCategory : ' and do not copy'
+            t.categoryToCopyFrom !== undefined ? ' and copy from ' + t.categoryToCopyFrom : ' and do not copy'
         }`, () => {
             adminPage.addProjectCategoryButton().click()
             const newCategoryName: string = 'NewCat' + faker.lorem.word()
             const projectCategory = new CreateProjectCategory()
             projectCategory.nameTextField().type(newCategoryName)
             const dropdown = new DropdownSelect()
-            if (t.addQuestionsFromCategory !== undefined) {
-                dropdown.select(projectCategory.dropdownField(), t.addQuestionsFromCategory)
+            if (t.categoryToCopyFrom !== undefined) {
+                dropdown.select(projectCategory.dropdownField(), t.categoryToCopyFrom)
             }
             projectCategory.save().click()
             activeQuestionTemplates(newCategoryName).then(questionTemplates => {
                 dropdown.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
-                if (t.addQuestionsFromCategory !== undefined) {
-                    activeQuestionTemplates(t.addQuestionsFromCategory).then(questionTemplatesSrc => {
+                if (t.categoryToCopyFrom !== undefined) {
+                    activeQuestionTemplates(t.categoryToCopyFrom).then(questionTemplatesSrc => {
                         expect(questionTemplates.length, ' number of questions in new category matches category copied from ').to.equal(
                             questionTemplatesSrc.length
                         )
                     })
                     adminPage.allQuestionNo().then(questions => {
                         const length = questions.toArray().length
-                        dropdown.select(adminPage.selectProjectCategoryDropdown(), 'SquareField')
+                        dropdown.select(adminPage.selectProjectCategoryDropdown(), t.categoryToCopyFrom)
                         adminPage.allQuestionNo().then(questionsSrc => {
                             expect(length, ' number of questions in new category matches category copied from in GUI ').to.equal(
                                 questionsSrc.length
