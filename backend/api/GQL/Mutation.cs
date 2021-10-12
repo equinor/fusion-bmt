@@ -303,9 +303,16 @@ namespace api.GQL
         }
 
         [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate CreateQuestionTemplate(Barrier barrier, Organization organization, string text, string supportNotes, string[] projectCategoryIds)
+        public QuestionTemplate CreateQuestionTemplate(
+            Barrier barrier,
+            Organization organization,
+            string text,
+            string supportNotes,
+            string[] projectCategoryIds,
+            int newOrder = 0
+        )
         {
-            var qt = _questionTemplateService.Create(barrier, organization, text, supportNotes);
+            var qt = _questionTemplateService.Create(barrier, organization, text, supportNotes, newOrder);
 
             foreach (var projectCategoryId in projectCategoryIds)
             {

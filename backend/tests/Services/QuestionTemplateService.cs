@@ -116,6 +116,28 @@ namespace tests
         }
 
         [Fact]
+        public void CopyUsingCreate()
+        {
+            var service = new QuestionTemplateService(fixture.context);
+            var questionTemplateToCopy = service.Create(
+                barrier:      Randomize.Barrier(),
+                organization: Randomize.Organization(),
+                text:         Randomize.String(),
+                supportNotes: Randomize.String()
+            );
+
+            var newQuestionTemplate = service.Create(
+                barrier:      questionTemplateToCopy.Barrier,
+                organization: questionTemplateToCopy.Organization,
+                text:         questionTemplateToCopy.Text,
+                supportNotes: questionTemplateToCopy.SupportNotes,
+                newOrder:     questionTemplateToCopy.Order + 1
+            );
+
+            Assert.Equal(questionTemplateToCopy.Order + 1, newQuestionTemplate.Order);
+        }
+
+        [Fact]
         public void DeleteQuestionTemplate()
         {
             var service = new QuestionTemplateService(fixture.context);
