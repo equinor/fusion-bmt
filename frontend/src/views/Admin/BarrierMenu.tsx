@@ -29,7 +29,7 @@ const BarrierMenu = ({
                 }}
             >
                 <Icon data={isInAddCategoryMode ? close_circle_outlined : add_circle_outlined} size={16} />
-                <Typography group="navigation" variant="menu_title" as="span">
+                <Typography group="navigation" variant="menu_title" as="span" data-testid="add-qt-to-project-cat-or-close-view">
                     {isInAddCategoryMode ? 'Close add to category view' : 'Add questions to project categories'}
                 </Typography>
             </Menu.Item>

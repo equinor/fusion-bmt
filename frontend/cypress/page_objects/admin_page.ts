@@ -95,6 +95,26 @@ export class AdminPage {
         return cy.getByDataTestid('add-to-category-reorder-questions')
     }
 
+    addQuestionTemplateToProjectCatOrCloseView = () => {
+        return cy.getByDataTestid('add-qt-to-project-cat-or-close-view')
+    }
+
+    questionTemplateToProjectCategorySelectBox = (templateNo: number, projectCategory: string) => {
+        return cy
+            .getByDataTestid('project-category-selector-' + templateNo)
+            .parent()
+            .next()
+            .contains(projectCategory)
+    }
+
+    projectCategorySelectorButton = (templateNo: number) => {
+        return cy.getByDataTestid('project-category-selector-' + templateNo).next()
+    }
+
+    projectCategoryLabel = (projectCategory: string) => {
+        return cy.getByDataTestid('project-category-' + projectCategory)
+    }
+
     reorderQuestions = () => {
         return cy.getByDataTestid('reorder-questions')
     }
