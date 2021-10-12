@@ -117,7 +117,7 @@ stages:
           - buildfrontendcontainer
       displayName: "Deploy CI"
       jobs:
-          - job: "DeployCIFrontend"
+          - deployment: "DeployCIFrontend"
             environment: QA
             steps:
                 - task: DownloadPipelineArtifact@2
@@ -162,7 +162,7 @@ stages:
           - deploybackend
       displayName: "Deploy Prod"
       jobs:
-          - job: "DeployCIFrontend"
+          - deployment: "DeployCIFrontend"
             environment: Production
             steps:
                 - task: DownloadPipelineArtifact@2
