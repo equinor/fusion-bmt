@@ -62,7 +62,7 @@ const CopyQuestionItem = ({ setQuestionTemplateToCopy, questionTemplateToCopy, s
             </Box>
             <Box display="flex" flexDirection="row">
                 <Box display="flex" flexGrow={1} flexDirection={'column'} mt={0.75}>
-                    <Box display="flex" alignItems={'center'}>    
+                    <Box display="flex" alignItems={'center'}>
                         <Box ml={2} mr={1} mt={2}>
                             <Typography variant="h4">{questionTemplateToCopy.order + 1}.</Typography>
                         </Box>
