@@ -3,7 +3,7 @@ import { tokens } from '@equinor/eds-tokens'
 import { MarkdownViewer } from '@equinor/fusion-components'
 import { Button, Chip, Icon, MultiSelect, Tooltip, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
-import { arrow_down, arrow_up, delete_to_trash, edit, platform, work } from '@equinor/eds-icons'
+import { arrow_down, arrow_up, platform, work } from '@equinor/eds-icons'
 
 import { ProjectCategory, QuestionTemplate } from '../../api/models'
 import { organizationToString } from '../../utils/EnumToString'
@@ -15,6 +15,7 @@ import { deriveNewSavingState, getNextNextQuestion, getNextQuestion, getPrevQues
 import { useEffectNotOnMount } from '../../utils/hooks'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
 import ErrorMessage from './Components/ErrorMessage'
+import QuestionTemplateButtons from './Components/QuestionTemplateButtons'
 
 interface Props {
     question: QuestionTemplate
@@ -26,6 +27,8 @@ interface Props {
     refetchQuestionTemplates: () => void
     sortedBarrierQuestions: QuestionTemplate[]
     projectCategoryQuestions: QuestionTemplate[]
+    setQuestionTemplateToCopy: (original: QuestionTemplate) => void
+    setIsCopyingQuestion: (val: boolean) => void
 }
 
 const StaticQuestionItem = ({
@@ -38,6 +41,8 @@ const StaticQuestionItem = ({
     refetchQuestionTemplates,
     sortedBarrierQuestions,
     projectCategoryQuestions,
+    setQuestionTemplateToCopy,
+    setIsCopyingQuestion,
 }: Props) => {
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
@@ -218,24 +223,13 @@ const StaticQuestionItem = ({
                         </Box>
                     </Box>
                     <Box display="flex" flexDirection={'column'}>
-                        <Box flexGrow={1} style={{ minWidth: '120px' }}>
-                            <Button
-                                variant="ghost"
-                                color="primary"
-                                onClick={() => setIsInEditmode(true)}
-                                data-testid={'edit-question-' + question.order}
-                            >
-                                <Icon data={edit}></Icon>
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                color="primary"
-                                onClick={() => setIsInConfirmDeleteMode(true)}
-                                data-testid={'delete-question-' + question.order}
-                            >
-                                <Icon data={delete_to_trash}></Icon>
-                            </Button>
-                        </Box>
+                        <QuestionTemplateButtons
+                            question={question}
+                            setIsInEditmode={setIsInEditmode}
+                            setQuestionTemplateToCopy={setQuestionTemplateToCopy}
+                            setIsCopyingQuestion={setIsCopyingQuestion}
+                            setIsInConfirmDeleteMode={setIsInConfirmDeleteMode}
+                        />
                         {isInReorderMode && (
                             <Box>
                                 <Button

@@ -16,6 +16,7 @@ import AdminQuestionItem from './AdminQuestionItem'
 import BarrierHeader from './BarrierHeader'
 import CategoryHeader from './CategoryHeader'
 import BarrierSidebar from './BarrierSidebar'
+import CopyQuestionItem from './CopyQuestionItem'
 
 const AdminView = () => {
     const {
@@ -32,6 +33,8 @@ const AdminView = () => {
     const [isInAddCategoryMode, setIsInAddCategoryMode] = useState<boolean>(false)
     const [isInReorderMode, setIsInReorderMode] = useState<boolean>(false)
     const [isAddingQuestion, setIsAddingQuestion] = useState<boolean>(false)
+    const [isCopyingQuestion, setIsCopyingQuestion] = useState<boolean>(false)
+    const [questionTemplateToCopy, setQuestionTemplateToCopy] = useState<QuestionTemplate | undefined>()
 
     const headerRef = useRef<HTMLElement>(null)
     const questionTitleRef = useRef<HTMLElement>(null)
@@ -135,6 +138,18 @@ const AdminView = () => {
                             />
                         </>
                     )}
+                    {isCopyingQuestion && questionTemplateToCopy && (
+                        <>
+                            <Divider />
+                            <CopyQuestionItem 
+                                setQuestionTemplateToCopy={setQuestionTemplateToCopy}
+                                questionTemplateToCopy={questionTemplateToCopy}
+                                setIsCopyingQuestion={setIsCopyingQuestion}
+                                barrier={selectedBarrier}
+                                questionTitleRef={questionTitleRef}
+                            />
+                        </>
+                    )}
                     <>
                         {sortedBarrierQuestions.length > 0 &&
                             sortedBarrierQuestions.map(q => {
@@ -149,6 +164,8 @@ const AdminView = () => {
                                         refetchQuestionTemplates={refetchQuestionTemplates}
                                         sortedBarrierQuestions={sortedBarrierQuestions}
                                         projectCategoryQuestions={projectCategoryQuestions}
+                                        setQuestionTemplateToCopy={setQuestionTemplateToCopy}
+                                        setIsCopyingQuestion={setIsCopyingQuestion}
                                     />
                                 )
                             })}
