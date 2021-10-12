@@ -227,7 +227,7 @@ describe('Admin page', () => {
         })
     })
 
-    it.only('Change order on question templates, question templates can be moved up and down', () => {
+    it('Change order on question templates, question templates can be moved up and down', () => {
         adminPage.allQuestionNo().then(questionTemplates => {
             const length = Cypress.$(questionTemplates).length
             adminPage.questionTemplateMenu().click()
