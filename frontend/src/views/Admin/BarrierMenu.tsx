@@ -12,7 +12,15 @@ interface Props {
     isInReorderMode: boolean
 }
 
-const BarrierMenu = ({ isOpen, anchorRef, closeMenu, setIsInAddCategoryMode, isInAddCategoryMode, setIsInReorderMode, isInReorderMode }: Props) => {
+const BarrierMenu = ({
+    isOpen,
+    anchorRef,
+    closeMenu,
+    setIsInAddCategoryMode,
+    isInAddCategoryMode,
+    setIsInReorderMode,
+    isInReorderMode,
+}: Props) => {
     return (
         <Menu id="menu-complex" open={isOpen} anchorEl={anchorRef.current} onClose={closeMenu} placement={'bottom'}>
             <Menu.Item
@@ -31,7 +39,7 @@ const BarrierMenu = ({ isOpen, anchorRef, closeMenu, setIsInAddCategoryMode, isI
                 }}
             >
                 <Icon data={isInReorderMode ? close_circle_outlined : swap_vertical} size={16} />
-                <Typography group="navigation" variant="menu_title" as="span">
+                <Typography group="navigation" variant="menu_title" as="span" data-testid="reorder-questions">
                     {isInReorderMode ? 'Close reordering view' : 'Reorder questions'}
                 </Typography>
             </Menu.Item>

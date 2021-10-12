@@ -91,6 +91,22 @@ export class AdminPage {
         return cy.getByDataTestid('create-new-question-button')
     }
 
+    questionTemplateMenu = () => {
+        return cy.getByDataTestid('add-to-category-reorder-questions')
+    }
+
+    reorderQuestions = () => {
+        return cy.getByDataTestid('reorder-questions')
+    }
+
+    moveQuestionDown = (no: number) => {
+        return cy.getByDataTestid('move-question-down-' + no)
+    }
+
+    moveQuestionUp = (no: number) => {
+        return cy.getByDataTestid('move-question-up-' + no)
+    }
+
     newQuestionTitle = () => {
         return cy.getByDataTestid('question-title-textfield')
     }

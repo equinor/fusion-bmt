@@ -66,6 +66,7 @@ const BarrierHeader = ({
                         color="primary"
                         ref={menuAnchorRef}
                         onClick={() => (isMenuOpen ? setIsMenuOpen(false) : setIsMenuOpen(true))}
+                        data-testid="add-to-category-reorder-questions"
                     >
                         <Icon data={more_vertical}></Icon>
                     </Button>
