@@ -266,7 +266,7 @@ const getRandomQuestionNo = (questions: any, questionsCount: number): number => 
 }
 
 const getQuestionNo = (questions: any, questionNo: number): number => {
-    return parseInt(questions.toArray()[questionNo].innerText.replace('.', ''))
+    return parseInt(questions.toArray()[questionNo as number].innerText.replace('.', ''))
 }
 
 const createNewQuestionTemplate = (
