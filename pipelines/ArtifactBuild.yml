@@ -165,7 +165,7 @@ stages:
           - deployment: "DeployCIFrontend"
             environment: Production
             strategy:
-                runOnce: 
+                runOnce:
                     deploy:
                         steps:
                             - task: DownloadPipelineArtifact@2
@@ -196,7 +196,7 @@ stages:
     - stage: deploybackendprod
       dependsOn: deployfrontendprod
       displayName: "Deploy Prod Backend"
-      
+
       jobs:
           - job: "DeployCIBackend"
             steps:
