@@ -161,11 +161,6 @@ describe('Admin page', () => {
             adminPage.barrierTitleOnTopOfPage().should('have.text', 'Containment')
             adminPage.createNewQuestion().should('be.visible')
         })
-
-        it('Non admin user does not see Admin tab', () => {
-            cy.visitProject(getUserWithNoAdminRole())
-            adminPage.adminButton().should('not.exist')
-        })
     })
 
     describe('Security', () => {
@@ -182,6 +177,11 @@ describe('Admin page', () => {
                     expect(errorMessage, `error message is ${expectedErrorMessage}`).to.equal(expectedErrorMessage)
                 })
             })
+        })
+
+        it('Non admin user does not see Admin tab', () => {
+            cy.visitProject(getUserWithNoAdminRole())
+            adminPage.adminButton().should('not.exist')
         })
     })
 
