@@ -260,7 +260,6 @@ describe('Admin page', () => {
             const questionTitle = faker.lorem.words(2)
             const organization = faker.random.arrayElement(Object.values(Organization))
             const supportNotes = faker.lorem.words(3)
-            createNewQuestionTemplate(Barrier.Gm, organization, questionTitle, supportNotes, [categoryId])
             selectProjectCategoryOnTemplate(1, newCategoryName)
             adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
             closeOutSelectProjectCategoryView(1)
