@@ -5,7 +5,12 @@ import { AdminPage, CreateProjectCategory } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
 import { activeQuestionTemplates, allProjectCategoryNames, projectCategoryId } from '../support/testsetup/evaluation_seed'
 import { ConfirmationDialog } from '../page_objects/common'
-import { CREATE_QUESTION_TEMPLATE, DELETE_QUESTION_TEMPLATE, CREATE_PROJECT_CATEGORY } from '../support/testsetup/gql'
+import {
+    CREATE_QUESTION_TEMPLATE,
+    DELETE_QUESTION_TEMPLATE,
+    CREATE_PROJECT_CATEGORY,
+    DELETE_PROJECT_CATEGORY,
+} from '../support/testsetup/gql'
 import { organizationToString } from '../../src/utils/EnumToString'
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
@@ -126,6 +131,7 @@ describe('Admin page', () => {
             })
         })
     })
+
     const testdata = [{ categoryToCopyFrom: 'SquareField' }, { categoryToCopyFrom: undefined }]
     testdata.forEach(t => {
         it(`Add project category ${
@@ -246,6 +252,37 @@ describe('Admin page', () => {
             })
         })
     })
+
+    it('Add & delete project category on question templates', () => {
+        const newCategoryName = 'CatToAssign' + faker.lorem.word()
+        createNewProjectCategory(newCategoryName).then(categoryId => {
+            goToQuestionnaire()
+            const questionTitle = faker.lorem.words(2)
+            const organization = faker.random.arrayElement(Object.values(Organization))
+            const supportNotes = faker.lorem.words(3)
+            selectProjectCategoryOnTemplate(1, newCategoryName)
+            adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
+            closeOutSelectProjectCategoryView()
+            adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
+            selectProjectCategoryOnTemplate(1, newCategoryName)
+            adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
+            closeOutSelectProjectCategoryView()
+            adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
+            deleteProjectCategory(categoryId)
+        })
+
+        const selectProjectCategoryOnTemplate = (temoplateNo: number, projectCategory: string) => {
+            adminPage.questionTemplateMenu().click()
+            adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
+            adminPage.projectCategorySelectorButton(temoplateNo).click()
+            adminPage.toggleProjectCategoryOnQuestionTemplateSelectBox(temoplateNo, projectCategory).click()
+        }
+
+        const closeOutSelectProjectCategoryView = () => {
+            adminPage.questionTemplateMenu().click()
+            adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
+        }
+    })
 })
 
 const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNotes: string, organization: string) => {
@@ -282,6 +319,13 @@ const createNewQuestionTemplate = (
 const createNewProjectCategory = (categoryName: string) => {
     return cy.gql(CREATE_PROJECT_CATEGORY, { variables: { name: categoryName } }).then(res => {
         const id = res.body.data.createProjectCategory.id
+        return id
+    })
+}
+
+const deleteProjectCategory = (id: string) => {
+    return cy.gql(DELETE_PROJECT_CATEGORY, { variables: { projectCategoryId: id } }).then(res => {
+        const id = res.body.data.deleteProjectCategory.id
         return id
     })
 }
