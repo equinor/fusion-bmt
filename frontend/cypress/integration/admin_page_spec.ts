@@ -279,7 +279,6 @@ describe('Admin page', () => {
         }
 
         const closeOutSelectProjectCategoryView = (templateNo: number) => {
-            adminPage.projectCategorySelectorButton(templateNo).click()
             adminPage.questionTemplateMenu().click()
             adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
         }
