@@ -44,7 +44,7 @@ function setProjectCache(fusionProjectId: string) {
     window.localStorage.setItem('FUSION_CURRENT_CONTEXT', JSON.stringify(project))
 }
 
-Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string = '123') => {
+Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string) => {
     setupEnvironment()
     setProjectCache(fusionProjectId)
 
@@ -55,7 +55,7 @@ Cypress.Commands.add('visitProject', (user: User, fusionProjectId: string = '123
     waitForProjectPageLoad()
 })
 
-Cypress.Commands.add('visitEvaluation', (evaluationId: string, user: User, fusionProjectId: string = '123') => {
+Cypress.Commands.add('visitEvaluation', (evaluationId: string, user: User, fusionProjectId: string) => {
     setupEnvironment()
     setProjectCache(fusionProjectId)
 
@@ -69,13 +69,13 @@ Cypress.Commands.add('visitEvaluation', (evaluationId: string, user: User, fusio
     waitForEvaluationPageLoad()
 })
 
-Cypress.Commands.add('visitProgression', (progression: Progression, evaluationId: string, user: User, fusionProjectId: string = '123') => {
+Cypress.Commands.add('visitProgression', (progression: Progression, evaluationId: string, user: User, fusionProjectId: string) => {
     const evaluationPage = new EvaluationPage()
     cy.visitEvaluation(evaluationId, user, fusionProjectId)
     evaluationPage.progressionStepLink(progression).click()
 })
 
-Cypress.Commands.add('reloadBmt', (user: User, fusionProjectId: string = '123') => {
+Cypress.Commands.add('reloadBmt', (user: User, fusionProjectId: string) => {
     /**
      * Situation with reload is quite weird. At the moment all problems are
      * solved by having
@@ -107,25 +107,25 @@ declare global {
              * Visit project as a specific user
              * @example cy.visitProject(user)
              */
-            visitProject(user: User, fusionProjectId?: string): Chainable<void>
+            visitProject(user: User, fusionProjectId: string): Chainable<void>
 
             /**
              * Visit evaluation as a specific user
              * @example cy.visitEvaluation(evaluationId, extHire)
              */
-            visitEvaluation(evaluationId: string, user: User, fusionProjectId?: string): Chainable<void>
+            visitEvaluation(evaluationId: string, user: User, fusionProjectId: string): Chainable<void>
 
             /**
              * Visit evaluation at a specific progression
              * @example cy.visitProgression(progression, evaluation, user, project)
              */
-            visitProgression(progression: Progression, evaluationId: string, user: User, fusionProjectId?: string): Chainable<void>
+            visitProgression(progression: Progression, evaluationId: string, user: User, fusionProjectId: string): Chainable<void>
 
             /**
              * Reloads the page and attempts to deal with external dependencies issues
              * @example cy.visitProject(user)
              */
-            reloadBmt(): Chainable<void>
+            reloadBmt(fusionProjectId: string): Chainable<void>
         }
     }
 }

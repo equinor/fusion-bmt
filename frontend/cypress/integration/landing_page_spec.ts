@@ -57,7 +57,7 @@ describe('Landing page', () => {
     })
 
     beforeEach(() => {
-        cy.visitProject(user)
+        cy.visitProject(user, fusionProject1.id)
     })
 
     context(`Dashboard `, () => {

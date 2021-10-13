@@ -5,6 +5,8 @@ import NominationPage from '../page_objects/nomination'
 import { getUsers } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { EvaluationPage } from '../page_objects/evaluation'
+import { fusionProject1 } from '../support/mock/external/projects'
+
 describe('User management', () => {
     describe('Nomination stage', () => {
         let seed: EvaluationSeed
@@ -44,7 +46,7 @@ describe('User management', () => {
             userCapabilities.forEach(e => {
                 it(`${e.role} can delete user = ${e.canDeleteUser}, add user = ${e.canAddUser}, progress nomination = ${e.canProgressEval}`, () => {
                     let p = findRandomParticipant(seed, e.role)
-                    cy.visitEvaluation(seed.evaluationId, p.user)
+                    cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
                     verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
                 })
             })
@@ -56,10 +58,10 @@ describe('User management', () => {
             it('A participant that is deleted is no longer part of evaluation', () => {
                 const role = faker.random.arrayElement([Role.Facilitator, Role.OrganizationLead])
                 const p = findRandomParticipant(seed, role)
-                cy.visitEvaluation(seed.evaluationId, p.user)
+                cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
                 const userToDelete = findRandomParticipant(seed, Role.Participant)
                 nominationPage.deletePersonDiv(userToDelete.user).click()
-                cy.visitEvaluation(seed.evaluationId, p.user)
+                cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
                 nominationPage.assertParticipantPresent(p.user)
                 nominationPage.assertParticipantAbsent(userToDelete.user)
             })
@@ -119,7 +121,7 @@ describe('User management', () => {
             userCapabilites.forEach(e => {
                 it(`${e.role} can delete user = ${e.canDeleteUser}, can add user = ${e.canAddUser}`, () => {
                     let p = findRandomParticipant(seed, e.role)
-                    cy.visitEvaluation(seed.evaluationId, p.user)
+                    cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
                     evaluationPage.progressionStepLink(Progression.Nomination).click()
                     verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
                 })
@@ -135,6 +137,7 @@ function createSeed(progression: Progression = Progression.Nomination) {
         progression: progression,
         users,
         roles,
+        fusionProjectId: fusionProject1.id,
     })
     return seed
 }

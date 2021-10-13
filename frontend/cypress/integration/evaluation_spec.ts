@@ -16,6 +16,7 @@ describe('Evaluation management', () => {
             users: [creator, otherUser],
             roles,
             namePrefix: prefix,
+            fusionProjectId: fusionProject1.id,
         })
         return seed
     }
@@ -30,7 +31,7 @@ describe('Evaluation management', () => {
         })
 
         beforeEach(() => {
-            cy.visitProject(user)
+            cy.visitProject(user, fusionProject1.id)
         })
 
         const testdata = [
@@ -102,12 +103,13 @@ describe('Evaluation management', () => {
                 progression: Progression.Nomination,
                 users: getUsers(1),
                 roles: [Role.Facilitator],
+                fusionProjectId: fusionProject1.id,
             })
             seed.plant()
         })
 
         it('FACILITATOR can progress from nomination', () => {
-            cy.visitEvaluation(seed.evaluationId, seed.participants[0].user)
+            cy.visitEvaluation(seed.evaluationId, seed.participants[0].user, fusionProject1.id)
 
             nominationPage.finishNominationButton().click()
             confirmationDialog.yesButton().click()

@@ -8,6 +8,7 @@ import { EvaluationPage, QuestionnaireSidePanel } from '../page_objects/evaluati
 import { ConfirmationDialog, DropdownSelect } from '../page_objects/common'
 import * as faker from 'faker'
 import { getUsers, User } from '../support/mock/external/users'
+import { fusionProject1 } from '../support/mock/external/projects'
 
 describe('Actions management', () => {
     const evaluationPage = new EvaluationPage()
@@ -29,7 +30,7 @@ describe('Actions management', () => {
     }
     const logInRandomUser = (progression: Progression = getRandomProgressionWorkshopOrFollowUp()) => {
         const user = faker.random.arrayElement(users)
-        cy.visitEvaluation(seed.evaluationId, user)
+        cy.visitEvaluation(seed.evaluationId, user, fusionProject1.id)
         evaluationPage.progressionStepLink(progression).click()
         return user
     }
@@ -63,7 +64,7 @@ describe('Actions management', () => {
         ]
         roles.forEach(r => {
             it(`${r.role} can ${r.canCreateAction === true ? '' : ' not'} create action on ${r.progression}`, () => {
-                cy.visitProgression(r.progression, seed.evaluationId, seed.findParticipantByRole(r.role).user)
+                cy.visitProgression(r.progression, seed.evaluationId, seed.findParticipantByRole(r.role).user, fusionProject1.id)
                 let action = createActionTestData(users)
                 r.canCreateAction
                     ? actionsGrid.addActionButton(action.questionOrder).should('be.enabled')
@@ -76,7 +77,7 @@ describe('Actions management', () => {
         const verifyStage = getRandomProgressionWorkshopOrFollowUp()
         it(`Create action by ${randomRole} on ${randomStageCreateAction} 
             then verification that action was created on ${verifyStage}`, () => {
-            cy.visitProgression(randomStageCreateAction, seed.evaluationId, seed.findParticipantByRole(randomRole).user)
+            cy.visitProgression(randomStageCreateAction, seed.evaluationId, seed.findParticipantByRole(randomRole).user, fusionProject1.id)
             let action = createActionTestData(users)
             actionsGrid.addActionButton(action.questionOrder).click()
             createActionDialog.titleInput().type(action.title)
@@ -104,6 +105,7 @@ describe('Actions management', () => {
                     createActionDialog.body().should('not.exist')
                     actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
                 },
+                fusionProject1.id,
                 () => {
                     evaluationPage.progressionStepLink(verifyStage).click()
                     actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
@@ -121,7 +123,7 @@ describe('Actions management', () => {
         it(`Edit action by ${randomRole} on ${progressionWhereEdit} - assign action, add notes 
             then verify notes were added on ${progressionWhereVerify}`, () => {
             let user = seed.findParticipantByRole(randomRole).user
-            cy.visitProgression(progressionWhereEdit, seed.evaluationId, user)
+            cy.visitProgression(progressionWhereEdit, seed.evaluationId, user, fusionProject1.id)
             ;({ actionNotes, action } = findActionWithNotes(seed))
             ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
 
@@ -136,7 +138,7 @@ describe('Actions management', () => {
                 evaluationPage.progressionStepLink(progressionWhereVerify).click()
                 actionsGrid.actionLink(action.questionOrder, updatedAction.title).click()
                 editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
-            })
+            }, fusionProject1.id)
         })
     })
     context(`Voiding Actions on progressions ${progressionsWorkshopOrFollowUp}`, () => {
@@ -171,7 +173,12 @@ describe('Actions management', () => {
             it(`${r.role} Cancel button ${r.voidButtonExists === true ? 'exists' : 'does not exist'},  ${
                 r.canVoidAction === true ? ' can' : ' can not'
             } void action`, () => {
-                cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
+                cy.visitProgression(
+                    getRandomProgressionWorkshopOrFollowUp(),
+                    seed.evaluationId,
+                    seed.findParticipantByRole(r.role).user,
+                    fusionProject1.id
+                )
                 const { actionToVoid, actionToStay } = getActionToVoidActionToStay()
                 if (!r.voidButtonExists) {
                     actionsGrid.voidActionButton(actionToVoid.id).should('not.exist')
@@ -184,7 +191,7 @@ describe('Actions management', () => {
                             evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
                             cy.contains(actionToVoid.title).should('have.css', 'textDecorationLine', 'line-through')
                             cy.contains(actionToStay.title).should('not.have.css', 'textDecorationLine', 'line-through')
-                        })
+                        }, fusionProject1.id)
                     }
                 }
             })
@@ -201,7 +208,8 @@ describe('Actions management', () => {
             cy.visitProgression(
                 getRandomProgressionWorkshopOrFollowUp(),
                 seed.evaluationId,
-                seed.findParticipantByRole(Role.Facilitator).user
+                seed.findParticipantByRole(Role.Facilitator).user,
+                fusionProject1.id
             )
             const { actionToVoid, actionToStay } = getActionToVoidActionToStay()
             actionsGrid.voidActionButton(actionToVoid.id).click()
@@ -211,7 +219,7 @@ describe('Actions management', () => {
                 evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
                 cy.contains(actionToVoid.title).should('not.have.css', 'textDecorationLine', 'line-through')
                 cy.contains(actionToStay.title).should('not.have.css', 'textDecorationLine', 'line-through')
-            })
+            }, fusionProject1.id)
         })
     })
 
@@ -266,7 +274,7 @@ describe('Actions management', () => {
             and fill in reason (obligatory)
             then verify action was completed on ${randomVerifyProgression}`, () => {
             let user = seed.findParticipantByRole(roleThatCanComplete).user
-            cy.visitProgression(randomProgression, seed.evaluationId, user)
+            cy.visitProgression(randomProgression, seed.evaluationId, user, fusionProject1.id)
             ;({ actionNotes, action } = findActionWithNotes(seed))
             ;({ updatedAction, newNote } = createCompleteAction(user, action))
 
@@ -290,12 +298,17 @@ describe('Actions management', () => {
                 evaluationPage.progressionStepLink(randomVerifyProgression).click()
                 actionsGrid.actionLink(updatedAction.questionOrder, updatedAction.title).click()
                 editActionDialog.assertClosingNoteExists(newNote)
-            })
+            }, fusionProject1.id)
         })
 
         it(`Cancel complete action by ${roleThatCanComplete} on ${randomProgression}
             then verify action was not completed`, () => {
-            cy.visitProgression(randomProgression, seed.evaluationId, seed.findParticipantByRole(roleThatCanComplete).user)
+            cy.visitProgression(
+                randomProgression,
+                seed.evaluationId,
+                seed.findParticipantByRole(roleThatCanComplete).user,
+                fusionProject1.id
+            )
             ;({ actionNotes, action } = findActionWithNotes(seed))
 
             actionsGrid.actionLink(action.questionOrder, action.title).click()
@@ -329,6 +342,7 @@ const createSeedWithActions = (users: User[], roles: Role[], actionParameters: P
         progression: faker.random.arrayElement(Object.values(Progression)),
         users,
         roles,
+        fusionProjectId: fusionProject1.id,
     })
 
     const oneAction = seed.createAction({

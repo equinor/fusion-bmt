@@ -19,13 +19,14 @@ import {
     GET_QUESTION_TEMPLATES,
     GET_ALL_PROJECT_CATEGORY_NAMES,
 } from './gql'
+import { fusionProject1 } from '../mock/external/projects'
 
 type EvaluationSeedInput = {
     progression: Progression
     users: User[]
     roles: Role[]
     projectCategory?: string
-    fusionProjectId?: string
+    fusionProjectId: string
     namePrefix?: string
 }
 
@@ -74,7 +75,7 @@ export class EvaluationSeed {
         users,
         roles,
         projectCategory = 'CircleField',
-        fusionProjectId = '123',
+        fusionProjectId = fusionProject1.id,
         namePrefix = 'Evaluation',
     }: EvaluationSeedInput) {
         this.progression = progression
