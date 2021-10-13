@@ -33,6 +33,7 @@ interface Props {
     apiErrorAction: string
     apiErrorNote: string
     apiErrorClosingRemark: string
+    isEditingFromDashboard?: boolean
 }
 
 const ActionEditSidebar = ({
@@ -52,6 +53,7 @@ const ActionEditSidebar = ({
     apiErrorAction,
     apiErrorNote,
     apiErrorClosingRemark,
+    isEditingFromDashboard
 }: Props) => {
     const { personDetailsList, isLoading: isLoadingPersonDetails } = useAllPersonDetailsAsync(
         possibleAssignees.map(assignee => assignee.azureUniqueId)
@@ -135,7 +137,7 @@ const ActionEditSidebar = ({
                         isClosingRemarkSaved={isClosingRemarkSaved}
                         apiErrorClosingRemark={apiErrorClosingRemark}
                         apiErrorAction={apiErrorAction}
-                        disableEditAction={!participantCanEditAction(participant)}
+                        disableEditAction={!isEditingFromDashboard && !participantCanEditAction(participant)}
                     />
                     {apiErrorAction && (
                         <div style={{ marginTop: 20 }}>
@@ -151,7 +153,7 @@ const ActionEditSidebar = ({
                         text={note}
                         onChange={onChangeNote}
                         onCreateClick={onCreateNote}
-                        disabled={isNoteSaving || !participantCanEditAction(participant)}
+                        disabled={isNoteSaving || (!isEditingFromDashboard && !participantCanEditAction(participant))}
                     />
                     <NotesAndClosingRemarksList notesAndClosingRemarks={notesAndClosingRemarks} participantsDetails={personDetailsList} />
                 </div>

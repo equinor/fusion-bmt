@@ -17,9 +17,10 @@ interface Props {
     onClose: () => void
     connectedQuestion: Question
     possibleAssignees: Participant[]
+    isEditingFromDashboard?: boolean
 }
 
-const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, possibleAssignees }: Props) => {
+const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, possibleAssignees, isEditingFromDashboard }: Props) => {
     const { editAction, loading: isActionSaving, error: errorEditingAction } = useEditActionMutation()
     const { createNote, note, loading: isNoteSaving, error: errorCreatingNote } = useCreateNoteMutation()
     const {
@@ -97,6 +98,7 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
             apiErrorAction={actionError}
             apiErrorNote={noteError}
             apiErrorClosingRemark={closingRemarkError}
+            isEditingFromDashboard={isEditingFromDashboard}
         />
     )
 }

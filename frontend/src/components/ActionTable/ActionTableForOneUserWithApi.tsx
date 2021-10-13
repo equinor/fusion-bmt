@@ -67,6 +67,7 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
                     onClose={onClose}
                     connectedQuestion={actionToEdit.action.question}
                     possibleAssignees={actionToEdit.action.question.evaluation.participants}
+                    isEditingFromDashboard={true}
                 />
             )}
         </Box>
