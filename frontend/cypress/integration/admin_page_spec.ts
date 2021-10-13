@@ -262,11 +262,11 @@ describe('Admin page', () => {
             const supportNotes = faker.lorem.words(3)
             selectProjectCategoryOnTemplate(1, newCategoryName)
             adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
-            closeOutSelectProjectCategoryView(1)
+            closeOutSelectProjectCategoryView()
             adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
             selectProjectCategoryOnTemplate(1, newCategoryName)
             adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
-            closeOutSelectProjectCategoryView(1)
+            closeOutSelectProjectCategoryView()
             adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
             deleteProjectCategory(categoryId)
         })
@@ -278,7 +278,7 @@ describe('Admin page', () => {
             adminPage.toggleProjectCategoryOnQuestionTemplateSelectBox(temoplateNo, projectCategory).click()
         }
 
-        const closeOutSelectProjectCategoryView = (templateNo: number) => {
+        const closeOutSelectProjectCategoryView = () => {
             adminPage.questionTemplateMenu().click()
             adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
         }
