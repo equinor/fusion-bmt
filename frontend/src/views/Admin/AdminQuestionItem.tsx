@@ -17,7 +17,8 @@ interface Props {
     sortedBarrierQuestions: QuestionTemplate[]
     projectCategoryQuestions: QuestionTemplate[]
     setQuestionTemplateToCopy: (original: QuestionTemplate) => void
-    setIsCopyingQuestion: (val: boolean) => void
+    setIsAddingQuestion: (val: boolean) => void
+    questionToScrollIntoView: string
 }
 
 const AdminQuestionItem = ({
@@ -30,7 +31,8 @@ const AdminQuestionItem = ({
     sortedBarrierQuestions,
     projectCategoryQuestions,
     setQuestionTemplateToCopy,
-    setIsCopyingQuestion,
+    setIsAddingQuestion,
+    questionToScrollIntoView,
 }: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
@@ -68,7 +70,8 @@ const AdminQuestionItem = ({
                     sortedBarrierQuestions={sortedBarrierQuestions}
                     projectCategoryQuestions={projectCategoryQuestions}
                     setQuestionTemplateToCopy={setQuestionTemplateToCopy}
-                    setIsCopyingQuestion={setIsCopyingQuestion}
+                    setIsAddingQuestion={setIsAddingQuestion}
+                    questionToScrollIntoView={questionToScrollIntoView}
                 />
             )}
         </div>

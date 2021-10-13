@@ -39,7 +39,8 @@ namespace api.Services
             Barrier barrier,
             Organization organization,
             string text,
-            string supportNotes
+            string supportNotes,
+            int newOrder = 0
         )
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;

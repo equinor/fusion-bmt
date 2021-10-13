@@ -8,14 +8,20 @@ interface Props {
     question: QuestionTemplate
     setIsInEditmode: (val: boolean) => void
     setQuestionTemplateToCopy: (val: QuestionTemplate) => void
-    setIsCopyingQuestion: (val: boolean) => void
+    setIsAddingQuestion: (val: boolean) => void
     setIsInConfirmDeleteMode: (val: boolean) => void
 }
 
-const QuestionTemplateButtons = ({ question, setIsInEditmode, setQuestionTemplateToCopy, setIsCopyingQuestion, setIsInConfirmDeleteMode }: Props) => {
+const QuestionTemplateButtons = ({
+    question,
+    setIsInEditmode,
+    setQuestionTemplateToCopy,
+    setIsAddingQuestion,
+    setIsInConfirmDeleteMode,
+}: Props) => {
     const onClickCopy = () => {
         window.scroll(0, 0)
-        setIsCopyingQuestion(true)
+        setIsAddingQuestion(true)
         setQuestionTemplateToCopy(question)
     }
 

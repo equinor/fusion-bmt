@@ -5,12 +5,12 @@ import { SavingState } from '../../../utils/Variables'
 
 interface Props {
     isQuestionTemplateSaving: boolean
-    setIsInMode: (isInMode: boolean) => void
     onClickSave: () => void
+    onClickCancel: () => void
     questionTitle: string
 }
 
-const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSave, questionTitle }: Props) => {
+const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, onClickSave, onClickCancel, questionTitle }: Props) => {
     return (
         <>
             {isQuestionTemplateSaving && (
@@ -23,7 +23,7 @@ const CancelOrSaveQuestion = ({ isQuestionTemplateSaving, setIsInMode, onClickSa
                     data-testid="cancel-edit-question"
                     variant="outlined"
                     style={{ marginRight: '20px' }}
-                    onClick={() => setIsInMode(false)}
+                    onClick={() => onClickCancel()}
                     disabled={isQuestionTemplateSaving}
                 >
                     Cancel

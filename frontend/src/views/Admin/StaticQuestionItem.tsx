@@ -16,6 +16,32 @@ import { useEffectNotOnMount } from '../../utils/hooks'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
 import ErrorMessage from './Components/ErrorMessage'
 import QuestionTemplateButtons from './Components/QuestionTemplateButtons'
+import styled from 'styled-components'
+
+const StyledDiv = styled.div<{ isNew: boolean }>`
+    display: flex;
+    flex-direction: column;
+    -webkit-animation: ${({ isNew }) => (isNew ? 'fadein 1s;' : '')};
+    animation: ${({ isNew }) => (isNew ? 'fadein 1s;' : '')};
+
+    @keyframes fadein {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @-webkit-keyframes fadein {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+`
 
 interface Props {
     question: QuestionTemplate
@@ -28,7 +54,8 @@ interface Props {
     sortedBarrierQuestions: QuestionTemplate[]
     projectCategoryQuestions: QuestionTemplate[]
     setQuestionTemplateToCopy: (original: QuestionTemplate) => void
-    setIsCopyingQuestion: (val: boolean) => void
+    setIsAddingQuestion: (val: boolean) => void
+    questionToScrollIntoView: string
 }
 
 const StaticQuestionItem = ({
@@ -42,7 +69,8 @@ const StaticQuestionItem = ({
     sortedBarrierQuestions,
     projectCategoryQuestions,
     setQuestionTemplateToCopy,
-    setIsCopyingQuestion,
+    setIsAddingQuestion,
+    questionToScrollIntoView,
 }: Props) => {
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
@@ -170,7 +198,7 @@ const StaticQuestionItem = ({
 
     return (
         <>
-            <Box display="flex" flexDirection="column">
+            <StyledDiv isNew={questionToScrollIntoView === question.id}>
                 <Box display="flex" flexDirection="row">
                     <Box display="flex" flexGrow={1} mb={3} mr={5}>
                         <Box ml={2} mr={1}>
@@ -179,7 +207,11 @@ const StaticQuestionItem = ({
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography variant="h4" ref={questionTitleRef} data-testid={'question-title-' + question.order}>
+                            <Typography
+                                variant="h4"
+                                ref={questionToScrollIntoView === question.id ? questionTitleRef : undefined}
+                                data-testid={'question-title-' + question.order}
+                            >
                                 {question.text}
                             </Typography>
                             <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
@@ -227,7 +259,7 @@ const StaticQuestionItem = ({
                             question={question}
                             setIsInEditmode={setIsInEditmode}
                             setQuestionTemplateToCopy={setQuestionTemplateToCopy}
-                            setIsCopyingQuestion={setIsCopyingQuestion}
+                            setIsAddingQuestion={setIsAddingQuestion}
                             setIsInConfirmDeleteMode={setIsInConfirmDeleteMode}
                         />
                         {isInReorderMode && (
@@ -263,7 +295,7 @@ const StaticQuestionItem = ({
                     />
                 </Box>
                 {deletingQuestionTemplateError !== undefined && <ErrorMessage text={'Could not delete question template'} />}
-            </Box>
+            </StyledDiv>
             {addingToProjectCategoryError && <ErrorMessage text={'Not able to add project category to question template'} />}
             {removingFromProjectCategoryError && <ErrorMessage text={'Not able to remove project category from question template'} />}
             {reorderingQuestionTemplateError && <ErrorMessage text={'Not able to reorder question templates'} />}

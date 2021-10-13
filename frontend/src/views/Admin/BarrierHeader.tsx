@@ -11,7 +11,7 @@ interface Props {
     headerRef: RefObject<HTMLElement>
     title: string
     barrierQuestions: QuestionTemplate[]
-    setIsAddingQuestion: (val: boolean) => void
+    onAddNewQuestionClick: () => void
     isInAddCategoryMode: boolean
     setIsInAddCategoryMode: (val: boolean) => void
     isInReorderMode: boolean
@@ -24,7 +24,7 @@ const BarrierHeader = ({
     headerRef,
     title,
     barrierQuestions,
-    setIsAddingQuestion,
+    onAddNewQuestionClick,
     isInAddCategoryMode,
     setIsInAddCategoryMode,
     isInReorderMode,
@@ -53,7 +53,7 @@ const BarrierHeader = ({
                         <Button
                             variant="ghost"
                             color="primary"
-                            onClick={() => setIsAddingQuestion(true)}
+                            onClick={() => onAddNewQuestionClick()}
                             data-testid="create-new-question-button"
                         >
                             <Icon data={add}></Icon>
