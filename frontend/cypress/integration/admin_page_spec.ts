@@ -13,13 +13,14 @@ import {
     DELETE_PROJECT_CATEGORY,
 } from '../support/testsetup/gql'
 import { organizationToString } from '../../src/utils/EnumToString'
+import { fusionProject1 } from '../support/mock/external/projects'
 const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
 
 describe('Admin page', () => {
     const goToAdminTab = () => {
         const adminUser = getUserWithAdminRole()
-        cy.visitProject(adminUser)
+        cy.visitProject(adminUser, fusionProject1.id)
         adminPage.adminButton().click()
         adminPage.adminPageTitle().should('have.text', 'Project configuration: Questionnaire')
     }
@@ -86,7 +87,7 @@ describe('Admin page', () => {
                         adminPage.supportNotes(createdQuestionNo).should('contain.text', supportNotes)
                         adminPage.organization(createdQuestionNo).should('have.text', organization)
                     })
-            })
+            }, fusionProject1.id)
         })
 
         it('Cancel create new question template, verify question template is not added', () => {
@@ -107,7 +108,7 @@ describe('Admin page', () => {
                         const questionsCountPostCancel = Cypress.$(questions).length - 1
                         expect(questionsCount, 'number of questions before and after cancel edit differ').to.equal(questionsCountPostCancel)
                     })
-                })
+                }, fusionProject1.id)
             })
         })
 
@@ -220,7 +221,7 @@ describe('Admin page', () => {
 
     describe('Security', () => {
         it('Non admin user cannot do GQL mutations to delete question', () => {
-            cy.visitProject(getUserWithNoAdminRole())
+            cy.visitProject(getUserWithNoAdminRole(), fusionProject1.id)
             activeQuestionTemplates().then(templates => {
                 const idOfFirstTemplate = templates[0].id
                 cy.gql(DELETE_QUESTION_TEMPLATE, { variables: { questionTemplateId: idOfFirstTemplate } }).then(res => {
@@ -235,7 +236,7 @@ describe('Admin page', () => {
         })
 
         it('Non admin user does not see Admin tab', () => {
-            cy.visitProject(getUserWithNoAdminRole())
+            cy.visitProject(getUserWithNoAdminRole(), fusionProject1.id)
             adminPage.adminButton().should('not.exist')
         })
     })

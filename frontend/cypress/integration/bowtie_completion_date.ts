@@ -4,6 +4,7 @@ import FollowUpTabs from '../page_objects/followup'
 import { EvaluationPage } from '../page_objects/evaluation'
 import { getUsers } from '../support/mock/external/users'
 import * as faker from 'faker'
+import { fusionProject1 } from '../support/mock/external/projects'
 
 describe('Workshop Summary', () => {
     let seed: EvaluationSeed
@@ -18,12 +19,13 @@ describe('Workshop Summary', () => {
                 progression,
                 users: getUsers(2),
                 roles,
+                fusionProjectId: fusionProject1.id,
             })
 
             seed.plant().then(() => {
                 const user = faker.random.arrayElement(seed.participants).user
 
-                cy.visitEvaluation(seed.evaluationId, user)
+                cy.visitEvaluation(seed.evaluationId, user, fusionProject1.id)
                 evaluationPage.progressionStepLink(Progression.FollowUp).click()
                 followUpTabs.workshopSummary().click()
 
@@ -38,12 +40,13 @@ describe('Workshop Summary', () => {
                 progression: Progression.FollowUp,
                 users: getUsers(2),
                 roles,
+                fusionProjectId: fusionProject1.id,
             })
 
             seed.plant().then(() => {
                 const user = faker.random.arrayElement(seed.participants).user
 
-                cy.visitEvaluation(seed.evaluationId, user)
+                cy.visitEvaluation(seed.evaluationId, user, fusionProject1.id)
                 followUpTabs.workshopSummary().click()
 
                 cy.contains(`Workshop completed: ${today}`).should('be.visible')

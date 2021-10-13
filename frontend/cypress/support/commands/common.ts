@@ -26,9 +26,9 @@ Cypress.Commands.add(
     }
 )
 
-Cypress.Commands.add('testCacheAndDB', (testCache: Function, testDB: Function = testCache) => {
+Cypress.Commands.add('testCacheAndDB', (testCache: Function, fusionProjectId: string, testDB: Function = testCache) => {
     testCache()
-    cy.reloadBmt()
+    cy.reloadBmt(fusionProjectId)
     testDB()
 })
 
@@ -45,7 +45,7 @@ declare global {
              * page reload.
              * @example cy.testCacheAndDB({assert(true)})
              */
-            testCacheAndDB(testCache: Function, testDB?: Function): Cypress.Chainable
+            testCacheAndDB(testCache: Function, fusionProjectId: string, testDB?: Function): Cypress.Chainable
 
             /**
              * Clear + type + enter. Also works on elements clear doesn't always work on
