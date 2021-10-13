@@ -56,7 +56,7 @@ describe('Actions management', () => {
             },
         ]
         roles.forEach(r => {
-            it(`${r.role} can create action = ${r.canCreateAction}`, () => {
+            it(`${r.role} can ${r.canCreateAction === true ? '' : ' not'} create action`, () => {
                 cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
                 let action = createActionTestData(users)
                 r.canCreateAction
@@ -157,7 +157,9 @@ describe('Actions management', () => {
             },
         ]
         roles.forEach(r => {
-            it(`${r.role} Cancel button exists = ${r.voidButtonExists} can void action = ${r.canVoidAction}`, () => {
+            it(`${r.role} Cancel button ${r.voidButtonExists === true ? 'exists' : 'does not exist'},  ${
+                r.canVoidAction === true ? ' can' : ' can not'
+            } void action`, () => {
                 cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
                 const { actionToVoid, actionToStay } = getActionToVoidActionToStay()
                 if (!r.voidButtonExists) {
