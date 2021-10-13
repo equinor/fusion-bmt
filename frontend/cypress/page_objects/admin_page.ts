@@ -99,7 +99,7 @@ export class AdminPage {
         return cy.getByDataTestid('add-qt-to-project-cat-or-close-view')
     }
 
-    questionTemplateToProjectCategorySelectBox = (templateNo: number, projectCategory: string) => {
+    toggleProjectCategoryOnQuestionTemplateSelectBox = (templateNo: number, projectCategory: string) => {
         return cy
             .getByDataTestid('project-category-selector-' + templateNo)
             .parent()
