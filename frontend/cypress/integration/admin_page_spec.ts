@@ -16,7 +16,7 @@ const adminPage = new AdminPage()
 const selectOrganizationDropdown = 'select-organization-dropdown-box'
 
 describe('Admin page', () => {
-    const goToQuestionnaire = () => {
+    const goToAdminTab = () => {
         const adminUser = getUserWithAdminRole()
         cy.visitProject(adminUser)
         adminPage.adminButton().click()
@@ -24,7 +24,7 @@ describe('Admin page', () => {
     }
 
     beforeEach(() => {
-        goToQuestionnaire()
+        goToAdminTab()
     })
 
     describe('Question templates', () => {
@@ -75,7 +75,7 @@ describe('Admin page', () => {
             dropdownSelect.select(cy.getByDataTestid(selectOrganizationDropdown).contains('Organization'), organization)
             adminPage.saveQuestionButton().click()
             cy.testCacheAndDB(() => {
-                goToQuestionnaire()
+                goToAdminTab()
                 adminPage
                     .allQuestionNo()
                     .last()
@@ -101,7 +101,7 @@ describe('Admin page', () => {
                 )
                 adminPage.cancelEditButton().click()
                 cy.testCacheAndDB(() => {
-                    goToQuestionnaire()
+                    goToAdminTab()
                     adminPage.allQuestionNo().then(questions => {
                         const questionsCountPostCancel = Cypress.$(questions).length - 1
                         expect(questionsCount, 'number of questions before and after cancel edit differ').to.equal(questionsCountPostCancel)
@@ -114,14 +114,14 @@ describe('Admin page', () => {
             projectCategoryId('CircleField').then(projectCatId => {
                 const questionTitle = faker.lorem.words(2)
                 createNewQuestionTemplate(Barrier.Gm, Organization.All, questionTitle, faker.lorem.words(3), [projectCatId])
-                goToQuestionnaire()
+                goToAdminTab()
                 adminPage.questionNoByTitle(questionTitle).then(qNo => {
                     const questionNo = parseInt(Cypress.$(qNo).text())
                     activeQuestionTemplates().then(activeTemplatesPreDelete => {
                         adminPage.deleteQuestionButton(questionNo).click()
                         new ConfirmationDialog().yesButton().click()
                         cy.contains(questionTitle).should('not.exist')
-                        goToQuestionnaire()
+                        goToAdminTab()
                         activeQuestionTemplates().then(activeTemplatePostDelete => {
                             expect(activeTemplatesPreDelete.length, ' question template not deleted').to.equal(
                                 activeTemplatePostDelete.length + 1
@@ -194,7 +194,7 @@ describe('Admin page', () => {
                     const organization = faker.random.arrayElement(Object.values(Organization))
                     const supportNotes = faker.lorem.words(3)
                     createNewQuestionTemplate(Barrier.Gm, organization, questionTitle, supportNotes, [categoryId])
-                    goToQuestionnaire()
+                    goToAdminTab()
                     const dropdownSelect = new DropdownSelect()
                     dropdownSelect.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
                     cy.contains(newCategoryName).should('be.visible')
@@ -209,7 +209,7 @@ describe('Admin page', () => {
                         adminPage.selectProjectCategoryDropdown().click()
                         cy.contains(newCategoryName).should('not.exist')
                         dropdownSelect.assertSelectValues(projectCatArray.concat('All project categories'))
-                        goToQuestionnaire()
+                        goToAdminTab()
                         adminPage.selectProjectCategoryDropdown().click()
                         cy.contains(newCategoryName).should('not.exist')
                     })
@@ -220,7 +220,7 @@ describe('Admin page', () => {
         it('Add & delete project category on question templates', () => {
             const newCategoryName = 'CatToAssign' + faker.lorem.word()
             createNewProjectCategory(newCategoryName).then(categoryId => {
-                goToQuestionnaire()
+                goToAdminTab()
                 selectProjectCategoryOnTemplate(1, newCategoryName)
                 adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
                 closeOutSelectProjectCategoryView()
