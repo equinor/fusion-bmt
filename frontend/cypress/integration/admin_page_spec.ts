@@ -221,9 +221,6 @@ describe('Admin page', () => {
             const newCategoryName = 'CatToAssign' + faker.lorem.word()
             createNewProjectCategory(newCategoryName).then(categoryId => {
                 goToQuestionnaire()
-                const questionTitle = faker.lorem.words(2)
-                const organization = faker.random.arrayElement(Object.values(Organization))
-                const supportNotes = faker.lorem.words(3)
                 selectProjectCategoryOnTemplate(1, newCategoryName)
                 adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
                 closeOutSelectProjectCategoryView()
