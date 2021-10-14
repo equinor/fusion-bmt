@@ -88,7 +88,7 @@ const EditableQuestionItem = ({
                             onChange={markdown => setSupportNotes(markdown)}
                             menuItems={['strong', 'em', 'bullet_list', 'ordered_list', 'blockquote', 'h1', 'h2', 'h3', 'paragraph']}
                         >
-                            {supportNotes}
+                            {supportNotes === '' ? ' ' : supportNotes}
                         </MarkdownEditor>
                     </Box>
                 </Box>
