@@ -77,9 +77,10 @@ namespace api.Services
             return action;
         }
 
-        public Action Remove(Action action)
+        public Action SetVoid(Action action, bool newStatus)
         {
-            _context.Actions.Remove(action);
+            action.IsVoided = newStatus;
+            _context.Actions.Update(action);
             _context.SaveChanges();
             return action;
         }

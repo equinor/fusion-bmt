@@ -43,30 +43,13 @@ interface DeleteActionMutationProps {
  */
 const useDeleteActionMutation = (questionId: string): DeleteActionMutationProps => {
     const DELETE_ACTION = gql`
-        mutation DeleteAction($actionId: String) {
-            deleteAction(actionId: $actionId) {
+        mutation VoidAction($actionId: String) {
+            voidAction(actionId: $actionId) {
                 id
             }
         }
     `
-    const [deleteActionApolloFunc, { loading, data, error }] = useMutation(DELETE_ACTION, {
-        update(cache, mutationResult) {
-            const deleteAction = mutationResult.data.deleteAction
-            cache.modify({
-                id: cache.identify({
-                    __typename: 'Question',
-                    id: questionId,
-                }),
-                fields: {
-                    actions(existingActionRefs, { readField }) {
-                        return existingActionRefs.filter((actionRef: any) => {
-                            return deleteAction.id !== readField('id', actionRef)
-                        })
-                    },
-                },
-            })
-        },
-    })
+    const [deleteActionApolloFunc, { loading, data, error }] = useMutation(DELETE_ACTION)
 
     const deleteAction = (actionId: string) => {
         deleteActionApolloFunc({ variables: { actionId } })

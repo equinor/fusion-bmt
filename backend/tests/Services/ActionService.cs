@@ -90,18 +90,16 @@ namespace tests
         }
 
         [Fact]
-        public void DeleteAction()
+        public void VoidAction()
         {
-            NoteService noteService = new NoteService(fixture.context);
             ActionService actionService = new ActionService(fixture.context);
 
-            Action action = actionService.GetAll().Where(a => a.Notes.Count() > 0).First();
-            Note note = action.Notes.First();
+            Action action = actionService.GetAll().First();
 
-            Action deleted = actionService.Remove(action);
+            Action voidedAction = actionService.SetVoid(action, true);
 
-            Assert.Equal(action.Id, deleted.Id);
-            Assert.Throws<NotFoundInDBException>(() => noteService.GetNote(note.Id));
+            Assert.Equal(action.Id, voidedAction.Id);
+            Assert.True(voidedAction.IsVoided);
         }
     }
 }
