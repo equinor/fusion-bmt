@@ -188,7 +188,7 @@ describe('Admin page', () => {
     describe('Project categories', () => {
         it('Select question template by category, delete project category & verify project category is no longer present', () => {
             allProjectCategoryNames().then(projectCatArray => {
-                const newCategoryName = 'TheNewCategory' + faker.lorem.word()
+                const newCategoryName = 'TheNewCategory' + faker.lorem.word(8)
                 createNewProjectCategory(newCategoryName).then(categoryId => {
                     const questionTitle = faker.lorem.words(2)
                     const organization = faker.random.arrayElement(Object.values(Organization))
@@ -218,7 +218,7 @@ describe('Admin page', () => {
         })
 
         it('Add & delete project category on question templates', () => {
-            const newCategoryName = 'CatToAssign' + faker.lorem.word()
+            const newCategoryName = 'CatToAssign' + faker.lorem.word(8)
             createNewProjectCategory(newCategoryName).then(categoryId => {
                 goToAdminTab()
                 selectProjectCategoryOnTemplate(1, newCategoryName)
@@ -250,8 +250,9 @@ describe('Admin page', () => {
             it(`Add project category ${
                 t.categoryToCopyFrom !== undefined ? ' and copy from ' + t.categoryToCopyFrom : ' and do not copy'
             }`, () => {
+                cy.intercept(/\/graphql/).as('graphql')
                 adminPage.addProjectCategoryButton().click()
-                const newCategoryName: string = 'NewCat' + faker.lorem.word()
+                const newCategoryName: string = 'NewCat' + faker.lorem.word(8)
                 const projectCategory = new CreateProjectCategory()
                 projectCategory.nameTextField().type(newCategoryName)
                 const dropdown = new DropdownSelect()
@@ -259,6 +260,7 @@ describe('Admin page', () => {
                     dropdown.select(projectCategory.dropdownField(), t.categoryToCopyFrom)
                 }
                 projectCategory.save().click()
+                cy.wait('@graphql')
                 activeQuestionTemplates(newCategoryName).then(questionTemplates => {
                     dropdown.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
                     if (t.categoryToCopyFrom !== undefined) {
