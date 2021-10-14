@@ -31,6 +31,7 @@ export type Action = {
   notes: Array<Maybe<Note>>;
   closingRemarks: Array<Maybe<ClosingRemark>>;
   question: Question;
+  isVoided: Scalars['Boolean'];
 };
 
 export type ActionFilterInput = {
@@ -49,6 +50,7 @@ export type ActionFilterInput = {
   notes?: Maybe<ListFilterInputTypeOfNoteFilterInput>;
   closingRemarks?: Maybe<ListFilterInputTypeOfClosingRemarkFilterInput>;
   question?: Maybe<QuestionFilterInput>;
+  isVoided?: Maybe<BooleanOperationFilterInput>;
 };
 
 export type Answer = {
@@ -348,7 +350,7 @@ export type Mutation = {
   setAnswer?: Maybe<Answer>;
   createAction?: Maybe<Action>;
   editAction?: Maybe<Action>;
-  deleteAction?: Maybe<Action>;
+  voidAction?: Maybe<Action>;
   createNote?: Maybe<Note>;
   createClosingRemark?: Maybe<ClosingRemark>;
   createProjectCategory?: Maybe<ProjectCategory>;
@@ -432,7 +434,7 @@ export type MutationEditActionArgs = {
 };
 
 
-export type MutationDeleteActionArgs = {
+export type MutationVoidActionArgs = {
   actionId?: Maybe<Scalars['String']>;
 };
 
