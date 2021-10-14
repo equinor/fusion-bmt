@@ -111,6 +111,53 @@ describe('Admin page', () => {
             })
         })
 
+        it.only('Copy question template, verify question template was copied (to next position WILL BE CHANGED)', () => {
+            activeQuestionTemplates().then(questionTemplatesPreCopy => {
+                const numberOfQuestionTemplatesPreCopy = Cypress.$(questionTemplatesPreCopy).length
+                adminPage.allQuestionNo().then(questions => {
+                    cy.intercept(/\/graphql/).as('graphql')
+                    const beforeCopyLength = Cypress.$(questions).length
+                    const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
+                    adminPage.copyQuestionButton(questionNo).click()
+                    adminPage.saveQuestionButton().click()
+                    cy.wait('@graphql')
+                    adminPage.allQuestionNo().should(questions => {
+                        const afterCopyLength = Cypress.$(questions).length
+                        expect(beforeCopyLength + 1, ' after question is copied, total number of questions is one higher').equals(
+                            afterCopyLength
+                        )
+                    })
+                    adminPage.questionTitleByNo(questionNo).then(title => {
+                        const t = Cypress.$(title).text()
+                        adminPage.questionTitleByNo(numberOfQuestionTemplatesPreCopy + 1).should('have.text', t)
+                    })
+                    adminPage.supportNotes(questionNo).then(supportNotes => {
+                        const sn = Cypress.$(supportNotes).text()
+                        adminPage.supportNotes(numberOfQuestionTemplatesPreCopy + 1).should('have.text', sn)
+                    })
+                    adminPage.organization(questionNo).then(organization => {
+                        const org = Cypress.$(organization).text()
+                        adminPage.organization(numberOfQuestionTemplatesPreCopy + 1).should('have.text', org)
+                    })
+                    cy.log('EXIST ' + cy.checkIfElementExists(adminPage.projectCategorySelector(questionNo)))
+                    console.log('EXIST')
+                    console.log(cy.checkIfElementExists(adminPage.projectCategorySelector(questionNo)))
+                    cy.document().then(document => {})
+                    if (cy.checkIfElementExists(adminPage.projectCategorySelector(questionNo))) {
+                        adminPage.allProjectCategories(questionNo).then(cats => {
+                            const categoriesSrc = Cypress.$.makeArray(cats).map(el => el.innerText)
+                            adminPage.allProjectCategories(numberOfQuestionTemplatesPreCopy + 1).then(copyCats => {
+                                const categories = Cypress.$.makeArray(copyCats).map(el => el.innerText)
+                                expect(arrayEquals(categoriesSrc, categories), ' project categories in copy match(es) source').to.be.true
+                            })
+                        })
+                    }
+                })
+            })
+        })
+
+        const arrayEquals = (a: Array<string>, b: Array<string>) => a.length === b.length && a.every((v, i) => v === b[i])
+
         it('Delete question template, verify question template was deleted', () => {
             projectCategoryId('CircleField').then(projectCatId => {
                 const questionTitle = faker.lorem.words(2)
@@ -223,13 +270,13 @@ describe('Admin page', () => {
             createNewProjectCategory(newCategoryName).then(categoryId => {
                 goToAdminTab()
                 selectProjectCategoryOnTemplate(1, newCategoryName)
-                adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('be.visible')
                 closeOutSelectProjectCategoryView()
-                adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('be.visible')
                 selectProjectCategoryOnTemplate(1, newCategoryName)
-                adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('not.exist')
                 closeOutSelectProjectCategoryView()
-                adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('not.exist')
                 deleteProjectCategory(categoryId)
             })
 

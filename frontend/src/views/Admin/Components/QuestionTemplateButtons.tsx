@@ -38,7 +38,7 @@ const QuestionTemplateButtons = ({
                 </Button>
             </Tooltip>
             <Tooltip placement="bottom" title="Copy question">
-                <Button variant="ghost" color="primary" onClick={() => onClickCopy()}>
+                <Button variant="ghost" color="primary" onClick={() => onClickCopy()} data-testid={'copy-question-' + question.adminOrder}>
                     <Icon data={copy}></Icon>
                 </Button>
             </Tooltip>

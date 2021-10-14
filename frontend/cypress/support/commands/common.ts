@@ -31,11 +31,23 @@ Cypress.Commands.add('testCacheAndDB', (testCache: Function, testDB: Function = 
     cy.reloadBmt()
     testDB()
 })
+
+Cypress.Commands.add('checkIfElementExists', (selector: string) => {
+    cy.document().then($document => {
+        const documentResult = $document.querySelectorAll(selector)
+        if (documentResult.length) {
+            return true
+        }
+        return false
+    })
+})
+
 export {}
 
 declare global {
     namespace Cypress {
         interface Chainable {
+            checkIfElementExists(selector: string): boolean
             /**
              * Often we update the code in two places: cache and db.
              * It might be useful to run a final check before

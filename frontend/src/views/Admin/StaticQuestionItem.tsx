@@ -227,7 +227,7 @@ const StaticQuestionItem = ({
                                     </Chip>
                                 </Box>
                                 {question.projectCategories.map((category, index) => (
-                                    <Box mr={1} mb={1} key={index} data-testid={'project-category-' + category.name}>
+                                    <Box mr={1} mb={1} key={index} data-testid={'project-category-' + question.order + '-' + category.name}>
                                         <Chip style={{ backgroundColor: tokens.colors.infographic.primary__mist_blue.rgba }}>
                                             <Tooltip title={'Project category'} placement={'bottom'}>
                                                 <Icon data={platform} size={16}></Icon>
