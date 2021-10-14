@@ -137,6 +137,7 @@ describe('Admin page', () => {
         it(`Add project category ${
             t.categoryToCopyFrom !== undefined ? ' and copy from ' + t.categoryToCopyFrom : ' and do not copy'
         }`, () => {
+            cy.intercept(/\/graphql/).as('graphql')
             adminPage.addProjectCategoryButton().click()
             const newCategoryName: string = 'NewCat' + faker.lorem.word()
             const projectCategory = new CreateProjectCategory()
@@ -146,6 +147,7 @@ describe('Admin page', () => {
                 dropdown.select(projectCategory.dropdownField(), t.categoryToCopyFrom)
             }
             projectCategory.save().click()
+            cy.wait('@graphql')
             activeQuestionTemplates(newCategoryName).then(questionTemplates => {
                 dropdown.select(adminPage.selectProjectCategoryDropdown(), newCategoryName)
                 if (t.categoryToCopyFrom !== undefined) {
