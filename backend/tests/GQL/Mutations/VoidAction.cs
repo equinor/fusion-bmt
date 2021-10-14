@@ -10,7 +10,7 @@ using api.GQL;
 namespace tests
 {
     [Collection("Database collection")]
-    public class DeleteActionMutation : MutationTest
+    public class VoidActionMutation : MutationTest
     {
         private readonly Evaluation _evaluation;
         private readonly Participant _facilitator;
@@ -20,7 +20,7 @@ namespace tests
         private readonly Question _question;
         private readonly api.Models.Action _action;
 
-        public DeleteActionMutation(DatabaseFixture fixture) : base(fixture) {
+        public VoidActionMutation(DatabaseFixture fixture) : base(fixture) {
             _evaluation = CreateEvaluation();
             _facilitator = _evaluation.Participants.First();
             _authService.LoginUser(_facilitator);
@@ -40,7 +40,7 @@ namespace tests
         [Fact]
         public void FacilitatorCanUseMutation()
         {
-            AssertCanDelete(_facilitator);
+            AssertCanVoid(_facilitator);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace tests
 
         /* Helper methods */
 
-        private void AssertCanDelete(Participant user)
+        private void AssertCanVoid(Participant user)
         {
             var toDelete = CreateAction(
                 questionId: _question.Id,
@@ -79,15 +79,16 @@ namespace tests
 
             _authService.LoginUser(user);
             int answers = NumberOfActions(_question);
-            DeleteAction(toDelete.Id);
-            Assert.True(NumberOfActions(_question) == answers - 1);
+            VoidAction(toDelete.Id);
+            Assert.True(NumberOfActions(_question) == answers);
+            Assert.True(toDelete.IsVoided);
         }
 
         private void AssertIsNotAuthorized(string azureUniqueId)
         {
             _authService.LoginUser(azureUniqueId);
             Assert.Throws<UnauthorizedAccessException>(() =>
-                DeleteAction(_action.Id)
+                VoidAction(_action.Id)
             );
         }
     }

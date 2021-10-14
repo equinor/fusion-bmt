@@ -234,7 +234,7 @@ namespace api.GQL
             return _actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed, priority);
         }
 
-        public Action DeleteAction(string actionId)
+        public Action VoidAction(string actionId)
         {
             /* Note that no related fields are loaded */
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
@@ -244,7 +244,7 @@ namespace api.GQL
             Role[] canBePerformedBy = { Role.Facilitator };
             AssertCanPerformMutation(evaluation, canBePerformedBy);
 
-            _actionService.Remove(action);
+            _actionService.SetVoid(action, true);
             return action;
         }
 

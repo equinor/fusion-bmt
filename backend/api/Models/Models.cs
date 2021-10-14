@@ -191,6 +191,8 @@ namespace api.Models
         public virtual ICollection<ClosingRemark> ClosingRemarks { get; private set; }
         [Required]
         public virtual Question Question { get; set; }
+        [Required]
+        public bool IsVoided { get; set; }
     }
 
     public class Note

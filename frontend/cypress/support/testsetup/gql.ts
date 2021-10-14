@@ -235,9 +235,9 @@ export const EDIT_ACTION = `
     }
 `
 
-export const DELETE_ACTION = `
-mutation DeleteAction($actionId: String) {
-    deleteAction(actionId: $actionId) {
+export const VOID_ACTION = `
+mutation VoidAction($actionId: String) {
+    voidAction(actionId: $actionId) {
         id
     }
 }

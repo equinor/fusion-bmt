@@ -217,9 +217,9 @@ namespace tests
             return action;
         }
 
-        protected void DeleteAction(string actionId)
+        protected void VoidAction(string actionId)
         {
-            _mutation.DeleteAction(actionId);
+            _mutation.VoidAction(actionId);
         }
 
         protected Note CreateNote(
