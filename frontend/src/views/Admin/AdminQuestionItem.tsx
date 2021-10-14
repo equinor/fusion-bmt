@@ -16,6 +16,9 @@ interface Props {
     refetchQuestionTemplates: () => void
     sortedBarrierQuestions: QuestionTemplate[]
     projectCategoryQuestions: QuestionTemplate[]
+    setQuestionTemplateToCopy: (original: QuestionTemplate) => void
+    setIsAddingQuestion: (val: boolean) => void
+    questionToScrollIntoView: string
 }
 
 const AdminQuestionItem = ({
@@ -27,6 +30,9 @@ const AdminQuestionItem = ({
     refetchQuestionTemplates,
     sortedBarrierQuestions,
     projectCategoryQuestions,
+    setQuestionTemplateToCopy,
+    setIsAddingQuestion,
+    questionToScrollIntoView,
 }: Props) => {
     const [isInEditmode, setIsInEditmode] = React.useState<boolean>(false)
 
@@ -63,6 +69,9 @@ const AdminQuestionItem = ({
                     refetchQuestionTemplates={refetchQuestionTemplates}
                     sortedBarrierQuestions={sortedBarrierQuestions}
                     projectCategoryQuestions={projectCategoryQuestions}
+                    setQuestionTemplateToCopy={setQuestionTemplateToCopy}
+                    setIsAddingQuestion={setIsAddingQuestion}
+                    questionToScrollIntoView={questionToScrollIntoView}
                 />
             )}
         </div>

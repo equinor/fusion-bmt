@@ -3,7 +3,7 @@ import { tokens } from '@equinor/eds-tokens'
 import { MarkdownViewer } from '@equinor/fusion-components'
 import { Button, Chip, Icon, MultiSelect, Tooltip, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
-import { arrow_down, arrow_up, delete_to_trash, edit, platform, work } from '@equinor/eds-icons'
+import { arrow_down, arrow_up, platform, work } from '@equinor/eds-icons'
 
 import { ProjectCategory, QuestionTemplate } from '../../api/models'
 import { organizationToString } from '../../utils/EnumToString'
@@ -15,6 +15,33 @@ import { deriveNewSavingState, getNextNextQuestion, getNextQuestion, getPrevQues
 import { useEffectNotOnMount } from '../../utils/hooks'
 import ConfirmationDialog from '../../components/ConfirmationDialog'
 import ErrorMessage from './Components/ErrorMessage'
+import QuestionTemplateButtons from './Components/QuestionTemplateButtons'
+import styled from 'styled-components'
+
+const StyledDiv = styled.div<{ isNew: boolean }>`
+    display: flex;
+    flex-direction: column;
+    -webkit-animation: ${({ isNew }) => (isNew ? 'fadein 1s;' : '')};
+    animation: ${({ isNew }) => (isNew ? 'fadein 1s;' : '')};
+
+    @keyframes fadein {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @-webkit-keyframes fadein {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+`
 
 interface Props {
     question: QuestionTemplate
@@ -26,6 +53,9 @@ interface Props {
     refetchQuestionTemplates: () => void
     sortedBarrierQuestions: QuestionTemplate[]
     projectCategoryQuestions: QuestionTemplate[]
+    setQuestionTemplateToCopy: (original: QuestionTemplate) => void
+    setIsAddingQuestion: (val: boolean) => void
+    questionToScrollIntoView: string
 }
 
 const StaticQuestionItem = ({
@@ -38,6 +68,9 @@ const StaticQuestionItem = ({
     refetchQuestionTemplates,
     sortedBarrierQuestions,
     projectCategoryQuestions,
+    setQuestionTemplateToCopy,
+    setIsAddingQuestion,
+    questionToScrollIntoView,
 }: Props) => {
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
@@ -165,7 +198,7 @@ const StaticQuestionItem = ({
 
     return (
         <>
-            <Box display="flex" flexDirection="column">
+            <StyledDiv isNew={questionToScrollIntoView === question.id}>
                 <Box display="flex" flexDirection="row">
                     <Box display="flex" flexGrow={1} mb={3} mr={5}>
                         <Box ml={2} mr={1}>
@@ -174,7 +207,11 @@ const StaticQuestionItem = ({
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography variant="h4" ref={questionTitleRef} data-testid={'question-title-' + question.order}>
+                            <Typography
+                                variant="h4"
+                                ref={questionToScrollIntoView === question.id ? questionTitleRef : undefined}
+                                data-testid={'question-title-' + question.order}
+                            >
                                 {question.text}
                             </Typography>
                             <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
@@ -219,24 +256,13 @@ const StaticQuestionItem = ({
                         </Box>
                     </Box>
                     <Box display="flex" flexDirection={'column'}>
-                        <Box flexGrow={1} style={{ minWidth: '120px' }}>
-                            <Button
-                                variant="ghost"
-                                color="primary"
-                                onClick={() => setIsInEditmode(true)}
-                                data-testid={'edit-question-' + question.order}
-                            >
-                                <Icon data={edit}></Icon>
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                color="primary"
-                                onClick={() => setIsInConfirmDeleteMode(true)}
-                                data-testid={'delete-question-' + question.order}
-                            >
-                                <Icon data={delete_to_trash}></Icon>
-                            </Button>
-                        </Box>
+                        <QuestionTemplateButtons
+                            question={question}
+                            setIsInEditmode={setIsInEditmode}
+                            setQuestionTemplateToCopy={setQuestionTemplateToCopy}
+                            setIsAddingQuestion={setIsAddingQuestion}
+                            setIsInConfirmDeleteMode={setIsInConfirmDeleteMode}
+                        />
                         {isInReorderMode && (
                             <Box>
                                 <Button
@@ -272,7 +298,7 @@ const StaticQuestionItem = ({
                     />
                 </Box>
                 {deletingQuestionTemplateError !== undefined && <ErrorMessage text={'Could not delete question template'} />}
-            </Box>
+            </StyledDiv>
             {addingToProjectCategoryError && <ErrorMessage text={'Not able to add project category to question template'} />}
             {removingFromProjectCategoryError && <ErrorMessage text={'Not able to remove project category from question template'} />}
             {reorderingQuestionTemplateError && <ErrorMessage text={'Not able to reorder question templates'} />}

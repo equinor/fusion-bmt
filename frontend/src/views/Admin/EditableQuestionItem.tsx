@@ -102,8 +102,8 @@ const EditableQuestionItem = ({
                     </Box>
                     <CancelOrSaveQuestion
                         isQuestionTemplateSaving={isQuestionTemplateSaving}
-                        setIsInMode={setIsInEditmode}
                         onClickSave={saveQuestion}
+                        onClickCancel={() => setIsInEditmode(false)}
                         questionTitle={text}
                     />
                 </Box>

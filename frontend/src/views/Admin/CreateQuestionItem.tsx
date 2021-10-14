@@ -1,28 +1,46 @@
-import React, { RefObject } from 'react'
+import React, { useState } from 'react'
 import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
-import { TextField } from '@equinor/eds-core-react'
+import { TextField, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
+import { ApolloError } from '@apollo/client'
 
-import { Barrier, Organization } from '../../api/models'
+import { Barrier, Organization, QuestionTemplate } from '../../api/models'
 import { ErrorIcon, TextFieldChangeEvent } from '../../components/Action/utils'
-import { ApolloError, gql, useMutation } from '@apollo/client'
 import { getOrganizationOptionsForDropdown } from '../helpers'
-import { useValidityCheck } from '../../utils/hooks'
-import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
-import { QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
+import { useEffectNotOnMount, useValidityCheck } from '../../utils/hooks'
+import { DataToCreateQuestionTemplate } from './AdminView'
 import ErrorMessage from './Components/ErrorMessage'
+import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
 
 interface Props {
-    setIsAddingQuestion: (isAddingQuestion: boolean) => void
     barrier: Barrier
-    questionTitleRef: RefObject<HTMLElement>
-    selectedProjectCategory: string
+    setIsInAddMode: (isAddingQuestion: boolean) => void
+    createQuestionTemplate: (data: DataToCreateQuestionTemplate) => void
+    isSaving: boolean
+    saveError: ApolloError | undefined
+    selectedProjectCategory?: string
+    questionTemplateToCopy?: QuestionTemplate
 }
 
-const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, selectedProjectCategory }: Props) => {
-    const [text, setText] = React.useState<string>('')
-    const [organization, setOrganization] = React.useState<Organization>(Organization.All)
-    const [supportNotes, setSupportNotes] = React.useState<string>('')
+const CreateQuestionItem = ({
+    setIsInAddMode,
+    barrier,
+    createQuestionTemplate,
+    isSaving,
+    saveError,
+    selectedProjectCategory,
+    questionTemplateToCopy,
+}: Props) => {
+    const [text, setText] = React.useState<string>(questionTemplateToCopy?.text || '')
+    const [organization, setOrganization] = React.useState<Organization>(questionTemplateToCopy?.organization || Organization.All)
+    const [supportNotes, setSupportNotes] = React.useState<string>(questionTemplateToCopy?.supportNotes || '')
+    const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false)
+
+    useEffectNotOnMount(() => {
+        if (saveError !== undefined) {
+            setShowErrorMessage(true)
+        }
+    }, [saveError])
 
     const isTextfieldValid = () => {
         return text.length > 0
@@ -30,11 +48,16 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
 
     const { valueValidity } = useValidityCheck<string>(text, isTextfieldValid)
 
-    const {
-        createQuestionTemplate,
-        loading: isCreateQuestionTemplateSaving,
-        error: createQuestionTemplateSaveError,
-    } = useCreateQuestionTemplateMutation()
+    const assignProjectCategories = () => {
+        if (questionTemplateToCopy) {
+            return questionTemplateToCopy.projectCategories.map(pc => {
+                return pc.id
+            })
+        } else if (selectedProjectCategory && selectedProjectCategory !== 'all') {
+            return [selectedProjectCategory]
+        }
+        return []
+    }
 
     const createQuestion = () => {
         const newQuestion: DataToCreateQuestionTemplate = {
@@ -42,18 +65,24 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
             organization,
             text,
             supportNotes,
-            projectCategoryIds: selectedProjectCategory !== 'all' ? [selectedProjectCategory] : [],
+            projectCategoryIds: assignProjectCategories(),
+            newOrder: questionTemplateToCopy ? questionTemplateToCopy.order + 1 : 0,
         }
-
         createQuestionTemplate(newQuestion)
-        setIsAddingQuestion(false)
-        if (questionTitleRef !== null && questionTitleRef.current !== null) {
-            questionTitleRef.current.scrollIntoView({ behavior: 'smooth' })
-        }
+    }
+
+    const onCancelCreate = () => {
+        setIsInAddMode(false)
+        setShowErrorMessage(false)
     }
 
     return (
         <Box display="flex" flexDirection="column">
+            {questionTemplateToCopy && (
+                <Box ml={2} mr={1} mt={1} mb={3}>
+                    <Typography variant="h4">Copy question: "{questionTemplateToCopy.text}"</Typography>
+                </Box>
+            )}
             <Box display="flex" flexDirection="row">
                 <Box display="flex" flexGrow={1} flexDirection={'column'} mt={0.75}>
                     <Box display="flex" ml={4} mr={2}>
@@ -90,14 +119,14 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
                         />
                     </Box>
                     <CancelOrSaveQuestion
-                        isQuestionTemplateSaving={isCreateQuestionTemplateSaving}
-                        setIsInMode={setIsAddingQuestion}
+                        isQuestionTemplateSaving={isSaving}
                         onClickSave={createQuestion}
+                        onClickCancel={onCancelCreate}
                         questionTitle={text}
                     />
                 </Box>
             </Box>
-            {createQuestionTemplateSaveError && (
+            {showErrorMessage && (
                 <Box mt={2} ml={4}>
                     <ErrorMessage text={'Not able to save'} />
                 </Box>
@@ -107,69 +136,3 @@ const CreateQuestionItem = ({ setIsAddingQuestion, barrier, questionTitleRef, se
 }
 
 export default CreateQuestionItem
-
-export interface DataToCreateQuestionTemplate {
-    barrier: Barrier
-    organization: Organization
-    text: string
-    supportNotes: string
-    projectCategoryIds: string[]
-}
-
-interface createQuestionTemplateMutationProps {
-    createQuestionTemplate: (data: DataToCreateQuestionTemplate) => void
-    loading: boolean
-    error: ApolloError | undefined
-}
-
-const useCreateQuestionTemplateMutation = (): createQuestionTemplateMutationProps => {
-    const CREATE_QUESTION_TEMPLATE = gql`
-        mutation CreateQuestionTemplate(
-            $barrier: Barrier!
-            $organization: Organization!
-            $text: String!
-            $supportNotes: String!
-            $projectCategoryIds: [String]
-        ) {
-            createQuestionTemplate(
-                barrier: $barrier
-                organization: $organization
-                text: $text
-                supportNotes: $supportNotes
-                projectCategoryIds: $projectCategoryIds
-            ) {
-                ...QuestionTemplateFields
-            }
-        }
-        ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
-    `
-
-    const [createQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(CREATE_QUESTION_TEMPLATE, {
-        update(cache, { data: { createQuestionTemplate } }) {
-            cache.modify({
-                fields: {
-                    questionTemplates(existingQuestionTemplates = []) {
-                        const newQuestionTemplateRef = cache.writeFragment({
-                            id: createQuestionTemplate.id,
-                            data: createQuestionTemplate,
-                            fragment: QUESTIONTEMPLATE_FIELDS_FRAGMENT,
-                        })
-                        return [...existingQuestionTemplates, newQuestionTemplateRef]
-                    },
-                },
-            })
-        },
-    })
-
-    const createQuestionTemplate = (data: DataToCreateQuestionTemplate) => {
-        createQuestionTemplateApolloFunc({
-            variables: { ...data },
-        })
-    }
-
-    return {
-        createQuestionTemplate,
-        loading,
-        error,
-    }
-}

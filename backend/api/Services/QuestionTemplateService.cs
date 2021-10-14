@@ -39,7 +39,8 @@ namespace api.Services
             Barrier barrier,
             Organization organization,
             string text,
-            string supportNotes
+            string supportNotes,
+            int newOrder = 0
         )
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;
@@ -48,11 +49,16 @@ namespace api.Services
                 .Max(qt => qt.Order) + 1
             ;
 
-            int newOrder = _context.QuestionTemplates
-                .Where(qt => qt.Status == Status.Active)
-                .Where(qt => qt.Barrier == barrier)
-                .Max(qt => qt.Order) + 1
-            ;
+            // If newOrder == 0, we want to place the new
+            // question template as the last one in the barrier
+            if (newOrder == 0)
+            {
+                newOrder = _context.QuestionTemplates
+                    .Where(qt => qt.Status == Status.Active)
+                    .Where(qt => qt.Barrier == barrier)
+                    .Max(qt => qt.Order) + 1
+                ;
+            }
 
             QuestionTemplate newQuestionTemplate = new QuestionTemplate
             {
@@ -105,10 +111,10 @@ namespace api.Services
 
         public QuestionTemplate Delete(QuestionTemplate questionTemplate)
         {
-            /* ReorderQuestionTemplate gives the question template 
-            *  that should be deleted the highest order, and gives the 
+            /* ReorderQuestionTemplate gives the question template
+            *  that should be deleted the highest order, and gives the
             *  remaining question templates the correct order. The
-            *  consquence is that all active question templates are 
+            *  consquence is that all active question templates are
             *  ordered correctly.
             */
             ReorderQuestionTemplate(questionTemplate);
