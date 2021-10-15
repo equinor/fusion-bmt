@@ -32,7 +32,7 @@ const QuestionTemplateButtons = ({
                     variant="ghost"
                     color="primary"
                     onClick={() => setIsInEditmode(true)}
-                    data-testid={'edit-question-' + question.order}
+                    data-testid={'edit-question-' + question.adminOrder}
                 >
                     <Icon data={edit}></Icon>
                 </Button>
@@ -47,7 +47,7 @@ const QuestionTemplateButtons = ({
                     variant="ghost"
                     color="primary"
                     onClick={() => setIsInConfirmDeleteMode(true)}
-                    data-testid={'delete-question-' + question.order}
+                    data-testid={'delete-question-' + question.adminOrder}
                 >
                     <Icon data={delete_to_trash}></Icon>
                 </Button>

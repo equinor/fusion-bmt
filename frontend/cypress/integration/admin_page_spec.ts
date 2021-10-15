@@ -143,12 +143,12 @@ describe('Admin page', () => {
                 adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 0)).then(titleElement => {
                     const t = Cypress.$(titleElement).text()
                     adminPage.moveQuestionDown(getQuestionNo(questionTemplates, 0)).click()
-                    adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 1)).should('have.text', t)
+                    adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 0)).should('have.text', t)
                 })
                 adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 1)).then(titleElement => {
                     const t = Cypress.$(titleElement).text()
                     adminPage.moveQuestionUp(getQuestionNo(questionTemplates, length - 1)).click()
-                    adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 2)).should('have.text', t)
+                    adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 1)).should('have.text', t)
                 })
             })
         })

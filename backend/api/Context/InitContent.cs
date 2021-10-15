@@ -38,6 +38,7 @@ namespace api.Context
                 q.CreateDate = DateTimeOffset.UtcNow;
                 q.Status = Status.Active;
                 q.Order = order;
+                q.AdminOrder = order;
 
                 order += 1;
             }

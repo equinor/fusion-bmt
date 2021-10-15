@@ -127,6 +127,8 @@ namespace api.Models
         [Required]
         public int Order { get; set; }
         [Required]
+        public int AdminOrder { get; set; }
+        [Required]
         public string SupportNotes { get; set; }
         [Required]
         public Barrier Barrier { get; set; }

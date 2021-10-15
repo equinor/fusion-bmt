@@ -48,6 +48,10 @@ namespace api.Services
                 .Where(qt => qt.Status == Status.Active)
                 .Max(qt => qt.Order) + 1
             ;
+            int maxAdminOrder = _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.AdminOrder) + 1
+            ;
 
             // If newOrder == 0, we want to place the new
             // question template as the last one in the barrier
@@ -68,7 +72,8 @@ namespace api.Services
                 Status = Status.Active,
                 Text = text,
                 Order = last,
-                SupportNotes = supportNotes
+                SupportNotes = supportNotes,
+                AdminOrder = maxAdminOrder
             };
 
             _context.QuestionTemplates.Add(newQuestionTemplate);
@@ -99,7 +104,8 @@ namespace api.Services
                 Status = status,
                 Order = questionTemplate.Order,
                 previous = questionTemplate,
-                ProjectCategories = questionTemplate.ProjectCategories
+                ProjectCategories = questionTemplate.ProjectCategories,
+                AdminOrder = questionTemplate.AdminOrder
             };
             _context.QuestionTemplates.Add(newQuestionTemplate);
 

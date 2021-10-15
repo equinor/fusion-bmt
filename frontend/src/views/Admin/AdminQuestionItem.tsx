@@ -48,7 +48,7 @@ const AdminQuestionItem = ({
     }, [isQuestionTemplateSaving])
 
     return (
-        <div key={question.id} id={`question-${question.order}`}>
+        <div key={question.id} id={`question-${question.adminOrder}`}>
             <Divider />
             {isInEditmode ? (
                 <EditableQuestionItem

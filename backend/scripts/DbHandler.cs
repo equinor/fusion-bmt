@@ -98,5 +98,26 @@ namespace scripts
             context.QuestionTemplates.UpdateRange(questions);
             context.SaveChanges();
         }
+
+        public void SetAdminOrderOnQuestionTemplates()
+        {
+            string ConnectionString = Environment.GetEnvironmentVariable("Database__ConnectionString");
+            if (string.IsNullOrEmpty(ConnectionString))
+            {
+                throw new ArgumentException("ConnectionString cannot be empty");
+            }
+
+            DbContextOptionsBuilder<BmtDbContext> builder = new DbContextOptionsBuilder<BmtDbContext>();
+            builder.UseSqlServer(ConnectionString);
+            BmtDbContext context = new BmtDbContext(builder.Options);
+
+            var questionTemplates = context.QuestionTemplates;
+            foreach (var qt in questionTemplates)
+            {
+                qt.AdminOrder = qt.Order;
+                context.QuestionTemplates.Update(qt);
+            }
+            context.SaveChanges();
+        }
     }
 }

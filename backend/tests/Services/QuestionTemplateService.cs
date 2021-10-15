@@ -38,6 +38,10 @@ namespace tests
                 .Where(qt => qt.Barrier == barrier)
                 .Max(qt => qt.Order)
             ;
+            int maxAdminOrder = questionTemplateService.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.AdminOrder)
+            ;
 
             int nQuestionTemplatesBefore = questionTemplateService.GetAll().Count();
             int maxOrderBefore = questionTemplateService.GetAll().Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
@@ -50,6 +54,7 @@ namespace tests
             Assert.Equal(nQuestionTemplatesBefore + 1, nQuestionTemplatesAfter);
             Assert.Equal(maxBarrierOrder + 1, newQuestionTemplate.Order);
             Assert.Equal(maxOrderBefore + 1, maxOrderAfter);
+            Assert.Equal(maxAdminOrder + 1, newQuestionTemplate.AdminOrder);
         }
 
         [Fact]
@@ -113,6 +118,8 @@ namespace tests
 
             Assert.Equal(originalQT,       updatedQT.previous);
             Assert.True(updatedQT.ProjectCategories.Count() == 1);
+
+            Assert.Equal(updatedQT.AdminOrder, originalQT.AdminOrder);
         }
 
         [Fact]
@@ -125,6 +132,10 @@ namespace tests
                 text:         Randomize.String(),
                 supportNotes: Randomize.String()
             );
+            int maxAdminOrder = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.AdminOrder)
+            ;
 
             var newQuestionTemplate = service.Create(
                 barrier:      questionTemplateToCopy.Barrier,
@@ -135,6 +146,7 @@ namespace tests
             );
 
             Assert.Equal(questionTemplateToCopy.Order + 1, newQuestionTemplate.Order);
+            Assert.Equal(maxAdminOrder + 1, newQuestionTemplate.AdminOrder);
         }
 
         [Fact]
@@ -161,6 +173,10 @@ namespace tests
                 .Where(qt => qt.Barrier == barrier)
                 .Max(qt => qt.Order)
             ;
+            int maxAdminOrder = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.AdminOrder)
+            ;
 
             var deletedQuestionTemplate = service.Delete(questionTemplateToDelete);
 
@@ -173,11 +189,16 @@ namespace tests
                 .Where(qt => qt.Barrier == barrier)
                 .Max(qt => qt.Order)
             ;
+            int maxAdminOrderAfter = service.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.AdminOrder)
+            ;
             
             int maxOrder = fixture.context.QuestionTemplates.Max(qt => qt.Order);
 
             Assert.Equal(maxOrderActive - 1, maxOrderActiveAfter);
             Assert.Equal(maxBarrierOrder - 1, maxBarrierOrderAfter);
+            Assert.Equal(maxAdminOrder - 1, maxAdminOrderAfter);
             Assert.Equal(deletedQuestionTemplate.Order, maxOrder);
             Assert.True(deletedQuestionTemplate.Status == Status.Voided);
             Assert.Equal(deletedQuestionTemplate.ProjectCategories, questionTemplateToDelete.ProjectCategories);
