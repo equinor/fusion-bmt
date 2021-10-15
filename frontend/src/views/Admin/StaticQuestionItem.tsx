@@ -202,7 +202,7 @@ const StaticQuestionItem = ({
                 <Box display="flex" flexDirection="row">
                     <Box display="flex" flexGrow={1} mb={3} mr={5}>
                         <Box ml={2} mr={1}>
-                            <Typography variant="h4" data-testid={'question-number-' + question.order}>
+                            <Typography variant="h4" data-testid={'question-number-' + question.adminOrder}>
                                 {question.adminOrder}.
                             </Typography>
                         </Box>
@@ -210,7 +210,7 @@ const StaticQuestionItem = ({
                             <Typography
                                 variant="h4"
                                 ref={questionToScrollIntoView === question.id ? questionTitleRef : undefined}
-                                data-testid={'question-title-' + question.order}
+                                data-testid={'question-title-' + question.adminOrder}
                             >
                                 {question.text}
                             </Typography>
@@ -218,7 +218,7 @@ const StaticQuestionItem = ({
                                 <Box mr={1} mb={1}>
                                     <Chip
                                         style={{ backgroundColor: tokens.colors.infographic.primary__spruce_wood.rgba }}
-                                        data-testid={'organization-' + question.order}
+                                        data-testid={'organization-' + question.adminOrder}
                                     >
                                         <Tooltip title={'Organization'} placement={'bottom'}>
                                             <Icon data={work} size={16}></Icon>
@@ -239,7 +239,7 @@ const StaticQuestionItem = ({
                                 {isInAddCategoryMode && (
                                     <Box width={200} mb={1}>
                                         <MultiSelect
-                                            data-testid={'project-category-selector-' + question.order}
+                                            data-testid={'project-category-selector-' + question.adminOrder}
                                             label=""
                                             items={projectCategoriesOptions}
                                             initialSelectedItems={question.projectCategories.map(cat => cat.name)}
@@ -266,7 +266,7 @@ const StaticQuestionItem = ({
                         {isInReorderMode && (
                             <Box>
                                 <Button
-                                    data-testid={'move-question-up-' + question.order}
+                                    data-testid={'move-question-up-' + question.adminOrder}
                                     variant="ghost"
                                     color="primary"
                                     disabled={question.order === lowestBarrierOrder || reorderingQuestionTemplate}
@@ -275,7 +275,7 @@ const StaticQuestionItem = ({
                                     <Icon data={arrow_up}></Icon>
                                 </Button>
                                 <Button
-                                    data-testid={'move-question-down-' + question.order}
+                                    data-testid={'move-question-down-' + question.adminOrder}
                                     variant="ghost"
                                     color="primary"
                                     disabled={question.order === highestBarrierOrder || reorderingQuestionTemplate}

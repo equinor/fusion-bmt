@@ -68,7 +68,7 @@ const EditableQuestionItem = ({
                         </Box>
                         <Box display="flex" width={'100%'} mr={2}>
                             <TextField
-                                data-testid={'question-title-' + question.order}
+                                data-testid={'question-title-' + question.adminOrder}
                                 id={question.id}
                                 value={text}
                                 autoFocus={true}
