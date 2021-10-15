@@ -45,18 +45,19 @@ jobs:
             displayName: "Start mock auth"
 
           - script: |
-                npm ci
-                npm start &
-            workingDirectory: "frontend"
-            displayName: "Start frontend"
-
-          - script: |
                 dotnet run --no-launch-profile &
                 sleep 5
             env:
                 ASPNETCORE_ENVIRONMENT: "Test"
             workingDirectory: "backend/api"
             displayName: "Start backend"
+
+          - script: |
+                npm ci
+                npm start &
+                sleep 5
+            workingDirectory: "frontend"
+            displayName: "Start frontend"
 
           - script: |
                 npx cypress run \
