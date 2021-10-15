@@ -665,6 +665,7 @@ export type QuestionTemplate = {
   organization: Organization;
   text: Scalars['String'];
   order: Scalars['Int'];
+  adminOrder: Scalars['Int'];
   supportNotes: Scalars['String'];
   barrier: Barrier;
   createDate: Scalars['DateTime'];
@@ -681,6 +682,7 @@ export type QuestionTemplateFilterInput = {
   organization?: Maybe<OrganizationOperationFilterInput>;
   text?: Maybe<StringOperationFilterInput>;
   order?: Maybe<ComparableInt32OperationFilterInput>;
+  adminOrder?: Maybe<ComparableInt32OperationFilterInput>;
   supportNotes?: Maybe<StringOperationFilterInput>;
   barrier?: Maybe<BarrierOperationFilterInput>;
   createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
