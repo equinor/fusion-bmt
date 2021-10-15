@@ -1,3 +1,4 @@
+import { contains } from 'cypress/types/jquery'
 import { Progression } from '../../src/api/models'
 import { progressionToString } from '../../src/utils/EnumToString'
 
@@ -11,6 +12,34 @@ export class EvaluationPage {
          */
         return cy.contains('a', new RegExp(`${progressionToString(progression)}.*${state}`))
     }
+
+    barrierPanel = () => {
+        return cy.getByDataTestid('sticky')
+    }
+
+    goToBarrier = (barrier: Barrier) => {
+        cy.contains('span', barrier).click()
+        cy.contains(barrier)
+    }
+
+    barrierQuestionCount = (barrier: Barrier) => {
+        return cy.contains('span', barrier).next()
+    }
+
+    questionNoSelector = '[data-testid^=questionNo-]'
+}
+
+export enum Barrier {
+    GeneralMatters = 'General Matters',
+    Containment = 'Containment',
+    HVAC = 'HVAC',
+    LeakDetection = 'Leak Detection',
+    ESD = 'ESD',
+    IgnitionSourceControl = 'Ignition Source Control',
+    FireDetection = 'Fire Detection',
+    ProcessSafety = 'Process Safety',
+    Layout = 'Layout',
+    HMI = 'HMI',
 }
 
 export class QuestionnaireSidePanel {

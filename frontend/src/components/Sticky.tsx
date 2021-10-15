@@ -10,6 +10,7 @@ const StickyWithMaxHeight = ({ children }: Props) => {
     return (
         <>
             <div
+                data-testid="sticky"
                 style={{
                     position: 'sticky',
                     top: 0,

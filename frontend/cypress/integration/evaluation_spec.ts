@@ -5,8 +5,9 @@ import NominationPage from '../page_objects/nomination'
 import ProjectPage from '../page_objects/project'
 import { getUsers, users, User } from '../support/mock/external/users'
 import * as faker from 'faker'
-import { EvaluationPage } from '../page_objects/evaluation'
+import { Barrier, EvaluationPage } from '../page_objects/evaluation'
 import { ConfirmationDialog } from '../page_objects/common'
+import { fusionProject1 } from '../support/mock/external/projects'
 
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
@@ -38,9 +39,9 @@ describe('Evaluation management', () => {
         ]
 
         testdata.forEach(t => {
-            it(`Create evaluation ${
-                t.withPreviousEvaluation ? 'with' : 'without'
-            } previous evaluation, verify only questions in selected project category ${t.projectCategory} are present`, () => {
+            it(`Create evaluation ${t.withPreviousEvaluation ? 'with' : 'without'} previous evaluation, 
+            and verify only questions in selected project category ${t.projectCategory} are present
+            and verify questions are numbered sequentially globally across the barriers`, () => {
                 const name = evaluationName({ prefix: 'evaluation' })
 
                 const projectPage = new ProjectPage()
@@ -59,6 +60,31 @@ describe('Evaluation management', () => {
                         expect(currentEvaluation.questions.length, 'not all active question templates added to evaluation').to.equal(
                             expectedTemplates.length
                         )
+                    })
+                    cy.visitProgression(Progression.Individual, currentEvaluation.id, user, fusionProject1.id)
+                    cy.contains('Questionaire')
+                    const evaluationPage = new EvaluationPage()
+                    let questionCounter = 1
+                    let totalQuestionCounter = 0
+                    Object.values(Barrier).forEach(element => {
+                        evaluationPage.goToBarrier(element)
+                        evaluationPage.barrierQuestionCount(element).then(e => {
+                            const q = parseInt(Cypress.$(e).text().split('/')[1])
+                            totalQuestionCounter += q
+                            if (q !== 0) {
+                                cy.get(evaluationPage.questionNoSelector).each(q => {
+                                    expect(parseInt(q.text().replace('.', '')), ' question number is in a sequence').to.equal(
+                                        questionCounter
+                                    )
+                                    questionCounter++
+                                })
+                            }
+                            if (element === Object.values(Barrier).slice(-1)[0]) {
+                                expect(totalQuestionCounter, 'All active question question templates were added').eq(
+                                    currentEvaluation.questions.length
+                                )
+                            }
+                        })
                     })
                 })
             })
