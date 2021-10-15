@@ -94,6 +94,7 @@ describe('Test getFilledUserAnswersForProgression', () => {
             createDate: new Date(),
             id: '',
             order: 1,
+            adminOrder: 1,
             organization: Organization.All,
             questions: [],
             status: Status.Active,

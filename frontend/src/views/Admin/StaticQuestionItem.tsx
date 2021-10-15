@@ -203,7 +203,7 @@ const StaticQuestionItem = ({
                     <Box display="flex" flexGrow={1} mb={3} mr={5}>
                         <Box ml={2} mr={1}>
                             <Typography variant="h4" data-testid={'question-number-' + question.order}>
-                                {question.order}.
+                                {question.adminOrder}.
                             </Typography>
                         </Box>
                         <Box>

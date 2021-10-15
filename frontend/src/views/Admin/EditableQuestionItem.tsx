@@ -64,7 +64,7 @@ const EditableQuestionItem = ({
                 <Box display="flex" flexGrow={1} flexDirection={'column'}>
                     <Box display="flex" alignItems={'center'} mt={0.75}>
                         <Box ml={2} mr={1} mt={2}>
-                            <Typography variant="h4">{question.order}.</Typography>
+                            <Typography variant="h4">{question.adminOrder}.</Typography>
                         </Box>
                         <Box display="flex" width={'100%'} mr={2}>
                             <TextField
