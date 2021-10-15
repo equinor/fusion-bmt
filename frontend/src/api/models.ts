@@ -473,6 +473,7 @@ export type MutationCreateQuestionTemplateArgs = {
   text?: Maybe<Scalars['String']>;
   supportNotes?: Maybe<Scalars['String']>;
   projectCategoryIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newOrder?: Scalars['Int'];
 };
 
 
