@@ -7,8 +7,8 @@ RUN npm install
 COPY . .
 
 FROM node:slim
-COPY --from=build /app /app
 WORKDIR /app
+COPY --from=build /app ./
 EXPOSE 3000
 
 # Runtime user change to non-root for added security
