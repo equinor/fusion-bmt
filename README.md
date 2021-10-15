@@ -6,7 +6,7 @@
 
 **Prod**: [![Prod Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/prod/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/prod)
 **Dev**: [![Dev Build Status!](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/dev/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/dev)
-**Test**: [![Test Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/test/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/test)
+**QA**: [![QA Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/qa/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/qa)
 
 
 To run the project with docker-compose use:
@@ -158,8 +158,8 @@ once more.
 You can apply migrations to the dev database at any time to test that it
 behaves as expected.
 
-The prod and test databases doesn't need to be updated manually, as all migrations are
-applied to it automatically as part of the pipelines when pushed to test and prod.
+The prod and qa databases doesn't need to be updated manually, as all migrations are
+applied to it automatically as part of the pipelines when pushed to qa and prod.
 
 #### Populating databases with Questions
 
@@ -185,10 +185,10 @@ This can be done with the following command:
 
 ## Deploy
 
-We have 3 different environments in use; dev, test and prod. Dev is the
-environment that runs when pushing to master. Test and prod will run when
-pushing to the specific branches. Dev will only deploy to Radix environment,
-but Test and Prod will deploy the frontend to both Radix and Fusion.
+We have 4 different environments in use; dev, qa, prod and pr. Dev is the
+environment that runs when pushing to master. Qa, prod and pr will run when
+pushing to the specific branches. Dev and pr will only deploy to Radix environment,
+but qa and prod will deploy the frontend to both Radix and Fusion.
 
 Deploy to a specific environment is done by pushing a branch to the following
 branch:
@@ -205,10 +205,10 @@ before performing this.
 -   [dev frontend](https://frontend-fusion-bmt-dev.radix.equinor.com)
 -   [dev backend](https://backend-fusion-bmt-dev.radix.equinor.com/swagger/index.html)
 
-### Test
+### QA
 
--   [test radix](https://frontend-fusion-bmt-dev.radix.equinor.com)
--   [test fusion](https://pro-s-portal-fqa.azurewebsites.net/apps/bmt)
+-   [qa radix](https://frontend-fusion-bmt-qa.radix.equinor.com)
+-   [qa fusion](https://pro-s-portal-fqa.azurewebsites.net/apps/bmt)
 
 ### Prod
 
