@@ -24,6 +24,19 @@ namespace scripts
             });
             rootCommand.AddCommand(qtCommand);
 
+            var aoCommand = new Command(
+                "--admin-order",
+                description: "Set AdminOrder on question templates"
+            );
+            aoCommand.AddAlias("-ao");
+            aoCommand.Handler = CommandHandler.Create(() =>
+            {
+                Console.WriteLine("Setting AdminOrder on question templates");
+                DbHandler dbHandler = new DbHandler();
+                dbHandler.SetAdminOrderOnQuestionTemplates();
+            });
+            rootCommand.AddCommand(aoCommand);
+
             var qfCommand = new Command(
                 "--templates",
                 description: "JSON-file with questions"
