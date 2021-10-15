@@ -7,9 +7,9 @@ spec:
     - name: dev
       build:
         from: master
-    - name: test
+    - name: qa
       build:
-        from: test
+        from: qa
     - name: pr
       build:
         from: pr
@@ -19,10 +19,12 @@ spec:
     - name: cicd
       build:
         from: cicd
+
   privateImageHubs:
     fusionbmt.azurecr.io:
       username: fusionbmt
       email: radix@statoilsrm.onmicrosoft.com
+
   components:
     - name: frontend
       src: frontend
@@ -53,14 +55,15 @@ spec:
               cpu: "1000m"
           variables:
             API_URL: "https://backend-fusion-bmt-pr.radix.equinor.com"
-        - environment: test
+        - environment: qa
           replicas: 0
           variables:
-            API_URL: "https://backend-fusion-bmt-test.radix.equinor.com"
+            API_URL: "https://backend-fusion-bmt-qa.radix.equinor.com"
         - environment: prod
           replicas: 0
         - environment: cicd
           replicas: 0
+
     - name: backend
       src: backend
       ports:
@@ -71,7 +74,7 @@ spec:
         ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
         ASPNETCORE_ENVIRONMENT: "Development"
       environmentConfig:
-        - environment: test
+        - environment: qa
           resources:
             requests:
               memory: "500Mi"
@@ -82,7 +85,6 @@ spec:
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
         - environment: prod
-
           resources:
             requests:
               memory: "700Mi"
@@ -117,7 +119,7 @@ spec:
         - environment: prod
           imageTagName: release
           replicas: 0
-        - environment: test
+        - environment: qa
           imageTagName: release
           replicas: 0
       secrets:
@@ -169,10 +171,10 @@ spec:
         - environment: prod
           imageTagName: release
           replicas: 0
-        - environment: test
+        - environment: qa
           imageTagName: release
           replicas: 0
 
   dnsAppAlias:
-    environment: test
+    environment: qa
     component: frontend
