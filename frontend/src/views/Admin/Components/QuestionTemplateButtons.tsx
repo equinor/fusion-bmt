@@ -26,7 +26,7 @@ const QuestionTemplateButtons = ({
     }
 
     return (
-        <Box flexGrow={1} style={{ minWidth: '120px' }}>
+        <Box flexGrow={1} style={{ minWidth: '175px' }}>
             <Tooltip placement="bottom" title="Edit question">
                 <Button
                     variant="ghost"
