@@ -5,6 +5,7 @@ import { AdminPage, CreateProjectCategory } from '../page_objects/admin_page'
 import { DropdownSelect } from '../page_objects/common'
 import { activeQuestionTemplates, allProjectCategoryNames, projectCategoryId } from '../support/testsetup/evaluation_seed'
 import { ConfirmationDialog } from '../page_objects/common'
+import { generateRandomString } from '../support/testsetup/testdata'
 import {
     CREATE_QUESTION_TEMPLATE,
     DELETE_QUESTION_TEMPLATE,
@@ -34,8 +35,8 @@ describe('Admin page', () => {
                 adminPage.organization(questionNo).then(t => {
                     const currentOrg = Cypress.$(t).text()
                     const newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
-                    const newTitle = 'This is the new title' + faker.random.words(2)
-                    const newSupportNotes = 'These are the new support notes!!!' + faker.random.words(3)
+                    const newTitle = 'This is the new title' + generateRandomString(10)
+                    const newSupportNotes = 'These are the new support notes!!!' + generateRandomString(10)
                     changeQuestionFields(questionNo, newTitle, newSupportNotes, newOrganization)
                     adminPage.saveQuestionButton().click()
                     verifyQuestion(questionNo, newTitle, newOrganization, newSupportNotes)
@@ -53,8 +54,8 @@ describe('Admin page', () => {
                         let currentTitle = Cypress.$(title).text()
                         adminPage.supportNotes(questionNo).then(supportNotes => {
                             let currentSupportNotes = Cypress.$(supportNotes).text()
-                            const newTitle = 'This is the new title' + faker.random.words(2)
-                            const newSupportNotes = 'These are the new support notes!!!' + faker.random.words(2)
+                            const newTitle = 'This is the new title' + generateRandomString(10)
+                            const newSupportNotes = 'These are the new support notes!!!' + generateRandomString(10)
                             changeQuestionFields(questionNo, newTitle, newSupportNotes, newOrganization)
                             adminPage.cancelEditButton().click()
                             verifyQuestion(questionNo, currentTitle, currentOrg, currentSupportNotes)
@@ -66,9 +67,9 @@ describe('Admin page', () => {
 
         it('Add new question template, fill in title, support notes, select organization, verify question template is added', () => {
             adminPage.createNewQuestion().click()
-            const title = 'title ' + faker.random.word()
+            const title = 'title ' + generateRandomString(10)
             adminPage.newQuestionTitle().type(title)
-            const supportNotes = 'supportNotes' + faker.random.words(3)
+            const supportNotes = 'supportNotes' + generateRandomString(20)
             adminPage.setSupportNotes(supportNotes)
             const organization = faker.random.arrayElement(Object.keys(Organization))
             const dropdownSelect = new DropdownSelect()
@@ -92,8 +93,8 @@ describe('Admin page', () => {
             adminPage.allQuestionNo().then(questions => {
                 const questionsCount = Cypress.$(questions).length - 1
                 adminPage.createNewQuestion().click()
-                adminPage.newQuestionTitle().type(faker.random.word())
-                adminPage.setSupportNotes(faker.random.words(3))
+                adminPage.newQuestionTitle().type(generateRandomString(10))
+                adminPage.setSupportNotes(generateRandomString(20))
                 const dropdownSelect = new DropdownSelect()
                 dropdownSelect.select(
                     cy.getByDataTestid(selectOrganizationDropdown).contains('Organization'),
@@ -113,7 +114,7 @@ describe('Admin page', () => {
         it('Delete question template, verify question template was deleted', () => {
             projectCategoryId('CircleField').then(projectCatId => {
                 const questionTitle = faker.lorem.words(2)
-                createNewQuestionTemplate(Barrier.Gm, Organization.All, questionTitle, faker.lorem.words(3), [projectCatId])
+                createNewQuestionTemplate(Barrier.Gm, Organization.All, questionTitle, generateRandomString(20), [projectCatId])
                 goToAdminTab()
                 adminPage.questionNoByTitle(questionTitle).then(qNo => {
                     const questionNo = parseInt(Cypress.$(qNo).text())
@@ -188,11 +189,11 @@ describe('Admin page', () => {
     describe('Project categories', () => {
         it('Select question template by category, delete project category & verify project category is no longer present', () => {
             allProjectCategoryNames().then(projectCatArray => {
-                const newCategoryName = 'TheNewCategory' + faker.lorem.word(8)
+                const newCategoryName = 'TheNewCategory' + generateRandomString(10)
                 createNewProjectCategory(newCategoryName).then(categoryId => {
-                    const questionTitle = faker.lorem.words(2)
+                    const questionTitle = generateRandomString(10)
                     const organization = faker.random.arrayElement(Object.values(Organization))
-                    const supportNotes = faker.lorem.words(3)
+                    const supportNotes = generateRandomString(10)
                     createNewQuestionTemplate(Barrier.Gm, organization, questionTitle, supportNotes, [categoryId])
                     goToAdminTab()
                     const dropdownSelect = new DropdownSelect()
@@ -218,7 +219,7 @@ describe('Admin page', () => {
         })
 
         it('Add & delete project category on question templates', () => {
-            const newCategoryName = 'CatToAssign' + faker.lorem.word(8)
+            const newCategoryName = 'CatToAssign' + generateRandomString(10)
             createNewProjectCategory(newCategoryName).then(categoryId => {
                 goToAdminTab()
                 selectProjectCategoryOnTemplate(1, newCategoryName)
@@ -252,7 +253,7 @@ describe('Admin page', () => {
             }`, () => {
                 cy.intercept(/\/graphql/).as('graphql')
                 adminPage.addProjectCategoryButton().click()
-                const newCategoryName: string = 'NewCat' + faker.lorem.word(8)
+                const newCategoryName: string = 'NewCat' + generateRandomString(10)
                 const projectCategory = new CreateProjectCategory()
                 projectCategory.nameTextField().type(newCategoryName)
                 const dropdown = new DropdownSelect()
