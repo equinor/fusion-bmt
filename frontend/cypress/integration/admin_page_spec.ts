@@ -111,7 +111,9 @@ describe('Admin page', () => {
             })
         })
 
-        it('Copy question template, verify question template was copied (to next position WILL BE CHANGED)', () => {
+        it(`Copy question template, 
+            verify question template was copied 
+            and assigned globally highest number +1`, () => {
             activeQuestionTemplates().then(questionTemplatesPreCopy => {
                 const numberOfQuestionTemplatesPreCopy = Cypress.$(questionTemplatesPreCopy).length
                 adminPage.allQuestionNo().then(questions => {
