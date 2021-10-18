@@ -124,7 +124,7 @@ export class AdminPage {
     }
 
     allProjectCategories = (questionNo: number) => {
-        return cy.get(`[data-testid^=project-category-${questionNo}]`)
+        return cy.get(`[data-testid^=project-category-${questionNo}-]`)
     }
 
     reorderQuestions = () => {
@@ -144,7 +144,7 @@ export class AdminPage {
     }
 
     projectCategorySelector = (questionNo: number) => {
-        return `[data-testid^=project-category-${questionNo}]`
+        return `[data-testid^=project-category-${questionNo}-]`
     }
 }
 
