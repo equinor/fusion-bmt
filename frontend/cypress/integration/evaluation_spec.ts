@@ -80,7 +80,7 @@ describe('Evaluation management', () => {
                                 })
                             }
                             if (element === Object.values(Barrier).slice(-1)[0]) {
-                                expect(totalQuestionCounter, 'All active question question templates were added').eq(
+                                expect(totalQuestionCounter, 'All active question templates were added').eq(
                                     currentEvaluation.questions.length
                                 )
                             }
