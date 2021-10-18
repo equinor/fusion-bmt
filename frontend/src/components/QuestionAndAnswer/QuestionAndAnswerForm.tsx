@@ -42,10 +42,14 @@ const QuestionAndAnswerForm = ({
                 <Grid item xs={12}>
                     <Box display="flex" mb={3}>
                         <Box ml={2} mr={1}>
-                            <Typography variant="h3">{question.order}.</Typography>
+                            <Typography variant="h3" data-testid={'questionNo-' + question.order}>
+                                {question.order}.
+                            </Typography>
                         </Box>
                         <Box>
-                            <Typography variant="h3">{question.text}</Typography>
+                            <Typography variant="h3" data-testid={'question-' + question.order}>
+                                {question.text}
+                            </Typography>
                             {question.supportNotes.split('\n').map(supportNotePart => {
                                 return <Typography key={question.id + supportNotePart}>{supportNotePart}</Typography>
                             })}

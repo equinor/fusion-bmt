@@ -31,12 +31,12 @@ const EvaluationSidebar = ({ questions, barrier, viewProgression, onBarrierSelec
             title: barrierToString(b),
             icon: <>{b}</>,
             isActive: barrier === b,
-            aside: <Chip title={`${answeredUsersBarrierAnswers.length}/${barrierQuestions.length}`} />,
+            aside: <Chip title={`${answeredUsersBarrierAnswers.length}/${barrierQuestions.length}`} data-testid={`barrier+${b}`} />,
         }
     })
 
     return (
-        <Sticky>
+        <Sticky data-testid="sticky-toplevel">
             <NavigationDrawer
                 id="navigation-drawer-story"
                 structure={structure}
