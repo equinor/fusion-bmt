@@ -246,7 +246,7 @@ describe('Admin page', () => {
             }
         })
 
-        const testdata = [{ categoryToCopyFrom: 'SquareField' }, { categoryToCopyFrom: undefined }]
+        const testdata = [{ categoryToCopyFrom: 'CircleField' }, { categoryToCopyFrom: undefined }]
         testdata.forEach(t => {
             it(`Add project category ${
                 t.categoryToCopyFrom !== undefined ? ' and copy from ' + t.categoryToCopyFrom : ' and do not copy'
