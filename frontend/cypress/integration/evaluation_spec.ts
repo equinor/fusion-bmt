@@ -64,7 +64,7 @@ describe('Evaluation management', () => {
                     cy.visitProgression(Progression.Individual, currentEvaluation.id, user, fusionProject1.id)
                     cy.contains('Questionaire')
                     const evaluationPage = new EvaluationPage()
-                    let questionCounter = 1
+                    let questionCounter = 0
                     let totalQuestionCounter = 0
                     Object.values(Barrier).forEach(element => {
                         evaluationPage.goToBarrier(element)
@@ -73,10 +73,10 @@ describe('Evaluation management', () => {
                             totalQuestionCounter += q
                             if (q !== 0) {
                                 cy.get(evaluationPage.questionNoSelector).each(q => {
+                                    questionCounter++
                                     expect(parseInt(q.text().replace('.', '')), ' question number is in a sequence').to.equal(
                                         questionCounter
                                     )
-                                    questionCounter++
                                 })
                             }
                             if (element === Object.values(Barrier).slice(-1)[0]) {
