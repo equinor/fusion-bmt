@@ -111,7 +111,7 @@ describe('Admin page', () => {
             })
         })
 
-        it.only('Copy question template, verify question template was copied (to next position WILL BE CHANGED)', () => {
+        it('Copy question template, verify question template was copied (to next position WILL BE CHANGED)', () => {
             activeQuestionTemplates().then(questionTemplatesPreCopy => {
                 const numberOfQuestionTemplatesPreCopy = Cypress.$(questionTemplatesPreCopy).length
                 adminPage.allQuestionNo().then(questions => {
@@ -139,19 +139,19 @@ describe('Admin page', () => {
                         const org = Cypress.$(organization).text()
                         adminPage.organization(numberOfQuestionTemplatesPreCopy + 1).should('have.text', org)
                     })
-                    cy.log('EXIST ' + cy.checkIfElementExists(adminPage.projectCategorySelector(questionNo)))
-                    console.log('EXIST')
-                    console.log(cy.checkIfElementExists(adminPage.projectCategorySelector(questionNo)))
-                    cy.document().then(document => {})
-                    if (cy.checkIfElementExists(adminPage.projectCategorySelector(questionNo))) {
-                        adminPage.allProjectCategories(questionNo).then(cats => {
-                            const categoriesSrc = Cypress.$.makeArray(cats).map(el => el.innerText)
-                            adminPage.allProjectCategories(numberOfQuestionTemplatesPreCopy + 1).then(copyCats => {
-                                const categories = Cypress.$.makeArray(copyCats).map(el => el.innerText)
-                                expect(arrayEquals(categoriesSrc, categories), ' project categories in copy match(es) source').to.be.true
+                    cy.document().then($document => {
+                        const documentResult = $document.querySelectorAll(adminPage.projectCategorySelector(questionNo))
+                        if (documentResult.length) {
+                            adminPage.allProjectCategories(questionNo).then(cats => {
+                                const categoriesSrc = Cypress.$.makeArray(cats).map(el => el.innerText)
+                                adminPage.allProjectCategories(numberOfQuestionTemplatesPreCopy + 1).then(copyCats => {
+                                    const categories = Cypress.$.makeArray(copyCats).map(el => el.innerText)
+                                    expect(arrayEquals(categoriesSrc, categories), ' project categories in copy match(es) source').to.be
+                                        .true
+                                })
                             })
-                        })
-                    }
+                        }
+                    })
                 })
             })
         })
