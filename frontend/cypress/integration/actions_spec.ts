@@ -22,10 +22,10 @@ describe('Actions management', () => {
     let seed: EvaluationSeed
     const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
-    const progressions = [Progression.Workshop, Progression.FollowUp]
+    const progressionsWorkshopOrFollowUp = [Progression.Workshop, Progression.FollowUp]
 
     const getRandomProgressionWorkshopOrFollowUp = () => {
-        return faker.random.arrayElement(progressions)
+        return faker.random.arrayElement(progressionsWorkshopOrFollowUp)
     }
     const logInRandomUser = (progression: Progression = getRandomProgressionWorkshopOrFollowUp()) => {
         const user = faker.random.arrayElement(users)
@@ -38,7 +38,7 @@ describe('Actions management', () => {
         seed = createSeedWithActions(users, roles, { completed: false })
         seed.plant()
     })
-    context(`Creating and editing actions on progressions ${progressions}`, () => {
+    context(`Creating and editing actions on progressions ${progressionsWorkshopOrFollowUp}`, () => {
         const roles = [
             {
                 role: Role.Facilitator,
@@ -139,7 +139,7 @@ describe('Actions management', () => {
             })
         })
     })
-    context(`Voiding Actions on progressions ${progressions}`, () => {
+    context(`Voiding Actions on progressions ${progressionsWorkshopOrFollowUp}`, () => {
         const voidAction = (actionToVoid: Action) => {
             actionsGrid.voidActionButton(actionToVoid.id).click()
             confirmationDialog.yesButton().click()
