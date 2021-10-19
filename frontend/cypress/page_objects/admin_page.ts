@@ -34,10 +34,6 @@ export class AdminPage {
         return cy.get('[data-testid^=question-number-]')
     }
 
-    allQuestionTitle = () => {
-        return cy.get('[data-testid^=question-title-]')
-    }
-
     selectProjectCategoryDropdown = () => {
         return cy.contains('label', 'Project Category').next()
     }
