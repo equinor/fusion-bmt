@@ -31,6 +31,7 @@ Cypress.Commands.add('testCacheAndDB', (testCache: Function, testDB: Function = 
     cy.reloadBmt()
     testDB()
 })
+
 export {}
 
 declare global {

@@ -111,6 +111,62 @@ describe('Admin page', () => {
             })
         })
 
+        it(`Copy question template, 
+            verify question template was copied after source
+            and assigned globally highest number of all question templates
+            and that title, support notes, organization were copied
+            and, if present, project categories were copied`, () => {
+            activeQuestionTemplates().then(questionTemplatesPreCopy => {
+                const numberOfQuestionTemplatesPreCopy = Cypress.$(questionTemplatesPreCopy).length
+                adminPage.allQuestionNo().then(questions => {
+                    cy.intercept(/\/graphql/).as('graphql')
+                    const beforeCopyLength = Cypress.$(questions).length
+                    const questionNumber = faker.datatype.number({ min: 0, max: beforeCopyLength - 1 })
+                    const displayedQuestionNo = getQuestionNo(questions, questionNumber)
+                    adminPage.copyQuestionButton(displayedQuestionNo).click()
+                    adminPage.saveQuestionButton().click()
+                    cy.wait('@graphql')
+                    adminPage.allQuestionNo().should(questionsAfterCopy => {
+                        const afterCopyLength = Cypress.$(questionsAfterCopy).length
+                        expect(afterCopyLength, ' total number of questions is one higher').to.equal(beforeCopyLength + 1)
+                    })
+                    adminPage.allQuestionNo().then(questionsAfterCopy => {
+                        expect(
+                            getQuestionNo(questionsAfterCopy, questionNumber + 1),
+                            ' copied question is placed underneath source and assigned globally highest number of all templates'
+                        ).to.equal(numberOfQuestionTemplatesPreCopy + 1)
+                        adminPage.questionTitleByNo(displayedQuestionNo).then(title => {
+                            const t = Cypress.$(title).text()
+                            adminPage.questionTitleByNo(numberOfQuestionTemplatesPreCopy + 1).should('have.text', t)
+                        })
+                        adminPage.supportNotes(displayedQuestionNo).then(supportNotes => {
+                            const sn = Cypress.$(supportNotes).text()
+                            adminPage.supportNotes(numberOfQuestionTemplatesPreCopy + 1).should('have.text', sn)
+                        })
+                        adminPage.organization(displayedQuestionNo).then(organization => {
+                            const org = Cypress.$(organization).text()
+                            adminPage.organization(numberOfQuestionTemplatesPreCopy + 1).should('have.text', org)
+                        })
+                        cy.document().then($document => {
+                            const documentResult = $document.querySelectorAll(adminPage.projectCategorySelector(displayedQuestionNo))
+                            if (documentResult.length) {
+                                adminPage.allProjectCategories(displayedQuestionNo).then(cats => {
+                                    const categoriesSrc = Cypress.$.makeArray(cats).map(el => el.innerText)
+                                    adminPage.allProjectCategories(numberOfQuestionTemplatesPreCopy + 1).then(copyCats => {
+                                        const categories = Cypress.$.makeArray(copyCats).map(el => el.innerText)
+                                        expect(arrayEquals(categoriesSrc, categories), ' project categories in copy match(es) source').to.be
+                                            .true
+                                    })
+                                })
+                            }
+                        })
+                    })
+                })
+            })
+        })
+
+        const arrayEquals = (a: Array<string>, b: Array<string>) => a.length === b.length && a.every((v: string, i: number) => v === b[i])
+
         it('Delete question template, verify question template was deleted', () => {
             projectCategoryId('CircleField').then(projectCatId => {
                 const questionTitle = faker.lorem.words(2)
@@ -223,13 +279,13 @@ describe('Admin page', () => {
             createNewProjectCategory(newCategoryName).then(categoryId => {
                 goToAdminTab()
                 selectProjectCategoryOnTemplate(1, newCategoryName)
-                adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('be.visible')
                 closeOutSelectProjectCategoryView()
-                adminPage.projectCategoryLabel(newCategoryName).should('be.visible')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('be.visible')
                 selectProjectCategoryOnTemplate(1, newCategoryName)
-                adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('not.exist')
                 closeOutSelectProjectCategoryView()
-                adminPage.projectCategoryLabel(newCategoryName).should('not.exist')
+                adminPage.projectCategoryLabel(1, newCategoryName).should('not.exist')
                 deleteProjectCategory(categoryId)
             })
 

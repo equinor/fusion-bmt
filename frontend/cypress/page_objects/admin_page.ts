@@ -54,6 +54,10 @@ export class AdminPage {
         return cy.getByDataTestid('edit-question-' + questionNo)
     }
 
+    copyQuestionButton = (questionNo: number) => {
+        return cy.getByDataTestid('copy-question-' + questionNo)
+    }
+
     deleteQuestionButton = (questionNo: number) => {
         return cy.getByDataTestid('delete-question-' + questionNo)
     }
@@ -111,8 +115,12 @@ export class AdminPage {
         return cy.getByDataTestid('project-category-selector-' + templateNo).next()
     }
 
-    projectCategoryLabel = (projectCategory: string) => {
-        return cy.getByDataTestid('project-category-' + projectCategory)
+    projectCategoryLabel = (templateNo: number, projectCategory: string) => {
+        return cy.getByDataTestid('project-category-' + templateNo + '-' + projectCategory)
+    }
+
+    allProjectCategories = (questionNo: number) => {
+        return cy.get(`[data-testid^=project-category-${questionNo}-]`)
     }
 
     reorderQuestions = () => {
@@ -129,6 +137,10 @@ export class AdminPage {
 
     newQuestionTitle = () => {
         return cy.getByDataTestid('question-title-textfield')
+    }
+
+    projectCategorySelector = (questionNo: number) => {
+        return `[data-testid^=project-category-${questionNo}-]`
     }
 }
 
