@@ -165,8 +165,7 @@ describe('Admin page', () => {
             })
         })
 
-        const arrayEquals = (a: Array<string>, b: Array<string>) =>
-            a.length === b.length && a.every((v: string, i: number) => v === b[parseInt(i.toString())])
+        const arrayEquals = (a: Array<string>, b: Array<string>) => a.length === b.length && a.every((v: string, i: number) => v === b[i])
 
         it('Delete question template, verify question template was deleted', () => {
             projectCategoryId('CircleField').then(projectCatId => {
