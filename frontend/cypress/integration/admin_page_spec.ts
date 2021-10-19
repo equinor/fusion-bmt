@@ -141,15 +141,13 @@ describe('Admin page', () => {
                 adminPage.reorderQuestions().click()
                 adminPage.moveQuestionUp(getQuestionNo(questionTemplates, 0)).should('be.disabled')
                 adminPage.moveQuestionDown(getQuestionNo(questionTemplates, length - 1)).should('be.disabled')
-                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 0)).then(titleElement => {
-                    const t = Cypress.$(titleElement).text()
-                    adminPage.moveQuestionDown(getQuestionNo(questionTemplates, 0)).click()
-                    adminPage.questionTitleByNo(getQuestionNo(questionTemplates, 0)).should('have.text', t)
+                adminPage.moveQuestionDown(getQuestionNo(questionTemplates, 0)).click()
+                adminPage.allQuestionNo().should(questionTemplatesAfterReorder => {
+                    expect(getQuestionNo(questionTemplates, 0)).to.equal(getQuestionNo(questionTemplatesAfterReorder, 1))
                 })
-                adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 1)).then(titleElement => {
-                    const t = Cypress.$(titleElement).text()
-                    adminPage.moveQuestionUp(getQuestionNo(questionTemplates, length - 1)).click()
-                    adminPage.questionTitleByNo(getQuestionNo(questionTemplates, length - 1)).should('have.text', t)
+                adminPage.moveQuestionUp(getQuestionNo(questionTemplates, length - 1)).click()
+                adminPage.allQuestionNo().should(questionTemplatesAfterReorder => {
+                    expect(getQuestionNo(questionTemplates, length - 1)).to.equal(getQuestionNo(questionTemplatesAfterReorder, length - 2))
                 })
             })
         })
