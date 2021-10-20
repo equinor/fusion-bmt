@@ -95,7 +95,7 @@ describe('Admin page', () => {
                             adminPage.supportNotes(createdQuestionNo).should('contain.text', supportNotes)
                             adminPage.organization(createdQuestionNo).should('have.text', organization)
                         })
-                })
+                }, fusionProject1.id)
             })
         })
 
