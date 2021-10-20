@@ -66,28 +66,37 @@ describe('Admin page', () => {
             })
         })
 
-        it('Add new question template, fill in title, support notes, select organization, verify question template is added', () => {
-            adminPage.createNewQuestion().click()
-            const title = 'title ' + generateRandomString(10)
-            adminPage.newQuestionTitle().type(title)
-            const supportNotes = 'supportNotes' + generateRandomString(20)
-            adminPage.setSupportNotes(supportNotes)
-            const organization = faker.random.arrayElement(Object.keys(Organization))
-            const dropdownSelect = new DropdownSelect()
-            dropdownSelect.select(cy.getByDataTestid(selectOrganizationDropdown).contains('Organization'), organization)
-            adminPage.saveQuestionButton().click()
-            cy.testCacheAndDB(() => {
-                goToAdminTab()
-                adminPage
-                    .allQuestionNo()
-                    .last()
-                    .then(qn => {
-                        const createdQuestionNo = parseInt(Cypress.$(qn).text().replace('.', ''))
-                        adminPage.questionTitleByNo(createdQuestionNo).should('have.text', title)
-                        adminPage.supportNotes(createdQuestionNo).should('contain.text', supportNotes)
-                        adminPage.organization(createdQuestionNo).should('have.text', organization)
-                    })
-            }, fusionProject1.id)
+        it(`Add new question template, fill in title, support notes, select organization, 
+        verify question template is added at the bottom of the barrier
+        and question template has expected title, support notes and organization
+        and is assigned highest number across all question templates`, () => {
+            activeQuestionTemplates().then(questionTemplatesPreCopy => {
+                const numberOfQuestionTemplatesInitial = Cypress.$(questionTemplatesPreCopy).length
+                adminPage.createNewQuestion().click()
+                const title = 'title ' + generateRandomString(10)
+                adminPage.newQuestionTitle().type(title)
+                const supportNotes = 'supportNotes' + generateRandomString(20)
+                adminPage.setSupportNotes(supportNotes)
+                const organization = faker.random.arrayElement(Object.keys(Organization))
+                const dropdownSelect = new DropdownSelect()
+                dropdownSelect.select(cy.getByDataTestid(selectOrganizationDropdown).contains('Organization'), organization)
+                adminPage.saveQuestionButton().click()
+                cy.testCacheAndDB(() => {
+                    goToAdminTab()
+                    adminPage
+                        .allQuestionNo()
+                        .last()
+                        .then(qn => {
+                            const createdQuestionNo = parseInt(Cypress.$(qn).text().replace('.', ''))
+                            expect(createdQuestionNo, ' new question is assigned globally highest number').to.equal(
+                                numberOfQuestionTemplatesInitial + 1
+                            )
+                            adminPage.questionTitleByNo(createdQuestionNo).should('have.text', title)
+                            adminPage.supportNotes(createdQuestionNo).should('contain.text', supportNotes)
+                            adminPage.organization(createdQuestionNo).should('have.text', organization)
+                        })
+                }, fusionProject1.id)
+            })
         })
 
         it('Cancel create new question template, verify question template is not added', () => {
