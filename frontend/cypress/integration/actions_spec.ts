@@ -22,8 +22,10 @@ describe('Actions management', () => {
     let seed: EvaluationSeed
     const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
+    const progressionsWorkshopOrFollowUp = [Progression.Workshop, Progression.FollowUp]
+
     const getRandomProgressionWorkshopOrFollowUp = () => {
-        return faker.random.arrayElement([Progression.Workshop, Progression.FollowUp])
+        return faker.random.arrayElement(progressionsWorkshopOrFollowUp)
     }
     const logInRandomUser = (progression: Progression = getRandomProgressionWorkshopOrFollowUp()) => {
         const user = faker.random.arrayElement(users)
@@ -36,28 +38,32 @@ describe('Actions management', () => {
         seed = createSeedWithActions(users, roles, { completed: false })
         seed.plant()
     })
-    context('Creating and editing actions', () => {
+    context(`Creating and editing actions on progressions ${progressionsWorkshopOrFollowUp}`, () => {
         const roles = [
             {
                 role: Role.Facilitator,
                 canCreateAction: true,
+                progression: getRandomProgressionWorkshopOrFollowUp(),
             },
             {
                 role: Role.OrganizationLead,
                 canCreateAction: true,
+                progression: getRandomProgressionWorkshopOrFollowUp(),
             },
             {
                 role: Role.Participant,
                 canCreateAction: true,
+                progression: getRandomProgressionWorkshopOrFollowUp(),
             },
             {
                 role: Role.ReadOnly,
                 canCreateAction: false,
+                progression: getRandomProgressionWorkshopOrFollowUp(),
             },
         ]
         roles.forEach(r => {
-            it(`${r.role} can create action = ${r.canCreateAction}`, () => {
-                cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
+            it(`${r.role} can ${r.canCreateAction === true ? '' : ' not'} create action on ${r.progression}`, () => {
+                cy.visitProgression(r.progression, seed.evaluationId, seed.findParticipantByRole(r.role).user)
                 let action = createActionTestData(users)
                 r.canCreateAction
                     ? actionsGrid.addActionButton(action.questionOrder).should('be.enabled')
@@ -66,9 +72,11 @@ describe('Actions management', () => {
         })
 
         const randomRole = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
-
-        it(`Action creation by ${randomRole} and verification that action was created`, () => {
-            cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(randomRole).user)
+        const randomStageCreateAction = getRandomProgressionWorkshopOrFollowUp()
+        const verifyStage = getRandomProgressionWorkshopOrFollowUp()
+        it(`Create action by ${randomRole} on ${randomStageCreateAction} 
+            then verification that action was created on ${verifyStage}`, () => {
+            cy.visitProgression(randomStageCreateAction, seed.evaluationId, seed.findParticipantByRole(randomRole).user)
             let action = createActionTestData(users)
             actionsGrid.addActionButton(action.questionOrder).click()
             createActionDialog.titleInput().type(action.title)
@@ -97,7 +105,7 @@ describe('Actions management', () => {
                     actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
                 },
                 () => {
-                    evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                    evaluationPage.progressionStepLink(verifyStage).click()
                     actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
                 }
             )
@@ -108,9 +116,12 @@ describe('Actions management', () => {
         let updatedAction: Action
         let newNotes: Note[]
 
-        it(`Editing action by ${randomRole} - assign action, add notes and verify notes were added`, () => {
+        const progressionWhereEdit = getRandomProgressionWorkshopOrFollowUp()
+        const progressionWhereVerify = getRandomProgressionWorkshopOrFollowUp()
+        it(`Edit action by ${randomRole} on ${progressionWhereEdit} - assign action, add notes 
+            then verify notes were added on ${progressionWhereVerify}`, () => {
             let user = seed.findParticipantByRole(randomRole).user
-            cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, user)
+            cy.visitProgression(progressionWhereEdit, seed.evaluationId, user)
             ;({ actionNotes, action } = findActionWithNotes(seed))
             ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
 
@@ -122,13 +133,13 @@ describe('Actions management', () => {
             editActionDialog.close()
 
             cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                evaluationPage.progressionStepLink(progressionWhereVerify).click()
                 actionsGrid.actionLink(action.questionOrder, updatedAction.title).click()
                 editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
             })
         })
     })
-    context('Voiding Actions', () => {
+    context(`Voiding Actions on progressions ${progressionsWorkshopOrFollowUp}`, () => {
         const voidAction = (actionToVoid: Action) => {
             actionsGrid.voidActionButton(actionToVoid.id).click()
             confirmationDialog.yesButton().click()
@@ -157,7 +168,9 @@ describe('Actions management', () => {
             },
         ]
         roles.forEach(r => {
-            it(`${r.role} Cancel button exists = ${r.voidButtonExists} can void action = ${r.canVoidAction}`, () => {
+            it(`${r.role} Cancel button ${r.voidButtonExists === true ? 'exists' : 'does not exist'},  ${
+                r.canVoidAction === true ? ' can' : ' can not'
+            } void action`, () => {
                 cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, seed.findParticipantByRole(r.role).user)
                 const { actionToVoid, actionToStay } = getActionToVoidActionToStay()
                 if (!r.voidButtonExists) {
@@ -247,10 +260,13 @@ describe('Actions management', () => {
         let newNote: Note
 
         const roleThatCanComplete = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
-
-        it(`Action can be completed by ${roleThatCanComplete} and must have a reason`, () => {
+        const randomProgression = getRandomProgressionWorkshopOrFollowUp()
+        const randomVerifyProgression = getRandomProgressionWorkshopOrFollowUp()
+        it(`Complete action by ${roleThatCanComplete} on ${randomProgression} 
+            and fill in reason (obligatory)
+            then verify action was completed on ${randomVerifyProgression}`, () => {
             let user = seed.findParticipantByRole(roleThatCanComplete).user
-            cy.visitProgression(getRandomProgressionWorkshopOrFollowUp(), seed.evaluationId, user)
+            cy.visitProgression(randomProgression, seed.evaluationId, user)
             ;({ actionNotes, action } = findActionWithNotes(seed))
             ;({ updatedAction, newNote } = createCompleteAction(user, action))
 
@@ -271,18 +287,15 @@ describe('Actions management', () => {
             editActionDialog.close()
 
             cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(getRandomProgressionWorkshopOrFollowUp()).click()
+                evaluationPage.progressionStepLink(randomVerifyProgression).click()
                 actionsGrid.actionLink(updatedAction.questionOrder, updatedAction.title).click()
                 editActionDialog.assertClosingNoteExists(newNote)
             })
         })
 
-        it(`Completing Action can be cancelled by ${roleThatCanComplete}`, () => {
-            cy.visitProgression(
-                getRandomProgressionWorkshopOrFollowUp(),
-                seed.evaluationId,
-                seed.findParticipantByRole(roleThatCanComplete).user
-            )
+        it(`Cancel complete action by ${roleThatCanComplete} on ${randomProgression}
+            then verify action was not completed`, () => {
+            cy.visitProgression(randomProgression, seed.evaluationId, seed.findParticipantByRole(roleThatCanComplete).user)
             ;({ actionNotes, action } = findActionWithNotes(seed))
 
             actionsGrid.actionLink(action.questionOrder, action.title).click()
