@@ -1,15 +1,11 @@
 import React from 'react'
-import { registerApp, ContextTypes, Context } from '@equinor/fusion'
-
+import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser } from '@equinor/fusion'
 import { ApolloProvider } from '@apollo/client'
-
-import { useFusionContext, useCurrentUser } from '@equinor/fusion'
-
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
 import { createBrowserHistory } from 'history'
 
-import { client } from './api/graphql'
+import { createClient } from './api/graphql'
 import App from './App'
 import { config } from './config'
 
@@ -33,11 +29,18 @@ appInsights.trackPageView()
 const Start = () => {
     const fusionContext = useFusionContext()
     const currentUser = useCurrentUser()
-
+    const runtimeConfig = useAppConfig()
     const [hasLoggedIn, setHasLoggedIn] = React.useState(false)
+    const [apiUrl, setApiUrl] = React.useState('')
+
+    React.useLayoutEffect(() => {
+        if (runtimeConfig.value) {
+            config.API_URL ? setApiUrl(config.API_URL) : setApiUrl(runtimeConfig.value.endpoints['API_URL'])
+        }
+    }, [runtimeConfig])
 
     const login = async () => {
-        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [new URL(config.API_URL).origin])
+        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [])
 
         if (!isLoggedIn) {
             await fusionContext.auth.container.loginAsync(config.AD_APP_ID)
@@ -51,13 +54,16 @@ const Start = () => {
         login()
     }, [])
 
+    if (!apiUrl) {
+        return <></>
+    }
     if (!currentUser || !hasLoggedIn) {
         return <p>Please log in.</p>
     }
 
     return (
         <>
-            <ApolloProvider client={client}>
+            <ApolloProvider client={createClient(apiUrl)}>
                 <App />
             </ApolloProvider>
         </>

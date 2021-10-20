@@ -1,10 +1,9 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client'
-import { onError } from "@apollo/client/link/error";
+import { onError } from '@apollo/client/link/error'
 import { setContext } from '@apollo/client/link/context'
 import { IFusionContext } from '@equinor/fusion'
 import { TokenRefreshLink } from 'apollo-link-token-refresh'
 import jwt_decode from 'jwt-decode'
-
 import { config } from '../config'
 
 interface Token {
@@ -12,10 +11,6 @@ interface Token {
 }
 
 const FUSION_APP_KEY: string = '74b1613f-f22a-451b-a5c3-1c9391e91e68'
-
-const httpLink = createHttpLink({
-    uri: `${config.API_URL}/graphql`,
-})
 
 const authLink = setContext((_, { headers }) => {
     const token = getToken()
@@ -28,15 +23,13 @@ const authLink = setContext((_, { headers }) => {
 })
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) =>
-      console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-      ),
-    );
+    if (graphQLErrors)
+        graphQLErrors.forEach(({ message, locations, path }) =>
+            console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
+        )
 
-  if (networkError) console.log(`[Network error]: ${networkError}`);
-});
+    if (networkError) console.log(`[Network error]: ${networkError}`)
+})
 
 const getToken = (): string => {
     const fusionStorageJson = localStorage.getItem(`FUSION_AUTH_CACHE`)
@@ -69,7 +62,15 @@ const refreshLink = new TokenRefreshLink({
     },
 })
 
-export const client = new ApolloClient({
-    link: authLink.concat(refreshLink).concat(errorLink).concat(httpLink),
-    cache: new InMemoryCache(),
-})
+export const createClient = (apiUrl: string) =>
+    new ApolloClient({
+        link: authLink
+            .concat(refreshLink)
+            .concat(errorLink)
+            .concat(
+                createHttpLink({
+                    uri: `${apiUrl}/graphql`,
+                })
+            ),
+        cache: new InMemoryCache(),
+    })
