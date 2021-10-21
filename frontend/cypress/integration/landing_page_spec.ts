@@ -1,10 +1,11 @@
 import * as faker from 'faker'
 import { Progression, Role } from '../../src/api/models'
-
 import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
 import { getUsers } from '../support/mock/external/users'
 import { EvaluationPage } from '../page_objects/evaluation'
 import { fusionProject1, fusionProject4 } from '../support/mock/external/projects'
+import { ActionTable } from '../page_objects/action-table'
+import { EditActionDialog } from '../page_objects/action'
 
 describe('Landing page', () => {
     const users = getUsers(3)
@@ -35,6 +36,25 @@ describe('Landing page', () => {
                 description: 'Not my action' + faker.lorem.words(),
             })
         )
+        .addAction(
+            evaluationIAmIn.createAction({
+                isVoided: true,
+                completed: false,
+                assignedTo: evaluationIAmIn.participants.find(p => p.user === user),
+                title: 'My voided action' + faker.lorem.words(),
+                description: 'My voided action' + faker.lorem.words(),
+            })
+        )
+        .addAction(
+            evaluationIAmIn.createAction({
+                isVoided: false,
+                completed: true,
+                assignedTo: evaluationIAmIn.participants.find(p => p.user === user),
+                title: 'My completed action' + faker.lorem.words(),
+                description: 'My completed action' + faker.lorem.words(),
+            })
+        )
+
     const evaluationIAmNotIn = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression)),
         users: users.slice(0, 2),
@@ -141,17 +161,31 @@ describe('Landing page', () => {
 
     context('Actions', () => {
         context('Action table', () => {
-            it('Action assigned to user is listed', () => {
+            const actionTable = new ActionTable()
+            it(`Action assigned to user is listed
+            voided/cancelled actions assigned to user are not listed`, () => {
                 cy.get('button').contains('Actions').click()
-                cy.get(`[data-testid=action-table]`).within(() => {
+                actionTable.table().within(() => {
                     cy.contains(evaluationIAmIn.actions.find(a => a.assignedTo.user === user)!.title).should('exist')
+                })
+                actionTable.table().within(() => {
+                    cy.contains(evaluationIAmIn.actions.find(a => a.assignedTo.user === user && a.isVoided === true)!.title).should(
+                        'not.exist'
+                    )
                 })
             })
             it('Action not assigned to user is not listed', () => {
                 cy.get('button').contains('Actions').click()
-                cy.get(`[data-testid=action-table]`).within(() => {
+                actionTable.table().within(() => {
                     cy.contains(evaluationIAmIn.actions.find(a => a.assignedTo.user !== user)!.title).should('not.exist')
                 })
+            })
+            it('Verify user can edit his own actions', () => {
+                cy.get('button').contains('Actions').click()
+                const editActionDialog = new EditActionDialog()
+                actionTable.table().should('be.visible')
+                actionTable.action(evaluationIAmIn.actions[0].title).click({ force: true })
+                editActionDialog.body().should('be.visible')
             })
         })
     })

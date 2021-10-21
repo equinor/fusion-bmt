@@ -60,11 +60,6 @@ describe('Actions management', () => {
                     canCreateAction: true,
                     progression: getRandomProgressionWorkshopOrFollowUp(),
                 },
-                {
-                    role: Role.ReadOnly,
-                    canCreateAction: false,
-                    progression: getRandomProgressionWorkshopOrFollowUp(),
-                },
             ]
             roles.forEach(r => {
                 it(`${r.role} can ${r.canCreateAction === true ? '' : ' not'} create action on ${r.progression}`, () => {
@@ -153,12 +148,13 @@ describe('Actions management', () => {
         context(`In actions table on dashboard in follow-up`, () => {
             const rolesThatCanEdit = [Role.Facilitator, Role.Participant, Role.OrganizationLead]
             const randomRole = faker.random.arrayElement(rolesThatCanEdit)
-            it.only(`Edit action by ${randomRole} from any ${rolesThatCanEdit}`, () => {
+            it(`Edit action by ${randomRole} (from any ${rolesThatCanEdit})`, () => {
                 let user = seed.findParticipantByRole(randomRole).user
                 cy.visitProgression(Progression.FollowUp, seed.evaluationId, user, fusionProject1.id)
                 followUpTabs.actions().click()
                 actionTable.table().should('be.visible')
                 actionTable.action(seed.actions[0].title).click({ force: true })
+                editActionDialog.body().should('be.visible')
             })
         })
     })
@@ -266,7 +262,7 @@ describe('Actions management', () => {
             checkActionsExistOnProgression()
         })
 
-        it.only('Actions are visible on Follow-Up Actions Tab', () => {
+        it('Actions are visible on Follow-Up Actions Tab', () => {
             logInRandomUser(Progression.FollowUp)
             followUpTabs.actions().click()
             actionTable.table().should('be.visible')

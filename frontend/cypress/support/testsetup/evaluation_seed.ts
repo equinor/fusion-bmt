@@ -18,6 +18,7 @@ import {
     GET_EVALUATIONS,
     GET_QUESTION_TEMPLATES,
     GET_ALL_PROJECT_CATEGORY_NAMES,
+    VOID_ACTION,
 } from './gql'
 import { fusionProject1 } from '../mock/external/projects'
 
@@ -267,9 +268,17 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                             dueDate: action.dueDate,
                             priority: action.priority,
                             title: action.title,
+                            isVoided: action.isVoided,
                         },
                     })
                 })
+        })
+        .each((action: Action) => {
+            if (action.isVoided === true) {
+                cy.login(facilitator.user).then(() => {
+                    cy.gql(VOID_ACTION, { variables: { actionId: action.id } })
+                })
+            }
         })
         .then(() => {
             return seed.notes

@@ -16,9 +16,10 @@ export function createAction(
         description = faker.lorem.words(),
         completed = faker.datatype.boolean(),
         onHold = faker.datatype.boolean(),
+        isVoided = false,
     }: Partial<IAction>
 ) {
-    return new Action({ assignedTo, createdBy, questionOrder, dueDate, title, priority, description, completed, onHold })
+    return new Action({ assignedTo, createdBy, questionOrder, dueDate, title, priority, description, completed, onHold, isVoided })
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'

@@ -1,8 +1,7 @@
 import { DropdownSelect, SideSheet, SaveIndicator } from '../page_objects/common'
 import { Action, Note } from '../support/testsetup/mocks'
 import { FUSION_DATE_LOCALE } from '../support/helpers/helpers'
-import { Priority, Question } from '../../src/api/models'
-import { barrierToString, organizationToString } from '../../src/utils/EnumToString'
+import { Priority } from '../../src/api/models'
 import { SavingState } from '../../src/utils/Variables'
 
 /**
