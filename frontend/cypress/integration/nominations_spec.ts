@@ -35,12 +35,6 @@ describe('User management', () => {
                     canDeleteUser: false,
                     canProgressEval: false,
                 },
-                {
-                    role: Role.ReadOnly,
-                    canAddUser: false,
-                    canDeleteUser: false,
-                    canProgressEval: false,
-                },
             ]
 
             userCapabilities.forEach(e => {
@@ -110,12 +104,6 @@ describe('User management', () => {
                     canDeleteUser: false,
                     canProgressEval: false,
                 },
-                {
-                    role: Role.ReadOnly,
-                    canAddUser: false,
-                    canDeleteUser: false,
-                    canProgressEval: false,
-                },
             ]
 
             userCapabilites.forEach(e => {
@@ -131,8 +119,8 @@ describe('User management', () => {
 })
 
 function createSeed(progression: Progression = Progression.Nomination) {
-    let users = getUsers(4)
-    const roles = [Role.Facilitator, Role.Participant, Role.OrganizationLead, Role.ReadOnly]
+    let users = getUsers(3)
+    const roles = [Role.Facilitator, Role.Participant, Role.OrganizationLead]
     const seed = new EvaluationSeed({
         progression: progression,
         users,
