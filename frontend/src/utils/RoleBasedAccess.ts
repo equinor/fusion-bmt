@@ -3,7 +3,7 @@ import { Answer, Participant, Progression, Role } from '../api/models'
 /** Role-based access to an Answer
  *
  * Facilitator and OrganizationLead has access to everyone's answers.
- * Participants and ReadOnly are not allowed to read other peoples _Individual_
+ * Participant role is not allowed to read other peoples _Individual_
  * answers.
  */
 export const participantCanReadAnswer = (participant: Participant | undefined, answer: Answer) => {
@@ -14,8 +14,7 @@ export const participantCanReadAnswer = (participant: Participant | undefined, a
         case Role.Facilitator: // Intentional fall-through
         case Role.OrganizationLead:
             return true
-        case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
+        case Role.Participant:
             return answer.progression !== Progression.Individual || participant.id === answer.answeredBy?.id
         default:
             return false
@@ -37,8 +36,7 @@ export const participantCanDeleteParticipant = (participant: Participant | undef
         case Role.Facilitator: // Intentional fall-through
         case Role.OrganizationLead:
             return true
-        case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
+        case Role.Participant:
             return false
         default:
             return false
@@ -55,7 +53,6 @@ export const participantCanProgressEvaluation = (participant: Participant | unde
             return true
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
             return false
         default:
             return false
@@ -72,8 +69,6 @@ export const participantCanCreateAction = (participant: Participant | undefined)
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
             return true
-        case Role.ReadOnly:
-            return false
         default:
             return false
     }
@@ -89,8 +84,6 @@ export const participantCanEditAction = (participant: Participant | undefined) =
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
             return true
-        case Role.ReadOnly:
-            return false
         default:
             return false
     }
@@ -106,7 +99,6 @@ export const participantCanCancelAction = (participant: Participant | undefined)
             return true
         case Role.OrganizationLead: // Intentional fall-through
         case Role.Participant:
-        case Role.ReadOnly:
             return false
         default:
             return false
@@ -122,7 +114,6 @@ export const participantCanViewWorkshopSummary = (participant: Participant | und
         case Role.Facilitator:
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
             return true
         default:
             return false
@@ -139,7 +130,6 @@ export const participantCanEditWorkshopSummary = (participant: Participant | und
             return true
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
             return false
         default:
             return false
@@ -156,8 +146,6 @@ export const participantCanInputIndividual = (participant: Participant | undefin
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
             return true
-        case Role.ReadOnly:
-            return false
         default:
             return false
     }
@@ -172,8 +160,7 @@ export const participantCanInputPreparation = (participant: Participant | undefi
         case Role.Facilitator:
         case Role.OrganizationLead:
             return true
-        case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
+        case Role.Participant:
             return false
         default:
             return false
@@ -190,7 +177,6 @@ export const participantCanInputWorkshop = (participant: Participant | undefined
             return true
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
             return false
         default:
             return false
@@ -207,7 +193,6 @@ export const participantCanInputFollowUp = (participant: Participant | undefined
             return true
         case Role.OrganizationLead:
         case Role.Participant: // Intentional fall-through
-        case Role.ReadOnly:
             return false
         default:
             return false

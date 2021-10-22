@@ -48,8 +48,6 @@ export const roleToString = (role: Role): string => {
             return 'Facilitator'
         case Role.OrganizationLead:
             return 'Organization Lead'
-        case Role.ReadOnly:
-            return 'Read Only'
     }
 }
 
