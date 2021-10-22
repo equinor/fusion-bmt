@@ -94,6 +94,18 @@ namespace tests
             service.SetSummary(evaluation, summary);
             Assert.Equal(summary, evaluation.Summary);
         }
+
+        [Fact]
+        public void SetStatus()
+        {
+            Project project           = GetProject();
+            EvaluationService service = new EvaluationService(fixture.context);
+            Evaluation evaluation     = service.Create("eval_name", project, "");
+
+            Status newStatus = Status.Voided;
+            service.SetStatus(evaluation, newStatus);
+            Assert.Equal(newStatus, evaluation.Status);
+        }
         
         [Fact]
         public void SetWorkshopCompleteDate()

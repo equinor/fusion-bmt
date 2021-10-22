@@ -90,6 +90,15 @@ namespace api.Services
             }
             return evaluation;
         }
+
+        public Evaluation SetStatus(Evaluation evaluation, Status newStatus)
+        {
+            evaluation.Status = newStatus;
+            _context.Evaluations.Update(evaluation);
+            _context.SaveChanges();
+            return evaluation;
+        }
+
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             try

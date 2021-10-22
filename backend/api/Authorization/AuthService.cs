@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Http;
 
 using api.Services;
 using api.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace api.Authorization
 {
     public interface IAuthService
     {
         public string GetOID();
+        public IEnumerable<string> GetRoles();
     }
 
     public class AuthService : IAuthService
@@ -31,6 +34,17 @@ namespace api.Authorization
             var httpContext = _contextAccessor.HttpContext;
             string oid = httpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
             return oid;
+        }
+
+        public IEnumerable<string> GetRoles()
+        {
+            var httpContext = _contextAccessor.HttpContext;
+            var roles = httpContext
+                .User
+                .FindAll("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
+                .Select(i => i.Value)
+            ;
+            return roles;
         }
     }
 }

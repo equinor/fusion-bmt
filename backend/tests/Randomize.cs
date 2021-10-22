@@ -65,6 +65,11 @@ namespace tests
             return RandomEnumValue<Priority>();
         }
 
+        public static Status Status()
+        {
+            return RandomEnumValue<Status>();
+        }
+
         public static T Value<T>(ICollection<T> values)
         {
             int pick = random.Next(values.Count);

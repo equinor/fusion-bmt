@@ -344,6 +344,7 @@ export type Mutation = {
   createEvaluation?: Maybe<Evaluation>;
   progressEvaluation?: Maybe<Evaluation>;
   setSummary?: Maybe<Evaluation>;
+  setEvaluationStatus?: Maybe<Evaluation>;
   progressParticipant?: Maybe<Participant>;
   createParticipant?: Maybe<Participant>;
   deleteParticipant?: Maybe<Participant>;
@@ -382,6 +383,12 @@ export type MutationProgressEvaluationArgs = {
 export type MutationSetSummaryArgs = {
   evaluationId?: Maybe<Scalars['String']>;
   summary?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationSetEvaluationStatusArgs = {
+  evaluationId?: Maybe<Scalars['String']>;
+  newStatus: Status;
 };
 
 
