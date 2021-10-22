@@ -249,7 +249,7 @@ namespace api.Models
 
     public enum Role
     {
-        Participant, Facilitator, OrganizationLead, ReadOnly
+        Participant, Facilitator, OrganizationLead
     }
 
     public enum Severity
