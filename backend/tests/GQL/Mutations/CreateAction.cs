@@ -16,7 +16,6 @@ namespace tests
         private readonly Participant _facilitator;
         private readonly Participant _organizationLead;
         private readonly Participant _participant;
-        private readonly Participant _readonly;
         private readonly Question _question;
 
         public CreateActionMutation(DatabaseFixture fixture) : base(fixture) {
@@ -26,7 +25,6 @@ namespace tests
 
             _organizationLead = CreateParticipant(_evaluation, role: Role.OrganizationLead);
             _participant = CreateParticipant(_evaluation, role: Role.Participant);
-            _readonly = CreateParticipant(_evaluation, role: Role.ReadOnly);
             _question = GetFirstQuestion(_evaluation);
         }
 
@@ -48,12 +46,6 @@ namespace tests
         public void ParticipantIsCanUseMutation()
         {
             AssertCanCreate(_participant);
-        }
-
-        [Fact]
-        public void ReadOnlyIsUnauthorized()
-        {
-            AssertIsNotAuthorized(_readonly.AzureUniqueId);
         }
 
         [Fact]
