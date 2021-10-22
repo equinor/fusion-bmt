@@ -20,7 +20,7 @@ interface NominationViewProps {
 
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const [panelOpen, setPanelOpen] = React.useState(false)
-    const { createParticipant, error: errorMutation } = useCreateParticipantMutation()
+    const { createParticipant, loading: createParticipantLoading, error: errorMutation } = useCreateParticipantMutation()
     const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
     const participant = useParticipant()
     const viewProgression = Progression.Nomination
@@ -84,6 +84,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 onCloseClick={() => setPanelOpen(false)}
                 onNomineeSelected={onNomineeSelected}
                 currentNominees={participants}
+                createParticipantLoading={createParticipantLoading}
             />
         </div>
     )

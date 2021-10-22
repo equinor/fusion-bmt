@@ -6,17 +6,19 @@ import { Organization, Role, Participant } from '../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../utils/EnumToString'
 import { Divider, TextField } from '@equinor/eds-core-react'
+import { useEffectNotOnMount } from '../../../utils/hooks'
 
 interface AddNomineeDialogProps {
     currentNominees: Array<Participant>
     open: boolean
     onCloseClick: () => void
     onNomineeSelected: (azureUniqueId: string, role: Role, organization: Organization) => void
+    createParticipantLoading: boolean
 }
 
 const WRITE_DELAY_MS = 1000
 
-const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelected }: AddNomineeDialogProps) => {
+const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelected, createParticipantLoading }: AddNomineeDialogProps) => {
     const apiClients = useApiClients()
 
     const [searchQuery, setSearchQuery] = React.useState<string>('')
@@ -46,6 +48,13 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             }
         })
     )
+
+    useEffectNotOnMount(() => {
+        if (!createParticipantLoading) {
+            setSearchQuery('')
+            setSearchResults([])
+        }
+    }, [createParticipantLoading])
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -119,6 +128,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     onChange={(e: any) => {
                         setSearchQuery(e.target.value)
                     }}
+                    value={searchQuery}
                     type="search"
                     placeholder="Search for person..."
                     data-testid="nominee_dialog_search_text_field"
