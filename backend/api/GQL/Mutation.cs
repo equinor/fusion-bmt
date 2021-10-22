@@ -126,6 +126,21 @@ namespace api.GQL
             return evaluation;
         }
 
+        public Evaluation SetEvaluationStatus(string evaluationId, Status newStatus)
+        {
+            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+            var roles = _authService.GetRoles();
+
+            if (!roles.Contains("Role.Admin"))
+            {
+                Role[] canBePerformedBy = { Role.Facilitator };
+                AssertCanPerformMutation(evaluation, canBePerformedBy);
+            }
+
+            _evaluationService.SetStatus(evaluation, newStatus);
+            return evaluation;
+        }
+
         public Participant ProgressParticipant(string evaluationId, Progression newProgression)
         {
             string azureUniqueId = _authService.GetOID();

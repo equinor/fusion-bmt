@@ -7,6 +7,7 @@ using api.Authorization;
 using api.Context;
 using api.Models;
 using Xunit;
+using System.Collections.Generic;
 
 namespace tests
 {
@@ -60,6 +61,11 @@ namespace tests
         public string GetOID()
         {
             return _loggedInUser;
+        }
+
+        public IEnumerable<string> GetRoles()
+        {
+            return new[] { "Role.User" };
         }
     }
 }
