@@ -29,7 +29,7 @@ export const disableCompleteSwitch = (participant: Participant | undefined, eval
     if (!participant) {
         return true
     }
-    if (evaluation.progression !== viewProgression || participant.progression !== viewProgression) {
+    if (evaluation.progression !== viewProgression) {
         return true
     }
     switch (viewProgression) {
