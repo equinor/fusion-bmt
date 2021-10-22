@@ -7,7 +7,7 @@ export function createAction(
     this: EvaluationSeed,
     {
         assignedTo = faker.random.arrayElement(this!.participants),
-        createdBy = faker.random.arrayElement(this!.participants.filter(x => x.role !== Role.ReadOnly)),
+        createdBy = faker.random.arrayElement(this!.participants),
         // no access to questions as creation is run before plant. Reconsider?
         questionOrder = faker.datatype.number({ min: 1, max: 3 }),
         dueDate = faker.date.future(),

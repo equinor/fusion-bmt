@@ -7,8 +7,8 @@ import { EvaluationPage } from '../page_objects/evaluation'
 import { fusionProject1, fusionProject4 } from '../support/mock/external/projects'
 
 describe('Landing page', () => {
-    const users = getUsers(4)
-    const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
+    const users = getUsers(3)
+    const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant]
     const user = users[2]
 
     const evaluationIAmIn = new EvaluationSeed({

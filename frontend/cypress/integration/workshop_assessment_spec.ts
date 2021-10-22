@@ -21,9 +21,9 @@ describe('Workshop assessment', () => {
         beforeEach(() => {
             seed = new EvaluationSeed({
                 progression,
-                users: getUsers(4),
-                roles: [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly],
                 fusionProjectId: fusionProject1.id,
+                users: getUsers(3),
+                roles: [Role.Facilitator, Role.OrganizationLead, Role.Participant],
             })
             seed.addSummary({ summary: originalSummaryMessage, createdBy: seed.findParticipantByRole(Role.Facilitator) })
             seed.plant()
@@ -46,7 +46,7 @@ describe('Workshop assessment', () => {
             }, fusionProject1.id)
         })
 
-        const roles = [Role.OrganizationLead, Role.Participant, Role.ReadOnly]
+        const roles = [Role.OrganizationLead, Role.Participant]
 
         roles.forEach(role => {
             it(`${role} can see Workshop Summary notes but not edit it`, () => {

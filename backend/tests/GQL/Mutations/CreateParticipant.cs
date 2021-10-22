@@ -16,7 +16,6 @@ namespace tests
         private readonly Participant _facilitator;
         private readonly Participant _organizationLead;
         private readonly Participant _participant;
-        private readonly Participant _readonly;
 
         public CreateParticipantMutation(DatabaseFixture fixture) : base(fixture) {
             _evaluation = CreateEvaluation();
@@ -25,7 +24,6 @@ namespace tests
 
             _organizationLead = CreateParticipant(_evaluation, role: Role.OrganizationLead);
             _participant = CreateParticipant(_evaluation, role: Role.Participant);
-            _readonly = CreateParticipant(_evaluation, role: Role.ReadOnly);
         }
 
         /* Tests */
@@ -46,12 +44,6 @@ namespace tests
         public void ParticipantIsUnauthorized()
         {
             AssertIsNotAuthorized(_participant);
-        }
-
-        [Fact]
-        public void ReadOnlyIsUnauthorized()
-        {
-            AssertIsNotAuthorized(_readonly);
         }
 
         [Fact]

@@ -108,7 +108,7 @@ namespace tests
             Evaluation evaluation = evaluationService.GetAll().First();
 
             ParticipantService participantService = new ParticipantService(fixture.context);
-            Participant participant = participantService.Create("GetFromQuestionNotExists_id", evaluation, Organization.All, Role.ReadOnly);
+            Participant participant = participantService.Create("GetFromQuestionNotExists_id", evaluation, Organization.All, Role.Participant);
 
             QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();

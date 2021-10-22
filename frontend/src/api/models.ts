@@ -695,8 +695,7 @@ export type QuestionTemplateFilterInput = {
 export enum Role {
   Participant = 'PARTICIPANT',
   Facilitator = 'FACILITATOR',
-  OrganizationLead = 'ORGANIZATION_LEAD',
-  ReadOnly = 'READ_ONLY'
+  OrganizationLead = 'ORGANIZATION_LEAD'
 }
 
 export type RoleOperationFilterInput = {

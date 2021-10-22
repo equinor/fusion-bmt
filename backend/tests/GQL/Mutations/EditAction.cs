@@ -16,7 +16,6 @@ namespace tests
         private readonly Participant _facilitator;
         private readonly Participant _organizationLead;
         private readonly Participant _participant;
-        private readonly Participant _readonly;
         private readonly Question _question;
         private readonly api.Models.Action _action;
 
@@ -27,7 +26,6 @@ namespace tests
 
             _organizationLead = CreateParticipant(_evaluation, role: Role.OrganizationLead);
             _participant = CreateParticipant(_evaluation, role: Role.Participant);
-            _readonly = CreateParticipant(_evaluation, role: Role.ReadOnly);
             _question = GetFirstQuestion(_evaluation);
             _action = CreateAction(
                 questionId: _question.Id,
@@ -53,12 +51,6 @@ namespace tests
         public void ParticipantIsCanUseMutation()
         {
             AssertCanEdit(_participant);
-        }
-
-        [Fact]
-        public void ReadOnlyIsUnauthorized()
-        {
-            AssertIsNotAuthorized(_readonly.AzureUniqueId);
         }
 
         [Fact]

@@ -21,10 +21,10 @@ describe('Actions management', () => {
     const dropdownSelect = new DropdownSelect()
 
     let seed: EvaluationSeed
-    const users = getUsers(4)
-    const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.ReadOnly]
+    const users = getUsers(3)
+    const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant]
     const progressionsWorkshopOrFollowUp = [Progression.Workshop, Progression.FollowUp]
-
+       
     const getRandomProgressionWorkshopOrFollowUp = () => {
         return faker.random.arrayElement(progressionsWorkshopOrFollowUp)
     }
@@ -54,11 +54,6 @@ describe('Actions management', () => {
             {
                 role: Role.Participant,
                 canCreateAction: true,
-                progression: getRandomProgressionWorkshopOrFollowUp(),
-            },
-            {
-                role: Role.ReadOnly,
-                canCreateAction: false,
                 progression: getRandomProgressionWorkshopOrFollowUp(),
             },
         ]
@@ -161,11 +156,6 @@ describe('Actions management', () => {
             {
                 role: Role.Participant,
                 canVoidAction: false,
-                voidButtonExists: false,
-            },
-            {
-                role: Role.ReadOnly,
-                canVoidAction: false, // This value is irrelevant
                 voidButtonExists: false,
             },
         ]
@@ -353,7 +343,7 @@ const createSeedWithActions = (users: User[], roles: Role[], actionParameters: P
         return new Note({
             text: faker.lorem.sentence(),
             action: oneAction,
-            createdBy: faker.random.arrayElement(seed.participants.filter(x => x.role !== Role.ReadOnly)),
+            createdBy: faker.random.arrayElement(seed.participants),
         })
     })
 
