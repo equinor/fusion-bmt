@@ -7,7 +7,7 @@ import { Button, TextArea } from '@equinor/fusion-components'
 import AddNomineeDialog from './AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
 import NominationTable from './NominationTable'
-import { participantCanAddParticipant } from '../../../utils/RoleBasedAccess'
+import { participantCanAddParticipant, participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
 import { apiErrorMessage } from '../../../api/error'
 import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useParticipant } from '../../../globals/contexts'
@@ -59,11 +59,13 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 <Box flexGrow={1}>
                     <h2 data-testid="evaluation_title">{evaluation.name}</h2>
                 </Box>
-                <Box>
-                    <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
-                        Finish Nomination
-                    </Button>
-                </Box>
+                {participantCanProgressEvaluation(participant) && (
+                    <Box>
+                        <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
+                            Finish Nomination
+                        </Button>
+                    </Box>
+                )}
             </Box>
 
             <Button
@@ -75,9 +77,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 Add Person
             </Button>
 
-            <NominationTable
-                participants={participants}
-            />
+            <NominationTable participants={participants} />
 
             <AddNomineeDialog
                 open={panelOpen}
@@ -161,4 +161,3 @@ const useParticipantsQuery = (evaluationId: string): ParticipantQueryProps => {
         error,
     }
 }
-

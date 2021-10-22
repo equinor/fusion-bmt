@@ -18,6 +18,7 @@ import SeveritySummary from '../../../components/SeveritySummary'
 import { countSeverities } from '../../../utils/Severity'
 import { hasSeverity, hasOrganization, toggleFilter } from '../../../utils/QuestionAndAnswerUtils'
 import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../utils/disableComponents'
+import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
 
 const TOP_POSITION_SCROLL_WINDOW = 200
 
@@ -148,13 +149,15 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                                     onCompleteClick={localOnClompleteClick}
                                     onUncompleteClick={localOnUncompleteClick}
                                 />
-                                <Button
-                                    style={{ marginLeft: '20px' }}
-                                    onClick={onNextStepClick}
-                                    disabled={disableProgression(evaluation, participant, viewProgression)}
-                                >
-                                    {'Finish ' + progressionToString(viewProgression)}
-                                </Button>
+                                {participantCanProgressEvaluation(participant) && (
+                                    <Button
+                                        style={{ marginLeft: '20px' }}
+                                        onClick={onNextStepClick}
+                                        disabled={disableProgression(evaluation, participant, viewProgression)}
+                                    >
+                                        {'Finish ' + progressionToString(viewProgression)}
+                                    </Button>
+                                )}
                             </Box>
                         </Box>
                     </Box>

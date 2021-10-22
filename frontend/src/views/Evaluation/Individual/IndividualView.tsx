@@ -13,6 +13,7 @@ import QuestionsList from '../../../components/QuestionsList'
 import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
 import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../utils/disableComponents'
+import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
 
 interface IndividualViewProps {
     evaluation: Evaluation
@@ -31,7 +32,7 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
     const viewProgression = Progression.Individual
     const participant = useParticipant()
     const isParticipantCompleted = participant ? progressionLessThan(viewProgression, participant.progression) : false
- 
+
     const localOnClompleteClick = () => {
         const nextProgression = getNextProgression(participant!.progression)
         onProgressParticipant(nextProgression)
@@ -80,14 +81,13 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                                 onUncompleteClick={localOnUncompleteClick}
                             />
                         </Box>
-                        <Box>
-                            <Button
-                                onClick={onNextStepClick}
-                                disabled={disableProgression(evaluation, participant, viewProgression)}
-                            >
-                                Finish {progressionToString(viewProgression)}
-                            </Button>
-                        </Box>
+                        {participantCanProgressEvaluation(participant) && (
+                            <Box>
+                                <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
+                                    Finish {progressionToString(viewProgression)}
+                                </Button>
+                            </Box>
+                        )}
                     </Box>
                     <QuestionsList
                         questions={barrierQuestions}
