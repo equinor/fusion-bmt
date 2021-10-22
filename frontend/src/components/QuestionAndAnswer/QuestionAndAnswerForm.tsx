@@ -1,5 +1,5 @@
 import React from 'react'
-import { Chip } from '@equinor/fusion-components'
+import { Chip, MarkdownViewer } from '@equinor/fusion-components'
 import { Typography } from '@equinor/eds-core-react'
 
 import { Answer, Question, Severity } from '../../api/models'
@@ -50,9 +50,7 @@ const QuestionAndAnswerForm = ({
                             <Typography variant="h3" data-testid={'question-' + question.order}>
                                 {question.text}
                             </Typography>
-                            {question.supportNotes.split('\n').map(supportNotePart => {
-                                return <Typography key={question.id + supportNotePart}>{supportNotePart}</Typography>
-                            })}
+                            <MarkdownViewer markdown={question.supportNotes} />
                         </Box>
                     </Box>
                 </Grid>
