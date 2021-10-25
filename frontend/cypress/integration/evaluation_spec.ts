@@ -1,5 +1,5 @@
 import { Progression, Role } from '../../src/api/models'
-import { EvaluationSeed, evaluation, activeQuestionTemplates } from '../support/testsetup/evaluation_seed'
+import { EvaluationSeed, evaluation, activeQuestionTemplates, progressEvaluation } from '../support/testsetup/evaluation_seed'
 import { evaluationName } from '../support/helpers/helpers'
 import NominationPage from '../page_objects/nomination'
 import ProjectPage from '../page_objects/project'
@@ -8,6 +8,7 @@ import * as faker from 'faker'
 import { Barrier, EvaluationPage } from '../page_objects/evaluation'
 import { ConfirmationDialog } from '../page_objects/common'
 import { fusionProject1 } from '../support/mock/external/projects'
+import { PROGRESS_EVALUATION } from '../support/testsetup/gql'
 
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
@@ -115,6 +116,17 @@ describe('Evaluation management', () => {
             confirmationDialog.yesButton().click()
 
             evaluationPage.progressionStepLink(seed.progression, 'Complete').should('be.visible')
+        })
+
+        const randomProgression = faker.random.arrayElement(
+            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Individual)
+        )
+        const progIndex = Object.values(Progression).indexOf(randomProgression)
+        const previousProgression = Object.values(Progression)[progIndex - 1]
+        it(`Complete cannot be undone on ${previousProgression} when progression has reached ${randomProgression}`, () => {
+            progressEvaluation(seed.evaluationId, randomProgression)
+            cy.visitProgression(previousProgression, seed.evaluationId, seed.participants[0].user, fusionProject1.id)
+            evaluationPage.completeSwitch().should('be.disabled')
         })
     })
 })

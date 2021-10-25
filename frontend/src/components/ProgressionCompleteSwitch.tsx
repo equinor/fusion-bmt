@@ -24,6 +24,7 @@ const ProgressionCompleteSwitch = ({ isCheckedInitially, disabled, onCompleteCli
     return (
         <>
             <Switch
+                data-testid="complete-switch"
                 checked={isChecked}
                 onChange={() => {}} // This is required to avoid an error
                 onClick={onLocalClick}

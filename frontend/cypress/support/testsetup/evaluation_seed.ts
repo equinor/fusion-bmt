@@ -342,3 +342,12 @@ export function allProjectCategoryNames(): Cypress.Chainable<Array<string>> {
         return returnVal
     })
 }
+
+export function progressEvaluation(evaluationId: string, newProgression: string): Cypress.Chainable {
+    return cy.gql(PROGRESS_EVALUATION, {
+        variables: {
+            evaluationId: evaluationId,
+            newProgression: newProgression,
+        },
+    })
+}

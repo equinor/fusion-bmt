@@ -27,6 +27,10 @@ export class EvaluationPage {
     }
 
     questionNoSelector = '[data-testid^=questionNo-]'
+
+    completeSwitch = () => {
+        return cy.getByDataTestid('complete-switch')
+    }
 }
 
 export enum Barrier {
