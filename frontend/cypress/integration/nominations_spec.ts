@@ -7,6 +7,7 @@ import * as faker from 'faker'
 import { EvaluationPage } from '../page_objects/evaluation'
 import { fusionProject1 } from '../support/mock/external/projects'
 
+const nominationPage = new NominationPage()
 describe('User management', () => {
     describe('Nomination stage', () => {
         let seed: EvaluationSeed
@@ -19,29 +20,33 @@ describe('User management', () => {
             const userCapabilities = [
                 {
                     role: Role.Facilitator,
-                    canAddUser: true,
-                    canDeleteUser: true,
-                    canProgressEval: true,
+                    deleteUserBtn: 'be.enabled',
+                    addPersonBtnShould: 'be.enabled',
+                    finishNominationBtnShould: 'be.enabled',
                 },
                 {
                     role: Role.OrganizationLead,
-                    canAddUser: true,
-                    canDeleteUser: true,
-                    canProgressEval: false,
+                    deleteUserBtn: 'be.enabled',
+                    addPersonBtnShould: 'be.enabled',
+                    finishNominationBtnShould: 'not.exist',
                 },
                 {
                     role: Role.Participant,
-                    canAddUser: false,
-                    canDeleteUser: false,
-                    canProgressEval: false,
+                    deleteUserBtn: 'be.disabled',
+                    addPersonBtnShould: 'be.disabled',
+                    finishNominationBtnShould: 'not.exist',
                 },
             ]
 
             userCapabilities.forEach(e => {
-                it(`${e.role} can delete user = ${e.canDeleteUser}, add user = ${e.canAddUser}, progress nomination = ${e.canProgressEval}`, () => {
+                it(`For ${e.role} Add person btn should ${e.addPersonBtnShould.replace('.', ' ')},
+                Delete user btn should ${e.deleteUserBtn.replace('.', ' ')}
+                Finish nomination btn should ${e.finishNominationBtnShould.replace('.', ' ')},`, () => {
                     let p = findRandomParticipant(seed, e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
-                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
+                    nominationPage.addPersonButton().should(`${e.addPersonBtnShould}`)
+                    nominationPage.finishNominationButton().should(`${e.finishNominationBtnShould}`)
+                    deleteUserBtn(p, seed.participants, e.deleteUserBtn)
                 })
             })
 
@@ -79,7 +84,6 @@ describe('User management', () => {
             Progression.Preparation,
         ])
         context(`User management users at random stage ${randomStage}`, () => {
-            const nominationPage = new NominationPage()
             const evaluationPage = new EvaluationPage()
             before(() => {
                 seed = createSeed(randomStage)
@@ -88,18 +92,27 @@ describe('User management', () => {
             const userCapabilites = [
                 {
                     role: Role.Facilitator,
+                    deleteUserBtn: 'be.disabled',
+                    addPersonBtnShould: 'be.enabled',
+                    finishNominationBtnShould: 'be.disabled',
                     canAddUser: true,
                     canDeleteUser: false,
                     canProgressEval: false,
                 },
                 {
                     role: Role.OrganizationLead,
+                    deleteUserBtn: 'be.disabled',
+                    addPersonBtnShould: 'be.enabled',
+                    finishNominationBtnShould: 'not.exist',
                     canAddUser: true,
                     canDeleteUser: false,
                     canProgressEval: false,
                 },
                 {
                     role: Role.Participant,
+                    deleteUserBtn: 'be.disabled',
+                    addPersonBtnShould: 'be.disabled',
+                    finishNominationBtnShould: 'not.exist',
                     canAddUser: false,
                     canDeleteUser: false,
                     canProgressEval: false,
@@ -107,11 +120,15 @@ describe('User management', () => {
             ]
 
             userCapabilites.forEach(e => {
-                it(`${e.role} can delete user = ${e.canDeleteUser}, can add user = ${e.canAddUser}`, () => {
+                it(`For ${e.role} Add person btn should ${e.addPersonBtnShould.replace('.', ' ')},
+                Delete user btn should ${e.deleteUserBtn.replace('.', ' ')}
+                Finish nomination btn should ${e.finishNominationBtnShould.replace('.', ' ')},`, () => {
                     let p = findRandomParticipant(seed, e.role)
                     cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
                     evaluationPage.progressionStepLink(Progression.Nomination).click()
-                    verifyUserManagementCapabilities(nominationPage, seed.participants, p, e.canAddUser, e.canDeleteUser, e.canProgressEval)
+                    nominationPage.addPersonButton().should(`${e.addPersonBtnShould}`)
+                    nominationPage.finishNominationButton().should(`${e.finishNominationBtnShould}`)
+                    deleteUserBtn(p, seed.participants, e.deleteUserBtn)
                 })
             })
         })
@@ -138,34 +155,13 @@ function findRandomParticipant(seed: EvaluationSeed, role: Role): Participant {
     return participant
 }
 
-function verifyUserManagementCapabilities(
-    nominationPage: NominationPage,
-    allParticipants: Participant[],
-    participant: Participant,
-    canAddUser: boolean,
-    canDeleteUser: boolean,
-    canProgressEval: boolean
-) {
-    if (canAddUser) {
-        nominationPage.addPersonButton().should('be.enabled')
-    } else {
-        nominationPage.addPersonButton().should('be.disabled')
-    }
-    if (canProgressEval) {
-        nominationPage.finishNominationButton().should('be.enabled')
-    } else {
-        nominationPage.finishNominationButton().should('be.disabled')
-    }
-    allParticipants.forEach(p => {
+const deleteUserBtn = (participant: Participant, participants: Participant[], shouldBe: string) => {
+    participants.forEach(p => {
         if (p === participant) {
             return
             // below line fails because the element does not exist and cy.get then fails on this element
-            //nominationPage.deletePersonDiv(p.user).should('not.exist')
+            //nominationPage.deletePersonDiv(p.user).find('button').should('not.exist')
         }
-        if (canDeleteUser) {
-            nominationPage.deletePersonDiv(p.user).find('button').should('be.enabled')
-        } else {
-            nominationPage.deletePersonDiv(p.user).find('button').should('be.disabled')
-        }
+        nominationPage.deletePersonDiv(p.user).find('button').should(shouldBe)
     })
 }
