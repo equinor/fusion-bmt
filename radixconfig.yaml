@@ -111,16 +111,16 @@ spec:
       publicPort: http
       environmentConfig:
         - environment: cicd
-          imageTagName: release
+          imageTagName: cicd-release
         - environment: dev
-          imageTagName: release
+          imageTagName: dev-release
         - environment: pr
-          imageTagName: release
+          imageTagName: pr-release
         - environment: prod
-          imageTagName: release
+          imageTagName: prod-release
           replicas: 0
         - environment: qa
-          imageTagName: release
+          imageTagName: qa-release
           replicas: 0
       secrets:
         - AzureAd__ClientSecret
