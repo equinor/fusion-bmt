@@ -173,6 +173,7 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
             cy.gql(ADD_EVALUATION, {
                 variables: { name: seed.name, projectId: seed.projectId, projectCategoryId: projectCategoryId },
             }).then(res => {
+                checkForError(res.body)
                 const evaluation = res.body.data.createEvaluation
                 seed.evaluationId = evaluation.id
                 seed.questions = evaluation.questions
@@ -187,6 +188,8 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                     evaluationId: seed.evaluationId,
                     newProgression: seed.progression,
                 },
+            }).then(res => {
+                checkForError(res.body)
             })
         })
         .then(() => {
@@ -202,6 +205,7 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                     role: participant.role,
                 },
             }).then(res => {
+                checkForError(res.body)
                 participant.id = res.body.data.createParticipant.id
             })
         })
@@ -216,6 +220,8 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                         evaluationId: seed.evaluationId,
                         newProgression: participant.progression,
                     },
+                }).then(res => {
+                    checkForError(res.body)
                 })
             })
         })
@@ -232,6 +238,8 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                         text: answer.text,
                         progression: answer.progression,
                     },
+                }).then(res => {
+                    checkForError(res.body)
                 })
             })
         })
@@ -251,6 +259,8 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                             priority: action.priority,
                             title: action.title,
                         },
+                    }).then(res => {
+                        checkForError(res.body)
                     })
                 })
                 .then(res => {
@@ -270,13 +280,17 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                             title: action.title,
                             isVoided: action.isVoided,
                         },
+                    }).then(res => {
+                        checkForError(res.body)
                     })
                 })
         })
         .each((action: Action) => {
             if (action.isVoided === true) {
                 cy.login(facilitator.user).then(() => {
-                    cy.gql(VOID_ACTION, { variables: { actionId: action.id } })
+                    cy.gql(VOID_ACTION, { variables: { actionId: action.id } }).then(res => {
+                        checkForError(res.body)
+                    })
                 })
             }
         })
@@ -291,6 +305,8 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                         text: note.text,
                         actionId: note.action.id,
                     },
+                }).then(res => {
+                    checkForError(res.body)
                 })
             }) // TODO: save note Id if useful
         })
@@ -303,6 +319,8 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                             evaluationId: seed.evaluationId,
                             summary: seed.summary!.summary,
                         },
+                    }).then(res => {
+                        checkForError(res.body)
                     })
                 })
             }
@@ -310,6 +328,16 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
         .then(() => {
             cy.login(facilitator.user)
         })
+}
+
+function checkForError(body: any) {
+    if (body.hasOwnProperty('errors')) {
+        let errorMsg = ''
+        for (let el = 0; el < body.errors.length; el++) {
+            errorMsg += body.errors[el].message
+        }
+        throw new Error(errorMsg)
+    }
 }
 
 export function evaluation(name: string): Cypress.Chainable<Evaluation> {
