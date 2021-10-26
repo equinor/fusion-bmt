@@ -58,6 +58,7 @@ export type IAction = {
     description?: string
     completed?: boolean
     onHold?: boolean
+    isVoided?: boolean
 }
 
 export class Action {
@@ -71,6 +72,7 @@ export class Action {
     description: string
     completed?: boolean
     onHold?: boolean
+    isVoided?: boolean
 
     constructor({
         questionOrder,
@@ -82,6 +84,7 @@ export class Action {
         description = '',
         completed = false,
         onHold = false,
+        isVoided = false,
     }: IAction) {
         this.questionOrder = questionOrder
         this.assignedTo = assignedTo
@@ -92,6 +95,7 @@ export class Action {
         this.description = description
         this.completed = completed
         this.onHold = onHold
+        this.isVoided = isVoided
     }
 }
 

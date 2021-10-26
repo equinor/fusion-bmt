@@ -171,7 +171,7 @@ const ActionTable = ({
                             const assignedTo = assignedPersonDetails(action)
 
                             return (
-                                <Row key={action.id}>
+                                <Row key={action.id} data-testid={`action-${action.id}`}>
                                     <Cell
                                         onClick={() => onClickAction(action.id)}
                                         style={{ color: tokens.colors.interactive.primary__resting.rgba, cursor: 'pointer' }}

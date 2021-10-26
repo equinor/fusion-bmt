@@ -3,28 +3,31 @@ import { Progression, Priority, Role } from '../../src/api/models'
 import { FUSION_DATE_LOCALE } from '../support/helpers/helpers'
 import { barrierToString } from '../../src/utils/EnumToString'
 import { Action, Note, Participant } from '../support/testsetup/mocks'
-import { ActionsGrid, ActionsTab, CreateActionDialog, EditActionDialog, mapPriority } from '../page_objects/action'
+import { ActionsGrid, CreateActionDialog, EditActionDialog, mapPriority } from '../page_objects/action'
 import { EvaluationPage, QuestionnaireSidePanel } from '../page_objects/evaluation'
 import { ConfirmationDialog, DropdownSelect } from '../page_objects/common'
 import * as faker from 'faker'
 import { getUsers, User } from '../support/mock/external/users'
 import { fusionProject1 } from '../support/mock/external/projects'
+import FollowUpTabs from '../page_objects/followup'
+import { ActionTable } from '../page_objects/action-table'
 
 describe('Actions management', () => {
     const evaluationPage = new EvaluationPage()
     const actionsGrid = new ActionsGrid()
-    const actionsTab = new ActionsTab()
     const questionnaireSidePanel = new QuestionnaireSidePanel()
     const confirmationDialog = new ConfirmationDialog()
     const createActionDialog = new CreateActionDialog()
     const editActionDialog = new EditActionDialog()
     const dropdownSelect = new DropdownSelect()
+    const followUpTabs = new FollowUpTabs()
+    const actionTable = new ActionTable()
 
     let seed: EvaluationSeed
     const users = getUsers(3)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant]
     const progressionsWorkshopOrFollowUp = [Progression.Workshop, Progression.FollowUp]
-       
+
     const getRandomProgressionWorkshopOrFollowUp = () => {
         return faker.random.arrayElement(progressionsWorkshopOrFollowUp)
     }
@@ -39,101 +42,120 @@ describe('Actions management', () => {
         seed = createSeedWithActions(users, roles, { completed: false })
         seed.plant()
     })
-    context(`Creating and editing actions on progressions ${progressionsWorkshopOrFollowUp}`, () => {
-        const roles = [
-            {
-                role: Role.Facilitator,
-                canCreateAction: true,
-                progression: getRandomProgressionWorkshopOrFollowUp(),
-            },
-            {
-                role: Role.OrganizationLead,
-                canCreateAction: true,
-                progression: getRandomProgressionWorkshopOrFollowUp(),
-            },
-            {
-                role: Role.Participant,
-                canCreateAction: true,
-                progression: getRandomProgressionWorkshopOrFollowUp(),
-            },
-        ]
-        roles.forEach(r => {
-            it(`${r.role} can ${r.canCreateAction === true ? '' : ' not'} create action on ${r.progression}`, () => {
-                cy.visitProgression(r.progression, seed.evaluationId, seed.findParticipantByRole(r.role).user, fusionProject1.id)
+    describe(`Creating and editing actions`, () => {
+        context(`On progressions ${progressionsWorkshopOrFollowUp}`, () => {
+            const roles = [
+                {
+                    role: Role.Facilitator,
+                    canCreateAction: true,
+                    progression: getRandomProgressionWorkshopOrFollowUp(),
+                },
+                {
+                    role: Role.OrganizationLead,
+                    canCreateAction: true,
+                    progression: getRandomProgressionWorkshopOrFollowUp(),
+                },
+                {
+                    role: Role.Participant,
+                    canCreateAction: true,
+                    progression: getRandomProgressionWorkshopOrFollowUp(),
+                },
+            ]
+            roles.forEach(r => {
+                it(`${r.role} can ${r.canCreateAction === true ? '' : ' not'} create action on ${r.progression}`, () => {
+                    cy.visitProgression(r.progression, seed.evaluationId, seed.findParticipantByRole(r.role).user, fusionProject1.id)
+                    let action = createActionTestData(users)
+                    r.canCreateAction
+                        ? actionsGrid.addActionButton(action.questionOrder).should('be.enabled')
+                        : actionsGrid.addActionButton(action.questionOrder).should('not.exist')
+                })
+            })
+
+            const randomRole = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
+            const randomStageCreateAction = getRandomProgressionWorkshopOrFollowUp()
+            const verifyStage = getRandomProgressionWorkshopOrFollowUp()
+            it(`Create action by ${randomRole} on ${randomStageCreateAction} 
+            then verification that action was created on ${verifyStage}`, () => {
+                cy.visitProgression(
+                    randomStageCreateAction,
+                    seed.evaluationId,
+                    seed.findParticipantByRole(randomRole).user,
+                    fusionProject1.id
+                )
                 let action = createActionTestData(users)
-                r.canCreateAction
-                    ? actionsGrid.addActionButton(action.questionOrder).should('be.enabled')
-                    : actionsGrid.addActionButton(action.questionOrder).should('not.exist')
+                actionsGrid.addActionButton(action.questionOrder).click()
+                createActionDialog.titleInput().type(action.title)
+                createActionDialog.assignedToInput().click()
+                dropdownSelect.assertSelectValues(
+                    seed.participants.map(p => {
+                        return p.user.name
+                    })
+                )
+                dropdownSelect.select(createActionDialog.assignedToInput(), action.assignedTo.user.name)
+                createActionDialog.dueDateInput().replace(action.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
+                createActionDialog.priorityInput().click()
+                dropdownSelect.assertSelectValues(
+                    Object.values(Priority).map(p => {
+                        return mapPriority(p)
+                    })
+                )
+                dropdownSelect.select(createActionDialog.priorityInput(), mapPriority(action.priority))
+                createActionDialog.body().contains(`Connected to ${seed.name}`).should('exist')
+                createActionDialog.descriptionInput().type(action.description)
+
+                createActionDialog.createButton().click()
+                cy.testCacheAndDB(
+                    () => {
+                        createActionDialog.body().should('not.exist')
+                        actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
+                    },
+                    fusionProject1.id,
+                    () => {
+                        evaluationPage.progressionStepLink(verifyStage).click()
+                        actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
+                    }
+                )
+            })
+
+            let actionNotes: Note[]
+            let action: Action
+            let updatedAction: Action
+            let newNotes: Note[]
+
+            const progressionWhereEdit = getRandomProgressionWorkshopOrFollowUp()
+            const progressionWhereVerify = getRandomProgressionWorkshopOrFollowUp()
+            it(`Edit action by ${randomRole} on ${progressionWhereEdit} - assign action, add notes 
+            then verify notes were added on ${progressionWhereVerify}`, () => {
+                let user = seed.findParticipantByRole(randomRole).user
+                cy.visitProgression(progressionWhereEdit, seed.evaluationId, user, fusionProject1.id)
+                ;({ actionNotes, action } = findActionWithNotes(seed))
+                ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
+
+                actionsGrid.actionLink(action.questionOrder, action.title).click()
+
+                editActionDialog.assertActionValues(action, actionNotes)
+                editActionDialog.editAction(updatedAction, newNotes, actionNotes.length)
+                editActionDialog.assertNotesValues(actionNotes.concat(newNotes))
+                editActionDialog.close()
+
+                cy.testCacheAndDB(() => {
+                    evaluationPage.progressionStepLink(progressionWhereVerify).click()
+                    actionsGrid.actionLink(action.questionOrder, updatedAction.title).click()
+                    editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
+                }, fusionProject1.id)
             })
         })
-
-        const randomRole = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
-        const randomStageCreateAction = getRandomProgressionWorkshopOrFollowUp()
-        const verifyStage = getRandomProgressionWorkshopOrFollowUp()
-        it(`Create action by ${randomRole} on ${randomStageCreateAction} 
-            then verification that action was created on ${verifyStage}`, () => {
-            cy.visitProgression(randomStageCreateAction, seed.evaluationId, seed.findParticipantByRole(randomRole).user, fusionProject1.id)
-            let action = createActionTestData(users)
-            actionsGrid.addActionButton(action.questionOrder).click()
-            createActionDialog.titleInput().type(action.title)
-            createActionDialog.assignedToInput().click()
-            dropdownSelect.assertSelectValues(
-                seed.participants.map(p => {
-                    return p.user.name
-                })
-            )
-            dropdownSelect.select(createActionDialog.assignedToInput(), action.assignedTo.user.name)
-            createActionDialog.dueDateInput().replace(action.dueDate.toLocaleDateString(FUSION_DATE_LOCALE))
-            createActionDialog.priorityInput().click()
-            dropdownSelect.assertSelectValues(
-                Object.values(Priority).map(p => {
-                    return mapPriority(p)
-                })
-            )
-            dropdownSelect.select(createActionDialog.priorityInput(), mapPriority(action.priority))
-            createActionDialog.body().contains(`Connected to ${seed.name}`).should('exist')
-            createActionDialog.descriptionInput().type(action.description)
-
-            createActionDialog.createButton().click()
-            cy.testCacheAndDB(
-                () => {
-                    createActionDialog.body().should('not.exist')
-                    actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
-                },
-                fusionProject1.id,
-                () => {
-                    evaluationPage.progressionStepLink(verifyStage).click()
-                    actionsGrid.actionLink(action.questionOrder, action.title).should('exist')
-                }
-            )
-        })
-
-        let actionNotes: Note[]
-        let action: Action
-        let updatedAction: Action
-        let newNotes: Note[]
-
-        const progressionWhereEdit = getRandomProgressionWorkshopOrFollowUp()
-        const progressionWhereVerify = getRandomProgressionWorkshopOrFollowUp()
-        it(`Edit action by ${randomRole} on ${progressionWhereEdit} - assign action, add notes 
-            then verify notes were added on ${progressionWhereVerify}`, () => {
-            let user = seed.findParticipantByRole(randomRole).user
-            cy.visitProgression(progressionWhereEdit, seed.evaluationId, user, fusionProject1.id)
-            ;({ actionNotes, action } = findActionWithNotes(seed))
-            ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
-
-            actionsGrid.actionLink(action.questionOrder, action.title).click()
-
-            editActionDialog.assertActionValues(action, actionNotes)
-            editActionDialog.editAction(updatedAction, newNotes, actionNotes.length)
-            editActionDialog.assertNotesValues(actionNotes.concat(newNotes))
-            editActionDialog.close()
-
-            cy.testCacheAndDB(() => {
-                evaluationPage.progressionStepLink(progressionWhereVerify).click()
-                actionsGrid.actionLink(action.questionOrder, updatedAction.title).click()
-                editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
-            }, fusionProject1.id)
+        context(`In actions table on follow-up`, () => {
+            const rolesThatCanEdit = [Role.Facilitator, Role.Participant, Role.OrganizationLead]
+            const randomRole = faker.random.arrayElement(rolesThatCanEdit)
+            it(`Edit action by ${randomRole} (from any ${rolesThatCanEdit})`, () => {
+                let user = seed.findParticipantByRole(randomRole).user
+                cy.visitProgression(Progression.FollowUp, seed.evaluationId, user, fusionProject1.id)
+                followUpTabs.actions().click()
+                actionTable.table().should('be.visible')
+                actionTable.action(seed.actions[0].title).click({ force: true })
+                editActionDialog.body().should('be.visible')
+            })
         })
     })
     context(`Voiding Actions on progressions ${progressionsWorkshopOrFollowUp}`, () => {
@@ -242,12 +264,12 @@ describe('Actions management', () => {
 
         it('Actions are visible on Follow-Up Actions Tab', () => {
             logInRandomUser(Progression.FollowUp)
-            actionsTab.linkToTab().click()
-            actionsTab.body().should('be.visible')
+            followUpTabs.actions().click()
+            actionTable.table().should('be.visible')
             let actions: Action[] = seed.actions
             actions.forEach(a => {
                 const question = seed.questions.find(q => q.id === seed.findQuestionId(a.questionOrder))
-                actionsTab.assertActionValues(a, question!)
+                actionTable.assertActionValues(a, question!)
             })
         })
     })
@@ -348,7 +370,7 @@ const createSeedWithActions = (users: User[], roles: Role[], actionParameters: P
     })
 
     const moreActions: Action[] = Array.from({ length: faker.datatype.number({ min: 1, max: 2 }) }, () => {
-        return seed.createAction({})
+        return seed.createAction(actionParameters)
     })
     faker.helpers.shuffle([oneAction, ...moreActions]).forEach(a => seed.addAction(a))
     existingNotes.forEach(n => seed.addNote(n))

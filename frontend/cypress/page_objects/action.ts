@@ -1,8 +1,7 @@
 import { DropdownSelect, SideSheet, SaveIndicator } from '../page_objects/common'
 import { Action, Note } from '../support/testsetup/mocks'
 import { FUSION_DATE_LOCALE } from '../support/helpers/helpers'
-import { Priority, Question } from '../../src/api/models'
-import { barrierToString, organizationToString } from '../../src/utils/EnumToString'
+import { Priority } from '../../src/api/models'
 import { SavingState } from '../../src/utils/Variables'
 
 /**
@@ -27,37 +26,6 @@ export class ActionsGrid {
 
     voidActionButton = (id: string) => {
         return cy.getByDataTestid(`void_action_button_${id}`)
-    }
-}
-
-/**
- * Actions Tab on the Follow-Up page
- */
-export class ActionsTab {
-    linkToTab = () => {
-        return cy.get('#fixed-tablist').contains('Actions')
-    }
-
-    body = () => {
-        return this.linkToTab()
-            .invoke('attr', 'aria-controls')
-            .then(id => {
-                return cy.get('#' + id)
-            })
-    }
-
-    assertActionValues = (action: Action, question: Question) => {
-        this.body().contains(action.title).parent().children().as('row')
-
-        cy.get('@row').eq(0).should('have.text', action.title)
-        cy.get('@row').eq(1).should('have.text', barrierToString(question.barrier))
-        cy.get('@row').eq(2).should('have.text', organizationToString(question.organization))
-        cy.get('@row')
-            .eq(3)
-            .should('have.text', action.completed ? 'Yes' : 'No')
-        cy.get('@row').eq(4).should('have.text', mapPriority(action.priority))
-        cy.get('@row').eq(5).should('have.text', action.assignedTo.user.name)
-        cy.get('@row').eq(6).should('have.text', action.dueDate.toLocaleDateString())
     }
 }
 
