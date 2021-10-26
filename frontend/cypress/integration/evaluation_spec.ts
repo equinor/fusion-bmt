@@ -140,12 +140,12 @@ describe('Evaluation management', () => {
             evaluationPage.completeSwitch().should('be.disabled')
         })
 
-        const randomProgression2 = faker.random.arrayElement(
+        const randomProgressionThatHasCompleteToggle = faker.random.arrayElement(
             Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.FollowUp)
         )
-        it(`Complete and undo complete on progression ${randomProgression2}`, () => {
-            progressEvaluation(seed.evaluationId, randomProgression2)
-            cy.visitProgression(randomProgression2, seed.evaluationId, seed.participants[0].user, fusionProject1.id)
+        it(`Complete and undo complete on progression ${randomProgressionThatHasCompleteToggle}`, () => {
+            progressEvaluation(seed.evaluationId, randomProgressionThatHasCompleteToggle)
+            cy.visitProgression(randomProgressionThatHasCompleteToggle, seed.evaluationId, seed.participants[0].user, fusionProject1.id)
             evaluationPage.completeSwitch().should('be.enabled')
             evaluationPage.completeSwitch().check({ force: true })
             expect(evaluationPage.completeSwitch().should('be.checked'))
