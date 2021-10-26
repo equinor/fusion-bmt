@@ -10,6 +10,8 @@ import { ConfirmationDialog } from '../page_objects/common'
 import { fusionProject1 } from '../support/mock/external/projects'
 import { PROGRESS_EVALUATION } from '../support/testsetup/gql'
 
+const evaluationPage = new EvaluationPage()
+let seed: EvaluationSeed
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
         let seed = new EvaluationSeed({
@@ -95,11 +97,10 @@ describe('Evaluation management', () => {
 
     context('Progressing an Evaluation', () => {
         let seed: EvaluationSeed
-        const evaluationPage = new EvaluationPage()
         const nominationPage = new NominationPage()
         const confirmationDialog = new ConfirmationDialog()
 
-        beforeEach(() => {
+        before(() => {
             seed = new EvaluationSeed({
                 progression: Progression.Nomination,
                 users: getUsers(1),
@@ -117,7 +118,17 @@ describe('Evaluation management', () => {
 
             evaluationPage.progressionStepLink(seed.progression, 'Complete').should('be.visible')
         })
-
+    })
+    context('Completing/uncompleting a progression', () => {
+        beforeEach(() => {
+            seed = new EvaluationSeed({
+                progression: Progression.Nomination,
+                users: getUsers(1),
+                roles: [Role.Facilitator],
+                fusionProjectId: fusionProject1.id,
+            })
+            seed.plant()
+        })
         const randomProgression = faker.random.arrayElement(
             Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Individual)
         )
@@ -130,15 +141,16 @@ describe('Evaluation management', () => {
         })
 
         const randomProgression2 = faker.random.arrayElement(
-            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Workshop && p !== Progression.FollowUp)
+            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.FollowUp)
         )
-        const progIndex2 = Object.values(Progression).indexOf(randomProgression2)
-        const nextProgression = Object.values(Progression)[progIndex2 + 1]
-        it.only(`Complete and undo complete on progression ${randomProgression2}`, () => {
+        it(`Complete and undo complete on progression ${randomProgression2}`, () => {
             progressEvaluation(seed.evaluationId, randomProgression2)
-            cy.visitProgression(nextProgression, seed.evaluationId, seed.participants[0].user, fusionProject1.id)
+            cy.visitProgression(randomProgression2, seed.evaluationId, seed.participants[0].user, fusionProject1.id)
             evaluationPage.completeSwitch().should('be.enabled')
-            evaluationPage.completeSwitch().click()
+            evaluationPage.completeSwitch().check({ force: true })
+            expect(evaluationPage.completeSwitch().should('be.checked'))
+            evaluationPage.completeSwitch().uncheck({ force: true })
+            expect(evaluationPage.completeSwitch().should('not.be.checked'))
         })
     })
 })
