@@ -73,14 +73,12 @@ const ProjectDashboardView = ({ project }: Props) => {
         return <p>Please log in.</p>
     }
 
-    const { loading: loadingUserEvaluations, evaluations, error: errorUserEvaluations } = useUserEvaluationsQuery(currentUser.id)
-    const {
-        loading: loadingProjectEvaluations,
-        evaluations: projectEvaluations,
-        error: errorProjectEvaluations,
-    } = useGetAllEvaluationsQuery(project.id)
+    const { loading: loadingUserEvaluations, evaluations: userEvaluations, error: errorUserEvaluations } = useUserEvaluationsQuery(
+        currentUser.id
+    )
+    const { loading: loadingProjectEvaluations, evaluations, error: errorProjectEvaluations } = useGetAllEvaluationsQuery(project.id)
 
-    const userEvaluations = evaluations ? evaluations.filter(evaluation => evaluation.status === Status.Active) : []
+    const projectEvaluations = evaluations ? evaluations.filter(evaluation => evaluation.status === Status.Active) : []
     const hiddenEvaluations = evaluations ? evaluations.filter(evaluation => evaluation.status === Status.Voided) : []
 
     if (errorUserEvaluations !== undefined) {
@@ -124,13 +122,13 @@ const ProjectDashboardView = ({ project }: Props) => {
             </Chips>
             {userTableSelected && (
                 <>
-                    <EvaluationsTable evaluations={userEvaluations} />
+                    {userEvaluations && <EvaluationsTable evaluations={userEvaluations} />}
                     {loadingUserEvaluations && <CenteredCircularProgress />}
                 </>
             )}
             {projectTableSelected && (
                 <>
-                    {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
+                    <EvaluationsTable evaluations={projectEvaluations} />
                     {loadingProjectEvaluations && <CenteredCircularProgress />}
                 </>
             )}
@@ -150,7 +148,7 @@ interface EvaluationQueryProps {
 export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
         query($azureUniqueId: String!) {
-            evaluations(where: { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } } }) {
+            evaluations(where: { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } }, status: {eq: ${Status.Active}} }) {
                 id
                 name
                 progression
@@ -191,6 +189,7 @@ export const useGetAllEvaluationsQuery = (projectId: string): EvaluationQueryPro
                 name
                 progression
                 createDate
+                status
                 questions {
                     id
                     barrier

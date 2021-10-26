@@ -2,16 +2,27 @@ import React from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 
 import { Box } from '@material-ui/core'
-import { Button, TextArea } from '@equinor/fusion-components'
+import { TextArea } from '@equinor/fusion-components'
+import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
+import { visibility, visibility_off } from '@equinor/eds-icons'
+import { useCurrentUser } from '@equinor/fusion'
 
 import AddNomineeDialog from './AddNomineeDialog'
-import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
+import { Evaluation, Organization, Participant, Progression, Role, Status } from '../../../api/models'
 import NominationTable from './NominationTable'
-import { participantCanAddParticipant, participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
+import {
+    participantCanAddParticipant,
+    participantCanHideEvaluation,
+    participantCanProgressEvaluation,
+} from '../../../utils/RoleBasedAccess'
 import { apiErrorMessage } from '../../../api/error'
-import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useParticipant } from '../../../globals/contexts'
 import { disableProgression } from '../../../utils/disableComponents'
+import SaveIndicator from '../../../components/SaveIndicator'
+import { SavingState } from '../../../utils/Variables'
+import { useEffectNotOnMount } from '../../../utils/hooks'
+import ErrorMessage from '../../Admin/Components/ErrorMessage'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -19,11 +30,35 @@ interface NominationViewProps {
 }
 
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
-    const [panelOpen, setPanelOpen] = React.useState(false)
+    const currentUser = useCurrentUser()
+    const participant = useParticipant()
     const { createParticipant, loading: createParticipantLoading, error: errorMutation } = useCreateParticipantMutation()
     const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
-    const participant = useParticipant()
+    const { setEvaluationStatus, loading, error } = useSetEvaluationStatusMutation()
+
+    const [panelOpen, setPanelOpen] = React.useState(false)
+    const [statusSavingState, setStatusSavingState] = React.useState(SavingState.None)
+
     const viewProgression = Progression.Nomination
+    const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+
+    useEffectNotOnMount(() => {
+        if (loading) {
+            setStatusSavingState(SavingState.Saving)
+        } else if (!loading && !error) {
+            setStatusSavingState(SavingState.Saved)
+
+            setTimeout(() => {
+                setStatusSavingState(SavingState.None)
+            }, 2000)
+        }
+    }, [loading])
+
+    useEffectNotOnMount(() => {
+        if (error) {
+            setStatusSavingState(SavingState.NotSaved)
+        }
+    }, [error])
 
     const onNextStepClick = () => {
         onNextStep()
@@ -53,26 +88,57 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         )
     }
 
+    const toggleStatus = () => {
+        const newStatus = evaluation.status === Status.Voided ? Status.Active : Status.Voided
+        setEvaluationStatus(evaluation.id, newStatus)
+    }
+
+    const isVisible = evaluation.status !== Status.Voided
+
     return (
         <div style={{ margin: 20 }}>
             <Box display="flex" flexDirection="row">
-                <Box flexGrow={1}>
-                    <h2 data-testid="evaluation_title">{evaluation.name}</h2>
+                <Box flexGrow={1} display="flex" flexDirection={'row'} pb={1} alignItems={'center'}>
+                    <h2 data-testid="evaluation_title" style={{ marginRight: '15px' }}>
+                        {evaluation.name}
+                    </h2>
+                    {(participantCanHideEvaluation(participant) || isAdmin) && (
+                        <>
+                            <Tooltip title={isVisible ? 'Visible in list' : 'Hidden from list'} placement="bottom">
+                                <Icon data={isVisible ? visibility : visibility_off} style={{ marginRight: '10px' }}></Icon>
+                            </Tooltip>
+                            <Button
+                                variant="ghost"
+                                onClick={toggleStatus}
+                                disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
+                            >
+                                {isVisible ? 'Hide from list' : 'Make visible'}
+                            </Button>
+                        </>
+                    )}
                 </Box>
                 {participantCanProgressEvaluation(participant) && (
-                    <Box>
-                        <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
-                            Finish Nomination
-                        </Button>
+                    <Box display={'flex'} alignItems={'center'}>
+                        <SaveIndicator savingState={statusSavingState} />
+                        <Box ml={2}>
+                            <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
+                                Finish Nomination
+                            </Button>
+                        </Box>
                     </Box>
                 )}
             </Box>
-
+            {error && (
+                <Box mb={1}>
+                    <ErrorMessage text={'Not able change evaluation state'} />
+                </Box>
+            )}
             <Button
                 onClick={() => {
                     setPanelOpen(true)
                 }}
                 disabled={!participantCanAddParticipant(participant)}
+                style={{ marginBottom: '10px' }}
             >
                 Add Person
             </Button>
@@ -159,6 +225,35 @@ const useParticipantsQuery = (evaluationId: string): ParticipantQueryProps => {
     return {
         loading,
         participants: data?.participants,
+        error,
+    }
+}
+
+interface setEvaluationStatusMutationProps {
+    setEvaluationStatus: (evaluationId: string, newStatus: Status) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useSetEvaluationStatusMutation = (): setEvaluationStatusMutationProps => {
+    const SET_EVALUATION_STATUS_MUTATION = gql`
+        mutation SetEvaluationStatus($evaluationId: String!, $newStatus: Status!) {
+            setEvaluationStatus(evaluationId: $evaluationId, newStatus: $newStatus) {
+                ...EvaluationFields
+            }
+        }
+        ${EVALUATION_FIELDS_FRAGMENT}
+    `
+
+    const [setEvaluationStatusApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
+
+    const setEvaluationStatus = (evaluationId: string, newStatus: Status) => {
+        setEvaluationStatusApolloFunc({ variables: { evaluationId, newStatus } })
+    }
+
+    return {
+        setEvaluationStatus,
+        loading,
         error,
     }
 }
