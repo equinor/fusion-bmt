@@ -145,7 +145,7 @@ describe('Actions management', () => {
                 }, fusionProject1.id)
             })
         })
-        context(`In actions table on dashboard in follow-up`, () => {
+        context(`In actions table on follow-up`, () => {
             const rolesThatCanEdit = [Role.Facilitator, Role.Participant, Role.OrganizationLead]
             const randomRole = faker.random.arrayElement(rolesThatCanEdit)
             it(`Edit action by ${randomRole} (from any ${rolesThatCanEdit})`, () => {
