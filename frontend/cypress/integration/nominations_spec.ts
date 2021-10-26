@@ -145,10 +145,9 @@ function findRandomParticipant(seed: EvaluationSeed, role: Role): Participant {
 const deleteUserBtn = (participant: Participant, participants: Participant[], shouldBe: string) => {
     participants.forEach(p => {
         if (p === participant) {
-            return
-            // below line fails because the element does not exist and cy.get then fails on this element
-            //nominationPage.deletePersonDiv(p.user).find('button').should('not.exist')
+            nominationPage.deletePersonDiv(p.user).should('not.exist')
+        } else {
+            nominationPage.deletePersonDiv(p.user).find('button').should(shouldBe)
         }
-        nominationPage.deletePersonDiv(p.user).find('button').should(shouldBe)
     })
 }
