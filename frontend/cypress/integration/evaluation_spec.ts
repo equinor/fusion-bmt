@@ -128,5 +128,17 @@ describe('Evaluation management', () => {
             cy.visitProgression(previousProgression, seed.evaluationId, seed.participants[0].user, fusionProject1.id)
             evaluationPage.completeSwitch().should('be.disabled')
         })
+
+        const randomProgression2 = faker.random.arrayElement(
+            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Workshop && p !== Progression.FollowUp)
+        )
+        const progIndex2 = Object.values(Progression).indexOf(randomProgression2)
+        const nextProgression = Object.values(Progression)[progIndex2 + 1]
+        it.only(`Complete and undo complete on progression ${randomProgression2}`, () => {
+            progressEvaluation(seed.evaluationId, randomProgression2)
+            cy.visitProgression(nextProgression, seed.evaluationId, seed.participants[0].user, fusionProject1.id)
+            evaluationPage.completeSwitch().should('be.enabled')
+            evaluationPage.completeSwitch().click()
+        })
     })
 })
