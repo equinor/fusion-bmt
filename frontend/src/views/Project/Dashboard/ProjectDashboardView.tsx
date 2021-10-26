@@ -6,7 +6,7 @@ import { TextArea } from '@equinor/fusion-components'
 import { Chip } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 
-import { Evaluation, Project } from '../../../api/models'
+import { Evaluation, Project, Status } from '../../../api/models'
 import CreateEvaluationButton from './CreateEvaluationButton'
 import EvaluationsTable from './EvaluationsTable'
 import styled from 'styled-components'
@@ -32,6 +32,21 @@ const Centered = styled.div`
 enum TableSelection {
     User = 'USER',
     Project = 'PROJECT',
+    Hidden = 'HIDDEN',
+}
+
+const mapTableSelectionToText = (tableSelection: string) => {
+    switch (tableSelection) {
+        case 'USER': {
+            return 'My evaluations'
+        }
+        case 'PROJECT': {
+            return 'Project evaluations'
+        }
+        case 'HIDDEN': {
+            return 'Hidden evaluations'
+        }
+    }
 }
 
 const CenteredCircularProgress = () => {
@@ -48,22 +63,25 @@ interface Props {
 
 const ProjectDashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
+    const userIsAdmin = currentUser && currentUser.roles.includes('Role.Admin')
     const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.User)
     const userTableSelected = selectedProjectTable === TableSelection.User
     const projectTableSelected = selectedProjectTable === TableSelection.Project
+    const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden
 
     if (!currentUser) {
         return <p>Please log in.</p>
     }
 
-    const { loading: loadingUserEvaluations, evaluations: userEvaluations, error: errorUserEvaluations } = useUserEvaluationsQuery(
-        currentUser.id
-    )
+    const { loading: loadingUserEvaluations, evaluations, error: errorUserEvaluations } = useUserEvaluationsQuery(currentUser.id)
     const {
         loading: loadingProjectEvaluations,
         evaluations: projectEvaluations,
         error: errorProjectEvaluations,
     } = useGetAllEvaluationsQuery(project.id)
+
+    const userEvaluations = evaluations ? evaluations.filter(evaluation => evaluation.status === Status.Active) : []
+    const hiddenEvaluations = evaluations ? evaluations.filter(evaluation => evaluation.status === Status.Voided) : []
 
     if (errorUserEvaluations !== undefined) {
         return (
@@ -88,31 +106,35 @@ const ProjectDashboardView = ({ project }: Props) => {
                 <Typography variant="h2">Evaluations</Typography>
             </Box>
             <Chips>
-                <StyledChip
-                    variant={selectedProjectTable === TableSelection.User ? 'active' : 'default'}
-                    onClick={() => setSelectedProjectTable(TableSelection.User)}
-                >
-                    My evaluations
-                </StyledChip>
-                <StyledChip
-                    variant={selectedProjectTable === TableSelection.Project ? 'active' : 'default'}
-                    onClick={() => setSelectedProjectTable(TableSelection.Project)}
-                >
-                    Project evaluations
-                </StyledChip>
+                {Object.values(TableSelection).map(value => {
+                    if (value === TableSelection.Hidden && !userIsAdmin) {
+                        return undefined
+                    } else {
+                        return (
+                            <StyledChip
+                                key={value}
+                                variant={selectedProjectTable === value ? 'active' : 'default'}
+                                onClick={() => setSelectedProjectTable(value)}
+                            >
+                                {mapTableSelectionToText(value)}
+                            </StyledChip>
+                        )
+                    }
+                })}
             </Chips>
             {userTableSelected && (
                 <>
-                    {userEvaluations && <EvaluationsTable evaluations={userEvaluations || []} />}
+                    <EvaluationsTable evaluations={userEvaluations} />
                     {loadingUserEvaluations && <CenteredCircularProgress />}
                 </>
             )}
             {projectTableSelected && (
                 <>
-                    {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations || []} />}
+                    {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
                     {loadingProjectEvaluations && <CenteredCircularProgress />}
                 </>
             )}
+            {hiddenEvaluationsSelected && <EvaluationsTable evaluations={hiddenEvaluations} />}
         </div>
     )
 }
@@ -133,6 +155,7 @@ export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryP
                 name
                 progression
                 createDate
+                status
                 questions {
                     id
                     barrier

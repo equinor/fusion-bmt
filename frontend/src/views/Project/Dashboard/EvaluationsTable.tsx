@@ -110,7 +110,9 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                                     calcProgressionStatus(evaluation.progression, progression).toLowerCase()
                                 }
                             >
-                                <ProgressStatusIcon progression={evaluation.progression} compareProgression={progression} />
+                                <span>
+                                    <ProgressStatusIcon progression={evaluation.progression} compareProgression={progression} />
+                                </span>
                             </Tooltip>
                         ))}
                     </Centered>
