@@ -11,7 +11,7 @@ const nominationPage = new NominationPage()
 describe('User management', () => {
     describe('Nomination stage', () => {
         let seed: EvaluationSeed
-        beforeEach(() => {
+        before(() => {
             seed = createSeed()
             seed.plant()
         })
