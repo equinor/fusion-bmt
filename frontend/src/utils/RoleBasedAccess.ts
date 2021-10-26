@@ -198,3 +198,17 @@ export const participantCanInputFollowUp = (participant: Participant | undefined
             return false
     }
 }
+
+export const participantCanHideEvaluation = (participant: Participant | undefined) => {
+    if (!participant) {
+        return false
+    }
+    switch (participant.role) {
+        case Role.Facilitator:
+            return true
+        case Role.OrganizationLead: // Intentional fall-through
+        case Role.Participant:
+        default:
+            return false
+    }
+}
