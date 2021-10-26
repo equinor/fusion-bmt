@@ -118,6 +118,11 @@ describe('Evaluation management', () => {
 
             evaluationPage.progressionStepLink(seed.progression, 'Complete').should('be.visible')
         })
+
+        it('TODO: When Facilitator progresses evaluation it moves to next stage', () => {
+            // To be added
+            // Add tests that other than facilitator cannot progress evaluation
+        })
     })
     context('Completing/uncompleting a progression', () => {
         beforeEach(() => {

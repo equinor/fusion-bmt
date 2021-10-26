@@ -64,10 +64,6 @@ describe('User management', () => {
                 nominationPage.assertParticipantPresent(p.user)
                 nominationPage.assertParticipantAbsent(userToDelete.user)
             })
-
-            it('TODO: When Facilitator progresses evaluation it moves to next stage', () => {
-                // To be added
-            })
         })
     })
 
@@ -95,27 +91,18 @@ describe('User management', () => {
                     deleteUserBtn: 'be.disabled',
                     addPersonBtnShould: 'be.enabled',
                     finishNominationBtnShould: 'be.disabled',
-                    canAddUser: true,
-                    canDeleteUser: false,
-                    canProgressEval: false,
                 },
                 {
                     role: Role.OrganizationLead,
                     deleteUserBtn: 'be.disabled',
                     addPersonBtnShould: 'be.enabled',
                     finishNominationBtnShould: 'not.exist',
-                    canAddUser: true,
-                    canDeleteUser: false,
-                    canProgressEval: false,
                 },
                 {
                     role: Role.Participant,
                     deleteUserBtn: 'be.disabled',
                     addPersonBtnShould: 'be.disabled',
                     finishNominationBtnShould: 'not.exist',
-                    canAddUser: false,
-                    canDeleteUser: false,
-                    canProgressEval: false,
                 },
             ]
 
