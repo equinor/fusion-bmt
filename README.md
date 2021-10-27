@@ -24,6 +24,11 @@ To run the project with docker-compose use:
 The frontend is built using TypeScript and components from the Equinor Design System ([EDS](https://eds.equinor.com/components/component-status/)).
 
 ### Run frontend
+If no `API_URL` is provided, it will resolve to `https://backend-fusion-bmt-dev.radix.equinor.com`
+which is the dev server from master. If you want to run frontend with local
+backend, you need to provide explicitly `API_URL`. It can be set as an environment
+variable, or the file `.env` in `frontend` can be created. A sample
+file `.env.example` is provided.
 
 ```
 cd frontend
@@ -174,7 +179,7 @@ We are using Cypress as a test framework for End to End tests. Details can be fo
 in [this section](frontend/cypress/README.md).
 
 Cypress E2E tests can be run locally with:
-`docker-compose -f docker-compose.cypress.yml up cypress`
+`docker-compose -f docker-compose.cypress.yml up --build cypress`
 
 To run locally the two last lines in frontend/cypress.Dockerfile should be
 commented out.

@@ -56,6 +56,8 @@ jobs:
                 npm ci
                 npm start &
                 sleep 5
+            env:
+                API_URL: 'http://localhost:5000'
             workingDirectory: "frontend"
             displayName: "Start frontend"
 

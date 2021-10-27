@@ -4,28 +4,29 @@
 
 (Linux)
 
-mock-oauth2server:
+### mock-oauth2server:
 
 ```
 cd frontend
 docker run -e "JSON_CONFIG_PATH=/mnt/conf/config.json" -v `pwd`/cypress/auth_server:/mnt/conf -p 8080:8080 ghcr.io/navikt/mock-oauth2-server:0.3.4
 ```
 
-backend:
+### backend:
 
 ```
 cd backend/api
 ASPNETCORE_ENVIRONMENT=Test dotnet run --no-launch-profile
 ```
 
-frontend:
-
+### frontend:
+API_URL needs to be set to run cypress tests. Either at startup, or in the .env
+file in frontend folder.
 ```
 cd frontend
-npm start
+API_URL=http://localhost:5000 npm start
 ```
 
-cypress:
+### cypress:
 
 ```
 cd frontend
