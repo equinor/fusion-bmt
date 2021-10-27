@@ -179,7 +179,7 @@ We are using Cypress as a test framework for End to End tests. Details can be fo
 in [this section](frontend/cypress/README.md).
 
 Cypress E2E tests can be run locally with:
-`docker-compose -f docker-compose.cypress.yml up cypress`
+`docker-compose -f docker-compose.cypress.yml up --build cypress`
 
 To run locally the two last lines in frontend/cypress.Dockerfile should be
 commented out.
