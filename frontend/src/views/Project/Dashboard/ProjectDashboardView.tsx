@@ -1,15 +1,15 @@
 import React from 'react'
-import { CircularProgress, Typography } from '@equinor/eds-core-react'
+import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { TextArea } from '@equinor/fusion-components'
-import { Chip } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 
 import { Evaluation, Project, Status } from '../../../api/models'
 import CreateEvaluationButton from './CreateEvaluationButton'
 import EvaluationsTable from './EvaluationsTable'
 import styled from 'styled-components'
+import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT } from '../../../api/fragments'
 
 const Chips = styled.div`
     display: flex;
@@ -76,10 +76,15 @@ const ProjectDashboardView = ({ project }: Props) => {
     const { loading: loadingUserEvaluations, evaluations: userEvaluations, error: errorUserEvaluations } = useUserEvaluationsQuery(
         currentUser.id
     )
-    const { loading: loadingProjectEvaluations, evaluations, error: errorProjectEvaluations } = useGetAllEvaluationsQuery(project.id)
+    const {
+        loading: loadingProjectEvaluations,
+        evaluations: projectEvaluations,
+        error: errorProjectEvaluations,
+    } = useProjectEvaluationsQuery(project.id, Status.Active)
 
-    const projectEvaluations = evaluations ? evaluations.filter(evaluation => evaluation.status === Status.Active) : []
-    const hiddenEvaluations = evaluations ? evaluations.filter(evaluation => evaluation.status === Status.Voided) : []
+    const { loading: loadingHiddenEvaluations, evaluations: hiddenEvaluations, error: errorHiddenEvaluations } = useAllEvaluationsQuery(
+        Status.Voided
+    )
 
     if (errorUserEvaluations !== undefined) {
         return (
@@ -93,6 +98,14 @@ const ProjectDashboardView = ({ project }: Props) => {
         return (
             <div>
                 <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorProjectEvaluations)}`} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    if (errorHiddenEvaluations !== undefined) {
+        return (
+            <div>
+                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorHiddenEvaluations)}`} onChange={() => {}} />
             </div>
         )
     }
@@ -128,11 +141,16 @@ const ProjectDashboardView = ({ project }: Props) => {
             )}
             {projectTableSelected && (
                 <>
-                    <EvaluationsTable evaluations={projectEvaluations} />
+                    {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
                     {loadingProjectEvaluations && <CenteredCircularProgress />}
                 </>
             )}
-            {hiddenEvaluationsSelected && <EvaluationsTable evaluations={hiddenEvaluations} />}
+            {hiddenEvaluationsSelected && (
+                <>
+                    {hiddenEvaluations && <EvaluationsTable evaluations={hiddenEvaluations} />}
+                    {loadingHiddenEvaluations && <CenteredCircularProgress />}
+                </>
+            )}
         </div>
     )
 }
@@ -148,28 +166,11 @@ interface EvaluationQueryProps {
 export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
         query($azureUniqueId: String!) {
-            evaluations(where: { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } }, status: {eq: ${Status.Active}} }) {
-                id
-                name
-                progression
-                createDate
-                status
-                questions {
-                    id
-                    barrier
-                    answers {
-                        id
-                        severity
-                        progression
-                    }
-                    actions {
-                        id
-                        dueDate
-                        completed
-                    }
-                }
+            evaluations(where: { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } } }) {
+                ...EvaluationDashboardFields
             }
         }
+        ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
     `
 
     const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { azureUniqueId } })
@@ -181,34 +182,36 @@ export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryP
     }
 }
 
-export const useGetAllEvaluationsQuery = (projectId: string): EvaluationQueryProps => {
+export const useProjectEvaluationsQuery = (projectId: string, status: Status): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
-        query($projectId: String!) {
-            evaluations(where: { project: { id: { eq: $projectId } } }) {
-                id
-                name
-                progression
-                createDate
-                status
-                questions {
-                    id
-                    barrier
-                    answers {
-                        id
-                        severity
-                        progression
-                    }
-                    actions {
-                        id
-                        dueDate
-                        completed
-                    }
-                }
+        query($projectId: String!, $status: Status!) {
+            evaluations(where: { project: { id: { eq: $projectId } }, status: { eq: $status } }) {
+                ...EvaluationDashboardFields
             }
         }
+        ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
     `
 
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId } })
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId, status } })
+
+    return {
+        loading,
+        evaluations: data?.evaluations,
+        error,
+    }
+}
+
+export const useAllEvaluationsQuery = (status: Status): EvaluationQueryProps => {
+    const GET_EVALUATIONS = gql`
+        query($status: Status!) {
+            evaluations(where: { status: { eq: $status } }) {
+                ...EvaluationDashboardFields
+            }
+        }
+        ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
+    `
+
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { status } })
 
     return {
         loading,

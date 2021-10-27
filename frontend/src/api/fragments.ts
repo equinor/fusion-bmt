@@ -33,6 +33,30 @@ export const EVALUATION_FIELDS_FRAGMENT = gql`
     }
 `
 
+export const EVALUATION_DASHBOARD_FIELDS_FRAGMENT = gql`
+    fragment EvaluationDashboardFields on Evaluation {
+        id
+        name
+        progression
+        createDate
+        status
+        questions {
+            id
+            barrier
+            answers {
+                id
+                severity
+                progression
+            }
+            actions {
+                id
+                dueDate
+                completed
+            }
+        }
+    }
+`
+
 export const ANSWER_FIELDS_FRAGMENT = gql`
     fragment AnswerFields on Answer {
         id
