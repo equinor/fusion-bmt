@@ -333,7 +333,7 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
 function checkForError(body: any) {
     if (body.hasOwnProperty('errors')) {
         let errorMsg = ''
-        for (let el = 0; el < body.errors.length; el++) {
+        for (let el: number = 0; el < body.errors.length; el++) {
             errorMsg += body.errors[el].message
         }
         throw new Error(errorMsg)
