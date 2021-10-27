@@ -209,7 +209,9 @@ export class EditActionDialog extends ActionDialog {
     assertEditActionDisabled = (seed: EvaluationSeed) => {
         this.titleInput().should('be.disabled')
         this.assignedToInput().click()
-        const participantList = seed.participants.map(p => { return p.user.name })
+        const participantList = seed.participants.map(p => {
+            return p.user.name
+        })
         participantList.forEach(participantName => {
             cy.get('section').contains(participantName).should('be.disabled')
         })
@@ -235,4 +237,12 @@ export const mapPriority = (priority: Priority) => {
         case Priority.High:
             return 'High'
     }
+}
+
+export const editAction = (action: Action, actionNotes: Note[], updatedAction: Action, newNotes: Note[]) => {
+    const editActionDialog = new EditActionDialog()
+    editActionDialog.assertActionValues(action, actionNotes)
+    editActionDialog.editAction(updatedAction, newNotes, actionNotes.length)
+    editActionDialog.assertNotesValues(actionNotes.concat(newNotes))
+    editActionDialog.close()
 }
