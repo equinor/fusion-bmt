@@ -24,7 +24,7 @@ System_Boundary(bmt, "Barrier Management Tool") {
     ContainerDb(database, "Database", "SQL Database", "Question sets, answers, actions and more", database)
 }
 
-System_Ext(fusionAuth, "Fusion Auth", "Fusion authentication & authorization service.")
+System_Ext(azureAD, "Azure AD", "Azure authentication & authorization service.")
 System_Ext(fusionProject, "Fusion Project", "Fusion project information service.")
 
 Rel(admin, frontend, "Configures evaluation setup")
@@ -35,7 +35,7 @@ Rel(participant, frontend, "Answers questions")
 Rel(frontend, backend, "Makes API call to","async, JSON/HTTPS")
 Rel(backend, database, "Makes DB call to","LINQ")
 
-Rel_L(frontend, fusionAuth, Authenticates users)
+Rel_L(frontend, azureAD, Authenticate  user)
 Rel_R(frontend, fusionProject, Read project info)
 
 @enduml
