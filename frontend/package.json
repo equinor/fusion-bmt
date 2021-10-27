@@ -24,7 +24,7 @@
     "icon": "../docs/app-icon.svg",
     "dependencies": {
         "@apollo/client": "^3.4.16",
-        "@equinor/eds-core-react": "^0.13.1",
+        "@equinor/eds-core-react": "^0.14.2",
         "@equinor/eds-icons": "^0.7.0",
         "@equinor/eds-tokens": "^0.7.0",
         "@equinor/fusion": "^3.3.0",
@@ -37,6 +37,7 @@
         "react": "^17.0.1"
     },
     "devDependencies": {
+        "@babel/preset-env": "^7.15.8",
         "@equinor/fusion-cli": "^2.4.1",
         "@graphql-codegen/cli": "2.2.1",
         "@graphql-codegen/typescript": "^2.2.4",
