@@ -7,7 +7,7 @@ pr:
 
 pool:
     vmImage: "ubuntu-latest"
-
+name: $(Build.BuildId).$(rev:r)
 jobs:
     - job: Cypress_E2E_Tests
       strategy:
@@ -15,7 +15,6 @@ jobs:
       variables:
           npm_config_cache: $(Pipeline.Workspace)/.npm
       steps:
-
           - task: NodeTool@0
             inputs:
                 versionSpec: "16.x"
@@ -57,7 +56,7 @@ jobs:
                 npm start &
                 sleep 5
             env:
-                API_URL: 'http://localhost:5000'
+                API_URL: "http://localhost:5000"
             workingDirectory: "frontend"
             displayName: "Start frontend"
 
@@ -66,7 +65,7 @@ jobs:
                 --env FRONTEND_URL=http://localhost:3000,API_URL=http://localhost:5000,AUTH_URL=http://localhost:8080 \
                 --config-file ./cypress.json \
                 --record \
-                --parallel --ci-build-id $BUILD_BUILDNUMBER --group "Azure CI"
+                --parallel --ci-build-id $BUILD_BUILDNUMBER.$(System.JobAttempt) --group "Azure CI"
             env:
                 # avoid warnings about terminal
                 TERM: xterm
