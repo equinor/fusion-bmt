@@ -4,13 +4,13 @@ import { SeverityCount } from '../utils/Severity'
 
 export const findCorrectAnswer = (question: Question, viewProgression: Progression, useFacilitatorAnswer: boolean, participant: Participant | undefined) => {
     const answers = question.answers.filter(a => a.progression === viewProgression)
-    if (!participant) {
-        return undefined
-    }
 
     if (useFacilitatorAnswer) {
         return answers.find(a => a.answeredBy?.role === Role.Facilitator)
     } else {
+        if (!participant) {
+            return undefined
+        }
         return answers.find(a => a.answeredBy?.azureUniqueId === participant.azureUniqueId)
     }
 }
