@@ -301,7 +301,7 @@ describe('Admin page', () => {
                 adminPage.questionTemplateMenu().click()
                 adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
                 adminPage.projectCategorySelectorButton(temoplateNo).click()
-                adminPage.toggleProjectCategoryOnQuestionTemplateSelectBox(temoplateNo, projectCategory).click()
+                adminPage.toggleProjectCategoryOnQuestionTemplateSelectBox(projectCategory).click()
             }
 
             const closeOutSelectProjectCategoryView = () => {
