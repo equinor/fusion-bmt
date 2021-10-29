@@ -2,7 +2,7 @@ ARG dt_tenant
 ARG dt_url
 
 FROM ${dt_url}/e/${dt_tenant}/linux/oneagent-codemodules:all as DYNATRACE_ONEAGENT_IMAGE
-FROM node:slim as build
+FROM node:lts-slim as build
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ COPY --from=DYNATRACE_ONEAGENT_IMAGE / /
 ENV LD_PRELOAD /opt/dynatrace/oneagent/agent/lib64/liboneagentproc.so
 ENV DT_TAGS=SHELLVIS
 
-FROM node:slim
+FROM node:lts-slim
 WORKDIR /app
 COPY --from=build /app ./
 EXPOSE 3000
