@@ -70,13 +70,6 @@ spec:
         ASPNETCORE_ENVIRONMENT: "Development"
       environmentConfig:
         - environment: qa
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "100m"
-            limits:
-              memory: "1000Mi"
-              cpu: "1000m"
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
         - environment: prod
@@ -102,17 +95,32 @@ spec:
         - name: http
           port: 5000
       publicPort: http
+      variables:
+        ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
+        ASPNETCORE_ENVIRONMENT: "Development"
       environmentConfig:
         - environment: dev
           imageTagName: ci-release
         - environment: pr
           imageTagName: pr-release
-        - environment: prod
-          imageTagName: prod-release
-          replicas: 0
         - environment: qa
           imageTagName: qa-release
-          replicas: 0
+          variables:
+            ASPNETCORE_ENVIRONMENT: "Production"
+        - environment: prod
+          imageTagName: prod-release
+          resources:
+            requests:
+              memory: "700Mi"
+              cpu: "500m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
+          horizontalScaling:
+            minReplicas: 2
+            maxReplicas: 6
+          variables:
+            ASPNETCORE_ENVIRONMENT: "Production"
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString
@@ -127,32 +135,22 @@ spec:
         APP_INSIGHTS_KEY: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
       environmentConfig:
         - environment: dev
-          imageTagName: release
-          variables:
-            API_URL: "https://backend-fusion-bmt-dev.radix.equinor.com"
+          imageTagName: ci-release
           resources:
             requests:
               memory: "300Mi"
               cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
         - environment: pr
-          imageTagName: release
-          variables:
-            API_URL: "https://backend-fusion-bmt-pr.radix.equinor.com"
+          imageTagName: pr-release
           resources:
             requests:
               memory: "300Mi"
               cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
-        - environment: prod
-          imageTagName: release
-          replicas: 0
         - environment: qa
-          imageTagName: release
+          imageTagName: qa-release
+          replicas: 0
+        - environment: prod
+          imageTagName: prod-release
           replicas: 0
 
   dnsAppAlias:
