@@ -181,9 +181,9 @@ namespace api.Services
             return template;
         }
 
-        public QuestionTemplate RemoveFromProjectCategory(
+        public QuestionTemplate RemoveFromProjectCategories(
             string questionTemplateId,
-            string projectCategoryId
+            List<string> projectCategoryIds
         )
         {
             var template = _context.QuestionTemplates
@@ -191,17 +191,21 @@ namespace api.Services
                 .Single(x => x.Id == questionTemplateId)
             ;
 
-            var projectCategory = _context.ProjectCategories
-                .Single(x => x.Id == projectCategoryId)
-            ;
-
-            if (!template.ProjectCategories.Contains(projectCategory))
+            foreach (var id in projectCategoryIds)
             {
-                string msg = "QuestionTemplate is not in ProjectCategory";
-                throw new Exception(msg);
+                var projectCategory = _context.ProjectCategories
+                    .Single(x => x.Id == id)
+                ;
+
+                if (!template.ProjectCategories.Contains(projectCategory))
+                {
+                    string msg = "QuestionTemplate is not in ProjectCategory";
+                    throw new Exception(msg);
+                }
+
+                template.ProjectCategories.Remove(projectCategory);
             }
 
-            template.ProjectCategories.Remove(projectCategory);
             _context.SaveChanges();
             return template;
         }

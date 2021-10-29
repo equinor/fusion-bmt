@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using HotChocolate.AspNetCore.Authorization;
@@ -397,12 +398,12 @@ namespace api.GQL
         }
 
         [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate RemoveFromProjectCategory(
+        public QuestionTemplate RemoveFromProjectCategories(
             string questionTemplateId,
-            string projectCategoryId
+            List<string> projectCategoryIds
         )
         {
-            return _questionTemplateService.RemoveFromProjectCategory(questionTemplateId, projectCategoryId);
+            return _questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
         }
 
         /* Helpers */
