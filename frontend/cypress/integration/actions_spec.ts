@@ -313,6 +313,25 @@ describe('Actions management', () => {
             }, fusionProject1.id)
         })
 
+        it(`Complete action by ${roleThatCanComplete} on ${randomProgression}
+            then verify that completed action is not editable`, () => {
+            let user = seed.findParticipantByRole(roleThatCanComplete).user
+            cy.visitProgression(randomProgression, seed.evaluationId, user, fusionProject1.id)
+            ;({ actionNotes, action } = findActionWithNotes(seed))
+            ;({ updatedAction, newNote } = createCompleteAction(user, action))
+
+            actionsGrid.actionLink(action.questionOrder, action.title).click()
+
+            editActionDialog.assertCompletedInView(action.completed)
+
+            editActionDialog.completeActionButton().click()
+            editActionDialog.assertCompleteConfirmViewVisible(true)
+            editActionDialog.completedReasonInput().replace(newNote.text)
+            editActionDialog.completeActionConfirmButton().click()
+
+            editActionDialog.assertEditActionDisabled(seed)
+        })
+
         it(`Cancel complete action by ${roleThatCanComplete} on ${randomProgression}
             then verify action was not completed`, () => {
             cy.visitProgression(

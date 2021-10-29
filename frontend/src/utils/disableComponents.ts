@@ -8,8 +8,8 @@ import {
     participantCanProgressEvaluation,
 } from './RoleBasedAccess'
 
-export const disableActionEdit = (isEditingFromDashboard: boolean, participant: Participant | undefined, isVoided: boolean) => {
-    if (isVoided) {
+export const disableActionEdit = (isEditingFromDashboard: boolean, participant: Participant | undefined, action: Action) => {
+    if (action.isVoided || action.completed) {
         return true
     }
     if (isEditingFromDashboard) {

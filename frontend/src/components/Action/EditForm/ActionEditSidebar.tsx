@@ -137,7 +137,7 @@ const ActionEditSidebar = ({
                         isClosingRemarkSaved={isClosingRemarkSaved}
                         apiErrorClosingRemark={apiErrorClosingRemark}
                         apiErrorAction={apiErrorAction}
-                        disableEditAction={disableActionEdit(isEditingFromDashboard, participant, action.isVoided)}
+                        disableEditAction={disableActionEdit(isEditingFromDashboard, participant, action)}
                     />
                     {apiErrorAction && (
                         <div style={{ marginTop: 20 }}>
@@ -153,7 +153,7 @@ const ActionEditSidebar = ({
                         text={note}
                         onChange={onChangeNote}
                         onCreateClick={onCreateNote}
-                        disabled={isNoteSaving || disableActionEdit(isEditingFromDashboard, participant, action.isVoided)}
+                        disabled={isNoteSaving || disableActionEdit(isEditingFromDashboard, participant, action)}
                     />
                     <NotesAndClosingRemarksList notesAndClosingRemarks={notesAndClosingRemarks} participantsDetails={personDetailsList} />
                 </div>
