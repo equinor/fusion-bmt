@@ -14,7 +14,7 @@ pool:
     vmImage: "ubuntu-latest"
 
 stages:
-    - stage: buildfrontendapp
+    - stage: Build_Frontend_App
       displayName: "Build Frontend App"
       jobs:
           - job: "Deploy_Fusion_BMT"
@@ -50,8 +50,8 @@ stages:
                       targetPath: "$(Pipeline.Workspace)/s/frontend/out/bmt.zip"
                       artifactName: FusionBMT
 
-    - stage: buildbackendcontainer
-      displayName: "Build Backend Container with OneAgent"
+    - stage: Build_Backend_Container
+      displayName: "Build Backend"
       dependsOn: []
       jobs:
           - job: "BuildimageandpushtoACR"
@@ -74,11 +74,9 @@ stages:
                       containerRegistry: "BMT Registry"
                       repository: "backend"
                       command: "push"
-                      tags: |
-                          $(Build.BuildId)
-                          release
+                      tags: $(Build.BuildId)
 
-    - stage: buildfrontendcontainer
+    - stage: Build_Frontend_Container
       displayName: "Build frondendcontainer with OneAgent"
       dependsOn: []
       jobs:
@@ -110,14 +108,14 @@ stages:
                           $(Build.BuildId)
                           release
 
-    - stage: deployfrontendci
+    - stage: Deploy_Frontend_CI
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - buildfrontendapp
-          - buildbackendcontainer
-          - buildfrontendcontainer
+          - Build_Frontend_App
+          - Build_Backend_Container
+          - Build_Frontend_Container
       displayName: "Deploy CI Frontend"
       jobs:
-          - deployment: "DeployCIFrontend"
+          - deployment: "Deploy_CI_Frontend_App"
             environment: CI
             strategy:
                 runOnce:
@@ -147,30 +145,77 @@ stages:
                                   appKey: "bmt"
                                   tokenResource: "$(tokenResource)"
                                   forceReplaceExisting: true
+          - deployment: "Update_CI_Tags_Frontend"
+            environment: CI
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - task: Docker@2
+                              inputs:
+                                  containerRegistry: "BMT Registry"
+                                  command: "login"
+                            - task: PowerShell@2
+                              inputs:
+                                  targetType: "inline"
+                                  script: |
+                                      $sourceImage= "fusionbmt.azurecr.io/frontend:" +$(Build.BuildId)
+                                      $newtag= "fusionbmt.azurecr.io/frontend:ci-release"
+                                      docker pull $sourceImage
+                                      docker tag $sourceImage $newtag
+                                      docker push $newtag
 
-    - stage: deploybackendci
+    - stage: Deploy_Backend_CI
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - buildfrontendapp
-          - buildbackendcontainer
-          - buildfrontendcontainer
+          - Build_Frontend_App
+          - Build_Backend_Container
+          - Build_Frontend_Container
       displayName: "Deploy CI Backend"
-
       jobs:
-          - deployment: "DeployCIFrontend"
+          - deployment: "Update_CI_Tags_Backend"
             environment: CI
             strategy:
                 runOnce:
                     deploy:
                         steps:
-                            - task: DownloadPipelineArtifact@2
+                            - task: Docker@2
                               inputs:
-                                  artifact: FusionBMT
+                                  containerRegistry: "BMT Registry"
+                                  command: "login"
+                            - task: PowerShell@2
+                              inputs:
+                                  targetType: "inline"
+                                  script: |
+                                      $sourceImage= "fusionbmt.azurecr.io/backend:" +$(Build.BuildId)
+                                      $newtag= "fusionbmt.azurecr.io/backend:ci-release"
+                                      docker pull $sourceImage
+                                      docker tag $sourceImage $newtag
+                                      docker push $newtag
+          - job: Trigger_Radix_CI_Deploy_Backend
+            displayName: Trigger Radix CI Backend Deploy
+            dependsOn: Update_CI_Tags_Backend
+            pool: server
+            steps:
+                - task: InvokeRESTAPI@1
+                  inputs:
+                      connectionType: "connectedServiceName"
+                      serviceConnection: "radix"
+                      method: "POST"
+                      headers: |
+                          {
+                          "Content-Type":"application/json",
+                          "Authorization": "Bearer $(RadixToken)"
+                          }
+                      body: '{"toEnvironment": "cicd",  "triggeredBy": "$(Build.BuildId)"}'
+                      urlSuffix: "api/v1/applications/fusion-bmt/pipelines/deploy"
+                      waitForCompletion: "false"
+                      successCriteria: eq(root['status'], 'Waiting')
 
-    - stage: deployfrontendqa
+    - stage: Deploy_Frontend_QA
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - deployfrontendci
-          - deploybackendci
-      displayName: "Deploy QA Frontend"
+          - Deploy_Frontend_CI
+          - Deploy_Backend_CI
+      displayName: "Deploy Frontend QA"
       jobs:
           - deployment: "DeployQAFrontend"
             environment: QA
@@ -185,7 +230,7 @@ stages:
                               displayName: "Deploy frontend"
                               inputs:
                                   fusionCredentials: "Fusion BMT"
-                                  portalUrl: "https://pro-s-portal-qa.azurewebsites.net"
+                                  portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
                                   action: "Deploy"
                                   appKey: "bmt"
                                   bundlePath: "$(Agent.BuildDirectory)/bmt.zip"
@@ -197,37 +242,64 @@ stages:
                               displayName: "Publish frontend"
                               inputs:
                                   fusionCredentials: "Fusion BMT"
-                                  portalUrl: "https://pro-s-portal-qa.azurewebsites.net"
+                                  portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
                                   action: "Publish"
                                   appKey: "bmt"
                                   tokenResource: "$(tokenResource)"
                                   forceReplaceExisting: true
 
-    - stage: deploybackendqa
+    - stage: Deploy_Backend_QA
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - deployfrontendci
-          - deploybackendci
-
+          - Deploy_Frontend_CI
+          - Deploy_Backend_CI
       displayName: "Deploy QA Backend"
-
       jobs:
-          - deployment: "DeployQAFrontend"
+          - deployment: "Update_QA_Tags_Backend"
             environment: QA
             strategy:
                 runOnce:
                     deploy:
                         steps:
-                            - task: DownloadPipelineArtifact@2
+                            - task: Docker@2
                               inputs:
-                                  artifact: FusionBMT
+                                  containerRegistry: "BMT Registry"
+                                  command: "login"
+                            - task: PowerShell@2
+                              inputs:
+                                  targetType: "inline"
+                                  script: |
+                                      $sourceImage= "fusionbmt.azurecr.io/backend:" +$(Build.BuildId)
+                                      $newtag= "fusionbmt.azurecr.io/backend:qa-release"
+                                      docker pull $sourceImage
+                                      docker tag $sourceImage $newtag
+                                      docker push $newtag
+          - job: Trigger_Radix_QA_Deploy
+            displayName: Trigger Radix QA Backend Deploy
+            dependsOn: Update_QA_Tags_Backend
+            pool: server
+            steps:
+                - task: InvokeRESTAPI@1
+                  inputs:
+                      connectionType: "connectedServiceName"
+                      serviceConnection: "radix"
+                      method: "POST"
+                      headers: |
+                          {
+                          "Content-Type":"application/json",
+                          "Authorization": "Bearer $(RadixToken)"
+                          }
+                      body: '{"toEnvironment": "qa",  "triggeredBy": "$(Build.BuildId)"}'
+                      urlSuffix: "api/v1/applications/fusion-bmt/pipelines/deploy"
+                      waitForCompletion: "false"
+                      successCriteria: eq(root['status'], 'Waiting')
 
-    - stage: deployfrontendprod
+    - stage: Deploy_Frontend_Prod
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - deployfrontendqa
-          - deploybackendqa
+          - Deploy_Frontend_QA
+          - Deploy_Backend_QA
       displayName: "Deploy Prod Frontend"
       jobs:
-          - deployment: "DeployProdFrontend"
+          - deployment: "Deploy_Prod_Frontend"
             environment: Production
             strategy:
                 runOnce:
@@ -252,25 +324,49 @@ stages:
                               displayName: "Publish frontend"
                               inputs:
                                   fusionCredentials: "Fusion BMT"
-                                  portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
+                                  portalUrl: "https://pro-s-portal-prod.azurewebsites.net"
                                   action: "Publish"
                                   appKey: "bmt"
                                   tokenResource: "$(tokenResource)"
                                   forceReplaceExisting: true
 
-    - stage: deploybackendprod
-      dependsOn:
-          - deployfrontendqa
-          - deploybackendqa
+    - stage: Deploy_Backend_Prod
+      dependsOn: # this stage runs after buildfrontend and buildbackend
+          - Deploy_Frontend_QA
+          - Deploy_Backend_QA
       displayName: "Deploy Prod Backend"
-
       jobs:
-          - deployment: "DeployQAFrontend"
+          - deployment: "Update_Prod_Tags_Backend"
             environment: Production
             strategy:
                 runOnce:
                     deploy:
                         steps:
-                            - task: DownloadPipelineArtifact@2
+                            - task: PowerShell@2
                               inputs:
-                                  artifact: FusionBMT
+                                  targetType: "inline"
+                                  script: |
+                                      $sourceImage= "fusionbmt.azurecr.io/backend:" +$(Build.BuildId)
+                                      $newtag= "fusionbmt.azurecr.io/backend:prod-release"
+                                      docker pull $sourceImage
+                                      docker tag $sourceImage $newtag
+                                      docker push $newtag
+          - job: TriggerRadixCIDeployBackend
+            displayName: Trigger Radix Prod Backend Deploy
+            dependsOn: Update_Prod_Tags_Backend
+            pool: server
+            steps:
+                - task: InvokeRESTAPI@1
+                  inputs:
+                      connectionType: "connectedServiceName"
+                      serviceConnection: "radix"
+                      method: "POST"
+                      headers: |
+                          {
+                          "Content-Type":"application/json",
+                          "Authorization": "Bearer $(RadixToken)"
+                          }
+                      body: '{"toEnvironment": "prod",  "triggeredBy": "$(Build.BuildId)"}'
+                      urlSuffix: "api/v1/applications/fusion-bmt/pipelines/deploy"
+                      waitForCompletion: "false"
+                      successCriteria: eq(root['status'], 'Waiting')
