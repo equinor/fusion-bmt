@@ -23,6 +23,9 @@ jobs:
 
     - job: Build_Frontend
       steps:
+          - task: NodeTool@0
+            inputs:
+                versionSpec: "16.x"
           - task: Npm@1
             inputs:
                 command: "install"
@@ -50,7 +53,7 @@ jobs:
       steps:
           - task: NodeTool@0
             inputs:
-                versionSpec: "15.x"
+                versionSpec: "16.x"
           - task: Npm@1
             name: Install
             inputs:
