@@ -12,7 +12,7 @@ Person(org_lead, "Organization lead", "Is responsible for an organizational area
 Person(participant, "Participant", "Answers questions and takes part in workshop, sharing their knowledge on the state of barriers")
 
 System(bmt, "Barrier Management Tool", "System supporting the evaluation and improvement of barriers")
-System_Ext(fusionAuth, "Fusion Auth", "Fusion authentication & authorization service.")
+System_Ext(azureAD, "Azure AD", "Azure authentication & authorization service.")
 System_Ext(fusionProject, "Fusion Project", "Fusion project information  service.")
 
 Rel(admin, bmt, "Configures evaluation setup")
@@ -20,7 +20,7 @@ Rel(facilitator, bmt,"Elect org lead and facilitates")
 Rel(org_lead, bmt, "Elect participant and answers questions")
 Rel(participant, bmt, "Answers questions")
 
-Rel_L(bmt, fusionAuth, Authenticates users)
+Rel_L(bmt, azureAD, Authenticates users)
 Rel_R(bmt, fusionProject, Read project info)
 
 @enduml
