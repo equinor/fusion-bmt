@@ -40,8 +40,6 @@ spec:
             limits:
               memory: "3000Mi"
               cpu: "1000m"
-          variables:
-            API_URL: "https://backend-fusion-bmt-dev.radix.equinor.com"
         - environment: pr
           resources:
             requests:
@@ -54,8 +52,6 @@ spec:
             API_URL: "https://backend-fusion-bmt-pr.radix.equinor.com"
         - environment: qa
           replicas: 0
-          variables:
-            API_URL: "https://backend-fusion-bmt-qa.radix.equinor.com"
         - environment: prod
           replicas: 0
 
