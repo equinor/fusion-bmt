@@ -16,9 +16,6 @@ spec:
     - name: prod
       build:
         from: prod
-    - name: cicd
-      build:
-        from: cicd
 
   privateImageHubs:
     fusionbmt.azurecr.io:
@@ -61,8 +58,6 @@ spec:
             API_URL: "https://backend-fusion-bmt-qa.radix.equinor.com"
         - environment: prod
           replicas: 0
-        - environment: cicd
-          replicas: 0
 
     - name: backend
       src: backend
@@ -97,8 +92,6 @@ spec:
             maxReplicas: 6
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
-        - environment: cicd
-          replicas:
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString
@@ -110,10 +103,8 @@ spec:
           port: 5000
       publicPort: http
       environmentConfig:
-        - environment: cicd
-          imageTagName: cicd-release
         - environment: dev
-          imageTagName: dev-release
+          imageTagName: ci-release
         - environment: pr
           imageTagName: pr-release
         - environment: prod
@@ -135,17 +126,6 @@ spec:
       variables:
         APP_INSIGHTS_KEY: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
       environmentConfig:
-        - environment: cicd
-          imageTagName: release
-          variables:
-            API_URL: "https://backend-fusion-bmt-cicd.radix.equinor.com"
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "50m"
-            limits:
-              memory: "3000Mi"
-              cpu: "1000m"
         - environment: dev
           imageTagName: release
           variables:
