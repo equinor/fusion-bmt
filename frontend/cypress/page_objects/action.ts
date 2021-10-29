@@ -3,6 +3,7 @@ import { Action, Note } from '../support/testsetup/mocks'
 import { FUSION_DATE_LOCALE } from '../support/helpers/helpers'
 import { Priority } from '../../src/api/models'
 import { SavingState } from '../../src/utils/Variables'
+import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
 
 /**
  * List of actions under every question
@@ -199,6 +200,24 @@ export class EditActionDialog extends ActionDialog {
         this.completedReasonInput().should(completeViewOpen ? 'be.visible' : 'not.exist')
         this.completeActionConfirmButton().should(completeViewOpen ? 'be.visible' : 'not.exist')
         this.completeActionCancelButton().should(completeViewOpen ? 'be.visible' : 'not.exist')
+    }
+
+    /**
+     * Check that an action is not editable
+     * @param seed
+     */
+    assertEditActionDisabled = (seed: EvaluationSeed) => {
+        this.titleInput().should('be.disabled')
+        this.assignedToInput().click()
+        const participantList = seed.participants.map(p => { return p.user.name })
+        participantList.forEach(participantName => {
+            cy.get('section').contains(participantName).should('be.disabled')
+        })
+        this.dueDateInput().should('be.disabled')
+        this.priorityInput().children().eq(0).children().eq(0).should('have.class', 'fc--Select__disabled--TZzty')
+        this.descriptionInput().should('be.disabled')
+        this.notesInput().should('be.disabled')
+        this.addNoteButton().should('be.disabled')
     }
 }
 
