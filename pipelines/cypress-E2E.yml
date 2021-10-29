@@ -1,7 +1,6 @@
 trigger:
     - master
     - cypress
-
 pr:
     - master
 
@@ -19,7 +18,6 @@ jobs:
           - task: NodeTool@0
             inputs:
                 versionSpec: "16.x"
-                displayName: "Install Node.js"
 
           - task: Cache@2
             inputs:

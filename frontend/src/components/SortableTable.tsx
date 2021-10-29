@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react'
 import { Icon, Table } from '@equinor/eds-core-react'
+import { chevron_down, chevron_up } from '@equinor/eds-icons'
 import styled from 'styled-components'
 import { SortDirection } from '../utils/sort'
 
 const { Body, Row, Cell, Head } = Table
 
+Icon.add({ chevron_down, chevron_up })
 const SortIcon = styled(Icon)<{
     name: string
     isSelected: boolean

@@ -108,7 +108,7 @@ export class AdminPage {
     }
 
     projectCategorySelectorButton = (templateNo: number) => {
-        return cy.getByDataTestid('project-category-selector-' + templateNo).next()
+        return cy.getByDataTestid('project-category-selector-' + templateNo)
     }
 
     projectCategoryLabel = (templateNo: number, projectCategory: string) => {
