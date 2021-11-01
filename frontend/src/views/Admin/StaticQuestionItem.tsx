@@ -83,10 +83,10 @@ const StaticQuestionItem = ({
     } = useAddToProjectCategoryMutation()
 
     const {
-        removeFromProjectCategory,
+        removeFromProjectCategories,
         loading: removingFromProjectCategory,
         error: removingFromProjectCategoryError,
-    } = useRemoveFromProjectCategoryMutation()
+    } = useRemoveFromProjectCategoriesMutation()
 
     const {
         deleteQuestionTemplate,
@@ -167,21 +167,32 @@ const StaticQuestionItem = ({
 
     const updateProjectCategories = (selection: string[] | undefined) => {
         if (selection) {
-            const addedItemInSelection = checkIfAddedCategory(selection)
-            const removedItemInSelection = checkIfRemovedCategory(selection)
-
-            if (addedItemInSelection) {
-                addToProjectCategory({
-                    questionTemplateId: question.id,
-                    projectCategoryId: addedItemInSelection.id,
+            if (selection.length === 0) {
+                const ids: string[] = []
+                question.projectCategories.forEach(questionProjectCategory => {
+                    ids.push(questionProjectCategory.id)
                 })
-            }
-
-            if (removedItemInSelection) {
-                removeFromProjectCategory({
+                removeFromProjectCategories({
                     questionTemplateId: question.id,
-                    projectCategoryId: removedItemInSelection.id,
+                    projectCategoryIds: ids,
                 })
+            } else {
+                const addedItemInSelection = checkIfAddedCategory(selection)
+                const removedItemInSelection = checkIfRemovedCategory(selection)
+
+                if (addedItemInSelection) {
+                    addToProjectCategory({
+                        questionTemplateId: question.id,
+                        projectCategoryId: addedItemInSelection.id,
+                    })
+                }
+
+                if (removedItemInSelection) {
+                    removeFromProjectCategories({
+                        questionTemplateId: question.id,
+                        projectCategoryIds: [removedItemInSelection.id],
+                    })
+                }
             }
         }
     }
@@ -313,13 +324,13 @@ const StaticQuestionItem = ({
 
 export default StaticQuestionItem
 
-export interface DataToAddToOrRemoveFromProjectCategory {
+export interface DataToAddToProjectCategory {
     questionTemplateId: string
     projectCategoryId: string
 }
 
 interface AddToProjectCategoryMutationProps {
-    addToProjectCategory: (data: DataToAddToOrRemoveFromProjectCategory) => void
+    addToProjectCategory: (data: DataToAddToProjectCategory) => void
     loading: boolean
     error: ApolloError | undefined
 }
@@ -354,7 +365,7 @@ const useAddToProjectCategoryMutation = (): AddToProjectCategoryMutationProps =>
         },
     })
 
-    const addToProjectCategory = (data: DataToAddToOrRemoveFromProjectCategory) => {
+    const addToProjectCategory = (data: DataToAddToProjectCategory) => {
         addToProjectCategoryApolloFunc({
             variables: { ...data },
         })
@@ -367,16 +378,21 @@ const useAddToProjectCategoryMutation = (): AddToProjectCategoryMutationProps =>
     }
 }
 
-interface RemoveFromProjectCategoryMutationProps {
-    removeFromProjectCategory: (data: DataToAddToOrRemoveFromProjectCategory) => void
+export interface DataToRemoveFromProjectCategories {
+    questionTemplateId: string
+    projectCategoryIds: string[]
+}
+
+interface RemoveFromProjectCategoriesMutationProps {
+    removeFromProjectCategories: (data: DataToRemoveFromProjectCategories) => void
     loading: boolean
     error: ApolloError | undefined
 }
 
-const useRemoveFromProjectCategoryMutation = (): RemoveFromProjectCategoryMutationProps => {
-    const REMOVE_FROM_PROJECT_CATEGORY = gql`
-        mutation RemoveFromProjectCategory($questionTemplateId: String!, $projectCategoryId: String!) {
-            removeFromProjectCategory(questionTemplateId: $questionTemplateId, projectCategoryId: $projectCategoryId) {
+const useRemoveFromProjectCategoriesMutation = (): RemoveFromProjectCategoriesMutationProps => {
+    const REMOVE_FROM_PROJECT_CATEGORIES = gql`
+        mutation RemoveFromProjectCategories($questionTemplateId: String!, $projectCategoryIds: [String]!) {
+            removeFromProjectCategories(questionTemplateId: $questionTemplateId, projectCategoryIds: $projectCategoryIds) {
                 id
                 projectCategories {
                     id
@@ -386,31 +402,16 @@ const useRemoveFromProjectCategoryMutation = (): RemoveFromProjectCategoryMutati
         }
     `
 
-    const [removeFromProjectCategoryApolloFunc, { loading, data, error }] = useMutation(REMOVE_FROM_PROJECT_CATEGORY, {
-        update(cache, mutationResult) {
-            const questionTemplateRemovedFrom = mutationResult.data.removeFromProjectCategory
-            cache.modify({
-                id: cache.identify({
-                    __typename: 'QuestionTemplate',
-                    id: questionTemplateRemovedFrom.id,
-                }),
-                fields: {
-                    projectCategories() {
-                        return questionTemplateRemovedFrom.projectCategories
-                    },
-                },
-            })
-        },
-    })
+    const [removeFromProjectCategoriesApolloFunc, { loading, data, error }] = useMutation(REMOVE_FROM_PROJECT_CATEGORIES)
 
-    const removeFromProjectCategory = (data: DataToAddToOrRemoveFromProjectCategory) => {
-        removeFromProjectCategoryApolloFunc({
+    const removeFromProjectCategories = (data: DataToRemoveFromProjectCategories) => {
+        removeFromProjectCategoriesApolloFunc({
             variables: { ...data },
         })
     }
 
     return {
-        removeFromProjectCategory,
+        removeFromProjectCategories,
         loading,
         error,
     }

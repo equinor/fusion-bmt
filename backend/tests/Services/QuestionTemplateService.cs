@@ -309,19 +309,51 @@ namespace tests
             var nActive = service.ActiveQuestions(projectCategory).Count();
             var nTemplates = service.GetAll().Count();
 
-            var updatedQT = service.RemoveFromProjectCategory(template.Id, projectCategory.Id);
-            var updatedSP = projectCategoryService.Get(projectCategory.Id);
+            var updatedQT = service.RemoveFromProjectCategories(template.Id, new List<string> {projectCategory.Id});
+            var updatedPC = projectCategoryService.Get(projectCategory.Id);
 
-            Assert.False(updatedQT.ProjectCategories.Contains(updatedSP));
-            Assert.False(updatedSP.QuestionTemplates.Contains(updatedQT));
+            Assert.False(updatedQT.ProjectCategories.Contains(updatedPC));
+            Assert.False(updatedPC.QuestionTemplates.Contains(updatedQT));
 
             Assert.Equal(nActive - 1, service.ActiveQuestions(projectCategory).Count());
             Assert.Equal(nTemplates,  service.GetAll().Count());
 
             /* Removing the same QuestionTemplate should fail */
             Assert.Throws<Exception>(() =>
-                service.RemoveFromProjectCategory(template.Id, projectCategory.Id)
+                service.RemoveFromProjectCategories(template.Id, new List<string> {projectCategory.Id})
             );
+        }
+
+        [Fact]
+        public void RemoveFromSeveralProjectCategories()
+        {
+            var projectCategoryService = new ProjectCategoryService(fixture.context);
+            var projectCategory1 = projectCategoryService.Create(Randomize.String());
+            var projectCategory2 = projectCategoryService.Create(Randomize.String());
+            var projectCategoryIds = new List<string> {projectCategory1.Id, projectCategory2.Id};
+
+            var service = new QuestionTemplateService(fixture.context);
+            var template = service.GetAll().First();
+
+            service.AddToProjectCategory(template.Id, projectCategory1.Id);
+            service.AddToProjectCategory(template.Id, projectCategory2.Id);
+
+            var nActiveFirstCategory = service.ActiveQuestions(projectCategory1).Count();
+            var nActiveSecondCategory = service.ActiveQuestions(projectCategory2).Count();
+            var nTemplates = service.GetAll().Count();
+
+            var updatedQT = service.RemoveFromProjectCategories(template.Id, projectCategoryIds);
+            var updatedPC1 = projectCategoryService.Get(projectCategory1.Id);
+            var updatedPC2 = projectCategoryService.Get(projectCategory2.Id);
+
+            Assert.False(updatedQT.ProjectCategories.Contains(updatedPC1));
+            Assert.False(updatedQT.ProjectCategories.Contains(updatedPC2));
+            Assert.False(updatedPC1.QuestionTemplates.Contains(updatedQT));
+            Assert.False(updatedPC2.QuestionTemplates.Contains(updatedQT));
+
+            Assert.Equal(nActiveFirstCategory - 1, service.ActiveQuestions(projectCategory1).Count());
+            Assert.Equal(nActiveSecondCategory - 1, service.ActiveQuestions(projectCategory2).Count());
+            Assert.Equal(nTemplates,  service.GetAll().Count());
         }
     }
 }
