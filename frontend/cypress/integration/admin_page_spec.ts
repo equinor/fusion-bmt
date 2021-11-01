@@ -357,32 +357,30 @@ describe('Admin page', () => {
         then delete all project categories on question template,
         then verify all project categories are deleted on question template`, () => {
             allProjectCategoryNames().then(projectCatArray => {
-                let projCatIdArray: Array<string> = []
+                const projCatIdArray: Array<string> = []
                 projectCatArray.forEach(pCat => {
                     projectCategoryId(pCat).then(projectCatId => {
                         projCatIdArray.push(projectCatId)
                     })
                 })
                 const title = generateRandomString(20)
-                let projectCategories = []
+                let projectCategoryNames = []
                 createNewQuestionTemplate(Barrier.Gm, Organization.All, title, generateRandomString(20), projCatIdArray).then(qtId => {
                     goToAdminTab()
                     cy.contains(title)
                     adminPage.questionNoByTitle(title).then(qNo => {
                         const questionNo = parseInt(Cypress.$(qNo).text())
                         adminPage.allProjectCategories(questionNo).then(pc => {
-                            console.log(pc)
-                            projectCategories = Cypress.$.makeArray(pc).map(el => el.innerText)
-                            console.log(projectCategories)
+                            projectCategoryNames = Cypress.$.makeArray(pc).map(el => el.innerText)
 
-                            projectCategories.forEach(pc => {
+                            projectCategoryNames.forEach(pc => {
                                 cy.getByDataTestid('project-category-' + questionNo + '-' + pc).should('exist')
                             })
                             adminPage.questionTemplateMenu().click()
                             adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
                             adminPage.deleteAllProjectCategories(title)
                             closeOutSelectProjectCategoryView()
-                            projectCategories.forEach(pc => {
+                            projectCategoryNames.forEach(pc => {
                                 cy.getByDataTestid('project-category-' + questionNo + '-' + pc).should('not.exist')
                             })
                         })
@@ -444,12 +442,4 @@ const deleteProjectCategory = (id: string) => {
         const id = res.body.data.deleteProjectCategory.id
         return id
     })
-}
-
-const addToProjectCategory = (questionTemplateId: string, projectCategoryId: string) => {
-    return cy
-        .gql(ADD_TO_PROJECT_CATEGORY, { variables: { questionTemplateId: questionTemplateId, projectCategoryId: projectCategoryId } })
-        .then(res => {
-            console.log(res)
-        })
 }
