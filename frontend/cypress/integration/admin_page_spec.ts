@@ -364,14 +364,14 @@ describe('Admin page', () => {
                     })
                 })
                 const title = generateRandomString(20)
-                let projectCategoryNames = []
+
                 createNewQuestionTemplate(Barrier.Gm, Organization.All, title, generateRandomString(20), projCatIdArray).then(qtId => {
                     goToAdminTab()
                     cy.contains(title)
                     adminPage.questionNoByTitle(title).then(qNo => {
                         const questionNo = parseInt(Cypress.$(qNo).text())
                         adminPage.allProjectCategories(questionNo).then(pc => {
-                            projectCategoryNames = Cypress.$.makeArray(pc).map(el => el.innerText)
+                            const projectCategoryNames = Cypress.$.makeArray(pc).map(el => el.innerText)
 
                             projectCategoryNames.forEach(pc => {
                                 cy.getByDataTestid('project-category-' + questionNo + '-' + pc).should('exist')
