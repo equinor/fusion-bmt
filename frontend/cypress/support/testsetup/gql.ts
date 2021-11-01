@@ -44,6 +44,18 @@ mutation DeleteProjectCategory($projectCategoryId: String!) {
 }
 `
 
+export const ADD_TO_PROJECT_CATEGORY = `
+mutation AddToProjectCategory($questionTemplateId: String!, $projectCategoryId: String!) {
+    addToProjectCategory(questionTemplateId: $questionTemplateId, projectCategoryId: $projectCategoryId) {
+        id
+        projectCategories {
+            id
+            name
+        }
+    }
+}
+`
+
 export const CREATE_QUESTION_TEMPLATE = `
 mutation CreateQuestionTemplate(
     $barrier: Barrier!

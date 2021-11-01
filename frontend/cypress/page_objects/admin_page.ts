@@ -115,6 +115,14 @@ export class AdminPage {
         return cy.getByDataTestid('project-category-' + templateNo + '-' + projectCategory)
     }
 
+    deleteAllProjectCategories = (title: string) => {
+        cy.contains(title)
+            .parent()
+            .within(() => {
+                cy.get('[title="clear"]').click()
+            })
+    }
+
     allProjectCategories = (questionNo: number) => {
         return cy.get(`[data-testid^=project-category-${questionNo}-]`)
     }
