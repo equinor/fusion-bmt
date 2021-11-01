@@ -204,7 +204,7 @@ stages:
                           "Content-Type":"application/json",
                           "Authorization": "Bearer $(RadixToken)"
                           }
-                      body: '{"toEnvironment": "dev",  "triggeredBy": "$(Build.BuildId)"}'
+                      body: '{"branch": "master",  "triggeredBy": "$(Build.BuildId)"}'
                       urlSuffix: "api/v1/applications/fusion-bmt/pipelines/build-deploy"
                       waitForCompletion: "false"
                       successCriteria: eq(root['status'], 'Waiting')
@@ -306,7 +306,7 @@ stages:
                           "Content-Type":"application/json",
                           "Authorization": "Bearer $(RadixToken)"
                           }
-                      body: '{"toEnvironment": "qa",  "triggeredBy": "$(Build.BuildId)"}'
+                      body: '{"branch": "qa",  "triggeredBy": "$(Build.BuildId)"}'
                       urlSuffix: "api/v1/applications/fusion-bmt/pipelines/build-deploy"
                       waitForCompletion: "false"
                       successCriteria: eq(root['status'], 'Waiting')
@@ -404,7 +404,7 @@ stages:
                           "Content-Type":"application/json",
                           "Authorization": "Bearer $(RadixToken)"
                           }
-                      body: '{"toEnvironment": "prod",  "triggeredBy": "$(Build.BuildId)"}'
+                      body: '{"branch": "prod",  "triggeredBy": "$(Build.BuildId)"}'
                       urlSuffix: "api/v1/applications/fusion-bmt/pipelines/build-deploy"
                       waitForCompletion: "false"
                       successCriteria: eq(root['status'], 'Waiting')
