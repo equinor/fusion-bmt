@@ -13,9 +13,6 @@ export type Scalars = {
   DateTime: any;
 };
 
-
-
-
 export type Action = {
   __typename?: 'Action';
   id: Scalars['String'];
@@ -173,7 +170,6 @@ export type ComparableNullableOfDateTimeOffsetOperationFilterInput = {
   lte?: Maybe<Scalars['DateTime']>;
   nlte?: Maybe<Scalars['DateTime']>;
 };
-
 
 export type Evaluation = {
   __typename?: 'Evaluation';
