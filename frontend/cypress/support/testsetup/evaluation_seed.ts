@@ -19,6 +19,7 @@ import {
     GET_QUESTION_TEMPLATES,
     GET_ALL_PROJECT_CATEGORY_NAMES,
     VOID_ACTION,
+    SET_EVALUATION_STATUS,
 } from './gql'
 import { fusionProject1 } from '../mock/external/projects'
 
@@ -29,6 +30,7 @@ type EvaluationSeedInput = {
     projectCategory?: string
     fusionProjectId: string
     namePrefix?: string
+    status?: Status
 }
 
 /**
@@ -62,6 +64,7 @@ export class EvaluationSeed {
     projectId: string = ''
     evaluationId: string = ''
     projectCategory: string
+    status: Status
 
     progression: Progression
     summary: Summary | undefined = undefined
@@ -78,6 +81,7 @@ export class EvaluationSeed {
         projectCategory = 'CircleField',
         fusionProjectId = fusionProject1.id,
         namePrefix = 'Evaluation',
+        status = Status.Active,
     }: EvaluationSeedInput) {
         this.progression = progression
         let participants: Participant[] = []
@@ -101,6 +105,7 @@ export class EvaluationSeed {
         this.projectCategory = projectCategory
         this.fusionProjectId = fusionProjectId
         this.name = evaluationName({ prefix: namePrefix })
+        this.status = status
     }
 
     addParticipant(participant: Participant) {
@@ -318,6 +323,20 @@ const populateDB = (seed: EvaluationSeed, facilitator: Participant) => {
                         variables: {
                             evaluationId: seed.evaluationId,
                             summary: seed.summary!.summary,
+                        },
+                    }).then(res => {
+                        checkForError(res.body)
+                    })
+                })
+            }
+        })
+        .then(() => {
+            if (seed.status !== 'ACTIVE') {
+                cy.login(facilitator.user).then(() => {
+                    cy.gql(SET_EVALUATION_STATUS, {
+                        variables: {
+                            evaluationId: seed.evaluationId,
+                            newStatus: seed.status,
                         },
                     }).then(res => {
                         checkForError(res.body)

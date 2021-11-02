@@ -258,3 +258,11 @@ export const SET_SUMMARY = `
         }
     }
 `
+
+export const SET_EVALUATION_STATUS = `
+    mutation SetEvaluationStatus($evaluationId: String!, $newStatus: Status!) {
+        setEvaluationStatus(evaluationId: $evaluationId, newStatus: $newStatus) {
+            id
+    }
+}
+`
