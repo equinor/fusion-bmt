@@ -1,11 +1,3 @@
-variables:
-    - name: ciApproval
-      value: false
-    - name: qaApproval
-      value: false
-    - name: prodApproval
-      value: false
-
 trigger:
     branches:
         include:
@@ -132,11 +124,10 @@ stages:
     - stage: Deploy_Frontend_CI
       dependsOn:
           - CI_Environment
-      condition: eq(variables.ciApproval, 'true')
       displayName: "Deploy CI Frontend"
       jobs:
           - deployment: "Deploy_CI_Frontend_App"
-            environment: esftest
+            environment: ci-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -166,7 +157,7 @@ stages:
                                   tokenResource: "$(tokenResource)"
                                   forceReplaceExisting: true
           - deployment: "Update_CI_Tags_Frontend"
-            environment: CI
+            environment: ci-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -191,7 +182,7 @@ stages:
       displayName: "Deploy CI Backend"
       jobs:
           - deployment: "Update_CI_Tags_Backend"
-            environment: CI
+            environment: ci-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -235,13 +226,26 @@ stages:
                       waitForCompletion: "false"
                       successCriteria: eq(root['status'], 'Waiting')
 
-    - stage: Deploy_Frontend_QA
+    - stage: QA_Environment
       dependsOn: # this stage runs after buildfrontend and buildbackend
           - Trigger_Radix_BuildDeploy_CI
+      jobs:
+          - deployment: EnableCIEnvironment
+            environment: QA
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - bash: |
+                                  echo '##vso[task.setvariable variable=qaApproval;]true'
+
+    - stage: Deploy_Frontend_QA
+      dependsOn: # this stage runs after buildfrontend and buildbackend
+          - QA_Environment
       displayName: "Deploy Frontend QA"
       jobs:
           - deployment: "DeployQAFrontend"
-            environment: QA
+            environment: qa-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -272,7 +276,7 @@ stages:
                                   forceReplaceExisting: true
 
           - deployment: "Update_QA_Tags_Frontend"
-            environment: QA
+            environment: qa-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -293,11 +297,11 @@ stages:
 
     - stage: Deploy_Backend_QA
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - Trigger_Radix_BuildDeploy_CI
+          - QA_Environment
       displayName: "Deploy Backend QA"
       jobs:
           - deployment: "Update_QA_Tags_Backend"
-            environment: QA
+            environment: qa-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -341,13 +345,26 @@ stages:
                       waitForCompletion: "false"
                       successCriteria: eq(root['status'], 'Waiting')
 
-    - stage: Deploy_Frontend_Prod
+    - stage: Prod_Environment
       dependsOn: # this stage runs after buildfrontend and buildbackend
           - Trigger_Radix_BuildDeploy_QA
+      jobs:
+          - deployment: EnableProdEnvironment
+            environment: Production
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - bash: |
+                                  echo '##vso[task.setvariable variable=prodApproval;]true'
+
+    - stage: Deploy_Frontend_Prod
+      dependsOn: # this stage runs after buildfrontend and buildbackend
+          - Prod_Environment
       displayName: "Deploy Prod Frontend"
       jobs:
           - deployment: "Deploy_Prod_Frontend"
-            environment: Production
+            environment: prod-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -378,7 +395,7 @@ stages:
                                   forceReplaceExisting: true
 
           - deployment: "Update_Prod_Tags_Frontend"
-            environment: Production
+            environment: prod-deploy
             strategy:
                 runOnce:
                     deploy:
@@ -399,11 +416,11 @@ stages:
 
     - stage: Deploy_Backend_Prod
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - Trigger_Radix_BuildDeploy_QA
+          - Prod_Environment
       displayName: "Deploy Prod Backend"
       jobs:
           - deployment: "Update_Prod_Tags_Backend"
-            environment: Production
+            environment: prod-deploy
             strategy:
                 runOnce:
                     deploy:
