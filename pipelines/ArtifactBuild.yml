@@ -1,3 +1,11 @@
+variables:
+    - name: ciApproval
+      value: false
+    - name: qaApproval
+      value: false
+    - name: prodApproval
+      value: false
+
 trigger:
     branches:
         include:
@@ -106,15 +114,29 @@ stages:
                           $(Build.BuildId)
                           release
 
-    - stage: Deploy_Frontend_CI
+    - stage: CI_Environment
       dependsOn: # this stage runs after buildfrontend and buildbackend
           - Build_Frontend_App
           - Build_Backend_Container
           - Build_Frontend_Container
+      jobs:
+          - deployment: EnableCIEnvironment
+            environment: CI
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - bash: |
+                                  echo '##vso[task.setvariable variable=ciApproval;]true'
+
+    - stage: Deploy_Frontend_CI
+      dependsOn:
+          - CI_Environment
+      condition: eq(variables.ciApproval, 'true')
       displayName: "Deploy CI Frontend"
       jobs:
           - deployment: "Deploy_CI_Frontend_App"
-            environment: CI
+            environment: esftest
             strategy:
                 runOnce:
                     deploy:
@@ -165,9 +187,7 @@ stages:
 
     - stage: Deploy_Backend_CI
       dependsOn: # this stage runs after buildfrontend and buildbackend
-          - Build_Frontend_App
-          - Build_Backend_Container
-          - Build_Frontend_Container
+          - CI_Environment
       displayName: "Deploy CI Backend"
       jobs:
           - deployment: "Update_CI_Tags_Backend"
