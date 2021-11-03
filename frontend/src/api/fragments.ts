@@ -40,6 +40,9 @@ export const EVALUATION_DASHBOARD_FIELDS_FRAGMENT = gql`
         progression
         createDate
         status
+        project {
+            fusionProjectId
+        }
         questions {
             id
             barrier

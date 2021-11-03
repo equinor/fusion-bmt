@@ -47,32 +47,96 @@ export const useAllPersonDetailsAsync = (azureUniqueIds: string[]): PersonDetail
     return { personDetailsList, isLoading }
 }
 
-type EvaluationWithPortfolio = {
-    evaluation: Evaluation
-    portfolio: string | undefined
+export type PortfolioByProjectId = {
+    [projectId: string]: string
 }
 
-export const useEvaluationsWithPortfolio = (evaluations: Evaluation[]): EvaluationWithPortfolio[] => {
+export type EvaluationsWithPortfolio = {
+    [key: string]: Evaluation[]
+}
+
+export const noPortfolioKey = 'No portfolio'
+
+export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsWithPortfolio | undefined => {
     const apiClients = useApiClients()
-    const evaluationsWithPortfolio: EvaluationWithPortfolio[] = []
-    useEffect(() => {
+    const [allEvaluationsWithPortfolio, setAllEvaluationsWithPortfolio] = React.useState<EvaluationsWithPortfolio | undefined>(undefined)
+
+    const collectUniqueProjectIds = (evaluations: Evaluation[]) => {
+        const projectIds: string[] = []
         evaluations.forEach(evaluation => {
-            const projectId = evaluation.project.fusionProjectId
-            apiClients.context.getContextAsync(projectId).then(project => {
-                const projectMasterId = project.data.value.projectMasterId
-                if (projectMasterId) {
-                    apiClients.context.queryContextsAsync(projectMasterId, ContextTypes.ProjectMaster).then(projectMaster => {
-                        const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
-                        evaluationsWithPortfolio.push({evaluation, portfolio})
-                    })
-                }
-                else {
-                    evaluationsWithPortfolio.push({evaluation, portfolio: undefined})
+            const projectId: string = evaluation.project && evaluation.project.fusionProjectId
+
+            if (projectId && projectIds.indexOf(projectId) < 0) {
+                projectIds.push(projectId)
+            }
+        })
+        return projectIds
+    }
+
+    const lookupPortfolio = async (projectId: string) => {
+        const project = await apiClients.context.getContextAsync(projectId)
+        const projectMasterId = project.data.value.projectMasterId
+
+        if (projectMasterId) {
+            const projectMaster = await apiClients.context.queryContextsAsync(projectMasterId, ContextTypes.ProjectMaster)
+            const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
+            return portfolio
+        }
+        return ''
+    }
+
+    const assignPortfoliosToId = async (projectIds: string[]) => {
+        const projectIdsWithPortfolios: PortfolioByProjectId = {}
+
+        await Promise.all(
+            projectIds.map(async projectId => {
+                try {
+                    const portfolio = await lookupPortfolio(projectId)
+                    projectIdsWithPortfolios[projectId] = portfolio
+                } catch (err) {
+                    projectIdsWithPortfolios[projectId] = ''
                 }
             })
-        })
+        )
+
+        return projectIdsWithPortfolios
+    }
+
+    useEffect(() => {
+        if (evaluations) {
+            const evaluationsWithPortfolio: EvaluationsWithPortfolio = {
+                [noPortfolioKey]: [],
+            }
+            // Since many evaluations have the same projectId, and thus the same portfolio, we are only doing lookups
+            // on each projectId instead of each evaluation to save loading time
+            const projectIds = collectUniqueProjectIds(evaluations)
+
+            assignPortfoliosToId(projectIds).then(projectIdsWithPortfolios => {
+                evaluations.forEach(evaluation => {
+                    const projectId = evaluation.project && evaluation.project.fusionProjectId
+
+                    if (projectId) {
+                        const portfolio = projectIdsWithPortfolios[projectId]
+
+                        if (portfolio) {
+                            if (evaluationsWithPortfolio[portfolio]) {
+                                evaluationsWithPortfolio[portfolio].push(evaluation)
+                            } else {
+                                evaluationsWithPortfolio[portfolio] = [evaluation]
+                            }
+                        } else {
+                            evaluationsWithPortfolio[noPortfolioKey].push(evaluation)
+                        }
+                    } else {
+                        evaluationsWithPortfolio[noPortfolioKey].push(evaluation)
+                    }
+                })
+                setAllEvaluationsWithPortfolio(evaluationsWithPortfolio)
+            })
+        }
     }, [evaluations])
-    return evaluationsWithPortfolio
+
+    return allEvaluationsWithPortfolio
 }
 
 export const useFilter = <Type>() => {
