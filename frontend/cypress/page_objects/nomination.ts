@@ -2,6 +2,14 @@ import { User } from '../support/mock/external/users'
 import { SideSheet } from '../page_objects/common'
 
 export default class NominationPage {
+    hideEvaluationButton = () => {
+        return cy.contains('Hide from list')
+    }
+
+    makeVisibleEvaluationButton = () => {
+        return cy.contains('Make visible')
+    }
+
     evaluationTitle = () => {
         return cy.get('[data-testid=evaluation_title]')
     }
