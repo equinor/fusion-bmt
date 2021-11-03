@@ -10,6 +10,8 @@ import CreateEvaluationButton from './CreateEvaluationButton'
 import EvaluationsTable from './EvaluationsTable'
 import styled from 'styled-components'
 import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { useEvaluationsWithPortfolio } from '../../../utils/hooks'
+import Portfolios from './Portfolios'
 
 const Chips = styled.div`
     display: flex;
@@ -33,6 +35,7 @@ enum TableSelection {
     User = 'USER',
     Project = 'PROJECT',
     Hidden = 'HIDDEN',
+    Portfolio = 'PORTFOLIO',
 }
 
 const mapTableSelectionToText = (tableSelection: string) => {
@@ -45,6 +48,9 @@ const mapTableSelectionToText = (tableSelection: string) => {
         }
         case 'HIDDEN': {
             return 'Hidden evaluations'
+        }
+        case 'PORTFOLIO': {
+            return 'Portfolios'
         }
     }
 }
@@ -68,23 +74,37 @@ const ProjectDashboardView = ({ project }: Props) => {
     const userTableSelected = selectedProjectTable === TableSelection.User
     const projectTableSelected = selectedProjectTable === TableSelection.Project
     const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden
+    const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
 
     if (!currentUser) {
         return <p>Please log in.</p>
     }
 
-    const { loading: loadingUserEvaluations, evaluations: userEvaluations, error: errorUserEvaluations } = useUserEvaluationsQuery(
-        currentUser.id
-    )
+    const {
+        loading: loadingUserEvaluations,
+        evaluations: userEvaluations,
+        error: errorUserEvaluations,
+    } = useUserEvaluationsQuery(currentUser.id)
+
     const {
         loading: loadingProjectEvaluations,
         evaluations: projectEvaluations,
         error: errorProjectEvaluations,
     } = useProjectEvaluationsQuery(project.id, Status.Active)
 
-    const { loading: loadingHiddenEvaluations, evaluations: hiddenEvaluations, error: errorHiddenEvaluations } = useAllEvaluationsQuery(
-        Status.Voided
-    )
+    const {
+        loading: loadingActiveEvaluations,
+        evaluations: activeEvaluations,
+        error: errorActiveEvaluations,
+    } = useAllEvaluationsQuery(Status.Active)
+
+    const {
+        loading: loadingHiddenEvaluations,
+        evaluations: hiddenEvaluations,
+        error: errorHiddenEvaluations,
+    } = useAllEvaluationsQuery(Status.Voided)
+
+    const allActiveEvaluationsWithPortfolio = useEvaluationsWithPortfolio(activeEvaluations)
 
     if (errorUserEvaluations !== undefined) {
         return (
@@ -106,6 +126,14 @@ const ProjectDashboardView = ({ project }: Props) => {
         return (
             <div>
                 <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorHiddenEvaluations)}`} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    if (errorActiveEvaluations !== undefined) {
+        return (
+            <div>
+                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorActiveEvaluations)}`} onChange={() => {}} />
             </div>
         )
     }
@@ -151,6 +179,12 @@ const ProjectDashboardView = ({ project }: Props) => {
                     {loadingHiddenEvaluations && <CenteredCircularProgress />}
                 </>
             )}
+            {portfoliosSelected && (
+                <>
+                    {allActiveEvaluationsWithPortfolio && <Portfolios evaluationsWithPortfolio={allActiveEvaluationsWithPortfolio} />}
+                    {(loadingActiveEvaluations || !allActiveEvaluationsWithPortfolio) && <CenteredCircularProgress />}
+                </>
+            )}
         </div>
     )
 }
@@ -165,7 +199,7 @@ interface EvaluationQueryProps {
 
 export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
-        query($azureUniqueId: String!) {
+        query ($azureUniqueId: String!) {
             evaluations(where: { participants: { some: { azureUniqueId: { eq: $azureUniqueId } } } }) {
                 ...EvaluationDashboardFields
             }
@@ -184,7 +218,7 @@ export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryP
 
 export const useProjectEvaluationsQuery = (projectId: string, status: Status): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
-        query($projectId: String!, $status: Status!) {
+        query ($projectId: String!, $status: Status!) {
             evaluations(where: { project: { id: { eq: $projectId } }, status: { eq: $status } }) {
                 ...EvaluationDashboardFields
             }
@@ -192,7 +226,12 @@ export const useProjectEvaluationsQuery = (projectId: string, status: Status): E
         ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
     `
 
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId, status } })
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, {
+        variables: {
+            projectId,
+            status,
+        },
+    })
 
     return {
         loading,
@@ -203,7 +242,7 @@ export const useProjectEvaluationsQuery = (projectId: string, status: Status): E
 
 export const useAllEvaluationsQuery = (status: Status): EvaluationQueryProps => {
     const GET_EVALUATIONS = gql`
-        query($status: Status!) {
+        query ($status: Status!) {
             evaluations(where: { status: { eq: $status } }) {
                 ...EvaluationDashboardFields
             }

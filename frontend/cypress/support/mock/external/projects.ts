@@ -40,7 +40,26 @@ export const fusionProject6 = new FusionProject({
     name: 'Broken Coconut',
 })
 
-export const fusionProjects = [fusionProject1, fusionProject2, fusionProject3, fusionProject4, fusionProject5, fusionProject6]
+export const fusionProject7 = new FusionProject({
+    id: '1',
+    name: 'Because backend',
+})
+
+export const fusionProject8 = new FusionProject({
+    id: '2',
+    name: 'Backend made me',
+})
+
+export const fusionProjects = [
+    fusionProject1,
+    fusionProject2,
+    fusionProject3,
+    fusionProject4,
+    fusionProject5,
+    fusionProject6,
+    fusionProject7,
+    fusionProject8,
+]
 
 export function findFusionProjectByID(id: string) {
     return fusionProjects.filter(p => p.id == id)[0]
