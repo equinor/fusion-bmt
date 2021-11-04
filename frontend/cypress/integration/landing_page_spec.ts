@@ -89,7 +89,7 @@ describe('Landing page', () => {
         status: Status.Voided,
     })
 
-    before(() => {
+    before('Plant (load into DB) all evaluations', () => {
         myActiveEvaluationInProject.plant()
         notMyActiveEvaluationInProject.plant()
         myActiveEvaluationNotInProject.plant()
@@ -107,7 +107,7 @@ describe('Landing page', () => {
 
     context(`Dashboard `, () => {
         context('My evaluations (only my evaluations are listed) regardless of status and project', () => {
-            before(() => {
+            before('Log in as user', () => {
                 cy.visitProject(user, fusionProject1.id)
             })
 
@@ -132,7 +132,7 @@ describe('Landing page', () => {
         })
 
         context('Project evaluations (only active evaluation of selected project are listed)', () => {
-            before('', () => {
+            before('Log in as user, go to project evaluations', () => {
                 cy.visitProject(user, fusionProject1.id)
                 cy.contains('Project evaluations').click()
             })
@@ -158,10 +158,12 @@ describe('Landing page', () => {
         })
         context(`For Admin only: Listing of hidden evaluations`, () => {
             it('User with no admin role cannot see hidden evaluations', () => {
+                cy.visitProject(user, fusionProject1.id)
+                cy.contains('Project evaluations').should('exist')
                 cy.get('[role="button"').contains('Hidden evaluations').should('not.exist')
             })
             context('This context', () => {
-                before('before ', () => {
+                before('Log in as admin ', () => {
                     cy.visitProject(adminUser, fusionProject1.id)
                 })
                 evaluations.forEach(t => {
@@ -177,7 +179,7 @@ describe('Landing page', () => {
     })
 
     context('Actions', () => {
-        before('', () => {
+        before('Log in as user, go to actions table', () => {
             cy.visitProject(user, fusionProject1.id)
             cy.get('button').contains('Actions').click()
         })
@@ -212,7 +214,7 @@ describe('Landing page', () => {
     })
 
     context('Page navigation', () => {
-        beforeEach('', () => {
+        beforeEach('Log in as user', () => {
             cy.visitProject(user, fusionProject1.id)
         })
         it('User can navigate to Actions tab from Dashboard', () => {
