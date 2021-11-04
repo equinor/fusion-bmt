@@ -162,15 +162,15 @@ describe('Landing page', () => {
                 cy.contains('Project evaluations').should('exist')
                 cy.get('[role="button"').contains('Hidden evaluations').should('not.exist')
             })
-            context('This context', () => {
+            context('Hidden evaluations are listed under Hidden evaluations tab', () => {
                 before('Log in as admin ', () => {
                     cy.visitProject(adminUser, fusionProject1.id)
+                    cy.get('[role="button"').contains('Hidden evaluations').click()
                 })
                 evaluations.forEach(t => {
                     it(`Evaluation with state ${t.evaluation.status} in ${t.inProject ? 'selected' : ' different'} project (id=${
                         t.evaluation.fusionProjectId
                     }) ${t.hidden ? 'is listed' : 'is not listed '}`, () => {
-                        cy.get('[role="button"').contains('Hidden evaluations').click()
                         t.hidden ? cy.contains(t.evaluation.name).should('exist') : cy.contains(t.evaluation.name).should('not.exist')
                     })
                 })
