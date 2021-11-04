@@ -1,6 +1,14 @@
 import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard, Button, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
+import {
+    PersonCard,
+    Button,
+    SearchableDropdown,
+    SearchableDropdownOption,
+    Spinner,
+    ModalSideSheet,
+    ApplicationGuidanceAnchor,
+} from '@equinor/fusion-components'
 
 import { Organization, Role, Participant } from '../../../api/models'
 import { useEffect } from 'react'

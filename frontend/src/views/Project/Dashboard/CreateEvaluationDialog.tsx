@@ -1,13 +1,7 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import {
-    Button,
-    ModalSideSheet,
-    SearchableDropdown,
-    SearchableDropdownOption,
-    TextArea,
-} from '@equinor/fusion-components'
+import { Button, ModalSideSheet, SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
 import { useProject } from '../../../globals/contexts'
@@ -20,21 +14,13 @@ interface CreateEvaluationDialogProps {
     onCancelClick: () => void
 }
 
-const CreateEvaluationDialog = ({
-    open,
-    onCreate,
-    onCancelClick,
-}: CreateEvaluationDialogProps) => {
+const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluationDialogProps) => {
     const project = useProject()
     const [nameInputValue, setNameInputValue] = useState<string>('')
     const [inputErrorMessage, setInputErrorMessage] = useState<string>('')
-    const [selectedEvaluation, setSelectedEvaluation] = useState<
-        string | undefined
-    >(undefined)
+    const [selectedEvaluation, setSelectedEvaluation] = useState<string | undefined>(undefined)
 
-    const [selectedProjectCategory, setSelectedProjectCategory] = useState<
-        string | undefined
-    >(undefined)
+    const [selectedProjectCategory, setSelectedProjectCategory] = useState<string | undefined>(undefined)
 
     const handleCreateClick = () => {
         if (nameInputValue.length <= 0) {
@@ -51,17 +37,9 @@ const CreateEvaluationDialog = ({
         setNameInputValue(name)
     }
 
-    const {
-        loading: loadingEvaluationQuery,
-        evaluations,
-        error: errorEvaluationQuery,
-    } = useGetAllEvaluationsQuery(project.id)
+    const { loading: loadingEvaluationQuery, evaluations, error: errorEvaluationQuery } = useGetAllEvaluationsQuery(project.id)
 
-    const {
-        loading: loadingProjectCategoryQuery,
-        projectCategories,
-        error: errorProjectCategoryQuery,
-    } = useGetAllProjectCategoriesQuery()
+    const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
 
     if (loadingEvaluationQuery || loadingProjectCategoryQuery) {
         return <>Loading...</>
@@ -70,10 +48,7 @@ const CreateEvaluationDialog = ({
     if (errorEvaluationQuery !== undefined || evaluations === undefined) {
         return (
             <div>
-                <TextArea
-                    value={apiErrorMessage('Could not load evaluations')}
-                    onChange={() => {}}
-                />
+                <TextArea value={apiErrorMessage('Could not load evaluations')} onChange={() => {}} />
             </div>
         )
     }
@@ -81,30 +56,22 @@ const CreateEvaluationDialog = ({
     if (errorProjectCategoryQuery !== undefined || projectCategories === undefined) {
         return (
             <div>
-                <TextArea
-                    value={apiErrorMessage('Could not load Project Categorie')}
-                    onChange={() => {}}
-                />
+                <TextArea value={apiErrorMessage('Could not load Project Categorie')} onChange={() => {}} />
             </div>
         )
     }
 
-    const projectCategoryOptions: SearchableDropdownOption[] = projectCategories.map(
-        (projectCategory: ProjectCategory) => ({
-            title: projectCategory.name,
-            key: projectCategory.id,
-            isSelected: projectCategory.id == selectedProjectCategory,
-        })
+    const projectCategoryOptions: SearchableDropdownOption[] = projectCategories.map((projectCategory: ProjectCategory) => ({
+        title: projectCategory.name,
+        key: projectCategory.id,
+        isSelected: projectCategory.id == selectedProjectCategory,
+    }))
 
-    )
-
-    const evaluationOptions: SearchableDropdownOption[] = evaluations.map(
-        (evaluation: Evaluation) => ({
-            title: evaluation.name,
-            key: evaluation.id,
-            isSelected: evaluation.id === selectedEvaluation,
-        })
-    )
+    const evaluationOptions: SearchableDropdownOption[] = evaluations.map((evaluation: Evaluation) => ({
+        title: evaluation.name,
+        key: evaluation.id,
+        isSelected: evaluation.id === selectedEvaluation,
+    }))
 
     return (
         <>
@@ -136,9 +103,7 @@ const CreateEvaluationDialog = ({
                             <SearchableDropdown
                                 label="Project Category"
                                 placeholder="Select Project Category"
-                                onSelect={option =>
-                                    setSelectedProjectCategory(option.key)
-                                }
+                                onSelect={option => setSelectedProjectCategory(option.key)}
                                 options={projectCategoryOptions}
                             />
                         </Grid>
@@ -146,9 +111,7 @@ const CreateEvaluationDialog = ({
                             <SearchableDropdown
                                 label="Previous Evaluation (Optional)"
                                 placeholder="Select previous evaluation"
-                                onSelect={option =>
-                                    setSelectedEvaluation(option.key)
-                                }
+                                onSelect={option => setSelectedEvaluation(option.key)}
                                 options={evaluationOptions}
                             />
                         </Grid>
@@ -177,7 +140,7 @@ interface EvaluationsQueryProps {
 
 const useGetAllEvaluationsQuery = (projectId: string): EvaluationsQueryProps => {
     const GET_EVALUATIONS = gql`
-        query($projectId: String!) {
+        query ($projectId: String!) {
             evaluations(where: { project: { id: { eq: $projectId } } }) {
                 id
                 name
@@ -185,10 +148,7 @@ const useGetAllEvaluationsQuery = (projectId: string): EvaluationsQueryProps => 
         }
     `
 
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(
-        GET_EVALUATIONS,
-        { variables: { projectId } }
-    )
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId } })
 
     return {
         loading,
@@ -212,9 +172,7 @@ const useGetAllProjectCategoriesQuery = (): ProjectCategoriesQueryProps => {
             }
         }
     `
-    const { loading, data, error } = useQuery<{ projectCategory: ProjectCategory[] }>(
-        GET_PROJECT_CATEGORY
-    )
+    const { loading, data, error } = useQuery<{ projectCategory: ProjectCategory[] }>(GET_PROJECT_CATEGORY)
 
     return {
         loading,

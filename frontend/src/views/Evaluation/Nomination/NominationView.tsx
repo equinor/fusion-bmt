@@ -2,7 +2,7 @@ import React from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 
 import { Box } from '@material-ui/core'
-import { TextArea } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor, TextArea } from '@equinor/fusion-components'
 import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
 import { useCurrentUser } from '@equinor/fusion'
@@ -103,7 +103,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                         {evaluation.name}
                     </h2>
                     {(participantCanHideEvaluation(participant) || isAdmin) && (
-                        <>
+                        <ApplicationGuidanceAnchor anchor={'nomination-view-hide-from-list'} scope="bmt">
                             <Tooltip title={isVisible ? 'Visible in list' : 'Hidden from list'} placement="bottom">
                                 <Icon data={isVisible ? visibility : visibility_off} style={{ marginRight: '10px' }}></Icon>
                             </Tooltip>
@@ -114,16 +114,18 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                             >
                                 {isVisible ? 'Hide from list' : 'Make visible'}
                             </Button>
-                        </>
+                        </ApplicationGuidanceAnchor>
                     )}
                 </Box>
                 {participantCanProgressEvaluation(participant) && (
                     <Box display={'flex'} alignItems={'center'}>
                         <SaveIndicator savingState={statusSavingState} />
                         <Box ml={2}>
-                            <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
-                                Finish Nomination
-                            </Button>
+                            <ApplicationGuidanceAnchor anchor={'nomination-view-finish-nomination-button'} scope="bmt">
+                                <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
+                                    Finish Nomination
+                                </Button>
+                            </ApplicationGuidanceAnchor>
                         </Box>
                     </Box>
                 )}
