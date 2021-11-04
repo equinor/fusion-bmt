@@ -1,0 +1,32 @@
+parameters:
+    - name: name # defaults for any parameters that aren't specified
+      default: ""
+    - name: radixToken
+    - name: buildId
+    - name: envshortname
+
+stages:
+    - stage: ${{ parameters.name }}
+      displayName: ${{ parameters.name }}
+      dependsOn:
+          - Deploy_Backend_${{ parameters.envshortname }}
+          - Deploy_Frontend_${{ parameters.envshortname }}
+      jobs:
+          - job: Trigger_Radix_Deploy
+            displayName: Trigger Radix Deploy
+            pool: server
+            steps:
+                - task: InvokeRESTAPI@1
+                  inputs:
+                      connectionType: "connectedServiceName"
+                      serviceConnection: "radix"
+                      method: "POST"
+                      headers: |
+                          {
+                          "Content-Type":"application/json",
+                          "Authorization": "Bearer ${{ parameters.radixToken }}"
+                          }
+                      body: '{"branch": "master",  "triggeredBy": "${{ parameters.buildId }}"}'
+                      urlSuffix: "api/v1/applications/fusion-bmt/pipelines/build-deploy"
+                      waitForCompletion: "false"
+                      successCriteria: eq(root['status'], 'Waiting')

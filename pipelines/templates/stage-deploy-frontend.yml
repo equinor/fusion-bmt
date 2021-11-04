@@ -1,0 +1,66 @@
+parameters:
+    - name: name
+    - name: envshortname
+    - name: envfullname
+    - name: dependsOn
+    - name: fusionToken
+    - name: fusionBundlePath
+    - name: portalUrl
+    - name: buildId
+
+stages:
+    - stage: ${{ parameters.name }}
+      dependsOn:
+          - ${{ parameters.dependsOn }}
+      displayName: "Deploy Frontend ${{ parameters.envshortname }}"
+      jobs:
+          - deployment: "Deploy_${{ parameters.envshortname }}_Frontend"
+            environment: ${{ parameters.envfullname }}
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - task: DownloadPipelineArtifact@2
+                              inputs:
+                                  artifact: FusionBMT
+                            - task: FusionApp@2
+                              displayName: "Deploy fusion frontend"
+                              inputs:
+                                  fusionCredentials: "Fusion BMT"
+                                  portalUrl: ${{ parameters.portalUrl }}
+                                  action: "Deploy"
+                                  appKey: "bmt"
+                                  bundlePath: ${{ parameters.fusionBundlePath }}
+                                  tokenResource: ${{ parameters.fusionToken }}
+                                  ignoreVersionConflict: true
+                                  forceReplaceExisting: true
+
+                            - task: FusionApp@2
+                              displayName: "Publish fusion frontend"
+                              inputs:
+                                  fusionCredentials: "Fusion BMT"
+                                  portalUrl: ${{ parameters.portalUrl }}
+                                  action: "Publish"
+                                  appKey: "bmt"
+                                  tokenResource: ${{ parameters.fusionToken }}
+                                  forceReplaceExisting: true
+
+          - deployment: "Update_${{ parameters.envshortname }}_Tags_Frontend"
+            environment: ${{ parameters.envfullname }}
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - task: Docker@2
+                              inputs:
+                                  containerRegistry: "BMT Registry"
+                                  command: "login"
+                            - task: PowerShell@2
+                              inputs:
+                                  targetType: "inline"
+                                  script: |
+                                      $sourceImage= "fusionbmt.azurecr.io/frontend:" + ${{ parameters.buildId }}
+                                      $newtag= "fusionbmt.azurecr.io/frontend:${{ parameters.buildId }}-release"
+                                      docker pull $sourceImage
+                                      docker tag $sourceImage $newtag
+                                      docker push $newtag
