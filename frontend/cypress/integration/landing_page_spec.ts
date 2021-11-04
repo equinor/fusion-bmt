@@ -110,7 +110,7 @@ describe('Landing page', () => {
             cy.visitProject(user, fusionProject1.id)
         })
         context('My evaluations are listed regardless of status and project', () => {
-            it(`All evaluations of user is listed under my evaluations - irrespective of status and project`, () => {
+            it(`All evaluations of user are listed under my evaluations - irrespective of status and project`, () => {
                 cy.get(`[data-testid=project-table]`).within(() => {
                     evaluations.forEach(t => {
                         const evalName = t.evaluation.name
