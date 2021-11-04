@@ -105,25 +105,21 @@ describe('Landing page', () => {
         { evaluation: notMyHiddenEvaluationNotInProject, mine: false, inProject: false, hidden: true },
     ]
 
-    context(`Dashboard `, () => {
+    context(`Dashboard - non admin user `, () => {
+        beforeEach('Log in as user', () => {
+            cy.visitProject(user, fusionProject1.id)
+        })
         context('My evaluations (only my evaluations are listed) regardless of status and project', () => {
-            before('Log in as user', () => {
-                cy.visitProject(user, fusionProject1.id)
-            })
-
-            evaluations.forEach(t => {
-                it(`Evaluation with state ${t.evaluation.status} in ${t.inProject ? 'selected' : ' different'} project (id=${
-                    t.evaluation.fusionProjectId
-                }) that user ${t.mine ? 'participates in is listed' : 'does not participate in is not listed '}`, () => {
-                    const evalName = t.evaluation.name
-                    cy.get(`[data-testid=project-table]`).within(() => {
+            it(`All evaluations of user is listed under my evaluations - irrespective of status and project`, () => {
+                cy.get(`[data-testid=project-table]`).within(() => {
+                    evaluations.forEach(t => {
+                        const evalName = t.evaluation.name
                         t.mine ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
                 })
             })
 
             it('User can open own evaluation of selected project', () => {
-                cy.visitProject(user, fusionProject1.id)
                 const myEvalName = myActiveEvaluationInProject.name
                 cy.contains(myEvalName).click()
                 const evaluationPage = new EvaluationPage()
@@ -132,23 +128,17 @@ describe('Landing page', () => {
         })
 
         context('Project evaluations (only active evaluation of selected project are listed)', () => {
-            before('Log in as user, go to project evaluations', () => {
-                cy.visitProject(user, fusionProject1.id)
+            it('Only active evaluations in selected project are listed under Project evaluations', () => {
                 cy.contains('Project evaluations').click()
-            })
-            evaluations.forEach(t => {
-                it(`Evaluation with state ${t.evaluation.status} in ${t.inProject ? 'selected' : ' different'} project (id=${
-                    t.evaluation.fusionProjectId
-                }) with status ${t.evaluation.status} ${t.inProject ? 'is listed ' : 'is not listed '}`, () => {
-                    const evalName = t.evaluation.name
-                    cy.get(`[data-testid=project-table]`).within(() => {
+                cy.get(`[data-testid=project-table]`).within(() => {
+                    evaluations.forEach(t => {
+                        const evalName = t.evaluation.name
                         t.inProject ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
                 })
             })
 
             it('User can open evaluation user is not part of', () => {
-                cy.visitProject(user, fusionProject1.id)
                 cy.contains('Project evaluations').click()
                 const notMyEvalName = notMyActiveEvaluationInProject.name
                 cy.contains(notMyEvalName).click()
@@ -156,30 +146,26 @@ describe('Landing page', () => {
                 evaluationPage.progressionStepLink(notMyActiveEvaluationInProject.progression).should('be.visible')
             })
         })
-        context(`For Admin only: Listing of hidden evaluations`, () => {
-            it('User with no admin role cannot see hidden evaluations', () => {
-                cy.visitProject(user, fusionProject1.id)
-                cy.contains('Project evaluations').should('exist')
-                cy.get('[role="button"').contains('Hidden evaluations').should('not.exist')
-            })
-            context('Hidden evaluations are listed under Hidden evaluations tab', () => {
-                before('Log in as admin ', () => {
-                    cy.visitProject(adminUser, fusionProject1.id)
-                    cy.get('[role="button"').contains('Hidden evaluations').click()
-                })
-                evaluations.forEach(t => {
-                    it(`Evaluation with state ${t.evaluation.status} in ${t.inProject ? 'selected' : ' different'} project (id=${
-                        t.evaluation.fusionProjectId
-                    }) ${t.hidden ? 'is listed' : 'is not listed '}`, () => {
-                        t.hidden ? cy.contains(t.evaluation.name).should('exist') : cy.contains(t.evaluation.name).should('not.exist')
-                    })
-                })
+    })
+    context(`Dashboard - admin`, () => {
+        it('User with no admin role cannot see hidden evaluations', () => {
+            cy.visitProject(user, fusionProject1.id)
+            cy.contains('Project evaluations').should('exist')
+            cy.get('[role="button"').contains('Hidden evaluations').should('not.exist')
+        })
+
+        it('Hidden evaluations accross all projects are listed under Hidden evaluations tab', () => {
+            cy.visitProject(adminUser, fusionProject1.id)
+            cy.get('[role="button"').contains('Hidden evaluations').click()
+            evaluations.forEach(t => {
+                const evalName = t.evaluation.name
+                t.hidden ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
             })
         })
     })
 
     context('Actions', () => {
-        before('Log in as user, go to actions table', () => {
+        beforeEach('Log in as user, go to actions table', () => {
             cy.visitProject(user, fusionProject1.id)
             cy.get('button').contains('Actions').click()
         })
@@ -187,9 +173,14 @@ describe('Landing page', () => {
         context('Action table', () => {
             const actionTable = new ActionTable()
             it(`Action assigned to user is listed
-            voided/cancelled actions assigned to user are not listed`, () => {
+            voided/cancelled actions assigned to user are not listed
+            actions not assigned to user are not listed`, () => {
                 actionTable.table().within(() => {
                     cy.contains(myActiveEvaluationInProject.actions.find(a => a.assignedTo.user === user)!.title).should('exist')
+                    cy.contains(
+                        myActiveEvaluationInProject.actions.find(a => a.assignedTo.user === user && a.isVoided === true)!.title
+                    ).should('not.exist')
+                    cy.contains(myActiveEvaluationInProject.actions.find(a => a.assignedTo.user !== user)!.title).should('not.exist')
                 })
                 actionTable.table().within(() => {
                     cy.contains(
@@ -197,14 +188,8 @@ describe('Landing page', () => {
                     ).should('not.exist')
                 })
             })
-            it('Action not assigned to user is not listed', () => {
-                actionTable.table().within(() => {
-                    cy.contains(myActiveEvaluationInProject.actions.find(a => a.assignedTo.user !== user)!.title).should('not.exist')
-                })
-            })
+
             it('Verify user can edit his own actions', () => {
-                cy.visitProject(user, fusionProject1.id)
-                cy.get('button').contains('Actions').click()
                 const editActionDialog = new EditActionDialog()
                 actionTable.table().should('be.visible')
                 actionTable.action(myActiveEvaluationInProject.actions[0].title).click({ force: true })
@@ -216,10 +201,6 @@ describe('Landing page', () => {
     context('Page navigation', () => {
         beforeEach('Log in as user', () => {
             cy.visitProject(user, fusionProject1.id)
-        })
-        it('User can navigate to Actions tab from Dashboard', () => {
-            cy.get('button').contains('Actions').click()
-            cy.get(`[data-testid=action-table]`).should('be.visible')
         })
         it('User can navigate to Project evaluations from My evaluations', () => {
             cy.contains('Project evaluations').click()
