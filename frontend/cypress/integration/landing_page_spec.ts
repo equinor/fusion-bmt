@@ -97,29 +97,27 @@ describe('Landing page', () => {
         notMyHiddenEvaluationNotInProject.plant()
     })
 
+    const evaluations = [
+        { evaluation: myActiveEvaluationInProject, mine: true, inProject: true, hidden: false },
+        { evaluation: notMyActiveEvaluationInProject, mine: false, inProject: true, hidden: false },
+        { evaluation: myActiveEvaluationNotInProject, mine: true, inProject: false, hidden: false },
+        { evaluation: myHiddenEvaluationInProject, mine: true, inProject: false, hidden: true },
+        { evaluation: notMyHiddenEvaluationNotInProject, mine: false, inProject: false, hidden: true },
+    ]
+
     context(`Dashboard `, () => {
         context('My evaluations (only my evaluations are listed) regardless of status and project', () => {
             before(() => {
                 cy.visitProject(user, fusionProject1.id)
             })
-            const testdata = [
-                { evaluation: myActiveEvaluationInProject, listed: true },
-                { evaluation: notMyActiveEvaluationInProject, listed: false },
-                { evaluation: myActiveEvaluationNotInProject, listed: true },
-                { evaluation: myHiddenEvaluationInProject, listed: true },
-                { evaluation: notMyHiddenEvaluationNotInProject, listed: false },
-            ]
-            testdata.forEach(t => {
-                it(`Evaluation with state ${t.evaluation.status} in ${
-                    t.evaluation.fusionProjectId === selectedProject.id ? 'selected' : ' different'
-                } project (id=${t.evaluation.fusionProjectId}) that user ${
-                    t.evaluation.participants.find(e => e.user === user)
-                        ? 'participates in is listed'
-                        : 'does not participate in is not listed '
-                }`, () => {
+
+            evaluations.forEach(t => {
+                it(`Evaluation with state ${t.evaluation.status} in ${t.inProject ? 'selected' : ' different'} project (id=${
+                    t.evaluation.fusionProjectId
+                }) that user ${t.mine ? 'participates in is listed' : 'does not participate in is not listed '}`, () => {
                     const evalName = t.evaluation.name
                     cy.get(`[data-testid=project-table]`).within(() => {
-                        t.listed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
+                        t.mine ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
                 })
             })
@@ -138,22 +136,13 @@ describe('Landing page', () => {
                 cy.visitProject(user, fusionProject1.id)
                 cy.contains('Project evaluations').click()
             })
-            const testdata = [
-                { evaluation: myActiveEvaluationInProject, listed: true },
-                { evaluation: notMyActiveEvaluationInProject, listed: true },
-                { evaluation: myActiveEvaluationNotInProject, listed: false },
-                { evaluation: myHiddenEvaluationInProject, listed: false },
-                { evaluation: notMyHiddenEvaluationNotInProject, listed: false },
-            ]
-            testdata.forEach(t => {
-                it(`Evaluation with state ${t.evaluation.status} in ${
-                    t.evaluation.fusionProjectId === selectedProject.id ? 'selected' : ' different'
-                } project (id=${t.evaluation.fusionProjectId}) with status ${t.evaluation.status} ${
-                    t.evaluation.status === Status.Voided ? 'is not listed ' : 'is listed '
-                }`, () => {
+            evaluations.forEach(t => {
+                it(`Evaluation with state ${t.evaluation.status} in ${t.inProject ? 'selected' : ' different'} project (id=${
+                    t.evaluation.fusionProjectId
+                }) with status ${t.evaluation.status} ${t.inProject ? 'is listed ' : 'is not listed '}`, () => {
                     const evalName = t.evaluation.name
                     cy.get(`[data-testid=project-table]`).within(() => {
-                        t.listed ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
+                        t.inProject ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
                     })
                 })
             })
@@ -175,21 +164,12 @@ describe('Landing page', () => {
                 before('before ', () => {
                     cy.visitProject(adminUser, fusionProject1.id)
                 })
-                const testdata = [
-                    { evaluation: myActiveEvaluationInProject, listed: false },
-                    { evaluation: notMyActiveEvaluationInProject, listed: false },
-                    { evaluation: myActiveEvaluationNotInProject, listed: false },
-                    { evaluation: myHiddenEvaluationInProject, listed: true },
-                    { evaluation: notMyHiddenEvaluationNotInProject, listed: true },
-                ]
-                testdata.forEach(t => {
-                    it(`Evaluation with state ${t.evaluation.status} in ${
-                        t.evaluation.fusionProjectId === selectedProject.id ? 'selected' : ' different'
-                    } project (id=${t.evaluation.fusionProjectId}) ${
-                        t.evaluation.status === Status.Voided ? 'is listed' : 'is not listed '
-                    }`, () => {
+                evaluations.forEach(t => {
+                    it(`Evaluation with state ${t.evaluation.status} in ${t.inProject ? 'selected' : ' different'} project (id=${
+                        t.evaluation.fusionProjectId
+                    }) ${t.hidden ? 'is listed' : 'is not listed '}`, () => {
                         cy.get('[role="button"').contains('Hidden evaluations').click()
-                        t.listed ? cy.contains(t.evaluation.name).should('exist') : cy.contains(t.evaluation.name).should('not.exist')
+                        t.hidden ? cy.contains(t.evaluation.name).should('exist') : cy.contains(t.evaluation.name).should('not.exist')
                     })
                 })
             })
