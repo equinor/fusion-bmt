@@ -2,7 +2,7 @@ import React from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
-import { TextArea } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor, TextArea } from '@equinor/fusion-components'
 import { Tabs } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 
@@ -45,9 +45,19 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
         <ProjectContext.Provider value={project}>
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
                 <List>
-                    <Tab>Dashboard</Tab>
-                    <Tab>Actions</Tab>
-                    {isAdmin ? <Tab>Admin</Tab> : <></>}
+                    <ApplicationGuidanceAnchor anchor={'dashboard-tabs-dashboard'} scope="bmt">
+                        <Tab>Dashboard</Tab>
+                    </ApplicationGuidanceAnchor>
+                    <ApplicationGuidanceAnchor anchor={'dashboard-tabs-actions'} scope="bmt">
+                        <Tab>Actions</Tab>
+                    </ApplicationGuidanceAnchor>
+                    {isAdmin ? (
+                        <ApplicationGuidanceAnchor anchor={'dashboard-tabs-admin'} scope="bmt">
+                            <Tab>Admin</Tab>
+                        </ApplicationGuidanceAnchor>
+                    ) : (
+                        <></>
+                    )}
                 </List>
                 <Panels>
                     <StyledTabPanel>

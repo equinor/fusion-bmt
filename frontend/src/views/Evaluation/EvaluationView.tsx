@@ -1,4 +1,4 @@
-import { Step, Stepper } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor, Step, Stepper } from '@equinor/fusion-components'
 import React from 'react'
 import { Evaluation, Progression, Role } from '../../api/models'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'

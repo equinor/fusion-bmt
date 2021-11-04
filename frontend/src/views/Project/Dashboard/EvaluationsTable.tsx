@@ -1,6 +1,7 @@
 import React from 'react'
 import { Icon, Table, Tooltip, Typography } from '@equinor/eds-core-react'
 import { warning_filled } from '@equinor/eds-icons'
+import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
 import { Evaluation, Progression } from '../../../api/models'
 import ProgressStatusIcon from '../../../components/ProgressStatusIcon'
 import { Link } from 'react-router-dom'

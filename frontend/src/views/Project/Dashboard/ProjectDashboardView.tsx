@@ -4,6 +4,7 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { TextArea } from '@equinor/fusion-components'
 import { useCurrentUser } from '@equinor/fusion'
+import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
 
 import { Evaluation, Project, Status } from '../../../api/models'
 import CreateEvaluationButton from './CreateEvaluationButton'
@@ -140,7 +141,9 @@ const ProjectDashboardView = ({ project }: Props) => {
 
     return (
         <div style={{ margin: 20 }}>
-            <CreateEvaluationButton projectId={project.id} />
+            <ApplicationGuidanceAnchor anchor={'dashboard-create-evaluations-button'} scope="bmt">
+                <CreateEvaluationButton projectId={project.id} />
+            </ApplicationGuidanceAnchor>
             <Box marginY={2}>
                 <Typography variant="h2">Evaluations</Typography>
             </Box>
@@ -150,13 +153,14 @@ const ProjectDashboardView = ({ project }: Props) => {
                         return undefined
                     } else {
                         return (
-                            <StyledChip
-                                key={value}
-                                variant={selectedProjectTable === value ? 'active' : 'default'}
-                                onClick={() => setSelectedProjectTable(value)}
-                            >
-                                {mapTableSelectionToText(value)}
-                            </StyledChip>
+                            <ApplicationGuidanceAnchor anchor={'dashboard-evaluations-filter-' + value} scope="bmt" key={value}>
+                                <StyledChip
+                                    variant={selectedProjectTable === value ? 'active' : 'default'}
+                                    onClick={() => setSelectedProjectTable(value)}
+                                >
+                                    {mapTableSelectionToText(value)}
+                                </StyledChip>
+                            </ApplicationGuidanceAnchor>
                         )
                     }
                 })}
