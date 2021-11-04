@@ -109,7 +109,7 @@ describe('Landing page', () => {
         beforeEach('Log in as user', () => {
             cy.visitProject(user, fusionProject1.id)
         })
-        context('My evaluations (only my evaluations are listed) regardless of status and project', () => {
+        context('My evaluations are listed regardless of status and project', () => {
             it(`All evaluations of user is listed under my evaluations - irrespective of status and project`, () => {
                 cy.get(`[data-testid=project-table]`).within(() => {
                     evaluations.forEach(t => {
@@ -181,11 +181,6 @@ describe('Landing page', () => {
                         myActiveEvaluationInProject.actions.find(a => a.assignedTo.user === user && a.isVoided === true)!.title
                     ).should('not.exist')
                     cy.contains(myActiveEvaluationInProject.actions.find(a => a.assignedTo.user !== user)!.title).should('not.exist')
-                })
-                actionTable.table().within(() => {
-                    cy.contains(
-                        myActiveEvaluationInProject.actions.find(a => a.assignedTo.user === user && a.isVoided === true)!.title
-                    ).should('not.exist')
                 })
             })
 
