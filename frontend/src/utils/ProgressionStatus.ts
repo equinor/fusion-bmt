@@ -53,7 +53,9 @@ export const getNextProgression = (progression: Progression): Progression => {
         case Progression.Workshop:
             return Progression.FollowUp
         case Progression.FollowUp:
-            return Progression.FollowUp
+            return Progression.Finished
+        case Progression.Finished:
+            return Progression.Finished
     }
 }
 
@@ -69,5 +71,7 @@ export const getLastProgression = (progression: Progression): Progression => {
             return Progression.Preparation
         case Progression.FollowUp:
             return Progression.Workshop
+        case Progression.Finished:
+            return Progression.FollowUp
     }
 }

@@ -370,7 +370,7 @@ const findActionWithNotes = (seed: EvaluationSeed) => {
 
 const createSeedWithActions = (users: User[], roles: Role[], actionParameters: Partial<Action>) => {
     const seed = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
         users,
         roles,
         fusionProjectId: fusionProject1.id,
@@ -402,12 +402,12 @@ const createActionTestData = (users: User[]) => {
     const assignedToParticipant: Participant = new Participant({
         user: faker.random.arrayElement(users),
         role: faker.random.arrayElement(assignableRoles),
-        progression: faker.random.arrayElement(Object.values(Progression)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
     })
     const createdByParticipant: Participant = new Participant({
         user: faker.random.arrayElement(users),
         role: faker.random.arrayElement(assignableRoles),
-        progression: faker.random.arrayElement(Object.values(Progression)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
     })
     const action = new Action({
         createdBy: createdByParticipant,
@@ -428,7 +428,7 @@ const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Ac
     updatedAction.assignedTo = new Participant({
         user: user,
         role: faker.random.arrayElement(assignableRoles),
-        progression: faker.random.arrayElement(Object.values(Progression)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
     })
     updatedAction.dueDate = faker.date.future()
     updatedAction.priority = faker.random.arrayElement(Object.values(Priority))
@@ -443,7 +443,7 @@ const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Ac
             createdBy: new Participant({
                 user: user,
                 role: faker.random.arrayElement(assignableRoles),
-                progression: faker.random.arrayElement(Object.values(Progression)),
+                progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
             }),
         })
     })
@@ -460,7 +460,7 @@ const createCompleteAction = (user: User, existingAction: Action) => {
         createdBy: new Participant({
             user,
             role: faker.random.arrayElement(assignableRoles),
-            progression: faker.random.arrayElement(Object.values(Progression)),
+            progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
         }),
         typeName: 'ClosingRemark',
     })

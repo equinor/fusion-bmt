@@ -40,6 +40,8 @@ const progressionDialogTexts = (progression: Progression): string => {
     `
         case Progression.FollowUp:
             return `Progressing from ${progressionToString(progression)} will finish this evaluation. `
+        case Progression.Finished:
+            return ``
     }
 }
 

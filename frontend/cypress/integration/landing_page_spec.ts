@@ -16,7 +16,7 @@ describe('Landing page', () => {
     const otherProject = fusionProject4
 
     const myActiveEvaluationInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
         users,
         roles,
         fusionProjectId: selectedProject.id,
@@ -59,21 +59,21 @@ describe('Landing page', () => {
         )
 
     const notMyActiveEvaluationInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
         users: users.slice(0, 2),
         roles: roles.slice(0, 2),
         fusionProjectId: selectedProject.id,
         namePrefix: 'notMyEval',
     })
     const myActiveEvaluationNotInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
         users: users,
         roles: roles,
         fusionProjectId: otherProject.id,
         namePrefix: 'notProjectEval',
     })
     const myHiddenEvaluationInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Nomination)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Nomination && p!== Progression.Finished)),
         users: users,
         roles: roles,
         fusionProjectId: selectedProject.id,
@@ -81,7 +81,7 @@ describe('Landing page', () => {
         status: Status.Voided,
     })
     const notMyHiddenEvaluationNotInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Nomination)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Nomination && p!== Progression.Finished)),
         users: users.slice(0, 2),
         roles: roles.slice(0, 2),
         fusionProjectId: otherProject.id,

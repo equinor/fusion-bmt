@@ -52,6 +52,7 @@ describe('Test Progression', () => {
 
 describe('Test countProgressionStatus', () => {
     it('Counts the correct number of completed', () => {
+        expect(countProgressionStatus(ProgressionStatus.Complete, Progression.Finished)).toBe(5)
         expect(countProgressionStatus(ProgressionStatus.Complete, Progression.FollowUp)).toBe(4)
         expect(countProgressionStatus(ProgressionStatus.Complete, Progression.Workshop)).toBe(3)
         expect(countProgressionStatus(ProgressionStatus.Complete, Progression.Preparation)).toBe(2)
@@ -59,6 +60,7 @@ describe('Test countProgressionStatus', () => {
         expect(countProgressionStatus(ProgressionStatus.Complete, Progression.Nomination)).toBe(0)
     })
     it('Counts the correct number of in progress', () => {
+        expect(countProgressionStatus(ProgressionStatus.InProgress, Progression.Finished)).toBe(1)
         expect(countProgressionStatus(ProgressionStatus.InProgress, Progression.FollowUp)).toBe(1)
         expect(countProgressionStatus(ProgressionStatus.InProgress, Progression.Workshop)).toBe(1)
         expect(countProgressionStatus(ProgressionStatus.InProgress, Progression.Preparation)).toBe(1)
@@ -66,10 +68,11 @@ describe('Test countProgressionStatus', () => {
         expect(countProgressionStatus(ProgressionStatus.InProgress, Progression.Nomination)).toBe(1)
     })
     it('Counts the correct number of awaiting', () => {
-        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.FollowUp)).toBe(0)
-        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Workshop)).toBe(1)
-        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Preparation)).toBe(2)
-        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Individual)).toBe(3)
-        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Nomination)).toBe(4)
+        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Finished)).toBe(0)
+        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.FollowUp)).toBe(1)
+        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Workshop)).toBe(2)
+        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Preparation)).toBe(3)
+        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Individual)).toBe(4)
+        expect(countProgressionStatus(ProgressionStatus.Awaiting, Progression.Nomination)).toBe(5)
     })
 })

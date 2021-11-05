@@ -589,7 +589,8 @@ export enum Progression {
   Individual = 'INDIVIDUAL',
   Preparation = 'PREPARATION',
   Workshop = 'WORKSHOP',
-  FollowUp = 'FOLLOW_UP'
+  FollowUp = 'FOLLOW_UP',
+  Finished = 'FINISHED'
 }
 
 export type ProgressionOperationFilterInput = {

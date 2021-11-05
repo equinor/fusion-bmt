@@ -63,5 +63,7 @@ export const progressionToString = (progression: Progression): string => {
             return 'Workshop Assessment'
         case Progression.FollowUp:
             return 'Follow-up'
+        case Progression.Finished:
+            return 'Finished'
     }
 }
