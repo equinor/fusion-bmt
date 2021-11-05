@@ -1,0 +1,31 @@
+parameters:
+    - name: name
+    - name: envshortname
+    - name: envfullname
+    - name: dependsOn
+    - name: buildId
+stages:
+    - stage: ${{ parameters.name }}
+      dependsOn: # this stage runs after buildfrontend and buildbackend
+          - ${{ parameters.dependsOn }}
+      displayName: "Deploy Backend ${{ parameters.envshortname }}"
+      jobs:
+          - deployment: "Update_Tags_Backend_${{ parameters.envshortname }}"
+            environment: ci-deploy
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - task: Docker@2
+                              inputs:
+                                  containerRegistry: "BMT Registry"
+                                  command: "login"
+                            - task: PowerShell@2
+                              inputs:
+                                  targetType: "inline"
+                                  script: |
+                                      $sourceImage= "fusionbmt.azurecr.io/backend:" +$(Build.BuildId)
+                                      $newtag= "fusionbmt.azurecr.io/backend:${{ parameters.envshortname }}-release"
+                                      docker pull $sourceImage
+                                      docker tag $sourceImage $newtag
+                                      docker push $newtag
