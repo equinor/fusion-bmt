@@ -11,6 +11,7 @@ import {
     DELETE_QUESTION_TEMPLATE,
     CREATE_PROJECT_CATEGORY,
     DELETE_PROJECT_CATEGORY,
+    ADD_TO_PROJECT_CATEGORY,
 } from '../support/testsetup/gql'
 import { organizationToString } from '../../src/utils/EnumToString'
 import { fusionProject1 } from '../support/mock/external/projects'
@@ -303,11 +304,6 @@ describe('Admin page', () => {
                 adminPage.projectCategorySelectorButton(temoplateNo).click()
                 adminPage.toggleProjectCategoryOnQuestionTemplateSelectBox(projectCategory).click()
             }
-
-            const closeOutSelectProjectCategoryView = () => {
-                adminPage.questionTemplateMenu().click()
-                adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
-            }
         })
 
         const testdata = [{ categoryToCopyFrom: 'CircleField' }, { categoryToCopyFrom: undefined }]
@@ -355,8 +351,50 @@ describe('Admin page', () => {
                 })
             })
         })
+        it(`Delete all project catgories from question template with all categories:
+        first create new question template with all project categories,
+        then verify all project categories are present on question template,
+        then delete all project categories on question template,
+        then verify all project categories are deleted on question template`, () => {
+            allProjectCategoryNames().then(projectCatArray => {
+                const projCatIdArray: Array<string> = []
+                projectCatArray.forEach(pCat => {
+                    projectCategoryId(pCat).then(projectCatId => {
+                        projCatIdArray.push(projectCatId)
+                    })
+                })
+                const title = generateRandomString(20)
+
+                createNewQuestionTemplate(Barrier.Gm, Organization.All, title, generateRandomString(20), projCatIdArray).then(qtId => {
+                    goToAdminTab()
+                    cy.contains(title)
+                    adminPage.questionNoByTitle(title).then(qNo => {
+                        const questionNo = parseInt(Cypress.$(qNo).text())
+                        adminPage.allProjectCategories(questionNo).then(pc => {
+                            const projectCategoryNames = Cypress.$.makeArray(pc).map(el => el.innerText)
+
+                            projectCategoryNames.forEach(pc => {
+                                cy.getByDataTestid('project-category-' + questionNo + '-' + pc).should('exist')
+                            })
+                            adminPage.questionTemplateMenu().click()
+                            adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
+                            adminPage.deleteAllProjectCategories(title)
+                            closeOutSelectProjectCategoryView()
+                            projectCategoryNames.forEach(pc => {
+                                cy.getByDataTestid('project-category-' + questionNo + '-' + pc).should('not.exist')
+                            })
+                        })
+                    })
+                })
+            })
+        })
     })
 })
+
+const closeOutSelectProjectCategoryView = () => {
+    adminPage.questionTemplateMenu().click()
+    adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
+}
 
 const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNotes: string, organization: string) => {
     adminPage.editQuestionButton(questionNo).click()
@@ -384,9 +422,12 @@ const createNewQuestionTemplate = (
     organization: Organization,
     text: string,
     supportNotes: string,
-    projectCategoryIds: [string]
+    projectCategoryIds: string[]
 ) => {
-    cy.gql(CREATE_QUESTION_TEMPLATE, { variables: { barrier, organization, text, supportNotes, projectCategoryIds } })
+    return cy.gql(CREATE_QUESTION_TEMPLATE, { variables: { barrier, organization, text, supportNotes, projectCategoryIds } }).then(res => {
+        const id = res.body.data.createQuestionTemplate.id
+        return id
+    })
 }
 
 const createNewProjectCategory = (categoryName: string) => {
