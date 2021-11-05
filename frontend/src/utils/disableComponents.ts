@@ -54,6 +54,10 @@ export const disableAnswer = (participant: Participant | undefined, evaluation: 
         if (viewProgression === Progression.Individual || viewProgression === Progression.Workshop) {
             return participant.role !== Role.Facilitator
         }
+        /* Facilitators can edit answers on FollowUp even if the evaluation is finished */
+        if (viewProgression === Progression.FollowUp && evaluation.progression === Progression.Finished) {
+            return participant.role !== Role.Facilitator
+        }
         return true
     }
     switch (viewProgression) {

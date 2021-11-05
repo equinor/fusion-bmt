@@ -100,7 +100,7 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                 </CellWithBorder>
                 <CellWithBorder>
                     <Centered>
-                        {Object.values(Progression).map(progression => (
+                        {Object.values(Progression).filter(p => p !== Progression.Finished).map(progression => (
                             <Tooltip
                                 key={index + progression}
                                 placement="bottom"

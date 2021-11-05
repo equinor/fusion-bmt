@@ -13,7 +13,7 @@ describe('Workshop Summary', () => {
 
     context('Bowtie model', () => {
         it('User can not see complete date on an incomplete Evaluation', () => {
-            const progression = faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.FollowUp))
+            const progression = faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.FollowUp && p!== Progression.Finished))
             const roles = [Role.Facilitator, Role.Participant]
             seed = new EvaluationSeed({
                 progression,

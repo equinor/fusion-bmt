@@ -1,11 +1,11 @@
 import React from 'react'
 
 import { Box } from '@material-ui/core'
-import { Typography } from '@equinor/eds-core-react'
+import { Button, Typography } from '@equinor/eds-core-react'
 
 import { Barrier, Evaluation, Question, Progression, Severity, Organization } from '../../../api/models'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
-import { barrierToString } from '../../../utils/EnumToString'
+import { barrierToString, progressionToString } from '../../../utils/EnumToString'
 import { useParticipant } from '../../../globals/contexts'
 import SeveritySummary from '../../../components/SeveritySummary'
 import QuestionProgressionFollowUpSidebar from './QuestionProgressionFollowUpSidebar'
@@ -15,15 +15,17 @@ import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
 import { getBarrierAnswers, onScroll } from '../../helpers'
 import { hasSeverity, hasOrganization, toggleFilter } from '../../../utils/QuestionAndAnswerUtils'
-import { disableAnswer } from '../../../utils/disableComponents'
+import { disableAnswer, disableProgression } from '../../../utils/disableComponents'
+import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
 
 const TOP_POSITION_SCROLL_WINDOW = 200
 
 interface FollowUpViewProps {
     evaluation: Evaluation
+    onNextStepClick: () => void
 }
 
-const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
+const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const { filter: severityFilter, onFilterToggled: onSeverityFilterToggled } = useFilter<Severity>()
@@ -116,12 +118,25 @@ const FollowUpView = ({ evaluation }: FollowUpViewProps) => {
                                 questions={barrierQuestions}
                             />
                         </Box>
-                        <Box>
-                            <SeveritySummary
-                                severityCount={countSeverities(barrierAnswers)}
-                                onClick={onSeverityFilterChange}
-                                severityFilter={severityFilter}
-                            />
+                        <Box flexDirection="column">
+                            <Box ml={5}>
+                                <SeveritySummary
+                                    severityCount={countSeverities(barrierAnswers)}
+                                    onClick={onSeverityFilterChange}
+                                    severityFilter={severityFilter}
+                                />
+                            </Box>
+                            <Box flexDirection="row" mt={1} display="flex" justifyContent="flex-end">
+                                {participantCanProgressEvaluation(participant) && (
+                                    <Button
+                                        style={{ marginLeft: '20px' }}
+                                        onClick={onNextStepClick}
+                                        disabled={disableProgression(evaluation, participant, viewProgression)}
+                                    >
+                                        {'Finish ' + progressionToString(viewProgression)}
+                                    </Button>
+                                )}
+                            </Box>
                         </Box>
                     </Box>
                     <QuestionsList

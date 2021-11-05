@@ -19,10 +19,11 @@ interface EvaluationViewProps {
 
 const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParticipant }: EvaluationViewProps) => {
     const allRoles = Object.values(Role)
+    const activeStepKey = evaluation.progression !== Progression.Finished ? evaluation.progression : Progression.FollowUp
 
     return (
         <>
-            <Stepper forceOrder={false} activeStepKey={evaluation.progression} hideNavButtons={true}>
+            <Stepper forceOrder={false} activeStepKey={activeStepKey} hideNavButtons={true}>
                 <Step
                     title={progressionToString(Progression.Nomination)}
                     description={calcProgressionStatus(evaluation.progression, Progression.Nomination)}
@@ -65,9 +66,7 @@ const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParti
                     description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
                     stepKey={Progression.Workshop}
                 >
-                    <WorkshopTabs
-                        evaluation={evaluation}
-                    >
+                    <WorkshopTabs evaluation={evaluation}>
                         <WorkshopView
                             evaluation={evaluation}
                             onNextStepClick={() => onProgressEvaluationClick()}
@@ -80,7 +79,10 @@ const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParti
                     description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                     stepKey={Progression.FollowUp}
                 >
-                    <FollowUpStepView evaluation={evaluation} />
+                    <FollowUpStepView
+                        evaluation={evaluation}
+                        onNextStepClick={() => onProgressEvaluationClick()}
+                    />
                 </Step>
             </Stepper>
         </>

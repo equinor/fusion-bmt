@@ -13,9 +13,10 @@ const { List, Tab, Panels } = Tabs
 
 interface Props {
     evaluation: Evaluation
+    onNextStepClick: () => void
 }
 
-const FollowUpsStepView = ({ evaluation }: Props) => {
+const FollowUpsStepView = ({ evaluation, onNextStepClick }: Props) => {
     const [activeTab, setActiveTab] = React.useState(0)
 
     return (
@@ -29,7 +30,7 @@ const FollowUpsStepView = ({ evaluation }: Props) => {
                 </List>
                 <Panels>
                     <StyledTabPanel>
-                        <FollowUpView evaluation={evaluation} />
+                        <FollowUpView evaluation={evaluation} onNextStepClick={onNextStepClick} />
                     </StyledTabPanel>
                     <StyledTabPanel>
                         <WorkshopSummaryView evaluation={evaluation} />
