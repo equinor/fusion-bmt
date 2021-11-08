@@ -1,5 +1,6 @@
 {
     "chromeWebSecurity": false,
     "projectId": "ry3x7y",
-    "fixturesFolder": false
+    "fixturesFolder": false,
+    "videoUploadOnPasses": false
 }
