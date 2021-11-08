@@ -131,8 +131,21 @@ describe('Actions management', () => {
             then verify revisions were saved in stage ${progressionWhereVerify}`, () => {
                 let user = seed.findParticipantByRole(randomRole).user
                 cy.visitProgression(progressionWhereEdit, seed.evaluationId, user, fusionProject1.id)
-                ;({ actionNotes, action } = findActionWithNotes(seed))
-                ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
+                actionNotes = findActionNotes(seed)
+                action = findActionOfNotes(actionNotes, seed)
+                const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+                updatedAction = createUpdatedAction(
+                    user,
+                    faker.random.arrayElement(assignableRoles),
+                    faker.random.arrayElement(Object.values(Progression)),
+                    action
+                )
+                newNotes = createNewNotes(
+                    user,
+                    faker.random.arrayElement(assignableRoles),
+                    faker.random.arrayElement(Object.values(Progression)),
+                    updatedAction
+                )
 
                 actionsGrid.actionLink(action.questionOrder, action.title).click()
                 editAction(action, actionNotes, updatedAction, newNotes)
@@ -152,15 +165,29 @@ describe('Actions management', () => {
             const rolesThatCanEdit = [Role.Facilitator, Role.Participant, Role.OrganizationLead]
             const randomRole = faker.random.arrayElement(rolesThatCanEdit)
             it(`Edit action by ${randomRole} (from any ${rolesThatCanEdit})
-            verify existing title, assignedTo, dueDate, description, priority, notes, 
+            verify existing title, assignedTo, dueDate, description, priority, notes,
             then revise above fields and add note
             then verify revisions were saved`, () => {
                 let user = seed.findParticipantByRole(randomRole).user
                 cy.visitProgression(Progression.FollowUp, seed.evaluationId, user, fusionProject1.id)
                 followUpTabs.actions().click()
                 actionTable.table().should('be.visible')
-                ;({ actionNotes, action } = findActionWithNotes(seed))
-                ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
+                actionNotes = findActionNotes(seed)
+                action = findActionOfNotes(actionNotes, seed)
+
+                const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+                updatedAction = createUpdatedAction(
+                    user,
+                    faker.random.arrayElement(assignableRoles),
+                    faker.random.arrayElement(Object.values(Progression)),
+                    action
+                )
+                newNotes = createNewNotes(
+                    user,
+                    faker.random.arrayElement(assignableRoles),
+                    faker.random.arrayElement(Object.values(Progression)),
+                    updatedAction
+                )
 
                 actionTable.action(action.title).click({ force: true })
                 editActionDialog.body().should('be.visible')
@@ -374,6 +401,19 @@ describe('Actions management', () => {
     })
 })
 
+const findActionNotes = (seed: EvaluationSeed) => {
+    const note = faker.random.arrayElement(seed.notes)
+    const actionNotes = seed.notes.filter(x => {
+        return (x.action.id = note.action.id)
+    })
+    return actionNotes
+}
+
+const findActionOfNotes = (note: Note[], seed: EvaluationSeed) => {
+    const firstNote = note[0]
+    return seed.actions.find(x => x.id === firstNote.action.id)!
+}
+
 const findActionWithNotes = (seed: EvaluationSeed) => {
     const note = faker.random.arrayElement(seed.notes)
     const actionNotes = seed.notes.filter(x => {
@@ -436,34 +476,34 @@ const createActionTestData = (users: User[]) => {
     return action
 }
 
-const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Action) => {
-    const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+const createUpdatedAction = (user: User, role: Role, progression: Progression, existingAction: Action) => {
     const updatedAction = { ...existingAction }
     updatedAction.title = 'Updated' + generateRandomString(15)
     updatedAction.assignedTo = new Participant({
         user: user,
-        role: faker.random.arrayElement(assignableRoles),
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
+        role: role,
+        progression: progression,
     })
     updatedAction.dueDate = faker.date.future()
     updatedAction.priority = faker.random.arrayElement(Object.values(Priority))
     updatedAction.description = faker.lorem.words()
     updatedAction.completed = !existingAction.completed
     updatedAction.onHold = !existingAction.onHold
-
+    return updatedAction
+}
+const createNewNotes = (user: User, role: Role, progression: Progression, updatedAction: Action) => {
     const newNotes: Note[] = Array.from({ length: faker.datatype.number({ min: 1, max: 3 }) }, () => {
         return new Note({
             text: faker.lorem.words(),
             action: updatedAction,
             createdBy: new Participant({
                 user: user,
-                role: faker.random.arrayElement(assignableRoles),
-                progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
+                role: role,
+                progression: progression,
             }),
         })
     })
-
-    return { updatedAction, newNotes }
+    return newNotes
 }
 
 const createCompleteAction = (user: User, existingAction: Action) => {
