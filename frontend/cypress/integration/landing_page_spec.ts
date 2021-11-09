@@ -8,6 +8,7 @@ import { ActionTable } from '../page_objects/action-table'
 import { EditActionDialog, editAction } from '../page_objects/action'
 import { Action, Note } from '../support/testsetup/mocks'
 import { generateRandomString } from '../support/testsetup/testdata'
+import { ActionTestdata } from '../testdata/actions'
 
 describe('Landing page', () => {
     const users = getUsers(3)
@@ -16,6 +17,7 @@ describe('Landing page', () => {
     const adminUser = getUsers(6)[5]
     const selectedProject = fusionProject1
     const otherProject = fusionProject4
+    const actionTestdata = new ActionTestdata()
 
     const myActiveEvaluationInProject = new EvaluationSeed({
         progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
@@ -192,11 +194,8 @@ describe('Landing page', () => {
                     cy.contains(myActiveEvaluationInProject.actions.find(a => a.assignedTo.user !== user)!.title).should('not.exist')
                 })
             })
-            let actionNotes: Note[]
-            let action: Action
-            let updatedAction: Action
-            let newNotes: Note[]
-            it.only(`Verify user can edit his own actions
+           
+            it(`Verify user can edit his own actions
             verify existing title, assignedTo, dueDate, description, priority, notes, 
             then revise above fields except assignedTo and add note
             then verify revisions were saved`, () => {
@@ -204,12 +203,14 @@ describe('Landing page', () => {
                 cy.get('button').contains('Actions').click()
                 const editActionDialog = new EditActionDialog()
                 actionTable.table().should('be.visible')
-                action = myActiveEvaluationInProject.actions[0]
-                actionNotes = myActiveEvaluationInProject.notes.filter(x => {
+                const action = myActiveEvaluationInProject.actions[0]
+                const actionNotes = myActiveEvaluationInProject.notes.filter(x => {
                     return (x.action.id = action.id)
                 })
-                updatedAction = revisedActionData(action)
-                newNotes = createNewNotes(myActiveEvaluationInProject, updatedAction, user)
+                const updatedAction = actionTestdata.revisedActionData(action, undefined)
+
+                const notesCreator = myActiveEvaluationInProject.participants.find(p => p.user === user)!
+                const newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
                 actionTable.action(myActiveEvaluationInProject.actions[0].title).click({ force: true })
                 editActionDialog.body().should('be.visible')
                 editAction(action, actionNotes, updatedAction, newNotes)
@@ -222,28 +223,6 @@ describe('Landing page', () => {
                     editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
                 }, fusionProject1.id)
             })
-
-            const revisedActionData = (existingAction: Action) => {
-                const updatedAction = { ...existingAction }
-                updatedAction.title = 'Updated' + generateRandomString(15)
-                updatedAction.dueDate = faker.date.future()
-                updatedAction.priority = faker.random.arrayElement(Object.values(Priority))
-                updatedAction.description = faker.lorem.words()
-                updatedAction.completed = !existingAction.completed
-                updatedAction.onHold = !existingAction.onHold
-                return updatedAction
-            }
-
-            const createNewNotes = (seed: EvaluationSeed, action: Action, user: User) => {
-                const newNotes: Note[] = Array.from({ length: faker.datatype.number({ min: 1, max: 3 }) }, () => {
-                    return new Note({
-                        text: faker.lorem.words(),
-                        action: action,
-                        createdBy: seed.participants.find(p => p.user === user)!,
-                    })
-                })
-                return newNotes
-            }
         })
     })
 

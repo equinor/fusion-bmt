@@ -12,6 +12,7 @@ import { fusionProject1 } from '../support/mock/external/projects'
 import FollowUpTabs from '../page_objects/followup'
 import { ActionTable } from '../page_objects/action-table'
 import { generateRandomString } from '../support/testsetup/testdata'
+import { ActionTestdata } from '../testdata/actions'
 
 describe('Actions management', () => {
     const evaluationPage = new EvaluationPage()
@@ -23,6 +24,7 @@ describe('Actions management', () => {
     const dropdownSelect = new DropdownSelect()
     const followUpTabs = new FollowUpTabs()
     const actionTable = new ActionTable()
+    const actionTestdata = new ActionTestdata()
 
     let seed: EvaluationSeed
     const users = getUsers(3)
@@ -134,18 +136,18 @@ describe('Actions management', () => {
                 actionNotes = findActionNotes(seed)
                 action = findActionOfNotes(actionNotes, seed)
                 const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
-                updatedAction = createUpdatedAction(
-                    user,
-                    faker.random.arrayElement(assignableRoles),
-                    faker.random.arrayElement(Object.values(Progression)),
-                    action
-                )
-                newNotes = createNewNotes(
-                    user,
-                    faker.random.arrayElement(assignableRoles),
-                    faker.random.arrayElement(Object.values(Progression)),
-                    updatedAction
-                )
+                const assignedToParticipant = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression)),
+                })
+                updatedAction = actionTestdata.revisedActionData(action, assignedToParticipant)
+                const notesCreator = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression)),
+                })
+                newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
 
                 actionsGrid.actionLink(action.questionOrder, action.title).click()
                 editAction(action, actionNotes, updatedAction, newNotes)
@@ -176,18 +178,18 @@ describe('Actions management', () => {
                 action = findActionOfNotes(actionNotes, seed)
 
                 const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
-                updatedAction = createUpdatedAction(
-                    user,
-                    faker.random.arrayElement(assignableRoles),
-                    faker.random.arrayElement(Object.values(Progression)),
-                    action
-                )
-                newNotes = createNewNotes(
-                    user,
-                    faker.random.arrayElement(assignableRoles),
-                    faker.random.arrayElement(Object.values(Progression)),
-                    updatedAction
-                )
+                const assignedToParticipant = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression)),
+                })
+                updatedAction = actionTestdata.revisedActionData(action, assignedToParticipant)
+                const notesCreator = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression)),
+                })
+                newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
 
                 actionTable.action(action.title).click({ force: true })
                 editActionDialog.body().should('be.visible')
@@ -474,36 +476,6 @@ const createActionTestData = (users: User[]) => {
         description: faker.lorem.words(),
     })
     return action
-}
-
-const createUpdatedAction = (user: User, role: Role, progression: Progression, existingAction: Action) => {
-    const updatedAction = { ...existingAction }
-    updatedAction.title = 'Updated' + generateRandomString(15)
-    updatedAction.assignedTo = new Participant({
-        user: user,
-        role: role,
-        progression: progression,
-    })
-    updatedAction.dueDate = faker.date.future()
-    updatedAction.priority = faker.random.arrayElement(Object.values(Priority))
-    updatedAction.description = faker.lorem.words()
-    updatedAction.completed = !existingAction.completed
-    updatedAction.onHold = !existingAction.onHold
-    return updatedAction
-}
-const createNewNotes = (user: User, role: Role, progression: Progression, updatedAction: Action) => {
-    const newNotes: Note[] = Array.from({ length: faker.datatype.number({ min: 1, max: 3 }) }, () => {
-        return new Note({
-            text: faker.lorem.words(),
-            action: updatedAction,
-            createdBy: new Participant({
-                user: user,
-                role: role,
-                progression: progression,
-            }),
-        })
-    })
-    return newNotes
 }
 
 const createCompleteAction = (user: User, existingAction: Action) => {
