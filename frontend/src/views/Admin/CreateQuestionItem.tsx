@@ -98,6 +98,7 @@ const CreateQuestionItem = ({
                             variant={valueValidity}
                             helperText={valueValidity === 'error' ? 'required' : ''}
                             helperIcon={valueValidity === 'error' ? ErrorIcon : <></>}
+                            multiline
                         />
                     </Box>
                     <Box ml={3} mt={3} mr={1} mb={10}>

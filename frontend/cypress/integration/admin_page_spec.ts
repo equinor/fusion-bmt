@@ -183,7 +183,7 @@ describe('Admin page', () => {
                 const questionTitle = faker.lorem.words(2)
                 createNewQuestionTemplate(Barrier.Gm, Organization.All, questionTitle, generateRandomString(20), [projectCatId])
                 goToAdminTab()
-                adminPage.questionNoByTitle(questionTitle).then(qNo => {
+                adminPage.questionNoByFirstLineOfTitle(questionTitle).then(qNo => {
                     const questionNo = parseInt(Cypress.$(qNo).text())
                     activeQuestionTemplates().then(activeTemplatesPreDelete => {
                         adminPage.deleteQuestionButton(questionNo).click()
@@ -267,7 +267,7 @@ describe('Admin page', () => {
                     adminPage.allQuestionNo().then(questions => {
                         expect(questions.length, ' number of questions should be ').to.equal(1)
                     })
-                    adminPage.questionNoByTitle(questionTitle).then(qNo => {
+                    adminPage.questionNoByFirstLineOfTitle(questionTitle).then(qNo => {
                         const questionNo = parseInt(Cypress.$(qNo).text())
                         verifyQuestion(questionNo, questionTitle, organizationToString(organization), supportNotes)
                         adminPage.deleteProjectCategory().click()
@@ -368,7 +368,7 @@ describe('Admin page', () => {
                 createNewQuestionTemplate(Barrier.Gm, Organization.All, title, generateRandomString(20), projCatIdArray).then(qtId => {
                     goToAdminTab()
                     cy.contains(title)
-                    adminPage.questionNoByTitle(title).then(qNo => {
+                    adminPage.questionNoByFirstLineOfTitle(title).then(qNo => {
                         const questionNo = parseInt(Cypress.$(qNo).text())
                         adminPage.allProjectCategories(questionNo).then(pc => {
                             const projectCategoryNames = Cypress.$.makeArray(pc).map(el => el.innerText)

@@ -218,13 +218,21 @@ const StaticQuestionItem = ({
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography
-                                variant="h4"
-                                ref={questionToScrollIntoView === question.id ? questionTitleRef : undefined}
-                                data-testid={'question-title-' + question.adminOrder}
-                            >
-                                {question.text}
-                            </Typography>
+                            <Box data-testid={'question-title-' + question.adminOrder}>
+                                {question.text.split('\n').map(t => {
+                                    return (
+                                        <span key={`${question.adminOrder} + ${question.text.split('\n').indexOf(t)}`}>
+                                            <Typography
+                                                variant="h4"
+                                                ref={questionToScrollIntoView === question.id ? questionTitleRef : undefined}
+                                            >
+                                                {t}
+                                            </Typography>
+                                            <br />
+                                        </span>
+                                    )
+                                })}
+                            </Box>
                             <Box display="flex" flexDirection="row" flexWrap="wrap" mb={2} mt={1} alignItems={'center'}>
                                 <Box mr={1} mb={1}>
                                     <Chip

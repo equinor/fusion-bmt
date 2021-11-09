@@ -79,6 +79,7 @@ const EditableQuestionItem = ({
                                 variant={textValidity}
                                 helperText={textValidity === 'error' ? 'required' : ''}
                                 helperIcon={textValidity === 'error' ? ErrorIcon : <></>}
+                                multiline
                             />
                         </Box>
                     </Box>

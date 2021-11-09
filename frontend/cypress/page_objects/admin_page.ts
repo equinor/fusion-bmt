@@ -14,8 +14,9 @@ export class AdminPage {
         return cy.getByDataTestid('question-title-' + questionNo)
     }
 
-    questionNoByTitle = (title: string) => {
-        return cy.get('[data-testid^=question-title-]').contains(title).parent().prev()
+    questionNoByFirstLineOfTitle = (title: string) => {
+        const titleSplit = title.split('\n')
+        return cy.get('[data-testid^=question-title-]').contains(titleSplit[0]).parent().parent().parent().prev()
     }
 
     organization = (questionNo: number) => {
@@ -116,7 +117,10 @@ export class AdminPage {
     }
 
     deleteAllProjectCategories = (title: string) => {
-        cy.contains(title)
+        const titleSplit = title.split('\n')
+        cy.contains(titleSplit[0])
+            .parent()
+            .parent()
             .parent()
             .within(() => {
                 cy.get('[title="clear"]').click()
