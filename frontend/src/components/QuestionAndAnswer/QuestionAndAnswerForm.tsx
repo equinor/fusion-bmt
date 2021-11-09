@@ -47,9 +47,16 @@ const QuestionAndAnswerForm = ({
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography variant="h3" data-testid={'question-' + question.order}>
-                                {question.text}
-                            </Typography>
+                            <Box data-testid={'question-' + question.order}>
+                                {question.text.split('\n').map(t => {
+                                    return (
+                                        <span key={`${question.order} + ${question.text.split('\n').indexOf(t)}`}>
+                                            <Typography variant="h3">{t}</Typography>
+                                            <br />
+                                        </span>
+                                    )
+                                })}
+                            </Box>
                             <MarkdownViewer markdown={question.supportNotes} />
                         </Box>
                     </Box>
