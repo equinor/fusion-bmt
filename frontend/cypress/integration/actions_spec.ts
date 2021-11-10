@@ -150,6 +150,7 @@ describe('Actions management', () => {
                 newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
 
                 actionsGrid.actionLink(action.questionOrder, action.title).click()
+                editActionDialog.body().should('be.visible')
                 editAction(action, actionNotes, updatedAction, newNotes)
                 cy.testCacheAndDB(() => {
                     evaluationPage.progressionStepLink(progressionWhereVerify).click()
