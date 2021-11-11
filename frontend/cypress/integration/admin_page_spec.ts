@@ -31,13 +31,13 @@ describe('Admin page', () => {
     })
 
     describe('Question templates', () => {
-        it('Edit question template - change title, support notes and organization', () => {
+        it('Edit question template - change title (with new line), support notes and organization', () => {
             adminPage.allQuestionNo().then(questions => {
                 const questionNo = getRandomQuestionNo(questions, Cypress.$(questions).length - 1)
                 adminPage.organization(questionNo).then(t => {
                     const currentOrg = Cypress.$(t).text()
                     const newOrganization = faker.random.arrayElement(Object.keys(Organization).filter(t => t !== currentOrg))
-                    const newTitle = 'This is the new title' + generateRandomString(10)
+                    const newTitle = 'CT' + generateRandomString(10) + '\n' + generateRandomString(3)
                     const newSupportNotes = 'These are the new support notes!!!' + generateRandomString(10)
                     changeQuestionFields(questionNo, newTitle, newSupportNotes, newOrganization)
                     adminPage.saveQuestionButton().click()
@@ -67,14 +67,14 @@ describe('Admin page', () => {
             })
         })
 
-        it(`Add new question template, fill in title, support notes, select organization, 
+        it(`Add new question template, fill in title with new line, support notes, select organization, 
         verify question template is added at the bottom of the barrier
         and question template has expected title, support notes and organization
         and is assigned highest number across all question templates`, () => {
             activeQuestionTemplates().then(questionTemplatesPreCopy => {
                 const numberOfQuestionTemplatesInitial = Cypress.$(questionTemplatesPreCopy).length
                 adminPage.createNewQuestion().click()
-                const title = 'title ' + generateRandomString(10)
+                const title = 'NT' + generateRandomString(10) + '\n' + generateRandomString(3)
                 adminPage.newQuestionTitle().type(title)
                 const supportNotes = 'supportNotes' + generateRandomString(20)
                 adminPage.setSupportNotes(supportNotes)
@@ -92,7 +92,7 @@ describe('Admin page', () => {
                             expect(createdQuestionNo, ' new question is assigned globally highest number').to.equal(
                                 numberOfQuestionTemplatesInitial + 1
                             )
-                            adminPage.questionTitleByNo(createdQuestionNo).should('have.text', title)
+                            adminPage.questionTitleByNo(createdQuestionNo).should('have.text', title.replace('\n', ''))
                             adminPage.supportNotes(createdQuestionNo).should('contain.text', supportNotes)
                             adminPage.organization(createdQuestionNo).should('have.text', organization)
                         })
@@ -404,7 +404,7 @@ const changeQuestionFields = (questionNo: number, newTitle: string, newSupportNo
 }
 
 const verifyQuestion = (questionNo: number, title: string, organization: string, supportNotes: string) => {
-    adminPage.questionTitleByNo(questionNo).should('have.text', title)
+    adminPage.questionTitleByNo(questionNo).should('have.text', title.replace('\n', ''))
     adminPage.organization(questionNo).should('have.text', organization)
     adminPage.question(questionNo).should('contain.text', supportNotes)
 }
