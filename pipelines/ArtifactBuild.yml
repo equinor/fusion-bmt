@@ -145,6 +145,7 @@ stages:
           radixToken: $(RadixToken)
           buildId: $(Build.BuildId)
           envshortname: CI
+          branch: master
 
     - template: templates/stage-deploy-approval.yml
       parameters:
@@ -176,6 +177,7 @@ stages:
           radixToken: $(RadixToken)
           buildId: $(Build.BuildId)
           envshortname: QA
+          branch: qa
 
     - template: templates/stage-deploy-approval.yml
       parameters:
@@ -207,3 +209,4 @@ stages:
           radixToken: $(RadixToken)
           buildId: $(Build.BuildId)
           envshortname: Production
+          branch: prod

@@ -1,9 +1,9 @@
 parameters:
     - name: name # defaults for any parameters that aren't specified
-      default: ""
     - name: radixToken
     - name: buildId
     - name: envshortname
+    - name: branch
 
 stages:
     - stage: ${{ parameters.name }}
@@ -26,7 +26,7 @@ stages:
                           "Content-Type":"application/json",
                           "Authorization": "Bearer ${{ parameters.radixToken }}"
                           }
-                      body: '{"branch": "master",  "triggeredBy": "${{ parameters.buildId }}"}'
+                      body: '{"branch": "${{ parameters.branch }}",  "triggeredBy": "${{ parameters.buildId }}-${{ parameters.branch }}"}'
                       urlSuffix: "api/v1/applications/fusion-bmt/pipelines/build-deploy"
                       waitForCompletion: "false"
                       successCriteria: eq(root['status'], 'Waiting')
