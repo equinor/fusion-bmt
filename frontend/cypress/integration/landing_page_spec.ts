@@ -1,11 +1,14 @@
 import * as faker from 'faker'
 import { Progression, Role, Status } from '../../src/api/models'
 import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
-import { getUsers } from '../support/mock/external/users'
+import { getUsers, User } from '../support/mock/external/users'
 import { EvaluationPage } from '../page_objects/evaluation'
 import { fusionProject1, fusionProject4 } from '../support/mock/external/projects'
 import { ActionTable } from '../page_objects/action-table'
-import { EditActionDialog } from '../page_objects/action'
+import { EditActionDialog, editAction } from '../page_objects/action'
+import { Note } from '../support/testsetup/mocks'
+
+import { ActionTestdata } from '../testdata/actions'
 
 describe('Landing page', () => {
     const users = getUsers(3)
@@ -14,9 +17,10 @@ describe('Landing page', () => {
     const adminUser = getUsers(6)[5]
     const selectedProject = fusionProject1
     const otherProject = fusionProject4
+    const actionTestdata = new ActionTestdata()
 
     const myActiveEvaluationInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
         users,
         roles,
         fusionProjectId: selectedProject.id,
@@ -29,6 +33,13 @@ describe('Landing page', () => {
                 assignedTo: myActiveEvaluationInProject.participants.find(p => p.user === user),
                 title: 'My action' + faker.lorem.words(),
                 description: 'My action' + faker.lorem.words(),
+            })
+        )
+        .addNote(
+            new Note({
+                text: faker.lorem.sentence(),
+                action: myActiveEvaluationInProject.actions[0],
+                createdBy: faker.random.arrayElement(myActiveEvaluationInProject.participants),
             })
         )
         .addAction(
@@ -59,21 +70,23 @@ describe('Landing page', () => {
         )
 
     const notMyActiveEvaluationInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
         users: users.slice(0, 2),
         roles: roles.slice(0, 2),
         fusionProjectId: selectedProject.id,
         namePrefix: 'notMyEval',
     })
     const myActiveEvaluationNotInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
         users: users,
         roles: roles,
         fusionProjectId: otherProject.id,
         namePrefix: 'notProjectEval',
     })
     const myHiddenEvaluationInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Nomination && p!== Progression.Finished)),
+        progression: faker.random.arrayElement(
+            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Finished)
+        ),
         users: users,
         roles: roles,
         fusionProjectId: selectedProject.id,
@@ -81,7 +94,9 @@ describe('Landing page', () => {
         status: Status.Voided,
     })
     const notMyHiddenEvaluationNotInProject = new EvaluationSeed({
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Nomination && p!== Progression.Finished)),
+        progression: faker.random.arrayElement(
+            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Finished)
+        ),
         users: users.slice(0, 2),
         roles: roles.slice(0, 2),
         fusionProjectId: otherProject.id,
@@ -184,11 +199,33 @@ describe('Landing page', () => {
                 })
             })
 
-            it('Verify user can edit his own actions', () => {
+            it(`Verify user can edit his own actions
+            verify existing title, assignedTo, dueDate, description, priority, notes, 
+            then revise above fields except assignedTo and add note
+            then verify revisions were saved`, () => {
+                cy.intercept(/\/graphql/).as('graphql')
+                cy.get('button').contains('Actions').click()
                 const editActionDialog = new EditActionDialog()
                 actionTable.table().should('be.visible')
+                const action = myActiveEvaluationInProject.actions[0]
+                const actionNotes = myActiveEvaluationInProject.notes.filter(x => {
+                    return (x.action.id = action.id)
+                })
+                const updatedAction = actionTestdata.revisedActionData(action, undefined)
+
+                const notesCreator = myActiveEvaluationInProject.participants.find(p => p.user === user)!
+                const newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
                 actionTable.action(myActiveEvaluationInProject.actions[0].title).click({ force: true })
                 editActionDialog.body().should('be.visible')
+                editAction(action, actionNotes, updatedAction, newNotes)
+                cy.testCacheAndDB(() => {
+                    cy.get('button').contains('Actions').click()
+                    cy.contains(updatedAction.title)
+                    actionTable.action(updatedAction.title).click({ force: true })
+                    cy.wait('@graphql')
+                    editActionDialog.body().should('be.visible')
+                    editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
+                }, fusionProject1.id)
             })
         })
     })

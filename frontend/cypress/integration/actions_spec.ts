@@ -3,7 +3,7 @@ import { Progression, Priority, Role } from '../../src/api/models'
 import { FUSION_DATE_LOCALE } from '../support/helpers/helpers'
 import { barrierToString } from '../../src/utils/EnumToString'
 import { Action, Note, Participant } from '../support/testsetup/mocks'
-import { ActionsGrid, CreateActionDialog, EditActionDialog, mapPriority } from '../page_objects/action'
+import { ActionsGrid, CreateActionDialog, EditActionDialog, mapPriority, editAction } from '../page_objects/action'
 import { EvaluationPage, QuestionnaireSidePanel } from '../page_objects/evaluation'
 import { ConfirmationDialog, DropdownSelect } from '../page_objects/common'
 import * as faker from 'faker'
@@ -11,6 +11,8 @@ import { getUsers, User } from '../support/mock/external/users'
 import { fusionProject1 } from '../support/mock/external/projects'
 import FollowUpTabs from '../page_objects/followup'
 import { ActionTable } from '../page_objects/action-table'
+import { generateRandomString } from '../support/testsetup/testdata'
+import { ActionTestdata } from '../testdata/actions'
 
 describe('Actions management', () => {
     const evaluationPage = new EvaluationPage()
@@ -22,6 +24,7 @@ describe('Actions management', () => {
     const dropdownSelect = new DropdownSelect()
     const followUpTabs = new FollowUpTabs()
     const actionTable = new ActionTable()
+    const actionTestdata = new ActionTestdata()
 
     let seed: EvaluationSeed
     const users = getUsers(3)
@@ -124,20 +127,31 @@ describe('Actions management', () => {
 
             const progressionWhereEdit = getRandomProgressionWorkshopOrFollowUp()
             const progressionWhereVerify = getRandomProgressionWorkshopOrFollowUp()
-            it(`Edit action by ${randomRole} on ${progressionWhereEdit} - assign action, add notes 
-            then verify notes were added on ${progressionWhereVerify}`, () => {
+            it(`Edit action by ${randomRole} on ${progressionWhereEdit}
+            verify existing title, assignedTo, dueDate, description, priority, notes, 
+            then revise above fields and add note
+            then verify revisions were saved in stage ${progressionWhereVerify}`, () => {
                 let user = seed.findParticipantByRole(randomRole).user
                 cy.visitProgression(progressionWhereEdit, seed.evaluationId, user, fusionProject1.id)
-                ;({ actionNotes, action } = findActionWithNotes(seed))
-                ;({ updatedAction, newNotes } = createEditTestData(seed, user, action))
+                actionNotes = findActionNotes(seed)
+                action = findActionOfNotes(actionNotes, seed)
+                const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+                const assignedToParticipant = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
+                })
+                updatedAction = actionTestdata.revisedActionData(action, assignedToParticipant)
+                const notesCreator = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
+                })
+                newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
 
                 actionsGrid.actionLink(action.questionOrder, action.title).click()
-
-                editActionDialog.assertActionValues(action, actionNotes)
-                editActionDialog.editAction(updatedAction, newNotes, actionNotes.length)
-                editActionDialog.assertNotesValues(actionNotes.concat(newNotes))
-                editActionDialog.close()
-
+                editActionDialog.body().should('be.visible')
+                editAction(action, actionNotes, updatedAction, newNotes)
                 cy.testCacheAndDB(() => {
                     evaluationPage.progressionStepLink(progressionWhereVerify).click()
                     actionsGrid.actionLink(action.questionOrder, updatedAction.title).click()
@@ -145,16 +159,47 @@ describe('Actions management', () => {
                 }, fusionProject1.id)
             })
         })
+
         context(`In actions table on follow-up`, () => {
+            let actionNotes: Note[]
+            let action: Action
+            let updatedAction: Action
+            let newNotes: Note[]
             const rolesThatCanEdit = [Role.Facilitator, Role.Participant, Role.OrganizationLead]
             const randomRole = faker.random.arrayElement(rolesThatCanEdit)
-            it(`Edit action by ${randomRole} (from any ${rolesThatCanEdit})`, () => {
+            it(`Edit action by ${randomRole} (from any ${rolesThatCanEdit})
+            verify existing title, assignedTo, dueDate, description, priority, notes,
+            then revise above fields and add note
+            then verify revisions were saved`, () => {
                 let user = seed.findParticipantByRole(randomRole).user
                 cy.visitProgression(Progression.FollowUp, seed.evaluationId, user, fusionProject1.id)
                 followUpTabs.actions().click()
                 actionTable.table().should('be.visible')
-                actionTable.action(seed.actions[0].title).click({ force: true })
+                actionNotes = findActionNotes(seed)
+                action = findActionOfNotes(actionNotes, seed)
+
+                const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
+                const assignedToParticipant = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
+                })
+                updatedAction = actionTestdata.revisedActionData(action, assignedToParticipant)
+                const notesCreator = new Participant({
+                    user: user,
+                    role: faker.random.arrayElement(assignableRoles),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
+                })
+                newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
+
+                actionTable.action(action.title).click({ force: true })
                 editActionDialog.body().should('be.visible')
+                editAction(action, actionNotes, updatedAction, newNotes)
+                cy.testCacheAndDB(() => {
+                    evaluationPage.progressionStepLink(Progression.FollowUp).click()
+                    actionTable.action(updatedAction.title).click({ force: true })
+                    editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
+                }, fusionProject1.id)
             })
         })
     })
@@ -359,6 +404,19 @@ describe('Actions management', () => {
     })
 })
 
+const findActionNotes = (seed: EvaluationSeed) => {
+    const note = faker.random.arrayElement(seed.notes)
+    const actionNotes = seed.notes.filter(x => {
+        return (x.action.id = note.action.id)
+    })
+    return actionNotes
+}
+
+const findActionOfNotes = (note: Note[], seed: EvaluationSeed) => {
+    const firstNote = note[0]
+    return seed.actions.find(x => x.id === firstNote.action.id)!
+}
+
 const findActionWithNotes = (seed: EvaluationSeed) => {
     const note = faker.random.arrayElement(seed.notes)
     const actionNotes = seed.notes.filter(x => {
@@ -419,36 +477,6 @@ const createActionTestData = (users: User[]) => {
         description: faker.lorem.words(),
     })
     return action
-}
-
-const createEditTestData = (seed: EvaluationSeed, user: User, existingAction: Action) => {
-    const assignableRoles = [Role.Participant, Role.Facilitator, Role.OrganizationLead]
-    const updatedAction = { ...existingAction }
-    updatedAction.title = 'Feel proud for me, I have been updated!'
-    updatedAction.assignedTo = new Participant({
-        user: user,
-        role: faker.random.arrayElement(assignableRoles),
-        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
-    })
-    updatedAction.dueDate = faker.date.future()
-    updatedAction.priority = faker.random.arrayElement(Object.values(Priority))
-    updatedAction.description = faker.lorem.words()
-    updatedAction.completed = !existingAction.completed
-    updatedAction.onHold = !existingAction.onHold
-
-    const newNotes: Note[] = Array.from({ length: faker.datatype.number({ min: 1, max: 3 }) }, () => {
-        return new Note({
-            text: faker.lorem.words(),
-            action: updatedAction,
-            createdBy: new Participant({
-                user: user,
-                role: faker.random.arrayElement(assignableRoles),
-                progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
-            }),
-        })
-    })
-
-    return { updatedAction, newNotes }
 }
 
 const createCompleteAction = (user: User, existingAction: Action) => {
