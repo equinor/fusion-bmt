@@ -139,13 +139,13 @@ describe('Actions management', () => {
                 const assignedToParticipant = new Participant({
                     user: user,
                     role: faker.random.arrayElement(assignableRoles),
-                    progression: faker.random.arrayElement(Object.values(Progression)),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
                 })
                 updatedAction = actionTestdata.revisedActionData(action, assignedToParticipant)
                 const notesCreator = new Participant({
                     user: user,
                     role: faker.random.arrayElement(assignableRoles),
-                    progression: faker.random.arrayElement(Object.values(Progression)),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
                 })
                 newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
 
@@ -182,13 +182,13 @@ describe('Actions management', () => {
                 const assignedToParticipant = new Participant({
                     user: user,
                     role: faker.random.arrayElement(assignableRoles),
-                    progression: faker.random.arrayElement(Object.values(Progression)),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
                 })
                 updatedAction = actionTestdata.revisedActionData(action, assignedToParticipant)
                 const notesCreator = new Participant({
                     user: user,
                     role: faker.random.arrayElement(assignableRoles),
-                    progression: faker.random.arrayElement(Object.values(Progression)),
+                    progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
                 })
                 newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
 
