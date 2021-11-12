@@ -112,7 +112,7 @@ const CreateQuestionItem = ({
                     </Box>
                 </Box>
                 <Box display="flex" flexDirection={'column'}>
-                    <Box flexGrow={1} data-testid="select-organization-dropdown-box">
+                    <Box flexGrow={1} data-testid="select-organization-dropdown-box" mt={3}>
                         <SearchableDropdown
                             label="Organization"
                             options={getOrganizationOptionsForDropdown(organization)}

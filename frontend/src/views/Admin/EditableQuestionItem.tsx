@@ -94,7 +94,7 @@ const EditableQuestionItem = ({
                     </Box>
                 </Box>
                 <Box display="flex" flexDirection={'column'}>
-                    <Box flexGrow={1}>
+                    <Box flexGrow={1} mt={3}>
                         <SearchableDropdown
                             label="Organization"
                             options={getOrganizationOptionsForDropdown(organization)}
