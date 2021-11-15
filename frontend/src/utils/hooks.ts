@@ -61,6 +61,13 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
     const apiClients = useApiClients()
     const [allEvaluationsWithPortfolio, setAllEvaluationsWithPortfolio] = React.useState<EvaluationsWithPortfolio | undefined>(undefined)
 
+    const collectUniquePortfolios = async () => {
+        const contexts = await apiClients.context.getContextsAsync()
+        const portfolios: string[] = contexts.data.filter(t => t.type.id === 'ProjectMaster').map(pm => pm.value.portfolioOrganizationalUnit).filter(b => b !== null)
+        const uniquePortfolios = portfolios.filter((v, i, a) => a.indexOf(v) === i)
+        return uniquePortfolios
+    }
+
     const collectUniqueProjectIds = (evaluations: Evaluation[]) => {
         const projectIds: string[] = []
         evaluations.forEach(evaluation => {
@@ -107,6 +114,11 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
             const evaluationsWithPortfolio: EvaluationsWithPortfolio = {
                 [noPortfolioKey]: [],
             }
+            collectUniquePortfolios().then(portfolios => {
+                portfolios.forEach(portfolio => {
+                    evaluationsWithPortfolio[portfolio] = []
+                })
+            })
             // Since many evaluations have the same projectId, and thus the same portfolio, we are only doing lookups
             // on each projectId instead of each evaluation to save loading time
             const projectIds = collectUniqueProjectIds(evaluations)

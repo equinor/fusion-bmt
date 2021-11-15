@@ -13,6 +13,15 @@ const Portfolios = ({ evaluationsWithPortfolio }: Props) => {
             <Accordion headerLevel="h3">
                 {Object.entries(evaluationsWithPortfolio)
                     .reverse()
+                    .sort((a, b) => {
+                        if (a[0] > b[0]) {
+                            return 1
+                        }
+                        if (a[0] < b[0]) {
+                            return -1
+                        }
+                        return 0
+                    })
                     .map(([portfolio, evaluations], index) => {
                         return (
                             <Accordion.Item key={index}>
