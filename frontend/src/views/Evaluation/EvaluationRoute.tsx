@@ -3,6 +3,8 @@ import { RouteComponentProps } from 'react-router-dom'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 
 import { TextArea } from '@equinor/fusion-components'
+import { CircularProgress } from '@equinor/eds-core-react'
+import styled from 'styled-components'
 
 import { Evaluation, Participant, Progression } from '../../api/models'
 import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
@@ -22,6 +24,13 @@ import {
     CLOSING_REMARK_FIELDS_FRAGMENT,
 } from '../../api/fragments'
 
+const Centered = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+`
+
 interface Params {
     fusionProjectId: string
     evaluationId: string
@@ -32,7 +41,7 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
     const azureUniqueId = useAzureUniqueId()
 
     const { loading, evaluation, error: errorLoadingEvaluation } = useEvaluationQuery(evaluationId)
-    const { progressEvaluation, error: errorProgressEvaluation } = useProgressEvaluationMutation()
+    const { progressEvaluation, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useProgressEvaluationMutation()
     const { progressParticipant, error: errorProgressingParticipant } = useProgressParticipantMutation()
 
     const [isProgressDialogOpen, setIsProgressDialogOpen] = useState<boolean>(false)
@@ -74,6 +83,14 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
             <div>
                 <TextArea value={apiErrorMessage('Could not progress evaluation')} onChange={() => {}} />
             </div>
+        )
+    }
+
+    if (loadingProgressEvaluation) {
+        return (
+            <Centered>
+                <CircularProgress />
+            </Centered>
         )
     }
 
