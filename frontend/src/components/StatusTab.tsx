@@ -23,7 +23,7 @@ const QuestionnaireStatusTabs = ({
 
     return (
         <Tabs activeTab={activeTab} onChange={setActiveTab}>
-            <List>
+            <List id="fixed-tablist">
                 <Tab>Questionaire</Tab>
                 <Tab>Progress</Tab>
             </List>
