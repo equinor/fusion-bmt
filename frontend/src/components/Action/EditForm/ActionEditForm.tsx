@@ -10,12 +10,25 @@ import { Action, Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useEffectNotOnMount } from '../../../utils/hooks'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
-import { check_circle_outlined } from '@equinor/eds-icons'
+import { check_circle_outlined, link } from '@equinor/eds-icons'
 import { updateValidity } from '../../../views/helpers'
+import { tokens } from '@equinor/eds-tokens'
 
 const StyledDate = styled(Typography)`
     float: right;
     margin-top: 10px;
+`
+
+const LinkIcon = styled(Icon)`
+    position: absolute;
+    right: 15px;
+    top: -3px;
+    cursor: pointer;
+    color: ${tokens.colors.text.static_icons__secondary.rgba};
+
+    &:hover {
+        color: ${tokens.colors.text.static_icons__default.rgba};
+    }
 `
 
 interface Props {
@@ -139,6 +152,10 @@ const ActionEditForm = ({
         }
     }, [isClosingRemarkSaved])
 
+    const addLink = () => {
+        setCompletingReason(completingReason + '[text](url)')
+    }
+
     return (
         <>
             <Grid container spacing={3}>
@@ -254,7 +271,8 @@ const ActionEditForm = ({
                             <Typography variant="h5">Are you sure you want to close the action?</Typography>
                             <Typography variant="body_short">This cannot be undone.</Typography>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={12} style={{ position: 'relative' }}>
+                            <LinkIcon data={link} onClick={addLink} />
                             <TextField
                                 id="completed-reason"
                                 value={completingReason}

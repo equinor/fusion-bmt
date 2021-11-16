@@ -106,7 +106,7 @@ export class EditActionDialog extends ActionDialog {
             .should('contain.text', note.createdBy.user.name + ' closed action')
             .within(() => {
                 if (note.text) {
-                    cy.getByDataTestid('note_text').should('have.text', note.text)
+                    cy.getByDataTestid('note_text').should('contain.text', note.text)
                 }
             })
     }
