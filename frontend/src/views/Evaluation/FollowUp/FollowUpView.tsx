@@ -18,8 +18,6 @@ import { hasSeverity, hasOrganization, toggleFilter } from '../../../utils/Quest
 import { disableAnswer, disableProgression } from '../../../utils/disableComponents'
 import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
 
-const TOP_POSITION_SCROLL_WINDOW = 200
-
 interface FollowUpViewProps {
     evaluation: Evaluation
     onNextStepClick: () => void
@@ -89,6 +87,15 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
     }
     const barrierAnswers = getBarrierAnswers(barrierQuestions, viewProgression)
 
+    // This is the lowest element above the questions list, so we are using this to calculate when something is scrolled out of view.
+    // If tablist is removed from the UI, this will no longer work and we have to use the next element that is the lowest point above the questions list
+    const tabList = document.getElementById('fixed-tablist')
+    const tablistPosition = tabList && tabList.getBoundingClientRect()
+    const tablistPositionBottom = tablistPosition ? tablistPosition.bottom : 0
+    const boxPadding = 20
+    const boxPaddingTopPlusBottom = boxPadding * 2
+    const tabsPanelPadding = 16
+
     return (
         <>
             <Box display="flex" height={1}>
@@ -103,9 +110,12 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
                     p="20px"
                     width="1"
                     onScroll={() => {
-                        onScroll(selectedQuestion, TOP_POSITION_SCROLL_WINDOW, barrierQuestions, onQuestionSummarySelected)
+                        onScroll(selectedQuestion, tablistPositionBottom, barrierQuestions, onQuestionSummarySelected)
                     }}
-                    style={{ height: '100vh', overflow: 'scroll' }}
+                    style={{
+                        height: `calc(100vh - ${tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding}px)`,
+                        overflow: 'scroll',
+                    }}
                 >
                     <Box display="flex" flexDirection="row">
                         <Box flexGrow={1}>
