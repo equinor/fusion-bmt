@@ -48,9 +48,9 @@ const QuestionAndAnswerForm = ({
                         </Box>
                         <Box>
                             <Box data-testid={'question-' + question.order}>
-                                {question.text.split('\n').map(t => {
+                                {question.text.split('\n').map((t, index) => {
                                     return (
-                                        <span key={`${question.order} + ${question.text.split('\n').indexOf(t)}`}>
+                                        <span key={index}>
                                             <Typography variant="h3">{t}</Typography>
                                             <br />
                                         </span>

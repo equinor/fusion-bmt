@@ -219,9 +219,9 @@ const StaticQuestionItem = ({
                         </Box>
                         <Box>
                             <Box data-testid={'question-title-' + question.adminOrder}>
-                                {question.text.split('\n').map(t => {
+                                {question.text.split('\n').map((t, index) => {
                                     return (
-                                        <span key={`${question.adminOrder} + ${question.text.split('\n').indexOf(t)}`}>
+                                        <span key={index}>
                                             <Typography
                                                 variant="h4"
                                                 ref={questionToScrollIntoView === question.id ? questionTitleRef : undefined}
