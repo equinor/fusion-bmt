@@ -58,6 +58,48 @@ namespace tests
         }
 
         [Fact]
+        public void CreateInEmptyBarrier()
+        {
+            QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
+            Barrier barrier = Randomize.Barrier();
+            var questionsInBarrier = questionTemplateService.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+            ;
+            foreach (var q in questionsInBarrier)
+            {
+                questionTemplateService.Delete(q);
+            }
+
+            int maxAdminOrder = questionTemplateService.GetAll()
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.AdminOrder)
+            ;
+
+            Barrier prevBarrier;
+            int maxPrevBarrierOrder;
+            if (barrier == Barrier.GM)
+            {
+                prevBarrier = barrier;
+                maxPrevBarrierOrder = 0;
+            }
+            else
+            {
+                prevBarrier = barrier - 1;
+                maxPrevBarrierOrder = questionTemplateService.GetAll()
+                    .Where(qt => qt.Status == Status.Active)
+                    .Where(qt => qt.Barrier == prevBarrier)
+                    .Max(qt => qt.Order)
+                ;
+            }
+
+            var newQuestionTemplate = questionTemplateService.Create(barrier, Organization.All, "text", "supportNotes");
+
+            Assert.Equal(maxPrevBarrierOrder + 1, newQuestionTemplate.Order);
+            Assert.Equal(maxAdminOrder + 1, newQuestionTemplate.AdminOrder);
+        }
+
+        [Fact]
         public void GetDoesNotExist()
         {
             QuestionTemplateService questionTemplateService = new QuestionTemplateService(fixture.context);
@@ -194,7 +236,10 @@ namespace tests
                 .Max(qt => qt.AdminOrder)
             ;
             
-            int maxOrder = fixture.context.QuestionTemplates.Max(qt => qt.Order);
+            int maxOrder = fixture.context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Max(qt => qt.Order) + 1
+            ;
 
             Assert.Equal(maxOrderActive - 1, maxOrderActiveAfter);
             Assert.Equal(maxBarrierOrder - 1, maxBarrierOrderAfter);
