@@ -35,6 +35,15 @@ namespace api.Services
             return _context.QuestionTemplates;
         }
 
+        private int NumberOfQuestionsInBarrier(Barrier barrier)
+        {
+            return _context.QuestionTemplates
+                .Where(qt => qt.Status == Status.Active)
+                .Where(qt => qt.Barrier == barrier)
+                .Count()
+            ;
+        }
+
         public QuestionTemplate Create(
             Barrier barrier,
             Organization organization,
@@ -54,14 +63,34 @@ namespace api.Services
             ;
 
             // If newOrder == 0, we want to place the new
-            // question template as the last one in the barrier
+            // question template as the last one in the barrier.
+            // If the current barrier is empty, the new order is
+            // set to the maximum order + 1 of the previous barrier.
+            // If also the previous barrier is empty, the new order is
+            // set to the maximum order + 1 of the barrier before that
+            // one and so on. If all barriers prior to the current
+            // barrier is empty, the new order is set to 1.
             if (newOrder == 0)
             {
-                newOrder = _context.QuestionTemplates
-                    .Where(qt => qt.Status == Status.Active)
-                    .Where(qt => qt.Barrier == barrier)
-                    .Max(qt => qt.Order) + 1
-                ;
+                var currentBarrier = barrier;
+                while (NumberOfQuestionsInBarrier(currentBarrier) == 0 && currentBarrier != Barrier.GM)
+                {
+                    Barrier prevBarrier = currentBarrier - 1;
+                    currentBarrier = prevBarrier;
+                }
+
+                if (currentBarrier == Barrier.GM && NumberOfQuestionsInBarrier(currentBarrier) == 0)
+                {
+                    newOrder = 1;
+                }
+                else
+                {
+                    newOrder = _context.QuestionTemplates
+                        .Where(qt => qt.Status == Status.Active)
+                        .Where(qt => qt.Barrier == currentBarrier)
+                        .Max(qt => qt.Order) + 1
+                    ;
+                }
             }
 
             QuestionTemplate newQuestionTemplate = new QuestionTemplate
