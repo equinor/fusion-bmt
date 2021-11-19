@@ -144,11 +144,13 @@ export class Evaluation {
     id: string
     name: string
     questions: Array<Question>
+    project: { fusionProjectId: string; __typename: string }
 
-    constructor(id: string, name: string, questions: Array<Question>) {
+    constructor(id: string, name: string, project: { fusionProjectId: string; __typename: string }, questions: Array<Question>) {
         this.id = id
         this.name = name
         this.questions = questions
+        this.project = project
     }
 }
 

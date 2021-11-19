@@ -3,7 +3,8 @@ import { Progression, Role, Status } from '../../src/api/models'
 import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
 import { getUsers, User } from '../support/mock/external/users'
 import { EvaluationPage } from '../page_objects/evaluation'
-import { fusionProject1, fusionProject4 } from '../support/mock/external/projects'
+import { fusionProject1, fusionProject4, fusionProject8, fusionProjects } from '../support/mock/external/projects'
+import { findProjectMasterForProject, projectMasters } from '../support/mock/external/projectMaster'
 import { ActionTable } from '../page_objects/action-table'
 import { EditActionDialog, editAction } from '../page_objects/action'
 import { Note } from '../support/testsetup/mocks'
@@ -17,6 +18,7 @@ describe('Landing page', () => {
     const adminUser = getUsers(6)[5]
     const selectedProject = fusionProject1
     const otherProject = fusionProject4
+    const projectNotInPortofolio = fusionProject8
     const actionTestdata = new ActionTestdata()
 
     const myActiveEvaluationInProject = new EvaluationSeed({
@@ -83,6 +85,13 @@ describe('Landing page', () => {
         fusionProjectId: otherProject.id,
         namePrefix: 'notProjectEval',
     })
+    const myActiveEvaluationNotInProjectNoPortfolio = new EvaluationSeed({
+        progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
+        users: users,
+        roles: roles,
+        fusionProjectId: projectNotInPortofolio.id,
+        namePrefix: 'notProjectEvalNoPortofolio',
+    })
     const myHiddenEvaluationInProject = new EvaluationSeed({
         progression: faker.random.arrayElement(
             Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Finished)
@@ -110,6 +119,7 @@ describe('Landing page', () => {
         myActiveEvaluationNotInProject.plant()
         myHiddenEvaluationInProject.plant()
         notMyHiddenEvaluationNotInProject.plant()
+        myActiveEvaluationNotInProjectNoPortfolio.plant()
     })
 
     const evaluations = [
@@ -159,6 +169,41 @@ describe('Landing page', () => {
                 cy.contains(notMyEvalName).click()
                 const evaluationPage = new EvaluationPage()
                 evaluationPage.progressionStepLink(notMyActiveEvaluationInProject.progression).should('be.visible')
+            })
+        })
+
+        context('Portofolio: Non-hidden evaluations are listed under their portofolios', () => {
+            class EvalByP {
+                eval: EvaluationSeed
+                portofolio: string
+                constructor(e: EvaluationSeed, p: string) {
+                    this.eval = e
+                    this.portofolio = p
+                }
+            }
+            let evaluationsByPortofolio: Array<EvalByP> = []
+            projectMasters.forEach(projMaster => {
+                projMaster.projects.forEach(project => {
+                    evaluations.forEach(evaluation => {
+                        if (project.id === evaluation.evaluation.fusionProjectId) {
+                            evaluationsByPortofolio.push(new EvalByP(evaluation.evaluation, projMaster.portfolioOrganizationalUnit))
+                        }
+                    })
+                })
+            })
+            let portofolios = ['No portfolio']
+            projectMasters.forEach(pm => portofolios.push(pm.portfolioOrganizationalUnit))
+            it('Non hidden evaluations are listed under their respective portofolios', () => {
+                cy.contains('Portfolios').click()
+                portofolios.forEach(p => {
+                    cy.contains(p).click()
+                    evaluationsByPortofolio.forEach(e => {
+                        e.portofolio === p && e.eval.status !== 'VOIDED'
+                            ? cy.contains('div', p).contains('p', e.eval.name).should('exist')
+                            : cy.contains('div', p).contains('p', e.eval.name).should('not.exist')
+                    })
+                    cy.contains(p).click()
+                })
             })
         })
     })
