@@ -203,7 +203,6 @@ describe('Landing page', () => {
             verify existing title, assignedTo, dueDate, description, priority, notes, 
             then revise above fields except assignedTo and add note
             then verify revisions were saved`, () => {
-                cy.intercept(/\/graphql/).as('graphql')
                 cy.get('button').contains('Actions').click()
                 const editActionDialog = new EditActionDialog()
                 actionTable.table().should('be.visible')
@@ -215,14 +214,12 @@ describe('Landing page', () => {
 
                 const notesCreator = myActiveEvaluationInProject.participants.find(p => p.user === user)!
                 const newNotes = actionTestdata.createNewNotes(updatedAction, notesCreator)
-                actionTable.action(myActiveEvaluationInProject.actions[0].title).click({ force: true })
+                actionTable.action(myActiveEvaluationInProject.actions[0].title).click()
                 editActionDialog.body().should('be.visible')
                 editAction(action, actionNotes, updatedAction, newNotes)
                 cy.testCacheAndDB(() => {
                     cy.get('button').contains('Actions').click()
-                    cy.contains(updatedAction.title)
-                    actionTable.action(updatedAction.title).click({ force: true })
-                    cy.wait('@graphql')
+                    actionTable.action(updatedAction.title).click()
                     editActionDialog.body().should('be.visible')
                     editActionDialog.assertActionValues(updatedAction, actionNotes.concat(newNotes))
                 }, fusionProject1.id)
