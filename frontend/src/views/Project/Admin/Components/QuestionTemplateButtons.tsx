@@ -1,8 +1,8 @@
-import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
+import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
 import { copy, delete_to_trash, edit } from '@equinor/eds-icons'
 
-import { QuestionTemplate } from '../../../api/models'
+import { QuestionTemplate } from '../../../../api/models'
 
 interface Props {
     question: QuestionTemplate

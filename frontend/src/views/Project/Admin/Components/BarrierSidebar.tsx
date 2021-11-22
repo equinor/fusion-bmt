@@ -1,8 +1,10 @@
 import React from 'react'
-import { Barrier } from '../../api/models'
+
 import { NavigationDrawer, NavigationStructure } from '@equinor/fusion-components'
-import { barrierToString } from '../../utils/EnumToString'
-import Sticky from '../../components/Sticky'
+
+import { Barrier } from '../../../../api/models'
+import { barrierToString } from '../../../../utils/EnumToString'
+import Sticky from '../../../../components/Sticky'
 
 interface Props {
     barrier: Barrier

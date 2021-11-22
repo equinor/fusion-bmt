@@ -1,18 +1,17 @@
 import React from 'react'
-import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
+import styled from 'styled-components'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
-import { TextArea } from '@equinor/fusion-components'
+import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
+import { TextArea, ApplicationGuidanceAnchor } from '@equinor/fusion-components'
 import { useCurrentUser } from '@equinor/fusion'
-import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
 
 import { Evaluation, Project, Status } from '../../../api/models'
-import CreateEvaluationButton from './CreateEvaluationButton'
-import EvaluationsTable from './EvaluationsTable'
-import styled from 'styled-components'
 import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useEvaluationsWithPortfolio } from '../../../utils/hooks'
-import Portfolios from './Portfolios'
+import Portfolios from './Components/Portfolios'
+import EvaluationsTable from './Components/EvaluationsTable'
+import CreateEvaluationButton from './Components/CreateEvaluationButton'
 
 const Chips = styled.div`
     display: flex;
@@ -68,12 +67,14 @@ interface Props {
     project: Project
 }
 
-const ProjectDashboardView = ({ project }: Props) => {
+const DashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
     const userIsAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+
     const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.User)
-    const userTableSelected = selectedProjectTable === TableSelection.User
-    const projectTableSelected = selectedProjectTable === TableSelection.Project
+
+    const myEvaluationsSelected = selectedProjectTable === TableSelection.User
+    const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
     const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden
     const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
 
@@ -165,13 +166,13 @@ const ProjectDashboardView = ({ project }: Props) => {
                     }
                 })}
             </Chips>
-            {userTableSelected && (
+            {myEvaluationsSelected && (
                 <>
                     {userEvaluations && <EvaluationsTable evaluations={userEvaluations} />}
                     {loadingUserEvaluations && <CenteredCircularProgress />}
                 </>
             )}
-            {projectTableSelected && (
+            {projectEvaluationsSelected && (
                 <>
                     {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
                     {loadingProjectEvaluations && <CenteredCircularProgress />}
@@ -195,7 +196,7 @@ const ProjectDashboardView = ({ project }: Props) => {
     )
 }
 
-export default ProjectDashboardView
+export default DashboardView
 
 interface EvaluationQueryProps {
     loading: boolean

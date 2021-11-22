@@ -4,18 +4,18 @@ import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { TextArea } from '@equinor/fusion-components'
 import { Box } from '@material-ui/core'
 
-import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
-import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
-import { barrierToString } from '../../utils/EnumToString'
-import { useEffectNotOnMount, useFilter } from '../../utils/hooks'
-import { hasOrganization } from '../../utils/QuestionAndAnswerUtils'
-import { apiErrorMessage } from '../../api/error'
+import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../../api/models'
+import { barrierToString } from '../../../utils/EnumToString'
+import { useEffectNotOnMount, useFilter } from '../../../utils/hooks'
+import { hasOrganization } from '../../../utils/QuestionAndAnswerUtils'
+import { apiErrorMessage } from '../../../api/error'
 
-import CreateQuestionItem from './CreateQuestionItem'
-import AdminQuestionItem from './AdminQuestionItem'
-import BarrierHeader from './BarrierHeader'
-import CategoryHeader from './CategoryHeader'
-import BarrierSidebar from './BarrierSidebar'
+import CreateQuestionItem from './Components/CreateQuestionItem'
+import AdminQuestionItem from './Components/AdminQuestionItem'
+import BarrierHeader from './Components/BarrierHeader'
+import CategoryHeader from './Components/CategoryHeader'
+import BarrierSidebar from './Components/BarrierSidebar'
 
 const AdminView = () => {
     const {
@@ -24,7 +24,9 @@ const AdminView = () => {
         error: errorProjectCategoryQuery,
         refetch: refetchProjectCategories,
     } = useProjectCategoriesQuery()
+
     const { questions, loading, error, refetch: refetchQuestionTemplates } = useQuestionTemplatesQuery()
+
     const {
         createQuestionTemplate,
         createdQuestionTemplate,
@@ -33,6 +35,7 @@ const AdminView = () => {
     } = useCreateQuestionTemplateMutation()
 
     const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
+
     const [prevQuestionsCount, setPrevQuestionsCount] = useState(questions ? questions.length : 0)
     const [selectedBarrier, setSelectedBarrier] = useState<Barrier>(Barrier.Gm)
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>('all')

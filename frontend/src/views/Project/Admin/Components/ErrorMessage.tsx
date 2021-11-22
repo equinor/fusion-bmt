@@ -1,9 +1,11 @@
 import React from 'react'
+
 import { Box } from '@material-ui/core'
 import { tokens } from '@equinor/eds-tokens'
 import { Icon, Typography } from '@equinor/eds-core-react'
 import { close } from '@equinor/eds-icons'
-import { apiErrorMessage } from '../../../api/error'
+
+import { apiErrorMessage } from '../../../../api/error'
 
 interface Props {
     text: string

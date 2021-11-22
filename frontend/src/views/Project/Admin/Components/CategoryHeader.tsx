@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
+
 import { Box } from '@material-ui/core'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
 import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add, delete_to_trash } from '@equinor/eds-icons'
 
-import { ProjectCategory } from '../../api/models'
-import { useEffectNotOnMount } from '../../utils/hooks'
-import ConfirmationDialog from '../../components/ConfirmationDialog'
-import ErrorMessage from './Components/ErrorMessage'
+import { ProjectCategory } from '../../../../api/models'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
+import ConfirmationDialog from '../../../../components/ConfirmationDialog'
+import ErrorMessage from './ErrorMessage'
 import CreateProjectCategorySidebar from './CreateProjectCategorySidebar'
 
 interface Props {

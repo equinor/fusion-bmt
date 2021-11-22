@@ -1,7 +1,8 @@
 import { Box } from '@material-ui/core'
 import { Button } from '@equinor/eds-core-react'
-import SaveIndicator from '../../../components/SaveIndicator'
-import { SavingState } from '../../../utils/Variables'
+
+import { SavingState } from '../../../../utils/Variables'
+import SaveIndicator from '../../../../components/SaveIndicator'
 
 interface Props {
     isQuestionTemplateSaving: boolean

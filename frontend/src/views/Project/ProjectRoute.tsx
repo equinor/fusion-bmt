@@ -2,17 +2,17 @@ import React from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
-import { ApplicationGuidanceAnchor, TextArea } from '@equinor/fusion-components'
+import { TextArea } from '@equinor/fusion-components'
 import { Tabs } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 
-import ProjectDashboardView from './Dashboard/ProjectDashboardView'
+import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
 import { StyledTabPanel } from '../../components/StyledTabs'
 import { apiErrorMessage } from '../../api/error'
-import ActionTableForOneUserWithApi from '../../components/ActionTable/ActionTableForOneUserWithApi'
-import { Project } from '../../api/models'
-import AdminView from '../Admin/AdminView'
+import ActionsView from './Actions/ActionsView'
+import AdminView from './Admin/AdminView'
+import DashboardView from './Dashboard/DashboardView'
 
 const { List, Tab, Panels } = Tabs
 
@@ -51,10 +51,10 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
                 </List>
                 <Panels>
                     <StyledTabPanel>
-                        <ProjectDashboardView project={project} />
+                        <DashboardView project={project} />
                     </StyledTabPanel>
                     <StyledTabPanel>
-                        <ActionTableForOneUserWithApi azureUniqueId={currentUser!.id} />
+                        <ActionsView azureUniqueId={currentUser!.id} />
                     </StyledTabPanel>
                     {isAdmin ? (
                         <StyledTabPanel>

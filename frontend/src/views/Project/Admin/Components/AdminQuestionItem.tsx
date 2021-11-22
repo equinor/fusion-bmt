@@ -1,11 +1,13 @@
 import React, { RefObject } from 'react'
+
 import { Divider } from '@equinor/eds-core-react'
-import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../api/models'
+import { ApolloError, gql, useMutation } from '@apollo/client'
+
+import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../../../api/models'
+import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../../../api/fragments'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
 import StaticQuestionItem from './StaticQuestionItem'
 import EditableQuestionItem from './EditableQuestionItem'
-import { useEffectNotOnMount } from '../../utils/hooks'
-import { ApolloError, gql, useMutation } from '@apollo/client'
-import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../api/fragments'
 
 interface Props {
     question: QuestionTemplate

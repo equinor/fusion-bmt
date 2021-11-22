@@ -22,7 +22,7 @@ import { disableProgression } from '../../../utils/disableComponents'
 import SaveIndicator from '../../../components/SaveIndicator'
 import { SavingState } from '../../../utils/Variables'
 import { useEffectNotOnMount } from '../../../utils/hooks'
-import ErrorMessage from '../../Admin/Components/ErrorMessage'
+import ErrorMessage from '../../Project/Admin/Components/ErrorMessage'
 
 interface NominationViewProps {
     evaluation: Evaluation

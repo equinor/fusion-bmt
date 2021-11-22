@@ -1,20 +1,21 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import styled from 'styled-components'
+
 import { Icon, Table, Tooltip, Typography } from '@equinor/eds-core-react'
 import { warning_filled } from '@equinor/eds-icons'
-import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
-import { Evaluation, Progression } from '../../../api/models'
-import ProgressStatusIcon from '../../../components/ProgressStatusIcon'
-import { Link } from 'react-router-dom'
-import { useProject } from '../../../globals/contexts'
-import { progressionToString } from '../../../utils/EnumToString'
-import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../utils/ProgressionStatus'
-import { sort, SortDirection } from '../../../utils/sort'
-import SortableTable, { Column } from '../../../components/SortableTable'
-import Bowtie from '../../../components/Bowtie/Bowtie'
-import { assignAnswerToBarrierQuestions } from '../../Evaluation/FollowUp/Summaries/helpers'
-import { getEvaluationActionsByState } from '../../../utils/actionUtils'
-import styled from 'styled-components'
 import { tokens } from '@equinor/eds-tokens'
+
+import { useProject } from '../../../../globals/contexts'
+import { progressionToString } from '../../../../utils/EnumToString'
+import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
+import { sort, SortDirection } from '../../../../utils/sort'
+import { Evaluation, Progression } from '../../../../api/models'
+import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/Summaries/helpers'
+import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
+import Bowtie from '../../../../components/Bowtie/Bowtie'
+import SortableTable, { Column } from '../../../../components/SortableTable'
+import ProgressStatusIcon from '../../../../components/ProgressStatusIcon'
 
 const { Row, Cell } = Table
 
@@ -77,6 +78,7 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                 return sort(a.name, b.name, sortDirection)
         }
     }
+
     const renderRow = (evaluation: Evaluation, index: number) => {
         const project = useProject()
         const isWorkshopOrFollowUp = evaluation.progression === Progression.Workshop || evaluation.progression === Progression.FollowUp
@@ -101,21 +103,23 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                 </CellWithBorder>
                 <CellWithBorder>
                     <Centered>
-                        {Object.values(Progression).filter(p => p !== Progression.Finished).map(progression => (
-                            <Tooltip
-                                key={index + progression}
-                                placement="bottom"
-                                title={
-                                    progressionToString(progression) +
-                                    ' ' +
-                                    calcProgressionStatus(evaluation.progression, progression).toLowerCase()
-                                }
-                            >
-                                <span>
-                                    <ProgressStatusIcon progression={evaluation.progression} compareProgression={progression} />
-                                </span>
-                            </Tooltip>
-                        ))}
+                        {Object.values(Progression)
+                            .filter(p => p !== Progression.Finished)
+                            .map(progression => (
+                                <Tooltip
+                                    key={index + progression}
+                                    placement="bottom"
+                                    title={
+                                        progressionToString(progression) +
+                                        ' ' +
+                                        calcProgressionStatus(evaluation.progression, progression).toLowerCase()
+                                    }
+                                >
+                                    <span>
+                                        <ProgressStatusIcon progression={evaluation.progression} compareProgression={progression} />
+                                    </span>
+                                </Tooltip>
+                            ))}
                     </Centered>
                 </CellWithBorder>
                 <CellWithBorder>

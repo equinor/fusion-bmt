@@ -1,10 +1,11 @@
 import React, { RefObject, useRef, useState } from 'react'
+
 import { Box } from '@material-ui/core'
 import { Button, Icon, Tooltip, Typography } from '@equinor/eds-core-react'
 import { add, more_vertical } from '@equinor/eds-icons'
 
-import { Organization, QuestionTemplate } from '../../api/models'
-import OrganizationFilter from '../../components/OrganizationFilter'
+import { Organization, QuestionTemplate } from '../../../../api/models'
+import OrganizationFilter from '../../../../components/OrganizationFilter'
 import BarrierMenu from './BarrierMenu'
 
 interface Props {

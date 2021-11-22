@@ -4,9 +4,9 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Button, ModalSideSheet, SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
-import { useProject } from '../../../globals/contexts'
-import { apiErrorMessage } from '../../../api/error'
-import { Evaluation, ProjectCategory } from '../../../api/models'
+import { useProject } from '../../../../globals/contexts'
+import { apiErrorMessage } from '../../../../api/error'
+import { Evaluation, ProjectCategory } from '../../../../api/models'
 
 interface CreateEvaluationDialogProps {
     open: boolean
