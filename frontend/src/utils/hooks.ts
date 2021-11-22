@@ -186,6 +186,10 @@ export const useFilter = <Type>() => {
     return { filter, onFilterToggled }
 }
 
+/*
+ * Checks if the provided value is valid according to the provided validityCheck and returns a Validity object.
+ * Updates the Validity every time the value changes.
+ */
 export const useValidityCheck = <Type>(value: Type, isValid: () => boolean) => {
     const [valueValidity, setValueValidity] = useState<Validity>('default')
 
