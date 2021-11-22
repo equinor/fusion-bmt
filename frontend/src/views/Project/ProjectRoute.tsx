@@ -45,19 +45,9 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
         <ProjectContext.Provider value={project}>
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
                 <List>
-                    <ApplicationGuidanceAnchor anchor={'dashboard-tabs-dashboard'} scope="bmt">
-                        <Tab>Dashboard</Tab>
-                    </ApplicationGuidanceAnchor>
-                    <ApplicationGuidanceAnchor anchor={'dashboard-tabs-actions'} scope="bmt">
-                        <Tab>Actions</Tab>
-                    </ApplicationGuidanceAnchor>
-                    {isAdmin ? (
-                        <ApplicationGuidanceAnchor anchor={'dashboard-tabs-admin'} scope="bmt">
-                            <Tab>Admin</Tab>
-                        </ApplicationGuidanceAnchor>
-                    ) : (
-                        <></>
-                    )}
+                    <Tab>Dashboard</Tab>
+                    <Tab>Actions</Tab>
+                    {isAdmin ? <Tab>Admin</Tab> : <></>}
                 </List>
                 <Panels>
                     <StyledTabPanel>
