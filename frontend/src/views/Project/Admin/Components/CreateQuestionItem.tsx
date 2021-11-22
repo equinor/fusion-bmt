@@ -4,13 +4,13 @@ import { TextField, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 import { ApolloError } from '@apollo/client'
 
-import { Barrier, Organization, QuestionTemplate } from '../../api/models'
-import { ErrorIcon, TextFieldChangeEvent } from '../../components/Action/utils'
-import { getOrganizationOptionsForDropdown } from '../helpers'
-import { useEffectNotOnMount, useValidityCheck } from '../../utils/hooks'
-import { DataToCreateQuestionTemplate } from './AdminView'
-import ErrorMessage from './Components/ErrorMessage'
-import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
+import { Barrier, Organization, QuestionTemplate } from '../../../../api/models'
+import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
+import { getOrganizationOptionsForDropdown } from '../../../helpers'
+import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
+import { DataToCreateQuestionTemplate } from '../AdminView'
+import ErrorMessage from './ErrorMessage'
+import CancelOrSaveQuestion from './CancelOrSaveQuestion'
 
 interface Props {
     barrier: Barrier

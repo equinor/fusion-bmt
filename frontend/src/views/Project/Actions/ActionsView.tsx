@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react'
+
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { useApiClients, Context } from '@equinor/fusion'
-import { Action, Barrier, Organization } from '../../api/models'
-import ActionTable from './ActionTable'
-import ActionEditSidebarWithApi from '../Action/EditForm/ActionEditSidebarWithApi'
-import { useAllPersonDetailsAsync } from '../../utils/hooks'
+
+import { useAllPersonDetailsAsync } from '../../../utils/hooks'
+import { Action } from '../../../api/models'
+import ActionTable from '../../../components/ActionTable/ActionTable'
+import ActionEditSidebarWithApi from '../../../components/Action/EditForm/ActionEditSidebarWithApi'
 import {
     ACTION_FIELDS_FRAGMENT,
     CLOSING_REMARK_FIELDS_FRAGMENT,
     NOTE_FIELDS_FRAGMENT,
     PARTICIPANTS_ARRAY_FRAGMENT,
     QUESTION_FIELDS_FRAGMENT,
-} from '../../api/fragments'
+} from '../../../api/fragments'
 
 interface Props {
     azureUniqueId: string
 }
 
-const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
+const ActionsView = ({ azureUniqueId }: Props) => {
     const apiClients = useApiClients()
 
     const { actions } = useActionsQuery(azureUniqueId)
@@ -75,7 +77,7 @@ const ActionTableForOneUserWithApi = ({ azureUniqueId }: Props) => {
     )
 }
 
-export default ActionTableForOneUserWithApi
+export default ActionsView
 
 interface ActionsQueryProps {
     loading: boolean

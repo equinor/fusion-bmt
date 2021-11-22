@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react'
+
 import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
-
-import { Organization, QuestionTemplate } from '../../api/models'
-import { ErrorIcon, TextFieldChangeEvent, Validity } from '../../components/Action/utils'
-import { DataToEditQuestionTemplate } from './AdminQuestionItem'
 import { ApolloError } from '@apollo/client'
-import { getOrganizationOptionsForDropdown, updateValidity } from '../helpers'
-import { useEffectNotOnMount } from '../../utils/hooks'
-import CancelOrSaveQuestion from './Components/CancelOrSaveQuestion'
-import ErrorMessage from './Components/ErrorMessage'
+
+import { Organization, QuestionTemplate } from '../../../../api/models'
+import { ErrorIcon, TextFieldChangeEvent, Validity } from '../../../../components/Action/utils'
+import { getOrganizationOptionsForDropdown, updateValidity } from '../../../helpers'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
+import CancelOrSaveQuestion from './CancelOrSaveQuestion'
+import ErrorMessage from './ErrorMessage'
+import { DataToEditQuestionTemplate } from './AdminQuestionItem'
 
 interface Props {
     question: QuestionTemplate

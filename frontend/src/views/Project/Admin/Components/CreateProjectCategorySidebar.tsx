@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
+
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
 import { Button, TextField } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
 
-import { useSavingStateCheck, useValidityCheck } from '../../utils/hooks'
-import { ErrorIcon, TextFieldChangeEvent } from '../../components/Action/utils'
-import { ProjectCategory } from '../../api/models'
-import SaveIndicator from '../../components/SaveIndicator'
-import ErrorMessage from './Components/ErrorMessage'
+import { useSavingStateCheck, useValidityCheck } from '../../../../utils/hooks'
+import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
+import { ProjectCategory } from '../../../../api/models'
+import SaveIndicator from '../../../../components/SaveIndicator'
+import ErrorMessage from './ErrorMessage'
 
 interface Props {
     isOpen: boolean

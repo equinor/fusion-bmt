@@ -1,5 +1,5 @@
 import React from 'react'
-import { EvaluationsByProjectMasterAndPortfolio } from '../../../utils/hooks'
+import { EvaluationsByProjectMasterAndPortfolio } from '../../../../utils/hooks'
 import { Accordion } from '@equinor/eds-core-react'
 import TablesAndTitles from './TablesAndTitles'
 

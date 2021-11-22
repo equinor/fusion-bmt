@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import { Button, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
-import CreateEvaluationDialog from './CreateEvaluationDialog'
-import { useProject } from '../../../globals/contexts'
-import { apiErrorMessage } from '../../../api/error'
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { Evaluation } from '../../../api/models'
-import { EVALUATION_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { Button, TextArea } from '@equinor/fusion-components'
+
+import { useProject } from '../../../../globals/contexts'
+import { apiErrorMessage } from '../../../../api/error'
+import { Evaluation } from '../../../../api/models'
+import { EVALUATION_FIELDS_FRAGMENT } from '../../../../api/fragments'
+import CreateEvaluationDialog from './CreateEvaluationDialog'
 
 interface CreateEvaluationButtonProps {
     projectId: string
@@ -17,11 +18,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     const project = useProject()
     const [showDialog, setShowDialog] = useState<boolean>(false)
 
-    const onCreateEvaluationDialogSureClick = (
-        name: string,
-        projectCategoryId: string,
-        previousEvaluationId?: string
-    ) => {
+    const onCreateEvaluationDialogSureClick = (name: string, projectCategoryId: string, previousEvaluationId?: string) => {
         setShowDialog(false)
         createEvaluation(name, projectId, projectCategoryId, previousEvaluationId)
     }
@@ -34,20 +31,12 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
         setShowDialog(true)
     }
 
-    const {
-        createEvaluation,
-        loading: loadingMutation,
-        evaluation,
-        error: errorMutation
-    } = useCreateEvaluationMutation()
+    const { createEvaluation, loading: loadingMutation, evaluation, error: errorMutation } = useCreateEvaluationMutation()
 
     if (errorMutation !== undefined) {
         return (
             <div>
-                <TextArea
-                    value={apiErrorMessage('Could not create evaluation')}
-                    onChange={() => {}}
-                />
+                <TextArea value={apiErrorMessage('Could not create evaluation')} onChange={() => {}} />
             </div>
         )
     }
@@ -55,10 +44,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     if (evaluation === undefined) {
         return (
             <>
-                <Button
-                    onClick={onCreateEvaluationButtonClick}
-                    disabled={loadingMutation}
-                >
+                <Button onClick={onCreateEvaluationButtonClick} disabled={loadingMutation}>
                     Create evaluation
                 </Button>
 
@@ -91,12 +77,7 @@ interface CreateEvaluationMutationProps {
 
 const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
     const ADD_EVALUATION = gql`
-        mutation CreateEvaluation(
-            $name: String!
-            $projectId: String!
-            $previousEvaluationId: String
-            $projectCategoryId: String!
-        ) {
+        mutation CreateEvaluation($name: String!, $projectId: String!, $previousEvaluationId: String, $projectCategoryId: String!) {
             createEvaluation(
                 name: $name
                 projectId: $projectId
@@ -125,12 +106,7 @@ const useCreateEvaluationMutation = (): CreateEvaluationMutationProps => {
         },
     })
 
-    const createEvaluation = (
-        name: string,
-        projectId: string,
-        projectCategoryId: string,
-        previousEvaluationId?: string
-    ) => {
+    const createEvaluation = (name: string, projectId: string, projectCategoryId: string, previousEvaluationId?: string) => {
         createEvaluationApolloFunc({
             variables: { name, projectId, previousEvaluationId, projectCategoryId },
         })

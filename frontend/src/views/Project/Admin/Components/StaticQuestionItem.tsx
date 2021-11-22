@@ -1,22 +1,23 @@
 import React, { RefObject, useState } from 'react'
+import { ApolloError, gql, useMutation } from '@apollo/client'
+import styled from 'styled-components'
+
+import { Box } from '@material-ui/core'
 import { tokens } from '@equinor/eds-tokens'
 import { MarkdownViewer } from '@equinor/fusion-components'
 import { Button, Chip, Icon, MultiSelect, Tooltip, Typography } from '@equinor/eds-core-react'
-import { Box } from '@material-ui/core'
 import { arrow_down, arrow_up, platform, work } from '@equinor/eds-icons'
-
-import { ProjectCategory, QuestionTemplate } from '../../api/models'
-import { organizationToString } from '../../utils/EnumToString'
 import { UseMultipleSelectionStateChange } from 'downshift'
-import { ApolloError, gql, useMutation } from '@apollo/client'
-import SaveIndicator from '../../components/SaveIndicator'
-import { SavingState } from '../../utils/Variables'
-import { deriveNewSavingState, getNextNextQuestion, getNextQuestion, getPrevQuestion } from '../helpers'
-import { useEffectNotOnMount } from '../../utils/hooks'
-import ConfirmationDialog from '../../components/ConfirmationDialog'
-import ErrorMessage from './Components/ErrorMessage'
-import QuestionTemplateButtons from './Components/QuestionTemplateButtons'
-import styled from 'styled-components'
+
+import { ProjectCategory, QuestionTemplate } from '../../../../api/models'
+import { organizationToString } from '../../../../utils/EnumToString'
+import SaveIndicator from '../../../../components/SaveIndicator'
+import { SavingState } from '../../../../utils/Variables'
+import { deriveNewSavingState, getNextNextQuestion, getNextQuestion, getPrevQuestion } from '../../../helpers'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
+import ConfirmationDialog from '../../../../components/ConfirmationDialog'
+import ErrorMessage from './ErrorMessage'
+import QuestionTemplateButtons from './QuestionTemplateButtons'
 
 const StyledDiv = styled.div<{ isNew: boolean }>`
     display: flex;
