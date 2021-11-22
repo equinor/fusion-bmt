@@ -1,51 +1,66 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import { genericErrorMessage } from '../../../../utils/Variables'
 import { Button, ErrorMessage, ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
-import { TextField, Typography } from '@equinor/eds-core-react'
+import { TextField } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
+
+import { genericErrorMessage } from '../../../../utils/Variables'
 import { useProject } from '../../../../globals/contexts'
+import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
 import { Evaluation, ProjectCategory } from '../../../../api/models'
+import { ErrorIcon } from '../../../../components/Action/utils'
+import ErrorBanner from '../../../../components/ErrorBanner'
 
 interface CreateEvaluationDialogProps {
     open: boolean
     onCreate: (name: string, projectCategoryId: string, previousEvaluationId?: string) => void
     onCancelClick: () => void
+    createEvaluationError: ApolloError | undefined
 }
 
-const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluationDialogProps) => {
+const CreateEvaluationDialog = ({ open, onCreate, onCancelClick, createEvaluationError }: CreateEvaluationDialogProps) => {
     const project = useProject()
-    const [nameInputValue, setNameInputValue] = useState<string>('')
-    const [inputErrorMessage, setInputErrorMessage] = useState<string>('')
-    const [selectedEvaluation, setSelectedEvaluation] = useState<string | undefined>(undefined)
 
+    const { loading: loadingEvaluationQuery, evaluations, error: errorEvaluationQuery } = useGetAllEvaluationsQuery(project.id)
+    const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
+
+    const [nameInputValue, setNameInputValue] = useState<string>('')
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string | undefined>(undefined)
+    const [selectedEvaluation, setSelectedEvaluation] = useState<string | undefined>(undefined)
+    const [showCreateErrorMessage, setShowCreateErrorMessage] = useState<boolean>(false)
+
+    useEffectNotOnMount(() => {
+        if (createEvaluationError !== undefined) {
+            setShowCreateErrorMessage(true)
+        }
+    }, [createEvaluationError])
+
+    const isNameInputValid = () => {
+        return nameInputValue.length > 0
+    }
+
+    const isCategorySelectionValid = () => {
+        return selectedProjectCategory !== undefined
+    }
+
+    const { valueValidity: nameInputValidity } = useValidityCheck<string>(nameInputValue, isNameInputValid)
+    const { valueValidity: categorySelectionValidity } = useValidityCheck<string | undefined>(
+        selectedProjectCategory,
+        isCategorySelectionValid
+    )
 
     const handleCreateClick = () => {
-        if (nameInputValue.length <= 0) {
-            setInputErrorMessage(`The evaluation name must be filled out`)
-        } else if (selectedProjectCategory === undefined) {
-            setInputErrorMessage('A Project Category must be selected')
-        } else {
+        if (selectedProjectCategory !== undefined) {
             onCreate(nameInputValue, selectedProjectCategory, selectedEvaluation)
         }
     }
-
-    const onInputChange = (name: string) => {
-        setInputErrorMessage('')
-        setNameInputValue(name)
-    }
-
-    const { loading: loadingEvaluationQuery, evaluations, error: errorEvaluationQuery } = useGetAllEvaluationsQuery(project.id)
-
-    const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
 
     if (loadingEvaluationQuery || loadingProjectCategoryQuery) {
         return <>Loading...</>
     }
 
-    const missingData =
+    const isMissingData =
         evaluations === undefined ||
         projectCategories === undefined ||
         errorEvaluationQuery !== undefined ||
@@ -70,7 +85,7 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluat
     return (
         <>
             <ModalSideSheet show={open} onClose={onCancelClick} header="Create Evaluation" size="medium">
-                {missingData && (
+                {isMissingData && (
                     <ErrorMessage
                         hasError
                         title="Missing data"
@@ -78,53 +93,63 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluat
                         message={'Unfortunately, we were not able to fetch the necessary data. ' + genericErrorMessage}
                     />
                 )}
-                {!missingData && (
+                {!isMissingData && (
                     <Container>
+                        {showCreateErrorMessage && (
+                            <ErrorBanner
+                                message={'Unable to create evaluation. ' + genericErrorMessage}
+                                onClose={() => setShowCreateErrorMessage(false)}
+                            />
+                        )}
                         <Grid container spacing={3}>
-                            <Grid item xs={12}>
-                                <Typography>
-                                    In order to revert such a creation you will have to talk with the developers of this application.
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} style={{ marginTop: '20px' }}>
                                 <TextField
+                                    data-testid="create_evaluation_dialog_name_text_field"
                                     id="" // avoids error
                                     autoFocus={true}
                                     onChange={(e: any) => {
-                                        onInputChange(e.target.value)
+                                        setNameInputValue(e.target.value)
                                     }}
-                                    placeholder="Evaluation Name"
+                                    label="Evaluation name (required)"
                                     onKeyPress={(e: any) => {
                                         if (e.key === 'Enter') {
                                             handleCreateClick()
                                         }
                                     }}
-                                    data-testid="create_evaluation_dialog_name_text_field"
+                                    variant={nameInputValidity}
+                                    helperText={nameInputValidity === 'error' ? 'The evaluation name must be filled out' : ''}
+                                    helperIcon={nameInputValidity === 'error' ? ErrorIcon : <></>}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <SearchableDropdown
-                                    label="Project Category"
+                                    label="Project Category (required)"
                                     placeholder="Select Project Category"
                                     onSelect={option => setSelectedProjectCategory(option.key)}
                                     options={projectCategoryOptions}
+                                    error={categorySelectionValidity === 'error'}
+                                    errorMessage="A Project Category must be selected"
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <SearchableDropdown
-                                    label="Previous Evaluation (Optional)"
+                                    label="Previous evaluation (optional)"
                                     placeholder="Select previous evaluation"
                                     onSelect={option => setSelectedEvaluation(option.key)}
                                     options={evaluationOptions}
                                 />
                             </Grid>
-                            {inputErrorMessage !== '' && (
-                                <Grid item xs={12}>
-                                    <Typography color="danger">{inputErrorMessage}</Typography>
+                            <Grid container justifyContent="flex-end" style={{ paddingRight: '12px' }}>
+                                <Grid item>
+                                    <Button outlined onClick={onCancelClick}>
+                                        Cancel
+                                    </Button>
                                 </Grid>
-                            )}
-                            <Grid item xs={12} data-testid="create_evaluation_dialog_create_button_grid">
-                                <Button onClick={handleCreateClick}>Create</Button>
+                                <Grid item data-testid="create_evaluation_dialog_create_button_grid">
+                                    <Button onClick={handleCreateClick} disabled={!isNameInputValid() || !isCategorySelectionValid()}>
+                                        Create
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Container>

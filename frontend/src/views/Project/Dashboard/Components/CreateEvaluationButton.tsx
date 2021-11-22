@@ -2,13 +2,13 @@ import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { Button, TextArea } from '@equinor/fusion-components'
+import { Button } from '@equinor/fusion-components'
 
 import { useProject } from '../../../../globals/contexts'
-import { apiErrorMessage } from '../../../../api/error'
 import { Evaluation } from '../../../../api/models'
 import { EVALUATION_FIELDS_FRAGMENT } from '../../../../api/fragments'
 import CreateEvaluationDialog from './CreateEvaluationDialog'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
 
 interface CreateEvaluationButtonProps {
     projectId: string
@@ -17,13 +17,19 @@ interface CreateEvaluationButtonProps {
 const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     const project = useProject()
     const [showDialog, setShowDialog] = useState<boolean>(false)
+    const { createEvaluation, loading: creatingEvaluation, evaluation, error: createEvaluationError } = useCreateEvaluationMutation()
 
-    const onCreateEvaluationDialogSureClick = (name: string, projectCategoryId: string, previousEvaluationId?: string) => {
-        setShowDialog(false)
+    useEffectNotOnMount(() => {
+        if (!creatingEvaluation && evaluation !== undefined) {
+            setShowDialog(false)
+        }
+    }, [creatingEvaluation])
+
+    const onCreateEvaluationClick = (name: string, projectCategoryId: string, previousEvaluationId?: string) => {
         createEvaluation(name, projectId, projectCategoryId, previousEvaluationId)
     }
 
-    const onCreateEvaluationDialogCancelClick = () => {
+    const onCreateEvaluationCancelClick = () => {
         setShowDialog(false)
     }
 
@@ -31,28 +37,19 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
         setShowDialog(true)
     }
 
-    const { createEvaluation, loading: loadingMutation, evaluation, error: errorMutation } = useCreateEvaluationMutation()
-
-    if (errorMutation !== undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not create evaluation')} onChange={() => {}} />
-            </div>
-        )
-    }
-
     if (evaluation === undefined) {
         return (
             <>
-                <Button onClick={onCreateEvaluationButtonClick} disabled={loadingMutation}>
+                <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
                     Create evaluation
                 </Button>
 
                 {showDialog && (
                     <CreateEvaluationDialog
                         open={showDialog}
-                        onCreate={onCreateEvaluationDialogSureClick}
-                        onCancelClick={onCreateEvaluationDialogCancelClick}
+                        onCreate={onCreateEvaluationClick}
+                        onCancelClick={onCreateEvaluationCancelClick}
+                        createEvaluationError={createEvaluationError}
                     />
                 )}
             </>

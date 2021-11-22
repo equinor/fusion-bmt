@@ -159,7 +159,9 @@ const DashboardView = ({ project }: Props) => {
             )}
             {portfoliosSelected && (
                 <>
-                    {allActiveEvaluationsWithProjectMasterAndPortfolio && <Portfolios evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio} />}
+                    {allActiveEvaluationsWithProjectMasterAndPortfolio && (
+                        <Portfolios evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio} />
+                    )}
                     {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
                     {errorActiveEvaluations !== undefined && errorMessage}
                 </>

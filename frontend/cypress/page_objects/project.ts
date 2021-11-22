@@ -19,7 +19,7 @@ export default class ProjectPage {
         }
 
         previousEvaluation = () => {
-            return cy.contains('Previous Evaluation').parent()
+            return cy.contains('Previous evaluation').parent()
         }
 
         projectCategoryTextField = () => {
