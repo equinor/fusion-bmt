@@ -1,0 +1,8 @@
+parameters:
+    - name: containerRegistry
+
+steps:
+    - task: Docker@2
+      inputs:
+          containerRegistry: ${{ parameters.containerRegistry }}"
+          command: "login"

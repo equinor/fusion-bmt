@@ -106,107 +106,38 @@ stages:
                           $(Build.BuildId)
                           release
 
-    - stage: CI_Environment
-      dependsOn: # this stage runs after buildfrontend and buildbackend
-          - Build_Frontend_App
-          - Build_Backend_Container
-          - Build_Frontend_Container
-      jobs:
-          - deployment: EnableCIEnvironment
-            environment: CI
-            strategy:
-                runOnce:
-                    deploy:
-                        steps:
-                            - bash: |
-                                  echo '##vso[task.setvariable variable=ciApproval;]true'
-    - template: templates/stage-deploy-frontend.yml
+    - template: templates/stage-deploy.yml
       parameters:
-          name: Deploy_Frontend_CI
+          name: Deploy_CI
           envshortname: ci
-          envfullname: ci-deploy
-          dependsOn: CI_Environment
+          envfullname: CI
           fusionToken: "$(tokenResource)"
           fusionBundlePath: "$(Agent.BuildDirectory)/bmt.zip"
           portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
           buildId: $(Build.BuildId)
-
-    - template: templates/stage-deploy-backend.yml
-      parameters:
-          name: Deploy_Backend_CI
-          envshortname: ci
-          envfullname: ci-deploy
-          dependsOn: CI_Environment
-          buildId: $(Build.BuildId)
-
-    - template: templates/stage-trigger-radix.yml
-      parameters:
-          name: Trigger_Radix_BuildDeploy_CI
           radixToken: $(RadixToken)
-          buildId: $(Build.BuildId)
-          envshortname: CI
           branch: master
 
-    - template: templates/stage-deploy-approval.yml
+    - template: templates/stage-deploy.yml
       parameters:
+          name: Deploy_QA
           envshortname: qa
-          dependsOn: Trigger_Radix_BuildDeploy_CI
-
-    - template: templates/stage-deploy-frontend.yml
-      parameters:
-          name: Deploy_Frontend_QA
-          envshortname: qa
-          envfullname: qa-deploy
-          dependsOn: qa_Environment
+          envfullname: QA
           fusionToken: "$(tokenResource)"
           fusionBundlePath: "$(Agent.BuildDirectory)/bmt.zip"
           portalUrl: "https://pro-s-portal-fqa.azurewebsites.net/"
           buildId: $(Build.BuildId)
-
-    - template: templates/stage-deploy-backend.yml
-      parameters:
-          name: Deploy_Backend_QA
-          envshortname: qa
-          envfullname: qa-deploy
-          dependsOn: qa_Environment
-          buildId: $(Build.BuildId)
-
-    - template: templates/stage-trigger-radix.yml
-      parameters:
-          name: Trigger_Radix_BuildDeploy_QA
           radixToken: $(RadixToken)
-          buildId: $(Build.BuildId)
-          envshortname: QA
           branch: qa
 
-    - template: templates/stage-deploy-approval.yml
+    - template: templates/stage-deploy.yml
       parameters:
+          name: Deploy_Prod
           envshortname: Production
-          dependsOn: Trigger_Radix_BuildDeploy_QA
-
-    - template: templates/stage-deploy-frontend.yml
-      parameters:
-          name: Deploy_Frontend_Production
-          envshortname: Production
-          envfullname: prod-deploy
-          dependsOn: Production_Environment
-          fusionToken: "$(tokenResource)"
+          envfullname: Production
+          fusionToken: "$(tokenResourceProd)"
           fusionBundlePath: "$(Agent.BuildDirectory)/bmt.zip"
           portalUrl: "https://pro-s-portal-fprd.azurewebsites.net"
           buildId: $(Build.BuildId)
-
-    - template: templates/stage-deploy-backend.yml
-      parameters:
-          name: Deploy_Backend_Production
-          envshortname: Production
-          envfullname: prod-deploy
-          dependsOn: Production_Environment
-          buildId: $(Build.BuildId)
-
-    - template: templates/stage-trigger-radix.yml
-      parameters:
-          name: Trigger_Radix_BuildDeploy_Prod
           radixToken: $(RadixToken)
-          buildId: $(Build.BuildId)
-          envshortname: Production
           branch: prod
