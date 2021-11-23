@@ -3,9 +3,10 @@ import styled from 'styled-components'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
-import { TextArea, ApplicationGuidanceAnchor } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor, ErrorMessage } from '@equinor/fusion-components'
 import { useCurrentUser } from '@equinor/fusion'
 
+import { genericErrorMessage } from '../../../utils/Variables'
 import { Evaluation, Project, Status } from '../../../api/models'
 import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useEvaluationsWithPortfolio } from '../../../utils/hooks'
@@ -69,18 +70,17 @@ interface Props {
 
 const DashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
-    const userIsAdmin = currentUser && currentUser.roles.includes('Role.Admin')
-
-    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.User)
-
-    const myEvaluationsSelected = selectedProjectTable === TableSelection.User
-    const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
-    const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden
-    const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
 
     if (!currentUser) {
         return <p>Please log in.</p>
     }
+
+    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.User)
+    const userIsAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+    const myEvaluationsSelected = selectedProjectTable === TableSelection.User
+    const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
+    const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden
+    const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
 
     const {
         loading: loadingUserEvaluations,
@@ -108,37 +108,7 @@ const DashboardView = ({ project }: Props) => {
 
     const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations)
 
-    if (errorUserEvaluations !== undefined) {
-        return (
-            <div>
-                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorUserEvaluations)}`} onChange={() => {}} />
-            </div>
-        )
-    }
-
-    if (errorProjectEvaluations !== undefined) {
-        return (
-            <div>
-                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorProjectEvaluations)}`} onChange={() => {}} />
-            </div>
-        )
-    }
-
-    if (errorHiddenEvaluations !== undefined) {
-        return (
-            <div>
-                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorHiddenEvaluations)}`} onChange={() => {}} />
-            </div>
-        )
-    }
-
-    if (errorActiveEvaluations !== undefined) {
-        return (
-            <div>
-                <TextArea value={`Error in loading evaluations: ${JSON.stringify(errorActiveEvaluations)}`} onChange={() => {}} />
-            </div>
-        )
-    }
+    const errorMessage = <ErrorMessage hasError errorType={'noData'} message={genericErrorMessage} />
 
     return (
         <div style={{ margin: 20 }}>
@@ -170,26 +140,28 @@ const DashboardView = ({ project }: Props) => {
                 <>
                     {userEvaluations && <EvaluationsTable evaluations={userEvaluations} />}
                     {loadingUserEvaluations && <CenteredCircularProgress />}
+                    {errorUserEvaluations !== undefined && errorMessage}
                 </>
             )}
             {projectEvaluationsSelected && (
                 <>
                     {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
                     {loadingProjectEvaluations && <CenteredCircularProgress />}
+                    {errorProjectEvaluations !== undefined && errorMessage}
                 </>
             )}
             {hiddenEvaluationsSelected && (
                 <>
                     {hiddenEvaluations && <EvaluationsTable evaluations={hiddenEvaluations} />}
                     {loadingHiddenEvaluations && <CenteredCircularProgress />}
+                    {errorHiddenEvaluations !== undefined && errorMessage}
                 </>
             )}
             {portfoliosSelected && (
                 <>
-                    {allActiveEvaluationsWithProjectMasterAndPortfolio && (
-                        <Portfolios evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio} />
-                    )}
+                    {allActiveEvaluationsWithProjectMasterAndPortfolio && <Portfolios evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio} />}
                     {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
+                    {errorActiveEvaluations !== undefined && errorMessage}
                 </>
             )}
         </div>

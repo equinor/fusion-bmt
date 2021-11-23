@@ -1,5 +1,5 @@
 import { Typography } from '@equinor/eds-core-react'
-import { EvaluationsByProjectMaster } from '../../../utils/hooks'
+import { EvaluationsByProjectMaster } from '../../../../utils/hooks'
 import EvaluationsTable from './EvaluationsTable'
 
 interface Props {

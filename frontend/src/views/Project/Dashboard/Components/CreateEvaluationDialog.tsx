@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import { Button, ModalSideSheet, SearchableDropdown, SearchableDropdownOption, TextArea } from '@equinor/fusion-components'
+import { genericErrorMessage } from '../../../../utils/Variables'
+import { Button, ErrorMessage, ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
 import { useProject } from '../../../../globals/contexts'
-import { apiErrorMessage } from '../../../../api/error'
 import { Evaluation, ProjectCategory } from '../../../../api/models'
 
 interface CreateEvaluationDialogProps {
@@ -45,86 +45,90 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick }: CreateEvaluat
         return <>Loading...</>
     }
 
-    if (errorEvaluationQuery !== undefined || evaluations === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not load evaluations')} onChange={() => {}} />
-            </div>
-        )
-    }
+    const missingData =
+        evaluations === undefined ||
+        projectCategories === undefined ||
+        errorEvaluationQuery !== undefined ||
+        errorProjectCategoryQuery !== undefined
 
-    if (errorProjectCategoryQuery !== undefined || projectCategories === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not load Project Categorie')} onChange={() => {}} />
-            </div>
-        )
-    }
+    const projectCategoryOptions: SearchableDropdownOption[] = projectCategories
+        ? projectCategories.map((projectCategory: ProjectCategory) => ({
+              title: projectCategory.name,
+              key: projectCategory.id,
+              isSelected: projectCategory.id == selectedProjectCategory,
+          }))
+        : []
 
-    const projectCategoryOptions: SearchableDropdownOption[] = projectCategories.map((projectCategory: ProjectCategory) => ({
-        title: projectCategory.name,
-        key: projectCategory.id,
-        isSelected: projectCategory.id == selectedProjectCategory,
-    }))
-
-    const evaluationOptions: SearchableDropdownOption[] = evaluations.map((evaluation: Evaluation) => ({
-        title: evaluation.name,
-        key: evaluation.id,
-        isSelected: evaluation.id === selectedEvaluation,
-    }))
+    const evaluationOptions: SearchableDropdownOption[] = evaluations
+        ? evaluations.map((evaluation: Evaluation) => ({
+              title: evaluation.name,
+              key: evaluation.id,
+              isSelected: evaluation.id === selectedEvaluation,
+          }))
+        : []
 
     return (
         <>
             <ModalSideSheet show={open} onClose={onCancelClick} header="Create Evaluation" size="medium">
-                <Container>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                            <Typography>
-                                In order to revert such a creation you will have to talk with the developers of this application.
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                id="" // avoids error
-                                autoFocus={true}
-                                onChange={(e: any) => {
-                                    onInputChange(e.target.value)
-                                }}
-                                placeholder="Evaluation Name"
-                                onKeyPress={(e: any) => {
-                                    if (e.key === 'Enter') {
-                                        handleCreateClick()
-                                    }
-                                }}
-                                data-testid="create_evaluation_dialog_name_text_field"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <SearchableDropdown
-                                label="Project Category"
-                                placeholder="Select Project Category"
-                                onSelect={option => setSelectedProjectCategory(option.key)}
-                                options={projectCategoryOptions}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <SearchableDropdown
-                                label="Previous Evaluation (Optional)"
-                                placeholder="Select previous evaluation"
-                                onSelect={option => setSelectedEvaluation(option.key)}
-                                options={evaluationOptions}
-                            />
-                        </Grid>
-                        {inputErrorMessage !== '' && (
+                {missingData && (
+                    <ErrorMessage
+                        hasError
+                        title="Missing data"
+                        errorType={'noData'}
+                        message={'Unfortunately, we were not able to fetch the necessary data. ' + genericErrorMessage}
+                    />
+                )}
+                {!missingData && (
+                    <Container>
+                        <Grid container spacing={3}>
                             <Grid item xs={12}>
-                                <Typography color="danger">{inputErrorMessage}</Typography>
+                                <Typography>
+                                    In order to revert such a creation you will have to talk with the developers of this application.
+                                </Typography>
                             </Grid>
-                        )}
-                        <Grid item xs={12} data-testid="create_evaluation_dialog_create_button_grid">
-                            <Button onClick={handleCreateClick}>Create</Button>
+                            <Grid item xs={12}>
+                                <TextField
+                                    id="" // avoids error
+                                    autoFocus={true}
+                                    onChange={(e: any) => {
+                                        onInputChange(e.target.value)
+                                    }}
+                                    placeholder="Evaluation Name"
+                                    onKeyPress={(e: any) => {
+                                        if (e.key === 'Enter') {
+                                            handleCreateClick()
+                                        }
+                                    }}
+                                    data-testid="create_evaluation_dialog_name_text_field"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <SearchableDropdown
+                                    label="Project Category"
+                                    placeholder="Select Project Category"
+                                    onSelect={option => setSelectedProjectCategory(option.key)}
+                                    options={projectCategoryOptions}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <SearchableDropdown
+                                    label="Previous Evaluation (Optional)"
+                                    placeholder="Select previous evaluation"
+                                    onSelect={option => setSelectedEvaluation(option.key)}
+                                    options={evaluationOptions}
+                                />
+                            </Grid>
+                            {inputErrorMessage !== '' && (
+                                <Grid item xs={12}>
+                                    <Typography color="danger">{inputErrorMessage}</Typography>
+                                </Grid>
+                            )}
+                            <Grid item xs={12} data-testid="create_evaluation_dialog_create_button_grid">
+                                <Button onClick={handleCreateClick}>Create</Button>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </Container>
+                    </Container>
+                )}
             </ModalSideSheet>
         </>
     )

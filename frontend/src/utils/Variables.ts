@@ -18,3 +18,5 @@ export interface AnswersWithBarrier {
     barrier: Barrier
     answers: (Answer | null)[]
 }
+
+export const genericErrorMessage = 'Please try again, or contact systems administrator if the problem persists.'
