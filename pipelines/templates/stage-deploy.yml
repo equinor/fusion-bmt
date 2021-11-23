@@ -2,17 +2,16 @@ parameters:
     - name: name
     - name: envshortname
     - name: envfullname
-    - name: dependsOn
     - name: fusionToken
     - name: fusionBundlePath
     - name: portalUrl
     - name: buildId
+    - name: radixToken
+    - name: branch
 
 stages:
     - stage: ${{ parameters.name }}
-      dependsOn:
-          - ${{ parameters.dependsOn }}
-      displayName: "Deploy Frontend ${{ parameters.envshortname }}"
+      displayName: "Deploy  ${{ parameters.envshortname }}"
       jobs:
           - deployment: "Deploy_${{ parameters.envshortname }}_Frontend"
             environment: ${{ parameters.envfullname }}
@@ -45,7 +44,7 @@ stages:
                                   tokenResource: ${{ parameters.fusionToken }}
                                   forceReplaceExisting: true
 
-          - deployment: "Update_${{ parameters.envshortname }}_Tags_Frontend"
+          - deployment: "Update_${{ parameters.envshortname }}_Tags"
             environment: ${{ parameters.envfullname }}
             strategy:
                 runOnce:
@@ -55,12 +54,38 @@ stages:
                               inputs:
                                   containerRegistry: "BMT Registry"
                                   command: "login"
-                            - task: PowerShell@2
-                              inputs:
-                                  targetType: "inline"
-                                  script: |
-                                      $sourceImage= "fusionbmt.azurecr.io/frontend:" + ${{ parameters.buildId }}
-                                      $newtag= "fusionbmt.azurecr.io/frontend:${{ parameters.buildId }}-release"
-                                      docker pull $sourceImage
-                                      docker tag $sourceImage $newtag
-                                      docker push $newtag
+
+                            - template: step-tag-dockerimage.yml
+                              parameters:
+                                  buildid: ${{ parameters.buildid }}
+                                  envshortname: ${{ parameters.envshortname }}
+                                  registry: "fusionbmt.azurecr.io"
+                                  repository: "frontend"
+
+                            - template: step-tag-dockerimage.yml
+                              parameters:
+                                  buildid: ${{ parameters.buildid }}
+                                  envshortname: ${{ parameters.envshortname }}
+                                  registry: "fusionbmt.azurecr.io"
+                                  repository: "backend"
+          - job: Trigger_Radix_Deploy
+            dependsOn:
+                - Deploy_${{ parameters.envshortname }}_Frontend
+                - Update_${{ parameters.envshortname }}_Tags
+            displayName: Trigger Radix Deploy
+            pool: server
+            steps:
+                - task: InvokeRESTAPI@1
+                  inputs:
+                      connectionType: "connectedServiceName"
+                      serviceConnection: "radix"
+                      method: "POST"
+                      headers: |
+                          {
+                          "Content-Type":"application/json",
+                          "Authorization": "Bearer ${{ parameters.radixToken }}"
+                          }
+                      body: '{"branch": "${{ parameters.branch }}",  "triggeredBy": "${{ parameters.buildId }}-${{ parameters.branch }}"}'
+                      urlSuffix: "api/v1/applications/fusion-bmt/pipelines/build-deploy"
+                      waitForCompletion: "false"
+                      successCriteria: eq(root['status'], 'Waiting')

@@ -1,0 +1,16 @@
+parameters:
+    - name: registry
+    - name: buildid
+    - name: envshortname
+    - name: repository
+
+steps:
+    - task: PowerShell@2
+      inputs:
+          targetType: "inline"
+          script: |
+              $sourceImage= "${{ parameters.registry }}/${{ parameters.repository }}:" + ${{ parameters.buildId }}
+              $newtag= "${{ parameters.registry }}/${{ parameters.repository }}:${{ parameters.envshortname }}-release"
+              docker pull $sourceImage
+              docker tag $sourceImage $newtag
+              docker push $newtag
