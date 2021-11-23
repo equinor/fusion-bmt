@@ -33,6 +33,7 @@ stages:
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
           branch: master
+          DBContext: $(dbContextDev)
 
     - template: templates/stage-deploy.yml
       parameters:
@@ -45,6 +46,7 @@ stages:
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
           branch: qa
+          DBContext: $(dbContextQa)
 
     - template: templates/stage-deploy.yml
       parameters:
@@ -57,3 +59,4 @@ stages:
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
           branch: prod
+          DBContext: $(dbContextProd)
