@@ -157,7 +157,13 @@ const EvaluationsTable = ({ evaluations }: Props) => {
 
     return (
         <>
-            <SortableTable columns={columns} data={evaluations} sortOnAccessor={sortOnAccessor} renderRow={renderRow} />
+            <SortableTable
+                columns={columns}
+                data={evaluations}
+                sortOnAccessor={sortOnAccessor}
+                renderRow={renderRow}
+                testId="project-table"
+            />
         </>
     )
 }
