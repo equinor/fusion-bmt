@@ -87,6 +87,7 @@ spec:
 
     - name: backend-acr
       image: fusionbmt.azurecr.io/backend:{imageTagName}
+      alwaysPullImageOnDeploy: true
       ports:
         - name: http
           port: 5000
@@ -124,6 +125,8 @@ spec:
 
     - name: frontend-acr
       image: fusionbmt.azurecr.io/frontend:{imageTagName}
+      alwaysPullImageOnDeploy: true
+
       ports:
         - name: http
           port: 3000
