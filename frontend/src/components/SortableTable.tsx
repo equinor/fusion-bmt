@@ -25,9 +25,10 @@ interface Props<DataType> {
     data: DataType[]
     sortOnAccessor: (a: DataType, b: DataType, accessor: string, sortDirection: SortDirection) => number
     renderRow: (dataObject: DataType, index: number) => React.ReactChild
+    testId: string
 }
 
-const SortableTable = <DataType,>({ columns, data, sortOnAccessor, renderRow }: Props<DataType>) => {
+const SortableTable = <DataType,>({ columns, data, sortOnAccessor, renderRow, testId }: Props<DataType>) => {
     const [sortDirection, setSortDirection] = useState<SortDirection>('none')
     const [columnToSortBy, setColumnToSortBy] = useState<Column>()
 
@@ -58,7 +59,7 @@ const SortableTable = <DataType,>({ columns, data, sortOnAccessor, renderRow }: 
 
     return (
         <>
-            <Table style={{ width: '100%' }} data-testid="project-table">
+            <Table style={{ width: '100%' }} data-testid={testId}>
                 <Head>
                     <Row>
                         {columns.map(column => {
