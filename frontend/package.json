@@ -50,7 +50,7 @@
         "@types/styled-components": "^5.1.15",
         "@types/webpack-env": "^1.16.3",
         "babel-jest": "^27.3.1",
-        "cypress": "8.4.0",
+        "cypress": "9.0",
         "dotenv-webpack": "^7.0.3",
         "faker": "^5.5.3",
         "history": "^5.0.1",
