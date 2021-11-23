@@ -12,99 +12,15 @@ pool:
     vmImage: "ubuntu-latest"
 
 stages:
-    - stage: Build_Frontend_App
-      displayName: "Build Frontend App"
-      jobs:
-          - job: "Deploy_Fusion_BMT"
-            steps:
-                - task: UseDotNet@2
-                  displayName: "Install Dotnet"
-                  inputs:
-                      packageType: "sdk"
-                      version: "5.0.x"
-
-                - task: DotNetCoreCLI@2
-                  displayName: Install dotnet-ef
-                  inputs:
-                      command: "custom"
-                      custom: "tool"
-                      arguments: "install --global dotnet-ef"
-                - task: NodeTool@0
-                  inputs:
-                      versionSpec: "16.x"
-                - task: Npm@1
-                  displayName: "Install frontend"
-                  inputs:
-                      command: "install"
-                      workingDir: "frontend"
-                - task: Npm@1
-                  displayName: "Bundle frontend"
-                  inputs:
-                      command: "custom"
-                      workingDir: "frontend"
-                      customCommand: "run-script build"
-                - task: PublishPipelineArtifact@1
-                  inputs:
-                      targetPath: "$(Pipeline.Workspace)/s/frontend/out/bmt.zip"
-                      artifactName: FusionBMT
-
-    - stage: Build_Backend_Container
-      displayName: "Build Backend"
-      dependsOn: []
-      jobs:
-          - job: "BuildimageandpushtoACR"
-            steps:
-                - script: |
-                      docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)
-                  displayName: "docker login dynatrace"
-                - script: |
-                      docker build -f $(Build.SourcesDirectory)/backend/dynatrace.Dockerfile \
-                      --build-arg dt_url=$(dt_url) \
-                      --build-arg dt_tenant=$(dt_tenant) \
-                      $(Build.SourcesDirectory)/backend/ \
-                      -t fusionbmt.azurecr.io/backend:release \
-                      -t fusionbmt.azurecr.io/backend:$(Build.BuildId)
-                  displayName: "docker build with OneAgent"
-
-                - task: Docker@2
-                  displayName: "Push container to ACR"
-                  inputs:
-                      containerRegistry: "BMT Registry"
-                      repository: "backend"
-                      command: "push"
-                      tags: $(Build.BuildId)
-
-    - stage: Build_Frontend_Container
-      displayName: "Build frondendcontainer with OneAgent"
-      dependsOn: []
-      jobs:
-          - job: "BuildimageandpushtoACR"
-            steps:
-                - script: |
-                      docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)
-                  displayName: "docker login dynatrace"
-
-                - task: Bash@3
-                  displayName: "docker build with OneAgent"
-                  inputs:
-                      targetType: "inline"
-                      script: |
-                          docker build -f $(Build.SourcesDirectory)/frontend/dynatrace.Dockerfile \
-                          --build-arg dt_url=$(dt_url) \
-                          --build-arg dt_tenant=$(dt_tenant) \
-                          $(Build.SourcesDirectory)/frontend/ \
-                          -t fusionbmt.azurecr.io/frontend:release \
-                          -t fusionbmt.azurecr.io/frontend:$(Build.BuildId)
-                      workingDirectory: "$(Build.SourcesDirectory)/frontend/"
-                - task: Docker@2
-                  displayName: "Push container to ACR"
-                  inputs:
-                      containerRegistry: "BMT Registry"
-                      repository: "frontend"
-                      command: "push"
-                      tags: |
-                          $(Build.BuildId)
-                          release
+    - template: templates/stage-build.yml
+      parameters:
+          workSpace: $(Pipeline.Workspace)
+          buildId: $(Build.BuildId)
+          dt_tenant: $(dt_tenant)
+          dt_password: $(dt_password)
+          dt_url: $(dt_url)
+          sourcesDirectory: $(Build.SourcesDirectory)
+          name: "Build_applications"
 
     - template: templates/stage-deploy.yml
       parameters:
