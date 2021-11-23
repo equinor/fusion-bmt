@@ -2,17 +2,17 @@ import React from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
-import { TextArea } from '@equinor/fusion-components'
+import { ErrorMessage } from '@equinor/fusion-components'
 import { Tabs } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
 import { StyledTabPanel } from '../../components/StyledTabs'
-import { apiErrorMessage } from '../../api/error'
 import ActionsView from './Actions/ActionsView'
 import AdminView from './Admin/AdminView'
 import DashboardView from './Dashboard/DashboardView'
+import { genericErrorMessage } from '../../utils/Variables'
 
 const { List, Tab, Panels } = Tabs
 
@@ -34,11 +34,7 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
     }
 
     if (error !== undefined || project === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not load project')} onChange={() => {}} />
-            </div>
-        )
+        return <ErrorMessage hasError errorType={'noData'} title="Could not load project" message={genericErrorMessage} />
     }
 
     return (

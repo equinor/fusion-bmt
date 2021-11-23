@@ -77,7 +77,7 @@ const ActionTable = ({
             case 'priority':
                 return sortPriority(a.action.priority, b.action.priority, sortDirection)
             case 'barrier':
-                return sort(a.barrier, b.barrier, sortDirection)
+                return sort(barrierToString(a.barrier), barrierToString(b.barrier), sortDirection)
             case 'organization':
                 return sort(a.organization, b.organization, sortDirection)
             case 'evaluation':
@@ -93,7 +93,7 @@ const ActionTable = ({
                 if (projects) {
                     const projectNameA = getFusionProjectName(projects, a.action.question.evaluation.project.fusionProjectId)
                     const projectNameB = getFusionProjectName(projects, b.action.question.evaluation.project.fusionProjectId)
-                    return projectNameA && projectNameB ? sort(projectNameA, projectNameB, sortDirection) : 0
+                    return projectNameA && projectNameB ? sort(projectNameA.toLowerCase(), projectNameB.toLowerCase(), sortDirection) : 0
                 }
                 return 0
             case 'title':
