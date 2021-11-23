@@ -91,3 +91,4 @@ stages:
                       registry: "BMT Registry"
                       repository: "frontend"
                       buildId: $(Build.BuildId)
+          

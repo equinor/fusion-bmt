@@ -16,6 +16,7 @@ COPY --from=build /app ./
 
 EXPOSE 5000
 
+
 #Dynatrace config
 COPY --from=DYNATRACE_ONEAGENT_IMAGE / /
 ENV LD_PRELOAD /opt/dynatrace/oneagent/agent/lib64/liboneagentproc.so
