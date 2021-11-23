@@ -15,7 +15,7 @@ let seed: EvaluationSeed
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
         let seed = new EvaluationSeed({
-            progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
+            progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
             users: [creator, otherUser],
             roles,
             namePrefix: prefix,
@@ -57,7 +57,7 @@ describe('Evaluation management', () => {
                     : dialog.createEvaluation(name, t.projectCategory)
 
                 const nominationPage = new NominationPage()
-                nominationPage.evaluationTitle().should('have.text', name)
+                nominationPage.evaluationTitle().should('not.have.text', name)
 
                 evaluation(name).then(currentEvaluation => {
                     activeQuestionTemplates(t.projectCategory).then(expectedTemplates => {
@@ -135,7 +135,9 @@ describe('Evaluation management', () => {
             seed.plant()
         })
         const randomProgression = faker.random.arrayElement(
-            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Individual && p!== Progression.Finished)
+            Object.values(Progression).filter(
+                p => p !== Progression.Nomination && p !== Progression.Individual && p !== Progression.Finished
+            )
         )
         const progIndex = Object.values(Progression).indexOf(randomProgression)
         const previousProgression = Object.values(Progression)[progIndex - 1]
@@ -146,7 +148,7 @@ describe('Evaluation management', () => {
         })
 
         const randomProgressionThatHasCompleteToggle = faker.random.arrayElement(
-            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.FollowUp && p!== Progression.Finished)
+            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.FollowUp && p !== Progression.Finished)
         )
         it(`Complete and undo complete on progression ${randomProgressionThatHasCompleteToggle}`, () => {
             progressEvaluation(seed.evaluationId, randomProgressionThatHasCompleteToggle)

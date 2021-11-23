@@ -374,7 +374,7 @@ describe('Admin page', () => {
                             const projectCategoryNames = Cypress.$.makeArray(pc).map(el => el.innerText)
 
                             projectCategoryNames.forEach(pc => {
-                                cy.getByDataTestid('project-category-' + questionNo + '-' + pc).should('exist')
+                                cy.getByDataTestid('project-category-' + questionNo + '-' + pc).should('not.exist')
                             })
                             adminPage.questionTemplateMenu().click()
                             adminPage.addQuestionTemplateToProjectCatOrCloseView().click()
