@@ -1,0 +1,17 @@
+parameters:
+    - name: dt_tenant
+    - name: dt_password
+    - name: dt_url
+    - name: buildId
+    - name: sourcesDirectory
+    - name: appName
+
+steps:
+    - script: |
+          docker build -f ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/dynatrace.Dockerfile \
+          --build-arg dt_url=${{ parameters.dt_url }} \
+          --build-arg dt_tenant=${{ parameters.dt_tenant }} \
+          ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/ \
+          -t fusionbmt.azurecr.io/${{ parameters.appName }}:release \
+          -t fusionbmt.azurecr.io/${{ parameters.appName }}:${{ parameters.buildId }}
+      displayName: "docker build with OneAgent"

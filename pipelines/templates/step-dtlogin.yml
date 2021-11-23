@@ -1,0 +1,9 @@
+parameters:
+    - name: dt_tenant
+    - name: dt_password
+    - name: dt_url
+
+steps:
+    - script: |
+          docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)
+      displayName: "docker login dynatrace"

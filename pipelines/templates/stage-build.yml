@@ -1,0 +1,93 @@
+parameters:
+    - name: workSpace
+    - name: buildId
+    - name: dt_tenant
+    - name: dt_password
+    - name: dt_url
+    - name: sourcesDirectory
+    - name: name
+
+stages:
+    - stage: ${{ parameters.name }}
+      displayName: "Build App"
+      jobs:
+          - job: "Build_Fusion_App"
+            steps:
+                - task: UseDotNet@2
+                  displayName: "Install Dotnet"
+                  inputs:
+                      packageType: "sdk"
+                      version: "5.0.x"
+
+                - task: DotNetCoreCLI@2
+                  displayName: Install dotnet-ef
+                  inputs:
+                      command: "custom"
+                      custom: "tool"
+                      arguments: "install --global dotnet-ef"
+                - task: NodeTool@0
+                  inputs:
+                      versionSpec: "16.x"
+                - task: Npm@1
+                  displayName: "Install frontend"
+                  inputs:
+                      command: "install"
+                      workingDir: "frontend"
+                - task: Npm@1
+                  displayName: "Bundle frontend"
+                  inputs:
+                      command: "custom"
+                      workingDir: "frontend"
+                      customCommand: "run-script build"
+                - task: PublishPipelineArtifact@1
+                  inputs:
+                      targetPath: "${{ parameters.workSpace }}/s/frontend/out/bmt.zip"
+                      artifactName: FusionBMT
+
+          - job: "Build_backend_container_and_Push_To_acr"
+            steps:
+                - template: step-dtlogin.yml
+                  parameters:
+                      dt_tenant: ${{ parameters.dt_tenant }}
+                      dt_url: ${{ parameters.dt_url }}
+                      dt_password: ${{ parameters.dt_password }}
+
+                - template: step-dtdockerbuild.yml
+                  parameters:
+                      dt_tenant: ${{ parameters.dt_tenant }}
+                      dt_url: ${{ parameters.dt_url }}
+                      dt_password: ${{ parameters.dt_password }}
+                      buildId: $(Build.BuildId)
+                      sourcesDirectory: $(Build.SourcesDirectory)
+                      appName: "backend"
+
+                - template: step-docker-push.yml
+                  parameters:
+                      name: "Push_backend-container_to_ACR"
+                      registry: "BMT Registry"
+                      repository: "backend"
+                      buildId: $(Build.BuildId)
+
+          - job: "Build_frontend_container_and_Push_To_acr"
+            steps:
+                - template: step-dtlogin.yml
+                  parameters:
+                      dt_tenant: ${{ parameters.dt_tenant }}
+                      dt_url: ${{ parameters.dt_url }}
+                      dt_password: ${{ parameters.dt_password }}
+
+                - template: step-dtdockerbuild.yml
+                  parameters:
+                      dt_tenant: ${{ parameters.dt_tenant }}
+                      dt_url: ${{ parameters.dt_url }}
+                      dt_password: ${{ parameters.dt_password }}
+                      buildId: $(Build.BuildId)
+                      sourcesDirectory: $(Build.SourcesDirectory)
+                      appName: "frontend"
+
+                - template: step-docker-push.yml
+                  parameters:
+                      name: "Push_backend-container_to_ACR"
+                      registry: "BMT Registry"
+                      repository: "frontend"
+                      buildId: $(Build.BuildId)
