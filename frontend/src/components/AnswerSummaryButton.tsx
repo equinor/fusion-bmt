@@ -8,7 +8,7 @@ interface Props {
 const AnswerSummaryButton = ({ onClick }: Props) => {
     return (
         <>
-            <IconButton onClick={onClick}>
+            <IconButton onClick={onClick} data-testid="view-answers">
                 <CopyIcon />
             </IconButton>
         </>

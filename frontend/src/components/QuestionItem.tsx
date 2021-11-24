@@ -15,17 +15,11 @@ interface Props {
     onQuestionSummarySelected?: (question: Question, questionNumber: number) => void
 }
 
-
 const QuestionItem = ({ question, viewProgression, disable, displayActions = false, onQuestionSummarySelected }: Props) => {
     const participant = useParticipant()
 
     const useSharedAnswer = useSharedFacilitatorAnswer(viewProgression)
-    const answer = findCorrectAnswer(
-        question,
-        viewProgression,
-        useSharedAnswer,
-        participant
-    )
+    const answer = findCorrectAnswer(question, viewProgression, useSharedAnswer, participant)
 
     return (
         <div key={question.id} id={`question-${question.order}`}>
@@ -41,7 +35,7 @@ const QuestionItem = ({ question, viewProgression, disable, displayActions = fal
                     {displayActions && <QuestionActionsListWithApi question={question} />}
                 </Box>
                 {onQuestionSummarySelected !== undefined && (
-                    <Box>
+                    <Box data-testid={`view-answers-${question.order}`}>
                         <AnswerSummaryButton onClick={() => onQuestionSummarySelected(question, question.order)} />
                     </Box>
                 )}
