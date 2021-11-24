@@ -2,5 +2,6 @@
     "chromeWebSecurity": false,
     "projectId": "ry3x7y",
     "fixturesFolder": false,
-    "videoUploadOnPasses": false
+    "videoUploadOnPasses": false,
+    "videoCompression": 51
 }
