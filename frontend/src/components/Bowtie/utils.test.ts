@@ -3,17 +3,17 @@ import { selectSeverity } from './utils'
 
 describe('selectSeverity', () => {
     test('n/a answers are not counted when calculating percentage of answers per severity', () => {
-        expect(selectSeverity(severityCountWithManyNA)).toBe(Severity.Low)
+        expect(selectSeverity(severityCountWithManyNA)).toBe(Severity.MajorIssues)
     })
 
     test('to show a severity it must have more than, not exactly 10 percent', () => {
-        expect(selectSeverity(severityCountLow10percent)).toBe(Severity.Limited)
-        expect(selectSeverity(severityCountLowOver10percent)).toBe(Severity.Low)
+        expect(selectSeverity(severityCountLow10percent)).toBe(Severity.SomeConcerns)
+        expect(selectSeverity(severityCountLowOver10percent)).toBe(Severity.MajorIssues)
     })
 
     test('return the strictest severity that has over 10 percent, in this order: low - limited - high', () => {
-        expect(selectSeverity(severityCountAllOver10Percent)).toBe(Severity.Low)
-        expect(selectSeverity(severityCountMostOver10Percent)).toBe(Severity.Limited)
+        expect(selectSeverity(severityCountAllOver10Percent)).toBe(Severity.MajorIssues)
+        expect(selectSeverity(severityCountMostOver10Percent)).toBe(Severity.SomeConcerns)
     })
 
     test('returns na if all answers are n/a', () => {

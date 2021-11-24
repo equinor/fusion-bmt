@@ -13,9 +13,9 @@ export const selectSeverity = (severityCount: SeverityCount) => {
     const limitedSeverityHighEnough = percentageLimitedSeverity > PERCENTAGE_OF_ANSWERS_NEEDED_TO_INCREASE_SEVERITY
     const highSeverityHighEnough = percentageHighSeverity > PERCENTAGE_OF_ANSWERS_NEEDED_TO_INCREASE_SEVERITY
 
-    if (lowSeverityHighEnough) return Severity.Low
-    if (!lowSeverityHighEnough && limitedSeverityHighEnough) return Severity.Limited
-    if (!lowSeverityHighEnough && !limitedSeverityHighEnough && highSeverityHighEnough) return Severity.High
+    if (lowSeverityHighEnough) return Severity.MajorIssues
+    if (!lowSeverityHighEnough && limitedSeverityHighEnough) return Severity.SomeConcerns
+    if (!lowSeverityHighEnough && !limitedSeverityHighEnough && highSeverityHighEnough) return Severity.OnTrack
 
     return Severity.Na
 }

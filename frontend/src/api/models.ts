@@ -710,9 +710,9 @@ export type RoleOperationFilterInput = {
 };
 
 export enum Severity {
-  Low = 'LOW',
-  Limited = 'LIMITED',
-  High = 'HIGH',
+  MajorIssues = 'MAJOR_ISSUES',
+  SomeConcerns = 'SOME_CONCERNS',
+  OnTrack = 'ON_TRACK',
   Na = 'NA'
 }
 

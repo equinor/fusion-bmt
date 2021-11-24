@@ -81,32 +81,32 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                 <ClickableBox
                     flexGrow={1}
                     mx={spacing / 2}
-                    onClick={() => onClickedSeverity(Severity.High)}
+                    onClick={() => onClickedSeverity(Severity.OnTrack)}
                     hasClickHandler={onClick !== undefined}
-                    selected={isSelected(Severity.High)}
-                    color={getTextColor(Severity.High)}
+                    selected={isSelected(Severity.OnTrack)}
+                    color={getTextColor(Severity.OnTrack)}
                 >
-                    <SeveritySummaryField num={nHigh} severity={Severity.High} compact={compact} />
+                    <SeveritySummaryField num={nHigh} severity={Severity.OnTrack} compact={compact} />
                 </ClickableBox>
                 <ClickableBox
                     flexGrow={1}
                     mx={spacing / 2}
-                    onClick={() => onClickedSeverity(Severity.Limited)}
+                    onClick={() => onClickedSeverity(Severity.SomeConcerns)}
                     hasClickHandler={onClick !== undefined}
-                    selected={isSelected(Severity.Limited)}
-                    color={getTextColor(Severity.Limited)}
+                    selected={isSelected(Severity.SomeConcerns)}
+                    color={getTextColor(Severity.SomeConcerns)}
                 >
-                    <SeveritySummaryField num={nLimited} severity={Severity.Limited} compact={compact} />
+                    <SeveritySummaryField num={nLimited} severity={Severity.SomeConcerns} compact={compact} />
                 </ClickableBox>
                 <ClickableBox
                     flexGrow={1}
                     mx={spacing / 2}
-                    onClick={() => onClickedSeverity(Severity.Low)}
+                    onClick={() => onClickedSeverity(Severity.MajorIssues)}
                     hasClickHandler={onClick !== undefined}
-                    selected={isSelected(Severity.Low)}
-                    color={getTextColor(Severity.Low)}
+                    selected={isSelected(Severity.MajorIssues)}
+                    color={getTextColor(Severity.MajorIssues)}
                 >
-                    <SeveritySummaryField num={nLow} severity={Severity.Low} compact={compact} />
+                    <SeveritySummaryField num={nLow} severity={Severity.MajorIssues} compact={compact} />
                 </ClickableBox>
                 <ClickableBox
                     flexGrow={1}

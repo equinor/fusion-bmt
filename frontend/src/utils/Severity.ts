@@ -9,9 +9,9 @@ export interface SeverityCount {
 
 export const countSeverities = (answers: (Answer | null)[]): SeverityCount => {
     return {
-        nHigh: answers.filter(a => a?.severity === Severity.High).length,
-        nLimited: answers.filter(a => a?.severity === Severity.Limited).length,
-        nLow: answers.filter(a => a?.severity === Severity.Low).length,
+        nHigh: answers.filter(a => a?.severity === Severity.OnTrack).length,
+        nLimited: answers.filter(a => a?.severity === Severity.SomeConcerns).length,
+        nLow: answers.filter(a => a?.severity === Severity.MajorIssues).length,
         nNA: answers.filter(a => a?.severity === Severity.Na || a === null).length,
     }
 }
