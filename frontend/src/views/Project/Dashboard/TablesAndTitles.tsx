@@ -1,26 +1,21 @@
 import { Typography } from '@equinor/eds-core-react'
-import { EvaluationWithProjectMasterTitle } from '../../../utils/hooks'
+import { EvaluationsByProjectMaster } from '../../../utils/hooks'
 import EvaluationsTable from './EvaluationsTable'
 
 interface Props {
-    evaluationsWithProjectMasterTitle: EvaluationWithProjectMasterTitle[]
-    projectMasterTitles: string[]
+    evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
 }
 
-const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, projectMasterTitles }: Props) => {
+const TablesAndTitles = ({ evaluationsWithProjectMasterTitle }: Props) => {
     return (
         <>
-            {projectMasterTitles.map(title => {
+            {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
                 return (
                     <>
                         <Typography variant={'h2'} style={{ marginBottom: '7px', marginTop: '15px' }}>
-                            {title}
+                            {projectMasterTitle}
                         </Typography>
-                        <EvaluationsTable
-                            evaluations={evaluationsWithProjectMasterTitle
-                                .filter(e => e.projectMasterTitle == title)
-                                .map(e => e.evaluation)}
-                        />
+                        <EvaluationsTable evaluations={evaluations} />
                     </>
                 )
             })}

@@ -47,24 +47,29 @@ export const useAllPersonDetailsAsync = (azureUniqueIds: string[]): PersonDetail
     return { personDetailsList, isLoading }
 }
 
-export type PortfolioAndProjectMasterTitleByProjectId = {
-    [projectId: string]: [string, string]
-}
-
-export type EvaluationsWithPortfolio = {
-    [key: string]: EvaluationWithProjectMasterTitle[]
-}
-
-export interface EvaluationWithProjectMasterTitle {
-    evaluation: Evaluation,
+export type PortfolioAndProjectMaster = {
+    portfolio: string
     projectMasterTitle: string
 }
 
-export const noPortfolioKey = 'No portfolio'
+export type PortfolioAndProjectMasterByProjectId = {
+    [projectId: string]: PortfolioAndProjectMaster
+}
 
-export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsWithPortfolio | undefined => {
+export type EvaluationsByProjectMaster = {
+    [projectMasterTitle: string]: Evaluation[]
+}
+
+export type EvaluationsByProjectMasterAndPortfolio = {
+    [portfolio: string]: EvaluationsByProjectMaster
+}
+
+export const noPortfolioKey = 'No portfolio'
+export const noProjectMasterTitle = 'No project master title'
+
+export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsByProjectMasterAndPortfolio => {
     const apiClients = useApiClients()
-    const [allEvaluationsWithPortfolio, setAllEvaluationsWithPortfolio] = React.useState<EvaluationsWithPortfolio | undefined>(undefined)
+    const [allEvaluationsWithProjectMasterAndPortfolio, setAllEvaluationsWithProjectMasterPortfolio] = React.useState<EvaluationsByProjectMasterAndPortfolio>({})
 
     const collectUniqueProjectIds = (evaluations: Evaluation[]) => {
         const projectIds: string[] = []
@@ -91,62 +96,70 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
         return ['', '']
     }
 
-    const assignPortfoliosAndProjectMasterTitileToId = async (projectIds: string[]) => {
-        const projectIdsWithPortfolios: PortfolioAndProjectMasterTitleByProjectId = {}
+    const assignPortfoliosAndProjectMasterToId = async (projectIds: string[]) => {
+        const projectIdsWithPortfoliosAndProjectMasters: PortfolioAndProjectMasterByProjectId = {}
 
         await Promise.all(
             projectIds.map(async projectId => {
                 try {
                     const [portfolio, projectMasterTitle] = await lookupPortfolioAndProjectMaster(projectId)
-                    projectIdsWithPortfolios[projectId] = [portfolio, projectMasterTitle]
+                    projectIdsWithPortfoliosAndProjectMasters[projectId] = {portfolio, projectMasterTitle}
                 } catch (err) {
-                    projectIdsWithPortfolios[projectId] = ['', '']
+                    projectIdsWithPortfoliosAndProjectMasters[projectId] = {portfolio: '', projectMasterTitle: ''}
                 }
             })
         )
 
-        return projectIdsWithPortfolios
+        return projectIdsWithPortfoliosAndProjectMasters
     }
 
     useEffect(() => {
         if (evaluations) {
-            const evaluationsWithPortfolio: EvaluationsWithPortfolio = {
-                [noPortfolioKey]: [],
+            const evaluationsByProjectMasterAndPortfolio: EvaluationsByProjectMasterAndPortfolio = {
+                [noPortfolioKey]: {
+                    [noProjectMasterTitle]: [],
+                },
             }
             // Since many evaluations have the same projectId, and thus the same portfolio, we are only doing lookups
             // on each projectId instead of each evaluation to save loading time
             const projectIds = collectUniqueProjectIds(evaluations)
 
-            assignPortfoliosAndProjectMasterTitileToId(projectIds).then(projectIdsWithPortfolios => {
+            assignPortfoliosAndProjectMasterToId(projectIds).then(projectIdsWithPortfoliosAndProjectMaster => {
                 evaluations.forEach(evaluation => {
                     const projectId = evaluation.project && evaluation.project.fusionProjectId
 
                     if (projectId) {
-                        const [portfolio, projectMasterTitle] = projectIdsWithPortfolios[projectId]
-                        const evaluationWithProjectMasterTitle: EvaluationWithProjectMasterTitle = {
-                            evaluation,
-                            projectMasterTitle
-                        }
+                        const { portfolio, projectMasterTitle } = projectIdsWithPortfoliosAndProjectMaster[projectId]
 
                         if (portfolio) {
-                            if (evaluationsWithPortfolio[portfolio]) {
-                                evaluationsWithPortfolio[portfolio].push(evaluationWithProjectMasterTitle)
+                            if (evaluationsByProjectMasterAndPortfolio[portfolio]) {
+                                if (evaluationsByProjectMasterAndPortfolio[portfolio][projectMasterTitle]) {
+                                    evaluationsByProjectMasterAndPortfolio[portfolio][projectMasterTitle].push(evaluation)
+                                } else {
+                                    evaluationsByProjectMasterAndPortfolio[portfolio][projectMasterTitle] = [evaluation]
+                                }
                             } else {
-                                evaluationsWithPortfolio[portfolio] = [evaluationWithProjectMasterTitle]
+                                evaluationsByProjectMasterAndPortfolio[portfolio] = {
+                                    [projectMasterTitle]: [evaluation],
+                                }
                             }
                         } else {
-                            evaluationsWithPortfolio[noPortfolioKey].push(evaluationWithProjectMasterTitle)
+                            if (evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle]) {
+                                evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle].push(evaluation)
+                            } else {
+                                evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle] = [evaluation]
+                            }
                         }
                     } else {
-                        evaluationsWithPortfolio[noPortfolioKey].push({evaluation, projectMasterTitle: ''})
+                        evaluationsByProjectMasterAndPortfolio[noPortfolioKey][noProjectMasterTitle].push(evaluation)
                     }
                 })
-                setAllEvaluationsWithPortfolio(evaluationsWithPortfolio)
+                setAllEvaluationsWithProjectMasterPortfolio(evaluationsByProjectMasterAndPortfolio)
             })
         }
     }, [evaluations])
 
-    return allEvaluationsWithPortfolio
+    return allEvaluationsWithProjectMasterAndPortfolio
 }
 
 export const useFilter = <Type>() => {

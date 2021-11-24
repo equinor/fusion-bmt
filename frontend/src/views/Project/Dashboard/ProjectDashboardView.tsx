@@ -105,7 +105,7 @@ const ProjectDashboardView = ({ project }: Props) => {
         error: errorHiddenEvaluations,
     } = useAllEvaluationsQuery(Status.Voided)
 
-    const allActiveEvaluationsWithPortfolio = useEvaluationsWithPortfolio(activeEvaluations)
+    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations)
 
     if (errorUserEvaluations !== undefined) {
         return (
@@ -185,8 +185,10 @@ const ProjectDashboardView = ({ project }: Props) => {
             )}
             {portfoliosSelected && (
                 <>
-                    {allActiveEvaluationsWithPortfolio && <Portfolios evaluationsWithPortfolio={allActiveEvaluationsWithPortfolio} />}
-                    {(loadingActiveEvaluations || !allActiveEvaluationsWithPortfolio) && <CenteredCircularProgress />}
+                    {allActiveEvaluationsWithProjectMasterAndPortfolio && (
+                        <Portfolios evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio} />
+                    )}
+                    {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
                 </>
             )}
         </div>
