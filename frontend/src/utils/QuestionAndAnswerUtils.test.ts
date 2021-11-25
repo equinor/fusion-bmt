@@ -156,7 +156,7 @@ describe('Test getFilledUserAnswersForProgression', () => {
         progression: Progression.Preparation,
         question,
         questionId: '',
-        severity: Severity.High,
+        severity: Severity.OnTrack,
         text: 'answer1',
         answeredBy: participant,
     }
@@ -167,7 +167,7 @@ describe('Test getFilledUserAnswersForProgression', () => {
         progression: Progression.Individual,
         question,
         questionId: '',
-        severity: Severity.High,
+        severity: Severity.OnTrack,
         text: 'answer2',
         answeredBy: participant,
     }
@@ -178,7 +178,7 @@ describe('Test getFilledUserAnswersForProgression', () => {
         progression: Progression.Workshop,
         question,
         questionId: '',
-        severity: Severity.Low,
+        severity: Severity.MajorIssues,
         text: 'answer3',
         answeredBy: facilitator1,
     }
@@ -189,7 +189,7 @@ describe('Test getFilledUserAnswersForProgression', () => {
         progression: Progression.Workshop,
         question,
         questionId: '',
-        severity: Severity.Limited,
+        severity: Severity.SomeConcerns,
         text: 'answer4',
         answeredBy: facilitator2,
     }
@@ -200,7 +200,7 @@ describe('Test getFilledUserAnswersForProgression', () => {
         progression: Progression.Individual,
         question,
         questionId: '',
-        severity: Severity.Low,
+        severity: Severity.MajorIssues,
         text: 'answer5',
         answeredBy: participant2,
     }

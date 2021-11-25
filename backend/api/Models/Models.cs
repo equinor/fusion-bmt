@@ -254,7 +254,7 @@ namespace api.Models
 
     public enum Severity
     {
-        Low, Limited, High, NA
+        MajorIssues, SomeConcerns, OnTrack, NA
     }
 
     public enum Priority

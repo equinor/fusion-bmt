@@ -31,24 +31,24 @@ const AnswerSeverityForm = ({ severity, disabled, onSeveritySelected }: AnswerSe
     return (
         <>
             <RadioButtonWrapper
-                label="High"
+                label="On track"
                 color="green"
-                onClick={() => onSeveritySelected(Severity.High)}
-                isSelected={severity === Severity.High}
+                onClick={() => onSeveritySelected(Severity.OnTrack)}
+                isSelected={severity === Severity.OnTrack}
                 disabled={disabled}
             />
             <RadioButtonWrapper
-                label="Limited"
+                label="Some concerns"
                 color="orange"
-                onClick={() => onSeveritySelected(Severity.Limited)}
-                isSelected={severity === Severity.Limited}
+                onClick={() => onSeveritySelected(Severity.SomeConcerns)}
+                isSelected={severity === Severity.SomeConcerns}
                 disabled={disabled}
             />
             <RadioButtonWrapper
-                label="Low"
+                label="Major issues"
                 color="red"
-                onClick={() => onSeveritySelected(Severity.Low)}
-                isSelected={severity === Severity.Low}
+                onClick={() => onSeveritySelected(Severity.MajorIssues)}
+                isSelected={severity === Severity.MajorIssues}
                 disabled={disabled}
             />
             <RadioButtonWrapper

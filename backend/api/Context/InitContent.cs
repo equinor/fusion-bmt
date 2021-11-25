@@ -119,7 +119,7 @@ namespace api.Context
             var answer1 = new Answer
             {
                 Progression = Progression.Individual,
-                Severity = Severity.High,
+                Severity = Severity.OnTrack,
                 Text = "Answer1",
                 CreateDate = DateTimeOffset.UtcNow,
                 Question = Questions[1],
@@ -128,7 +128,7 @@ namespace api.Context
             var answer2 = new Answer
             {
                 Progression = Progression.FollowUp,
-                Severity = Severity.Limited,
+                Severity = Severity.SomeConcerns,
                 Text = "Answer2",
                 CreateDate = DateTimeOffset.UtcNow,
                 Question = Questions[2],
@@ -137,7 +137,7 @@ namespace api.Context
             var answer3 = new Answer
             {
                 Progression = Progression.Preparation,
-                Severity = Severity.Low,
+                Severity = Severity.MajorIssues,
                 Text = "Answer3",
                 CreateDate = DateTimeOffset.UtcNow,
                 Question = Questions[3],

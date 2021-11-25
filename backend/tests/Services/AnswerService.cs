@@ -38,7 +38,7 @@ namespace tests
 
             AnswerService answerService = new AnswerService(fixture.context);
             int nAnswerBefore = answerService.GetAll().Count();
-            answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
+            answerService.Create(participant, question, Severity.OnTrack, "test_answer", participant.Progression);
             int nAnswersAfter = answerService.GetAll().Count();
 
             Assert.Equal(nAnswerBefore + 1, nAnswersAfter);
@@ -61,7 +61,7 @@ namespace tests
             QuestionService questionService = new QuestionService(fixture.context);
             Question question = questionService.GetAll().First();
 
-            Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
+            Answer answerCreate = answerService.Create(participant, question, Severity.OnTrack, "test_answer", participant.Progression);
 
             Answer answerGet = answerService.GetAnswer(answerCreate.Id);
 
@@ -86,7 +86,7 @@ namespace tests
             Question question = questionService.Create(questionTemplate, evaluation);
 
             AnswerService answerService = new AnswerService(fixture.context);
-            Answer answerCreate = answerService.Create(participant, question, Severity.High, "test_answer", participant.Progression);
+            Answer answerCreate = answerService.Create(participant, question, Severity.OnTrack, "test_answer", participant.Progression);
 
             Answer answerGet = answerService.GetAnswer(question, participant, question.Evaluation.Progression);
 
@@ -129,11 +129,11 @@ namespace tests
 
             AnswerService answerService = new AnswerService(fixture.context);
             string initialText = "test answer";
-            Answer answer = answerService.Create(participant, question, Severity.High, initialText, participant.Progression);
+            Answer answer = answerService.Create(participant, question, Severity.OnTrack, initialText, participant.Progression);
             string answerId = answer.Id;
 
             string newText = "some different test answer";
-            answerService.UpdateAnswer(answer, Severity.High, newText);
+            answerService.UpdateAnswer(answer, Severity.OnTrack, newText);
 
             Answer resultingAnswer = answerService.GetAnswer(answerId);
             Assert.Equal(newText, resultingAnswer.Text);
@@ -154,9 +154,9 @@ namespace tests
             Participant participant = participantService.Create("CreateFollowUpAnswers_id", evaluation, Organization.All, Role.Facilitator);
             QuestionTemplateService qts = new QuestionTemplateService(fixture.context);
             List<Question> questions = questionService.CreateBulk(qts.GetAll().ToList(), evaluation);
-            answerService.Create(participant, questions[0], Severity.High, "test_answer_0", Progression.Workshop);
-            answerService.Create(participant, questions[1], Severity.High, "test_answer_1", Progression.Workshop);
-            answerService.Create(participant, questions[2], Severity.High, "test_answer_2", Progression.Workshop);
+            answerService.Create(participant, questions[0], Severity.OnTrack, "test_answer_0", Progression.Workshop);
+            answerService.Create(participant, questions[1], Severity.OnTrack, "test_answer_1", Progression.Workshop);
+            answerService.Create(participant, questions[2], Severity.OnTrack, "test_answer_2", Progression.Workshop);
 
             int nAnswersFollowupBefore = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation))).Count();
             int nAnswersWorkshop = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation))).Count();
