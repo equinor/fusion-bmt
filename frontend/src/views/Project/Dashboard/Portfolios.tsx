@@ -1,24 +1,24 @@
 import React from 'react'
-import { EvaluationsWithPortfolio } from '../../../utils/hooks'
+import { EvaluationsByProjectMasterAndPortfolio } from '../../../utils/hooks'
 import { Accordion } from '@equinor/eds-core-react'
-import EvaluationsTable from './EvaluationsTable'
+import TablesAndTitles from './TablesAndTitles'
 
 interface Props {
-    evaluationsWithPortfolio: EvaluationsWithPortfolio
+    evaluationsWithProjectMasterAndPortfolio: EvaluationsByProjectMasterAndPortfolio
 }
 
-const Portfolios = ({ evaluationsWithPortfolio }: Props) => {
+const Portfolios = ({ evaluationsWithProjectMasterAndPortfolio }: Props) => {
     return (
         <>
             <Accordion headerLevel="h3">
-                {Object.entries(evaluationsWithPortfolio)
+                {Object.entries(evaluationsWithProjectMasterAndPortfolio)
                     .reverse()
-                    .map(([portfolio, evaluations], index) => {
+                    .map(([portfolio, evaluationsWithProjectMasterTitle], index) => {
                         return (
                             <Accordion.Item key={index}>
                                 <Accordion.Header>{portfolio}</Accordion.Header>
                                 <Accordion.Panel>
-                                    <EvaluationsTable evaluations={evaluations} />
+                                    <TablesAndTitles evaluationsWithProjectMasterTitle={evaluationsWithProjectMasterTitle} />
                                 </Accordion.Panel>
                             </Accordion.Item>
                         )
