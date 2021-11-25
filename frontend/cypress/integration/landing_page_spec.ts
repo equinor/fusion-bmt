@@ -176,9 +176,11 @@ describe('Landing page', () => {
             class EvalByP {
                 eval: EvaluationSeed
                 portfolio: string
-                constructor(e: EvaluationSeed, p: string) {
+                title: string
+                constructor(e: EvaluationSeed, p: string, t: string) {
                     this.eval = e
                     this.portfolio = p
+                    this.title = t
                 }
             }
             let evaluationsByPortfolio: Array<EvalByP> = []
@@ -186,23 +188,31 @@ describe('Landing page', () => {
                 projMaster.projects.forEach(project => {
                     evaluations.forEach(evaluation => {
                         if (project.id === evaluation.evaluation.fusionProjectId) {
-                            evaluationsByPortfolio.push(new EvalByP(evaluation.evaluation, projMaster.portfolioOrganizationalUnit))
+                            evaluationsByPortfolio.push(
+                                new EvalByP(evaluation.evaluation, projMaster.portfolioOrganizationalUnit, projMaster.title)
+                            )
                         }
                     })
                 })
             })
-            let portfolios = ['No portfolio']
-            projectMasters.forEach(pm => portfolios.push(pm.portfolioOrganizationalUnit))
-            it('Non hidden evaluations are listed under their respective portfolios', () => {
+
+            let portfolios = [{ portfolio: 'No portfolio', projectMasterTitle: 'No project master title' }]
+            projectMasters.forEach(pm => portfolios.push({ portfolio: pm.portfolioOrganizationalUnit, projectMasterTitle: pm.title }))
+            it.only('Non hidden evaluations are listed under their respective portfolios', () => {
+                console.log(projectMasters)
                 cy.contains('Portfolios').click()
                 portfolios.forEach(p => {
-                    cy.contains(p).click()
+                    cy.contains(p.portfolio).click()
+                    cy.getByDataTestid('project-master-title' + p.projectMasterTitle.replace(/ /g, '')).should(
+                        'have.text',
+                        p.projectMasterTitle
+                    )
                     evaluationsByPortfolio.forEach(e => {
-                        e.portfolio === p && e.eval.status !== Status.Voided
-                            ? cy.contains('div', p).contains('p', e.eval.name).should('exist')
-                            : cy.contains('div', p).contains('p', e.eval.name).should('not.exist')
+                        e.portfolio === p.portfolio && e.eval.status !== Status.Voided
+                            ? cy.contains('div', p.portfolio).contains('p', e.eval.name).should('exist')
+                            : cy.contains('div', p.portfolio).contains('p', e.eval.name).should('not.exist')
                     })
-                    cy.contains(p).click()
+                    cy.contains(p.portfolio).click()
                 })
             })
         })

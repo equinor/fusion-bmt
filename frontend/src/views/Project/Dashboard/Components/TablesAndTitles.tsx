@@ -10,9 +10,14 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle }: Props) => {
     return (
         <>
             {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
+                const titleNoSpaces = projectMasterTitle.replace(/ /g, '')
                 return (
                     <div key={index}>
-                        <Typography variant={'h2'} style={{ marginBottom: '7px', marginTop: '15px' }}>
+                        <Typography
+                            variant={'h2'}
+                            style={{ marginBottom: '7px', marginTop: '15px' }}
+                            data-testid={'project-master-title' + titleNoSpaces}
+                        >
                             {projectMasterTitle}
                         </Typography>
                         <EvaluationsTable evaluations={evaluations} />
