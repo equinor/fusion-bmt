@@ -144,10 +144,18 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
                                 }
                             }
                         } else {
-                            if (evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle]) {
-                                evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle].push(evaluation)
+                            if (projectMasterTitle === "") {
+                                if (evaluationsByProjectMasterAndPortfolio[noPortfolioKey][noProjectMasterTitle]) {
+                                    evaluationsByProjectMasterAndPortfolio[noPortfolioKey][noProjectMasterTitle].push(evaluation)
+                                } else {
+                                    evaluationsByProjectMasterAndPortfolio[noPortfolioKey][noProjectMasterTitle] = [evaluation]
+                                }
                             } else {
-                                evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle] = [evaluation]
+                                if (evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle]) {
+                                    evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle].push(evaluation)
+                                } else {
+                                    evaluationsByProjectMasterAndPortfolio[noPortfolioKey][projectMasterTitle] = [evaluation]
+                                }
                             }
                         }
                     } else {
