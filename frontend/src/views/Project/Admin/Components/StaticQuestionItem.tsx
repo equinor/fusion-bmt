@@ -12,12 +12,13 @@ import { UseMultipleSelectionStateChange } from 'downshift'
 import { ProjectCategory, QuestionTemplate } from '../../../../api/models'
 import { organizationToString } from '../../../../utils/EnumToString'
 import SaveIndicator from '../../../../components/SaveIndicator'
-import { SavingState } from '../../../../utils/Variables'
+import { genericErrorMessage, SavingState } from '../../../../utils/Variables'
 import { deriveNewSavingState, getNextNextQuestion, getNextQuestion, getPrevQuestion } from '../../../helpers'
 import { useEffectNotOnMount } from '../../../../utils/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
-import ErrorMessage from './ErrorMessage'
 import QuestionTemplateButtons from './QuestionTemplateButtons'
+import ErrorBanner from '../../../../components/ErrorBanner'
+import SaveIndicatorOnButton from '../../../../components/SaveIndicatorOnButton'
 
 const StyledDiv = styled.div<{ isNew: boolean }>`
     display: flex;
@@ -75,6 +76,13 @@ const StaticQuestionItem = ({
 }: Props) => {
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
+    const [reorderUpClicked, setReorderUpClicked] = useState<boolean>(false)
+    const [reorderDownClicked, setReorderDownClicked] = useState<boolean>(false)
+    const [showAddProjectCategoryErrorMessage, setShowAddProjectCategoryErrorMessage] = useState<boolean>(false)
+    const [showRemoveProjectCategoryErrorMessage, setShowRemoveProjectCategoryErrorMessage] = useState<boolean>(false)
+    const [showDeleteQuestionErrorMessage, setShowDeleteQuestionErrorMessage] = useState<boolean>(false)
+    const [showReorderQuestionsErrorMessage, setShowReorderQuestionsErrorMessage] = useState<boolean>(false)
+
     const projectCategoriesOptions = [...projectCategories].map(category => category.name)
 
     const {
@@ -101,7 +109,32 @@ const StaticQuestionItem = ({
         error: reorderingQuestionTemplateError,
     } = useReorderQuestionTemplateMutation()
 
+    useEffectNotOnMount(() => {
+        if (addingToProjectCategoryError !== undefined) {
+            setShowAddProjectCategoryErrorMessage(true)
+        }
+    }, [addingToProjectCategoryError])
+
+    useEffectNotOnMount(() => {
+        if (removingFromProjectCategoryError !== undefined) {
+            setShowRemoveProjectCategoryErrorMessage(true)
+        }
+    }, [removingFromProjectCategoryError])
+
+    useEffectNotOnMount(() => {
+        if (deletingQuestionTemplateError !== undefined) {
+            setShowDeleteQuestionErrorMessage(true)
+        }
+    }, [deletingQuestionTemplateError])
+
+    useEffectNotOnMount(() => {
+        if (reorderingQuestionTemplateError !== undefined) {
+            setShowReorderQuestionsErrorMessage(true)
+        }
+    }, [reorderingQuestionTemplateError])
+
     const onReorderUpClick = (prevQuestion: QuestionTemplate | undefined, nextQuestion: QuestionTemplate | undefined) => {
+        setReorderUpClicked(true)
         if (prevQuestion !== undefined) {
             const nextQuestionId = nextQuestion ? nextQuestion.id : ''
             reorderQuestionTemplate(prevQuestion.id, nextQuestionId)
@@ -109,6 +142,7 @@ const StaticQuestionItem = ({
     }
 
     const onReorderDownClick = (question: QuestionTemplate, nextNextQuestion: QuestionTemplate | undefined) => {
+        setReorderDownClicked(true)
         const nextNextQuestionId = nextNextQuestion ? nextNextQuestion.id : ''
         reorderQuestionTemplate(question.id, nextNextQuestionId)
     }
@@ -116,6 +150,8 @@ const StaticQuestionItem = ({
     useEffectNotOnMount(() => {
         if (!reorderingQuestionTemplate) {
             refetchQuestionTemplates()
+            setReorderUpClicked(false)
+            setReorderDownClicked(false)
         }
     }, [reorderingQuestionTemplate])
 
@@ -211,6 +247,38 @@ const StaticQuestionItem = ({
     return (
         <>
             <StyledDiv isNew={questionToScrollIntoView === question.id}>
+                {showAddProjectCategoryErrorMessage && (
+                    <Box mb={2}>
+                        <ErrorBanner
+                            message={'Not able to add project category to question template. ' + genericErrorMessage}
+                            onClose={() => setShowAddProjectCategoryErrorMessage(false)}
+                        />
+                    </Box>
+                )}
+                {showRemoveProjectCategoryErrorMessage && (
+                    <Box mb={2}>
+                        <ErrorBanner
+                            message={'Not able to remove project category from question template. ' + genericErrorMessage}
+                            onClose={() => setShowRemoveProjectCategoryErrorMessage(false)}
+                        />
+                    </Box>
+                )}
+                {showDeleteQuestionErrorMessage && (
+                    <Box mb={2}>
+                        <ErrorBanner
+                            message={'Not able to delete question. ' + genericErrorMessage}
+                            onClose={() => setShowDeleteQuestionErrorMessage(false)}
+                        />
+                    </Box>
+                )}
+                {showReorderQuestionsErrorMessage && (
+                    <Box mb={2}>
+                        <ErrorBanner
+                            message={'Not able to reorder questions. ' + genericErrorMessage}
+                            onClose={() => setShowReorderQuestionsErrorMessage(false)}
+                        />
+                    </Box>
+                )}
                 <Box display="flex" flexDirection="row">
                     <Box display="flex" flexGrow={1} mb={3} mr={5}>
                         <Box ml={2} mr={1}>
@@ -297,7 +365,10 @@ const StaticQuestionItem = ({
                                     disabled={question.order === lowestBarrierOrder || reorderingQuestionTemplate}
                                     onClick={() => onReorderUpClick(prevQuestion, nextQuestion)}
                                 >
-                                    <Icon data={arrow_up}></Icon>
+                                    {reorderingQuestionTemplate && reorderUpClicked && (
+                                        <SaveIndicatorOnButton savingState={SavingState.Saving} spinnerColor="primary" />
+                                    )}
+                                    {!reorderingQuestionTemplate && <Icon data={arrow_up}></Icon>}
                                 </Button>
                                 <Button
                                     data-testid={'move-question-down-' + question.adminOrder}
@@ -306,7 +377,10 @@ const StaticQuestionItem = ({
                                     disabled={question.order === highestBarrierOrder || reorderingQuestionTemplate}
                                     onClick={() => onReorderDownClick(question, nextNextQuestion)}
                                 >
-                                    <Icon data={arrow_down}></Icon>
+                                    {reorderingQuestionTemplate && reorderDownClicked && (
+                                        <SaveIndicatorOnButton savingState={SavingState.Saving} spinnerColor="primary" />
+                                    )}
+                                    {!reorderingQuestionTemplate && <Icon data={arrow_down}></Icon>}
                                 </Button>
                             </Box>
                         )}
@@ -317,16 +391,13 @@ const StaticQuestionItem = ({
                     <ConfirmationDialog
                         isOpen={isInConfirmDeleteMode}
                         title={'Delete question template'}
+                        isLoading={deletingQuestionTemplate}
                         description={'Are you sure you want to delete the question: ' + "'" + question.text + "'"}
                         onConfirmClick={() => deleteQuestionTemplate(question.id)}
                         onCancelClick={() => setIsInConfirmDeleteMode(false)}
                     />
                 </Box>
-                {deletingQuestionTemplateError !== undefined && <ErrorMessage text={'Could not delete question template'} />}
             </StyledDiv>
-            {addingToProjectCategoryError && <ErrorMessage text={'Not able to add project category to question template'} />}
-            {removingFromProjectCategoryError && <ErrorMessage text={'Not able to remove project category from question template'} />}
-            {reorderingQuestionTemplateError && <ErrorMessage text={'Not able to reorder question templates'} />}
         </>
     )
 }

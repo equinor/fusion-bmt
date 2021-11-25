@@ -51,12 +51,7 @@ const BarrierHeader = ({
                 </Box>
                 <Box mt={2.5}>
                     <Tooltip placement="bottom" title={'Add new question'}>
-                        <Button
-                            variant="ghost"
-                            color="primary"
-                            onClick={() => onAddNewQuestionClick()}
-                            data-testid="create-new-question-button"
-                        >
+                        <Button variant="ghost" color="primary" onClick={onAddNewQuestionClick} data-testid="create-new-question-button">
                             <Icon data={add}></Icon>
                         </Button>
                     </Tooltip>
@@ -66,7 +61,7 @@ const BarrierHeader = ({
                         variant="ghost"
                         color="primary"
                         ref={menuAnchorRef}
-                        onClick={() => (isMenuOpen ? setIsMenuOpen(false) : setIsMenuOpen(true))}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
                         data-testid="add-to-category-reorder-questions"
                     >
                         <Icon data={more_vertical}></Icon>

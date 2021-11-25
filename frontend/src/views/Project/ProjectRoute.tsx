@@ -3,7 +3,7 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
 import { ErrorMessage } from '@equinor/fusion-components'
-import { Tabs } from '@equinor/eds-core-react'
+import { CircularProgress, Tabs } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 
 import { Project } from '../../api/models'

@@ -1,51 +1,52 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
-import { ApolloError } from '@apollo/client'
+import { ApolloError, gql, useMutation } from '@apollo/client'
 
-import { Organization, QuestionTemplate } from '../../../../api/models'
-import { ErrorIcon, TextFieldChangeEvent, Validity } from '../../../../components/Action/utils'
-import { getOrganizationOptionsForDropdown, updateValidity } from '../../../helpers'
-import { useEffectNotOnMount } from '../../../../utils/hooks'
-import CancelOrSaveQuestion from './CancelOrSaveQuestion'
-import ErrorMessage from './ErrorMessage'
-import { DataToEditQuestionTemplate } from './AdminQuestionItem'
+import { Barrier, Organization, QuestionTemplate, Status } from '../../../../api/models'
+import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
+import { getOrganizationOptionsForDropdown } from '../../../helpers'
+import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
+import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
+import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../../../api/fragments'
+import ErrorBanner from '../../../../components/ErrorBanner'
+import { genericErrorMessage } from '../../../../utils/Variables'
 
 interface Props {
     question: QuestionTemplate
-    isQuestionTemplateSaving: boolean
     setIsInEditmode: (inEditmode: boolean) => void
-    editQuestionTemplate: (data: DataToEditQuestionTemplate) => void
-    questionTemplateSaveError: ApolloError | undefined
+    refetchQuestionTemplates: () => void
 }
 
-const EditableQuestionItem = ({
-    question,
-    setIsInEditmode,
-    editQuestionTemplate,
-    isQuestionTemplateSaving,
-    questionTemplateSaveError,
-}: Props) => {
+const EditableQuestionItem = ({ question, setIsInEditmode, refetchQuestionTemplates }: Props) => {
+    const { editQuestionTemplate, loading: isQuestionTemplateSaving, error: questionTemplateSaveError } = useQuestionTemplateMutation()
+
     const [text, setText] = React.useState<string>(question.text)
     const [organization, setOrganization] = React.useState<Organization>(question.organization)
     const [supportNotes, setSupportNotes] = React.useState<string>(question.supportNotes)
-    const [textValidity, setTextValidity] = useState<Validity>('default')
+
+    const [showCreateErrorMessage, setShowCreateErrorMessage] = useState<boolean>(false)
 
     const isTextfieldValid = () => {
         return text.length > 0
     }
 
-    useEffectNotOnMount(() => {
-        if (!isTextfieldValid()) {
-            setTextValidity('error')
-        }
-    }, [text])
+    const { valueValidity: textValidity } = useValidityCheck<string>(text, isTextfieldValid)
 
-    useEffect(() => {
-        updateValidity(isTextfieldValid(), textValidity, setTextValidity)
-    }, [text, textValidity])
+    useEffectNotOnMount(() => {
+        if (!isQuestionTemplateSaving && questionTemplateSaveError === undefined) {
+            setIsInEditmode(false)
+            refetchQuestionTemplates()
+        }
+    }, [isQuestionTemplateSaving])
+
+    useEffectNotOnMount(() => {
+        if (questionTemplateSaveError !== undefined) {
+            setShowCreateErrorMessage(true)
+        }
+    }, [questionTemplateSaveError])
 
     const saveQuestion = () => {
         const newQuestion: DataToEditQuestionTemplate = {
@@ -61,6 +62,9 @@ const EditableQuestionItem = ({
 
     return (
         <Box display="flex" flexDirection="column">
+            {showCreateErrorMessage && (
+                <ErrorBanner message={'Unable to save question. ' + genericErrorMessage} onClose={() => setShowCreateErrorMessage(false)} />
+            )}
             <Box display="flex" flexDirection="row">
                 <Box display="flex" flexGrow={1} flexDirection={'column'}>
                     <Box display="flex" alignItems={'center'} mt={0.75}>
@@ -102,21 +106,75 @@ const EditableQuestionItem = ({
                             onSelect={option => setOrganization(option.key as Organization)}
                         />
                     </Box>
-                    <CancelOrSaveQuestion
-                        isQuestionTemplateSaving={isQuestionTemplateSaving}
-                        onClickSave={saveQuestion}
+                    <CancelAndSaveButton
                         onClickCancel={() => setIsInEditmode(false)}
-                        questionTitle={text}
+                        onClickSave={saveQuestion}
+                        isSaving={isQuestionTemplateSaving}
+                        cancelButtonTestId="cancel-edit-question"
+                        saveButtonTestId="save-question-button"
+                        disableCancelButton={isQuestionTemplateSaving}
+                        disableSaveButton={isQuestionTemplateSaving || !isTextfieldValid()}
                     />
                 </Box>
             </Box>
-            {questionTemplateSaveError && (
-                <Box mt={2} ml={4}>
-                    <ErrorMessage text={'Not able to save'} />
-                </Box>
-            )}
         </Box>
     )
 }
 
 export default EditableQuestionItem
+
+export interface DataToEditQuestionTemplate {
+    questionTemplateId: string
+    barrier: Barrier
+    organization: Organization
+    text: string
+    supportNotes: string
+    status: Status
+}
+
+interface QuestionTemplateMutationProps {
+    editQuestionTemplate: (data: DataToEditQuestionTemplate) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useQuestionTemplateMutation = (): QuestionTemplateMutationProps => {
+    const EDIT_QUESTION_TEMPLATE = gql`
+        mutation EditQuestionTemplate(
+            $questionTemplateId: String!
+            $barrier: Barrier!
+            $organization: Organization!
+            $text: String!
+            $supportNotes: String!
+            $status: Status!
+        ) {
+            editQuestionTemplate(
+                questionTemplateId: $questionTemplateId
+                barrier: $barrier
+                organization: $organization
+                text: $text
+                supportNotes: $supportNotes
+                status: $status
+            ) {
+                ...QuestionTemplateFields
+                ...ProjectCategoryFields
+            }
+        }
+        ${QUESTIONTEMPLATE_FIELDS_FRAGMENT}
+        ${PROJECT_CATEGORY_FIELDS_FRAGMENT}
+    `
+
+    const [editQuestionTemplateApolloFunc, { loading, data, error }] = useMutation(EDIT_QUESTION_TEMPLATE)
+
+    const editQuestionTemplate = (data: DataToEditQuestionTemplate) => {
+        editQuestionTemplateApolloFunc({
+            variables: { ...data },
+        })
+    }
+
+    return {
+        editQuestionTemplate,
+        loading,
+        error,
+    }
+}

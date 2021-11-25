@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, CircularProgress, Dialog, Scrim, Typography } from '@equinor/eds-core-react'
+import ButtonWithSaveIndicator from './ButtonWithSaveIndicator'
 
 interface ConfirmationDialogProps {
     isOpen: boolean
@@ -21,12 +22,7 @@ const ConfirmationDialog = ({ isOpen, isLoading = false, title, description, onC
             <Scrim isDismissable={true} onClose={onCancelClick}>
                 <Dialog data-testid="confirmation_dialog">
                     <Dialog.Title>{title}</Dialog.Title>
-                    {isLoading && (
-                        <Box display={'flex'} alignItems={'center'} justifyContent={'center'} mt={2} mb={4}>
-                            <CircularProgress style={{ width: '25px', height: '25px' }} />
-                        </Box>
-                    )}
-                    {!isLoading && description && (
+                    {description && (
                         <Dialog.CustomContent>
                             <Typography>{description}</Typography>
                         </Dialog.CustomContent>
@@ -44,9 +40,15 @@ const ConfirmationDialog = ({ isOpen, isLoading = false, title, description, onC
                                 </Button>
                             </Box>
                             <Box>
-                                <Button data-testid="yes_button" variant="ghost" onClick={onConfirmClick} disabled={isLoading}>
+                                <ButtonWithSaveIndicator
+                                    variant="ghost"
+                                    isLoading={isLoading}
+                                    onClick={onConfirmClick}
+                                    disabled={isLoading}
+                                    testId="yes_button"
+                                >
                                     Yes
-                                </Button>
+                                </ButtonWithSaveIndicator>
                             </Box>
                         </Box>
                     </Dialog.Actions>

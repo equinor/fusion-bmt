@@ -13,6 +13,7 @@ import { useEvaluationsWithPortfolio } from '../../../utils/hooks'
 import Portfolios from './Components/Portfolios'
 import EvaluationsTable from './Components/EvaluationsTable'
 import CreateEvaluationButton from './Components/CreateEvaluationButton'
+import { centered } from '../../../utils/styles'
 
 const Chips = styled.div`
     display: flex;
@@ -23,13 +24,6 @@ const Chips = styled.div`
 const StyledChip = styled(Chip)`
     cursor: pointer;
     margin-right: 10px;
-`
-
-const Centered = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
 `
 
 enum TableSelection {
@@ -58,9 +52,9 @@ const mapTableSelectionToText = (tableSelection: string) => {
 
 const CenteredCircularProgress = () => {
     return (
-        <Centered>
+        <div style={centered}>
             <CircularProgress />
-        </Centered>
+        </div>
     )
 }
 

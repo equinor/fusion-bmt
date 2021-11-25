@@ -43,17 +43,9 @@ interface Props {
     onClickAction: (actionId: string) => void
     showEvaluations?: boolean
     projects?: Context[]
-    isFetchingProjects?: boolean
 }
 
-const ActionTable = ({
-    onClickAction,
-    actionsWithAdditionalInfo,
-    personDetailsList,
-    showEvaluations = false,
-    projects,
-    isFetchingProjects = false,
-}: Props) => {
+const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false, projects }: Props) => {
     const columns = columnOptions.filter(
         col =>
             (col.name === 'Evaluation' && showEvaluations) ||
@@ -142,17 +134,13 @@ const ActionTable = ({
     }
 
     return (
-        <>
-            {!isFetchingProjects && (
-                <SortableTable
-                    columns={columns}
-                    data={actionsWithAdditionalInfo}
-                    sortOnAccessor={sortOnAccessor}
-                    renderRow={renderRow}
-                    testId="action-table"
-                />
-            )}
-        </>
+        <SortableTable
+            columns={columns}
+            data={actionsWithAdditionalInfo}
+            sortOnAccessor={sortOnAccessor}
+            renderRow={renderRow}
+            testId="action-table"
+        />
     )
 }
 

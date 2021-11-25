@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
-import { Divider, Typography } from '@equinor/eds-core-react'
+import { CircularProgress, Divider, Typography } from '@equinor/eds-core-react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { TextArea } from '@equinor/fusion-components'
+import { ErrorMessage } from '@equinor/fusion-components'
 import { Box } from '@material-ui/core'
 
 import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../../api/fragments'
@@ -9,8 +9,7 @@ import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from
 import { barrierToString } from '../../../utils/EnumToString'
 import { useEffectNotOnMount, useFilter } from '../../../utils/hooks'
 import { hasOrganization } from '../../../utils/QuestionAndAnswerUtils'
-import { apiErrorMessage } from '../../../api/error'
-
+import { genericErrorMessage } from '../../../utils/Variables'
 import CreateQuestionItem from './Components/CreateQuestionItem'
 import AdminQuestionItem from './Components/AdminQuestionItem'
 import BarrierHeader from './Components/BarrierHeader'
@@ -64,36 +63,23 @@ const AdminView = () => {
         }
     }, [questions])
 
-    if (isFetchingProjectCategories) {
-        return <>Loading...</>
-    }
-
-    if (errorProjectCategoryQuery !== undefined || projectCategories === undefined) {
+    if (isFetchingProjectCategories || loading) {
         return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not load Project Categories')} onChange={() => {}} />
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '70vh',
+                }}
+            >
+                <CircularProgress />
             </div>
         )
     }
 
-    if (loading) {
-        return <>Loading...</>
-    }
-
-    if (error !== undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not load questions')} onChange={() => {}} />
-            </div>
-        )
-    }
-
-    if (questions === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Questions are undefined')} onChange={() => {}} />
-            </div>
-        )
+    if (errorProjectCategoryQuery !== undefined || error !== undefined || projectCategories === undefined || questions === undefined) {
+        return <ErrorMessage hasError errorType={'noData'} message={genericErrorMessage} />
     }
 
     const onBarrierSelected = (barrier: Barrier) => {
