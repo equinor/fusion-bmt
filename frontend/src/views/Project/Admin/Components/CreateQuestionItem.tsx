@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
-import { Box } from '@material-ui/core'
+import { Box, Grid } from '@material-ui/core'
 import { ApolloError } from '@apollo/client'
 
 import { Barrier, Organization, QuestionTemplate } from '../../../../api/models'
@@ -9,8 +9,9 @@ import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/u
 import { getOrganizationOptionsForDropdown } from '../../../helpers'
 import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
 import { DataToCreateQuestionTemplate } from '../AdminView'
-import ErrorMessage from './ErrorMessage'
-import CancelOrSaveQuestion from './CancelOrSaveQuestion'
+import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
+import ErrorBanner from '../../../../components/ErrorBanner'
+import { genericErrorMessage } from '../../../../utils/Variables'
 
 interface Props {
     barrier: Barrier
@@ -78,6 +79,14 @@ const CreateQuestionItem = ({
 
     return (
         <Box display="flex" flexDirection="column">
+            {showErrorMessage && (
+                <Box mb={2} ml={4}>
+                    <ErrorBanner
+                        message={'Could not save question template. ' + genericErrorMessage}
+                        onClose={() => setShowErrorMessage(false)}
+                    />
+                </Box>
+            )}
             {questionTemplateToCopy && (
                 <Box ml={2} mr={1} mt={1} mb={3}>
                     <Typography variant="h4">Copy question: "{questionTemplateToCopy.text}"</Typography>
@@ -119,19 +128,17 @@ const CreateQuestionItem = ({
                             onSelect={option => setOrganization(option.key as Organization)}
                         />
                     </Box>
-                    <CancelOrSaveQuestion
-                        isQuestionTemplateSaving={isSaving}
-                        onClickSave={createQuestion}
+                    <CancelAndSaveButton
                         onClickCancel={onCancelCreate}
-                        questionTitle={text}
+                        onClickSave={createQuestion}
+                        isSaving={isSaving}
+                        cancelButtonTestId="cancel-edit-question"
+                        saveButtonTestId="save-question-button"
+                        disableCancelButton={isSaving}
+                        disableSaveButton={isSaving || !isTextfieldValid()}
                     />
                 </Box>
             </Box>
-            {showErrorMessage && (
-                <Box mt={2} ml={4}>
-                    <ErrorMessage text={'Not able to save'} />
-                </Box>
-            )}
         </Box>
     )
 }

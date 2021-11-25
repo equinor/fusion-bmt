@@ -9,8 +9,9 @@ import { add, delete_to_trash } from '@equinor/eds-icons'
 import { ProjectCategory } from '../../../../api/models'
 import { useEffectNotOnMount } from '../../../../utils/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
-import ErrorMessage from './ErrorMessage'
 import CreateProjectCategorySidebar from './CreateProjectCategorySidebar'
+import { genericErrorMessage } from '../../../../utils/Variables'
+import ErrorBanner from '../../../../components/ErrorBanner'
 
 interface Props {
     selectedProjectCategory: string
@@ -40,7 +41,10 @@ const CategoryHeader = ({
     useEffectNotOnMount(() => {
         if (!deletingProjectCategory) {
             setIsInConfirmDeleteMode(false)
-            setSelectedProjectCategory('all')
+
+            if (deletingProjectCategoryError === undefined) {
+                setSelectedProjectCategory('all')
+            }
         }
     }, [deletingProjectCategory])
 
@@ -121,7 +125,10 @@ const CategoryHeader = ({
                 </Box>
                 {showErrorMessage && (
                     <Box mt={1} ml={4} mr={4}>
-                        <ErrorMessage text={'Could not delete project category'} onClose={() => setShowErrorMessage(false)} />
+                        <ErrorBanner
+                            message={'Could not delete project category. ' + genericErrorMessage}
+                            onClose={() => setShowErrorMessage(false)}
+                        />
                     </Box>
                 )}
             </Box>

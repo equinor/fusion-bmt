@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { useApiClients, Context } from '@equinor/fusion'
+import { ErrorMessage } from '@equinor/fusion-components'
 
 import { useAllPersonDetailsAsync } from '../../../utils/hooks'
 import { Action } from '../../../api/models'
@@ -15,6 +15,9 @@ import {
     PARTICIPANTS_ARRAY_FRAGMENT,
     QUESTION_FIELDS_FRAGMENT,
 } from '../../../api/fragments'
+import { CircularProgress } from '@equinor/eds-core-react'
+import { centered } from '../../../utils/styles'
+import { genericErrorMessage } from '../../../utils/Variables'
 
 interface Props {
     azureUniqueId: string
@@ -23,24 +26,29 @@ interface Props {
 const ActionsView = ({ azureUniqueId }: Props) => {
     const apiClients = useApiClients()
 
-    const { actions } = useActionsQuery(azureUniqueId)
+    const { loading: loadingActions, actions, error: errorLoadingActions } = useActionsQuery(azureUniqueId)
     const nonCancelledActions = actions.filter(a => !a.isVoided)
     const actionsWithAdditionalInfo = nonCancelledActions.map(action => {
         return { action: action, barrier: action.question.barrier, organization: action.question.organization }
     })
 
     const { personDetailsList } = useAllPersonDetailsAsync([azureUniqueId])
-    const [projects, setProjects] = useState<Context[]>()
-    const [isFetchingProject, setIsFetchingProject] = useState<boolean>(true)
+    const [projects, setProjects] = useState<Context[]>([])
+    const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [actionIdToEdit, setActionIdToEdit] = useState<string>('')
     const actionToEdit = actionsWithAdditionalInfo.find(actionWithInfo => actionWithInfo.action.id === actionIdToEdit)
 
+    const isFetchingData = loadingActions || isFetchingProjects
+
     useEffect(() => {
-        apiClients.context.getContextsAsync().then(projects => {
-            setProjects(projects.data)
-            setIsFetchingProject(false)
-        })
+        if (projects.length === 0) {
+            setIsFetchingProjects(true)
+            apiClients.context.getContextsAsync().then(projects => {
+                setProjects(projects.data)
+                setIsFetchingProjects(false)
+            })
+        }
     }, [])
 
     const onClose = () => {
@@ -55,14 +63,23 @@ const ActionsView = ({ azureUniqueId }: Props) => {
 
     return (
         <Box m={5}>
-            <ActionTable
-                actionsWithAdditionalInfo={actionsWithAdditionalInfo}
-                personDetailsList={personDetailsList}
-                onClickAction={openEditActionPanel}
-                showEvaluations={true}
-                projects={projects}
-                isFetchingProjects={isFetchingProject}
-            />
+            {isFetchingData && (
+                <div style={centered}>
+                    <CircularProgress />
+                </div>
+            )}
+            {!isFetchingData && errorLoadingActions !== undefined && (
+                <ErrorMessage hasError errorType={'noData'} message={genericErrorMessage} />
+            )}
+            {!isFetchingData && errorLoadingActions === undefined && actionsWithAdditionalInfo.length > 0 && (
+                <ActionTable
+                    actionsWithAdditionalInfo={actionsWithAdditionalInfo}
+                    personDetailsList={personDetailsList}
+                    onClickAction={openEditActionPanel}
+                    showEvaluations={true}
+                    projects={projects}
+                />
+            )}
             {actionIdToEdit !== '' && actionToEdit !== undefined && (
                 <ActionEditSidebarWithApi
                     action={actionToEdit.action}

@@ -49,6 +49,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
                         open={showDialog}
                         onCreate={onCreateEvaluationClick}
                         onCancelClick={onCreateEvaluationCancelClick}
+                        creatingEvaluation={creatingEvaluation}
                         createEvaluationError={createEvaluationError}
                     />
                 )}

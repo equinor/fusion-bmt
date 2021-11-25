@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import { Button, ErrorMessage, ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
-import { TextField } from '@equinor/eds-core-react'
+import { ErrorMessage, ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
+import { CircularProgress, TextField } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
 
 import { genericErrorMessage } from '../../../../utils/Variables'
@@ -11,15 +11,24 @@ import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
 import { Evaluation, ProjectCategory } from '../../../../api/models'
 import { ErrorIcon } from '../../../../components/Action/utils'
 import ErrorBanner from '../../../../components/ErrorBanner'
+import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
+import { centered } from '../../../../utils/styles'
 
 interface CreateEvaluationDialogProps {
     open: boolean
     onCreate: (name: string, projectCategoryId: string, previousEvaluationId?: string) => void
     onCancelClick: () => void
     createEvaluationError: ApolloError | undefined
+    creatingEvaluation: boolean
 }
 
-const CreateEvaluationDialog = ({ open, onCreate, onCancelClick, createEvaluationError }: CreateEvaluationDialogProps) => {
+const CreateEvaluationDialog = ({
+    open,
+    onCreate,
+    onCancelClick,
+    createEvaluationError,
+    creatingEvaluation,
+}: CreateEvaluationDialogProps) => {
     const project = useProject()
 
     const { loading: loadingEvaluationQuery, evaluations, error: errorEvaluationQuery } = useGetAllEvaluationsQuery(project.id)
@@ -56,15 +65,13 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick, createEvaluatio
         }
     }
 
-    if (loadingEvaluationQuery || loadingProjectCategoryQuery) {
-        return <>Loading...</>
-    }
-
     const isMissingData =
         evaluations === undefined ||
         projectCategories === undefined ||
         errorEvaluationQuery !== undefined ||
         errorProjectCategoryQuery !== undefined
+
+    const isFetchingData = loadingEvaluationQuery || loadingProjectCategoryQuery
 
     const projectCategoryOptions: SearchableDropdownOption[] = projectCategories
         ? projectCategories.map((projectCategory: ProjectCategory) => ({
@@ -85,7 +92,12 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick, createEvaluatio
     return (
         <>
             <ModalSideSheet show={open} onClose={onCancelClick} header="Create Evaluation" size="medium">
-                {isMissingData && (
+                {isFetchingData && (
+                    <div style={centered}>
+                        <CircularProgress style={{ width: '25px', height: '25px' }} />
+                    </div>
+                )}
+                {!isFetchingData && isMissingData && (
                     <ErrorMessage
                         hasError
                         title="Missing data"
@@ -93,7 +105,7 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick, createEvaluatio
                         message={'Unfortunately, we were not able to fetch the necessary data. ' + genericErrorMessage}
                     />
                 )}
-                {!isMissingData && (
+                {!isFetchingData && !isMissingData && (
                     <Container>
                         {showCreateErrorMessage && (
                             <ErrorBanner
@@ -139,17 +151,15 @@ const CreateEvaluationDialog = ({ open, onCreate, onCancelClick, createEvaluatio
                                     options={evaluationOptions}
                                 />
                             </Grid>
-                            <Grid container justifyContent="flex-end" style={{ paddingRight: '12px' }}>
-                                <Grid item>
-                                    <Button outlined onClick={onCancelClick}>
-                                        Cancel
-                                    </Button>
-                                </Grid>
-                                <Grid item data-testid="create_evaluation_dialog_create_button_grid">
-                                    <Button onClick={handleCreateClick} disabled={!isNameInputValid() || !isCategorySelectionValid()}>
-                                        Create
-                                    </Button>
-                                </Grid>
+                            <Grid container justify="flex-end" style={{ margin: '20px 12px' }}>
+                                <CancelAndSaveButton
+                                    onClickSave={handleCreateClick}
+                                    onClickCancel={onCancelClick}
+                                    saveButtonTestId="create_evaluation_dialog_create_button"
+                                    disableCancelButton={creatingEvaluation}
+                                    disableSaveButton={!isNameInputValid() || !isCategorySelectionValid()}
+                                    isSaving={creatingEvaluation}
+                                />
                             </Grid>
                         </Grid>
                     </Container>

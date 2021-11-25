@@ -2,25 +2,28 @@ import React, { useState } from 'react'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
-import { Button, TextField } from '@equinor/eds-core-react'
+import { TextField } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
 
-import { useSavingStateCheck, useValidityCheck } from '../../../../utils/hooks'
+import { genericErrorMessage } from '../../../../utils/Variables'
+import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
 import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
 import { ProjectCategory } from '../../../../api/models'
-import SaveIndicator from '../../../../components/SaveIndicator'
-import ErrorMessage from './ErrorMessage'
+import ErrorBanner from '../../../../components/ErrorBanner'
+import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
 
 interface Props {
     isOpen: boolean
     setIsOpen: (val: boolean) => void
-    onProjectCategoryCreated: (value: string, value2: boolean) => void
+    onProjectCategoryCreated: (projectCategory: string, isCopy: boolean) => void
     projectCategories: ProjectCategory[]
 }
 
 const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCreated, projectCategories }: Props) => {
     const [projectCategoryName, setProjectCategoryName] = useState<string>('')
     const [projectCategoryToCopy, setProjectCategoryToCopy] = useState<string>('')
+    const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false)
+
     const { createProjectCategory, projectCategory, loading, error } = useCreateProjectCategoryMutation()
     const {
         copyProjectCategory,
@@ -29,22 +32,27 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
         error: errorCreatingProjectCategoryCopy,
     } = useCopyProjectCategoryMutation()
 
-    const isNameValid = () => projectCategoryName.length > 0
+    useEffectNotOnMount(() => {
+        if (error !== undefined || errorCreatingProjectCategoryCopy) {
+            setShowErrorMessage(true)
+        }
+    }, [error, errorCreatingProjectCategoryCopy])
 
-    const doWhenProjectCategorySaved = () => {
-        if (projectCategoryToCopy) {
-            onProjectCategoryCreated(projectCategoryFromCopy.id, true)
-        } else {
+    useEffectNotOnMount(() => {
+        if (!loading && error === undefined) {
             onProjectCategoryCreated(projectCategory.id, false)
         }
-    }
+    }, [loading])
+
+    useEffectNotOnMount(() => {
+        if (!isCreatingProjectCategoryCopy && errorCreatingProjectCategoryCopy === undefined) {
+            onProjectCategoryCreated(projectCategoryFromCopy.id, true)
+        }
+    }, [isCreatingProjectCategoryCopy])
+
+    const isNameValid = () => projectCategoryName.length > 0
 
     const { valueValidity } = useValidityCheck<string>(projectCategoryName, isNameValid)
-    const { savingState } = useSavingStateCheck(
-        loading || isCreatingProjectCategoryCopy,
-        error !== undefined || errorCreatingProjectCategoryCopy !== undefined,
-        doWhenProjectCategorySaved
-    )
 
     const projectCategoryOptions: SearchableDropdownOption[] = []
 
@@ -73,10 +81,17 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                 setIsOpen(false)
             }}
             isResizable={false}
-            headerIcons={[<SaveIndicator savingState={savingState} />]}
         >
-            <Grid container style={{ padding: 20 }}>
-                <Grid item xs={12}>
+            <Grid container style={{ paddingLeft: 20, paddingRight: 20 }}>
+                {showErrorMessage && (
+                    <Grid item xs={12}>
+                        <ErrorBanner
+                            message={'Could not save project category. ' + genericErrorMessage}
+                            onClose={() => setShowErrorMessage(false)}
+                        />
+                    </Grid>
+                )}
+                <Grid item xs={12} style={{ marginTop: 20 }}>
                     <TextField
                         data-testid="projectCategoryName"
                         id="name"
@@ -100,24 +115,16 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                     />
                 </Grid>
                 <Grid container justify="flex-end" style={{ marginTop: '20px' }}>
-                    <Button
-                        data-testid="cancelCreateProjectCategory"
-                        variant="outlined"
-                        style={{ marginRight: '10px' }}
-                        onClick={() => setIsOpen(false)}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button data-testid="saveCreateProjectCategory" onClick={onCreateProjectCategory} disabled={!isNameValid() || loading}>
-                        Save
-                    </Button>
+                    <CancelAndSaveButton
+                        onClickCancel={() => setIsOpen(false)}
+                        onClickSave={onCreateProjectCategory}
+                        cancelButtonTestId="cancelCreateProjectCategory"
+                        saveButtonTestId="saveCreateProjectCategory"
+                        isSaving={loading}
+                        disableCancelButton={loading}
+                        disableSaveButton={!isNameValid() || loading}
+                    />
                 </Grid>
-                {(error !== undefined || errorCreatingProjectCategoryCopy !== undefined) && (
-                    <Grid item xs={12} style={{ marginTop: '20px' }}>
-                        <ErrorMessage text={'Could not save Project Category'} />
-                    </Grid>
-                )}
             </Grid>
         </ModalSideSheet>
     )
