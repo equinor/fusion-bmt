@@ -1,4 +1,3 @@
-import { progressEvaluation } from '../../testsetup/evaluation_seed'
 import { fusionProjects, FusionProject } from './projects'
 
 export class ProjectMaster {
@@ -30,10 +29,10 @@ const projectMaster2 = new ProjectMaster(
 
 export const projectMasters = [projectMaster1, projectMaster2]
 
-export function getPortofolioData(portofolio: ProjectMaster | undefined) {
+export function getPortfolioData(portfolio: ProjectMaster | undefined) {
     return {
         value: {
-            portfolioOrganizationalUnit: portofolio?.portfolioOrganizationalUnit,
+            portfolioOrganizationalUnit: portfolio?.portfolioOrganizationalUnit,
         },
     }
 }

@@ -1,6 +1,6 @@
 import { getUserData, findUserByID, findUserByUsername } from './users'
 import { fusionProjects, getFusionProjectData, findFusionProjectByID } from './projects'
-import { findProjectMasterForProject, getPortofolioData } from './projectMaster'
+import { findProjectMasterForProject, getPortfolioData } from './projectMaster'
 
 const settingsURL = /https:\/\/pro-s-portal-ci\.azurewebsites\.net\/api\/persons\/me\/settings\/apps\/bmt/
 const featuresURL = /https:\/\/pro-s-portal-ci\.azurewebsites\.net\/log\/features/
@@ -10,10 +10,20 @@ const projectsURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts$/
 const personURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)(?:(\?\$.*)|$)/
 const personPresenceURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)\/presence/
 const searchPersonsURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\?\$search=(.+)/
-const portofolioURL =
+const portfolioURL =
     /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts\?\$search=([0-9A-Z-]*)&\$filter=type%20in%20\(%27ProjectMaster%27\)/
 
-const interceptedURLs = [settingsURL, featuresURL, configURL, projectURL, projectsURL, personURL, personPresenceURL, searchPersonsURL]
+const interceptedURLs = [
+    settingsURL,
+    featuresURL,
+    configURL,
+    projectURL,
+    projectsURL,
+    personURL,
+    personPresenceURL,
+    searchPersonsURL,
+    portfolioURL,
+]
 
 Cypress.Commands.add('interceptExternal', () => {
     cy.intercept(settingsURL, {})
@@ -64,11 +74,11 @@ Cypress.Commands.add('interceptExternal', () => {
         })
     })
 
-    cy.intercept(portofolioURL, req => {
-        const projectId = req.url.match(portofolioURL)![1]
+    cy.intercept(portfolioURL, req => {
+        const projectId = req.url.match(portfolioURL)![1]
         const portofolio = findProjectMasterForProject(projectId)
         req.reply({
-            body: [getPortofolioData(portofolio)],
+            body: [getPortfolioData(portofolio)],
         })
     })
 })

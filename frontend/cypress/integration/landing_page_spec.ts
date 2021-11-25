@@ -18,7 +18,7 @@ describe('Landing page', () => {
     const adminUser = getUsers(6)[5]
     const selectedProject = fusionProject1
     const otherProject = fusionProject4
-    const projectNotInPortofolio = fusionProject8
+    const projectNotInPortfolio = fusionProject8
     const actionTestdata = new ActionTestdata()
 
     const myActiveEvaluationInProject = new EvaluationSeed({
@@ -89,8 +89,8 @@ describe('Landing page', () => {
         progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
         users: users,
         roles: roles,
-        fusionProjectId: projectNotInPortofolio.id,
-        namePrefix: 'notProjectEvalNoPortofolio',
+        fusionProjectId: projectNotInPortfolio.id,
+        namePrefix: 'notProjectEvalNoPortfolio',
     })
     const myHiddenEvaluationInProject = new EvaluationSeed({
         progression: faker.random.arrayElement(
@@ -172,33 +172,33 @@ describe('Landing page', () => {
             })
         })
 
-        context('Portofolio: Non-hidden evaluations are listed under their portofolios', () => {
+        context('Portfolio: Non-hidden evaluations are listed under their portfolios', () => {
             class EvalByP {
                 eval: EvaluationSeed
-                portofolio: string
+                portfolio: string
                 constructor(e: EvaluationSeed, p: string) {
                     this.eval = e
-                    this.portofolio = p
+                    this.portfolio = p
                 }
             }
-            let evaluationsByPortofolio: Array<EvalByP> = []
+            let evaluationsByPortfolio: Array<EvalByP> = []
             projectMasters.forEach(projMaster => {
                 projMaster.projects.forEach(project => {
                     evaluations.forEach(evaluation => {
                         if (project.id === evaluation.evaluation.fusionProjectId) {
-                            evaluationsByPortofolio.push(new EvalByP(evaluation.evaluation, projMaster.portfolioOrganizationalUnit))
+                            evaluationsByPortfolio.push(new EvalByP(evaluation.evaluation, projMaster.portfolioOrganizationalUnit))
                         }
                     })
                 })
             })
-            let portofolios = ['No portfolio']
-            projectMasters.forEach(pm => portofolios.push(pm.portfolioOrganizationalUnit))
-            it('Non hidden evaluations are listed under their respective portofolios', () => {
+            let portfolios = ['No portfolio']
+            projectMasters.forEach(pm => portfolios.push(pm.portfolioOrganizationalUnit))
+            it('Non hidden evaluations are listed under their respective portfolios', () => {
                 cy.contains('Portfolios').click()
-                portofolios.forEach(p => {
+                portfolios.forEach(p => {
                     cy.contains(p).click()
-                    evaluationsByPortofolio.forEach(e => {
-                        e.portofolio === p && e.eval.status !== 'VOIDED'
+                    evaluationsByPortfolio.forEach(e => {
+                        e.portfolio === p && e.eval.status !== Status.Voided
                             ? cy.contains('div', p).contains('p', e.eval.name).should('exist')
                             : cy.contains('div', p).contains('p', e.eval.name).should('not.exist')
                     })
