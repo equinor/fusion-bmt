@@ -62,7 +62,7 @@ interface Props {
 }
 
 const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilter }: Props) => {
-    const { nHigh, nLimited, nLow, nNA } = severityCount
+    const { nOnTrack, nSomeConcerns, nMajorIssues, nNA } = severityCount
     const spacing = compact ? 0 : 1
 
     const onClickedSeverity = (severity: Severity) => {
@@ -86,7 +86,7 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                     selected={isSelected(Severity.OnTrack)}
                     color={getTextColor(Severity.OnTrack)}
                 >
-                    <SeveritySummaryField num={nHigh} severity={Severity.OnTrack} compact={compact} />
+                    <SeveritySummaryField num={nOnTrack} severity={Severity.OnTrack} compact={compact} />
                 </ClickableBox>
                 <ClickableBox
                     flexGrow={1}
@@ -96,7 +96,7 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                     selected={isSelected(Severity.SomeConcerns)}
                     color={getTextColor(Severity.SomeConcerns)}
                 >
-                    <SeveritySummaryField num={nLimited} severity={Severity.SomeConcerns} compact={compact} />
+                    <SeveritySummaryField num={nSomeConcerns} severity={Severity.SomeConcerns} compact={compact} />
                 </ClickableBox>
                 <ClickableBox
                     flexGrow={1}
@@ -106,7 +106,7 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                     selected={isSelected(Severity.MajorIssues)}
                     color={getTextColor(Severity.MajorIssues)}
                 >
-                    <SeveritySummaryField num={nLow} severity={Severity.MajorIssues} compact={compact} />
+                    <SeveritySummaryField num={nMajorIssues} severity={Severity.MajorIssues} compact={compact} />
                 </ClickableBox>
                 <ClickableBox
                     flexGrow={1}

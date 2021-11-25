@@ -1,51 +1,51 @@
 import { Progression, Question } from '../../../../api/models'
 import { assignAnswerToBarrierQuestions } from './helpers'
 
-const workshopAnswerLimited = {
+const workshopAnswerSomeConcerns = {
     progression: 'WORKSHOP',
-    severity: 'LIMITED',
+    severity: 'SOME_CONCERNS',
     text: 'Answer to the question',
 }
 
-const workshopAnswerLow = {
+const workshopAnswerMajorIssues = {
     progression: 'WORKSHOP',
-    severity: 'LOW',
+    severity: 'MAJOR_ISSUES',
     text: 'Answer to the question',
 }
 
-const workshopAnswerHigh = {
+const workshopAnswerOnTrack = {
     progression: 'WORKSHOP',
-    severity: 'HIGH',
+    severity: 'ON_TRACK',
     text: 'Answer to the question',
 }
 
-const followUpAnswerHigh = {
+const followUpAnswerOnTrack = {
     progression: 'FOLLOW_UP',
-    severity: 'HIGH',
+    severity: 'ON_TRACK',
     text: 'Answer to the question',
 }
 
-const followUpAnswerLimited = {
+const followUpAnswerSomeConcerns = {
     progression: 'FOLLOW_UP',
-    severity: 'LIMITED',
+    severity: 'SOME_CONCERNS',
     text: 'Answer to the question',
 }
 
-const followUpAnswerLow = {
+const followUpAnswerMajorIssues = {
     progression: 'FOLLOW_UP',
-    severity: 'LOW',
+    severity: 'MAJOR_ISSUES',
     text: 'Answer to the question',
 }
 
 const otherAnswers = [
     {
         progression: 'INDIVIDUAL',
-        severity: 'HIGH',
+        severity: 'OnTrack',
         text: 'Answer to the question',
     },
     {
         progression: 'PREPARATION',
-        severity: 'HIGH',
+        severity: 'OnTrack',
         text: 'Answer to the question',
     },
 ]
@@ -67,68 +67,68 @@ const emptyBarrierAnswersPS6To22 = [
 const questions = [
     {
         barrier: 'GM',
-        answers: [workshopAnswerLimited, followUpAnswerHigh, ...otherAnswers],
+        answers: [workshopAnswerSomeConcerns, followUpAnswerOnTrack, ...otherAnswers],
     },
     {
         barrier: 'GM',
-        answers: [workshopAnswerLow, followUpAnswerLimited, ...otherAnswers],
+        answers: [workshopAnswerMajorIssues, followUpAnswerSomeConcerns, ...otherAnswers],
     },
     {
         barrier: 'PS4',
-        answers: [workshopAnswerHigh, followUpAnswerLow, ...otherAnswers],
+        answers: [workshopAnswerOnTrack, followUpAnswerMajorIssues, ...otherAnswers],
     },
 ]
 
 const questionsWithSeveralAnswersOnSameBarrier = [
     {
         barrier: 'GM',
-        answers: [workshopAnswerLow, workshopAnswerLimited, followUpAnswerHigh, ...otherAnswers],
+        answers: [workshopAnswerMajorIssues, workshopAnswerSomeConcerns, followUpAnswerOnTrack, ...otherAnswers],
     },
     {
         barrier: 'GM',
-        answers: [workshopAnswerHigh, workshopAnswerLow, followUpAnswerLimited, ...otherAnswers],
+        answers: [workshopAnswerOnTrack, workshopAnswerMajorIssues, followUpAnswerSomeConcerns, ...otherAnswers],
     },
     {
         barrier: 'PS4',
-        answers: [workshopAnswerLow, workshopAnswerHigh, followUpAnswerLow, ...otherAnswers],
+        answers: [workshopAnswerMajorIssues, workshopAnswerOnTrack, followUpAnswerMajorIssues, ...otherAnswers],
     },
 ]
 
 const questionsWithNoAnswerOnWorkshopGM = [
     {
         barrier: 'GM',
-        answers: [followUpAnswerHigh, ...otherAnswers],
+        answers: [followUpAnswerOnTrack, ...otherAnswers],
     },
     {
         barrier: 'GM',
-        answers: [followUpAnswerLimited, ...otherAnswers],
+        answers: [followUpAnswerSomeConcerns, ...otherAnswers],
     },
     {
         barrier: 'PS4',
-        answers: [workshopAnswerLow, followUpAnswerLow, ...otherAnswers],
+        answers: [workshopAnswerMajorIssues, followUpAnswerMajorIssues, ...otherAnswers],
     },
 ]
 
 test('assignAnswerToBarrierQuestions only returns questions from the step progression that is sent as parameter', () => {
     expect(assignAnswerToBarrierQuestions(<Question[]>questions, Progression.Workshop)).toEqual([
-        { barrier: 'GM', answers: [workshopAnswerLimited, workshopAnswerLow] },
+        { barrier: 'GM', answers: [workshopAnswerSomeConcerns, workshopAnswerMajorIssues] },
         ...emptyBarrierAnswersPS1To3,
-        { barrier: 'PS4', answers: [workshopAnswerHigh] },
+        { barrier: 'PS4', answers: [workshopAnswerOnTrack] },
         ...emptyBarrierAnswersPS6To22,
     ])
     expect(assignAnswerToBarrierQuestions(<Question[]>questions, Progression.FollowUp)).toEqual([
-        { barrier: 'GM', answers: [followUpAnswerHigh, followUpAnswerLimited] },
+        { barrier: 'GM', answers: [followUpAnswerOnTrack, followUpAnswerSomeConcerns] },
         ...emptyBarrierAnswersPS1To3,
-        { barrier: 'PS4', answers: [followUpAnswerLow] },
+        { barrier: 'PS4', answers: [followUpAnswerMajorIssues] },
         ...emptyBarrierAnswersPS6To22,
     ])
 })
 
 test('assignAnswerToBarrierQuestions returns one answer for each question, even if there exist more', () => {
     expect(assignAnswerToBarrierQuestions(<Question[]>questionsWithSeveralAnswersOnSameBarrier, Progression.Workshop)).toEqual([
-        { barrier: 'GM', answers: [workshopAnswerLow, workshopAnswerHigh] },
+        { barrier: 'GM', answers: [workshopAnswerMajorIssues, workshopAnswerOnTrack] },
         ...emptyBarrierAnswersPS1To3,
-        { barrier: 'PS4', answers: [workshopAnswerLow] },
+        { barrier: 'PS4', answers: [workshopAnswerMajorIssues] },
         ...emptyBarrierAnswersPS6To22,
     ])
 })
@@ -137,7 +137,7 @@ test('assignAnswerToBarrierQuestions returns null in the place of the answer if 
     expect(assignAnswerToBarrierQuestions(<Question[]>questionsWithNoAnswerOnWorkshopGM, Progression.Workshop)).toEqual([
         { barrier: 'GM', answers: [null, null] },
         ...emptyBarrierAnswersPS1To3,
-        { barrier: 'PS4', answers: [workshopAnswerLow] },
+        { barrier: 'PS4', answers: [workshopAnswerMajorIssues] },
         ...emptyBarrierAnswersPS6To22,
     ])
 })
