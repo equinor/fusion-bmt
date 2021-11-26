@@ -12,7 +12,11 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle }: Props) => {
             {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
                 return (
                     <div key={index}>
-                        <Typography variant={'h2'} style={{ marginBottom: '7px', marginTop: '15px' }}>
+                        <Typography
+                            variant={'h2'}
+                            style={{ marginBottom: '7px', marginTop: '15px' }}
+                            data-testid={'project-master-title' + projectMasterTitle.replace(/ /g, '')}
+                        >
                             {projectMasterTitle}
                         </Typography>
                         <EvaluationsTable evaluations={evaluations} />
