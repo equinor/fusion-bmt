@@ -198,8 +198,7 @@ describe('Landing page', () => {
 
             let portfolios = [{ portfolio: 'No portfolio', projectMasterTitle: 'No project master title' }]
             projectMasters.forEach(pm => portfolios.push({ portfolio: pm.portfolioOrganizationalUnit, projectMasterTitle: pm.title }))
-            it.only('Non hidden evaluations are listed under their respective portfolios', () => {
-                console.log(projectMasters)
+            it('Non hidden evaluations are listed under their respective portfolios', () => {
                 cy.contains('Portfolios').click()
                 portfolios.forEach(p => {
                     cy.contains(p.portfolio).click()
