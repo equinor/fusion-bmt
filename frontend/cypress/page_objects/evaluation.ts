@@ -31,6 +31,12 @@ export class EvaluationPage {
     completeSwitch = () => {
         return cy.getByDataTestid('complete-switch')
     }
+
+    clickViewAnswers = (questionOrder: number) => {
+        cy.getByDataTestid('view-answers-' + questionOrder).within(() => {
+            cy.getByDataTestid('view-answers').click()
+        })
+    }
 }
 
 export enum Barrier {
