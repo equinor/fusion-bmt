@@ -3,10 +3,12 @@ import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
 import { getUsers, User } from '../support/mock/external/users'
 import { fusionProject1 } from '../support/mock/external/projects'
 import { Answer } from '../support/testsetup/mocks'
+import { EvaluationPage } from '../page_objects/evaluation'
 
 describe('Viewing answers on stage PREPARATION', () => {
     const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.Participant]
+    const evaluationPage = new EvaluationPage()
     const evalWithIndividualAnswers = new EvaluationSeed({
         progression: Progression.Preparation,
         users,
@@ -56,14 +58,12 @@ describe('Viewing answers on stage PREPARATION', () => {
                 text: leadAnswerText,
             })
         )
-    before('Load evaluation with answers by two participants', () => {
+    before('Load evaluation with answers from all two participant, one lead and one facilitator', () => {
         evalWithIndividualAnswers.plant()
     })
     it('Participant can only see his/her own answer', () => {
         cy.visitProgression(Progression.Preparation, evalWithIndividualAnswers.evaluationId, firstParticipant.user, fusionProject1.id)
-        cy.getByDataTestid('view-answers-' + questionOrder).within(() => {
-            cy.getByDataTestid('view-answers').click()
-        })
+        evaluationPage.clickViewAnswers(questionOrder)
         cy.contains(firstParticipantAnswerText).should('be.visible')
         cy.contains(secondParticipantAnswerText).should('not.exist')
         cy.contains(facilitatorAnswerText).should('not.exist')
@@ -73,16 +73,13 @@ describe('Viewing answers on stage PREPARATION', () => {
     const LeadFacilitarorRoles = [Role.Facilitator, Role.OrganizationLead]
     LeadFacilitarorRoles.forEach(role => {
         it(`${role} can see answers regardless of role`, () => {
-            const daUser = evalWithIndividualAnswers.participants.find(p => p.role === role)!.user
             cy.visitProgression(
                 Progression.Preparation,
                 evalWithIndividualAnswers.evaluationId,
                 evalWithIndividualAnswers.participants.find(p => p.role === role)!.user,
                 fusionProject1.id
             )
-            cy.getByDataTestid('view-answers-' + questionOrder).within(() => {
-                cy.getByDataTestid('view-answers').click()
-            })
+            evaluationPage.clickViewAnswers(questionOrder)
             cy.contains(firstParticipantAnswerText).should('be.visible')
             cy.contains(secondParticipantAnswerText).should('be.visible')
             cy.contains(facilitatorAnswerText).should('be.visible')
