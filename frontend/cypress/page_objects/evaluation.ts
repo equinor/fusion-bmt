@@ -39,6 +39,7 @@ export class EvaluationPage {
     }
 
     verifyAnswerVisible = (stage: string, user: string, answer: string) => {
+        cy.contains('h5', stage).nextUntil().contains(user).scrollIntoView()
         cy.contains('h5', stage).nextUntil().contains(user).should('be.visible')
         cy.contains('h5', stage).nextUntil().contains(user).next().contains(answer).should('be.visible')
     }
