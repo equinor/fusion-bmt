@@ -11,6 +11,10 @@ trigger:
 pool:
     vmImage: "ubuntu-latest"
 
+variables:
+    - name: radixJobName
+      value: ""
+
 stages:
     - template: templates/stage-build.yml
       parameters:
