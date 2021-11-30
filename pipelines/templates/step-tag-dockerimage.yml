@@ -6,6 +6,7 @@ parameters:
 
 steps:
     - task: PowerShell@2
+      displayName: TagContainer_${{ parameters.envshortname }}-release
       inputs:
           targetType: "inline"
           script: |

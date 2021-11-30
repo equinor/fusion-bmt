@@ -51,7 +51,7 @@ stages:
     - template: templates/stage-deploy.yml
       parameters:
           name: Deploy_Prod
-          envshortname: Production
+          envshortname: prod
           envfullname: Production
           fusionToken: "$(tokenResourceProd)"
           fusionBundlePath: "$(Agent.BuildDirectory)/bmt.zip"
