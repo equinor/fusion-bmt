@@ -1,12 +1,11 @@
 import React, { RefObject, useRef, useState } from 'react'
 
 import { Box } from '@material-ui/core'
-import { Button, Icon, Tooltip, Typography } from '@equinor/eds-core-react'
-import { add, more_vertical } from '@equinor/eds-icons'
+import { Button, Icon, Menu, Tooltip, Typography } from '@equinor/eds-core-react'
+import { add, add_circle_outlined, close_circle_outlined, more_vertical, swap_vertical } from '@equinor/eds-icons'
 
 import { Organization, QuestionTemplate } from '../../../../api/models'
 import OrganizationFilter from '../../../../components/OrganizationFilter'
-import BarrierMenu from './BarrierMenu'
 
 interface Props {
     headerRef: RefObject<HTMLElement>
@@ -33,7 +32,7 @@ const BarrierHeader = ({
     organizationFilter,
     onOrganizationFilterToggled,
 }: Props) => {
-    const menuAnchorRef = useRef<HTMLButtonElement>(null)
+    const menuAnchorRef = useRef<HTMLDivElement>(null)
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
 
     return (
@@ -57,26 +56,41 @@ const BarrierHeader = ({
                     </Tooltip>
                 </Box>
                 <Box mt={2.5}>
-                    <Button
-                        variant="ghost"
-                        color="primary"
-                        ref={menuAnchorRef}
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        data-testid="add-to-category-reorder-questions"
-                    >
-                        <Icon data={more_vertical}></Icon>
-                    </Button>
+                    <div ref={menuAnchorRef} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <Button variant="ghost" color="primary" data-testid="add-to-category-reorder-questions">
+                            <Icon data={more_vertical}></Icon>
+                        </Button>
+                    </div>
                 </Box>
             </Box>
-            <BarrierMenu
-                isOpen={isMenuOpen}
-                anchorRef={menuAnchorRef}
-                closeMenu={() => setIsMenuOpen(false)}
-                setIsInAddCategoryMode={setIsInAddCategoryMode}
-                isInAddCategoryMode={isInAddCategoryMode}
-                setIsInReorderMode={setIsInReorderMode}
-                isInReorderMode={isInReorderMode}
-            />
+            <Menu
+                id="menu-complex"
+                open={isMenuOpen}
+                anchorEl={menuAnchorRef.current}
+                onClose={() => setIsMenuOpen(false)}
+                placement={'bottom'}
+            >
+                <Menu.Item
+                    onClick={() => {
+                        setIsInAddCategoryMode(!isInAddCategoryMode)
+                    }}
+                >
+                    <Icon data={isInAddCategoryMode ? close_circle_outlined : add_circle_outlined} size={16} />
+                    <Typography group="navigation" variant="menu_title" as="span" data-testid="add-qt-to-project-cat-or-close-view">
+                        {isInAddCategoryMode ? 'Close add to category view' : 'Add questions to project categories'}
+                    </Typography>
+                </Menu.Item>
+                <Menu.Item
+                    onClick={() => {
+                        setIsInReorderMode(!isInReorderMode)
+                    }}
+                >
+                    <Icon data={isInReorderMode ? close_circle_outlined : swap_vertical} size={16} />
+                    <Typography group="navigation" variant="menu_title" as="span" data-testid="reorder-questions">
+                        {isInReorderMode ? 'Close reordering view' : 'Reorder questions'}
+                    </Typography>
+                </Menu.Item>
+            </Menu>
         </>
     )
 }
