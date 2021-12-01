@@ -1,39 +1,28 @@
 import { Progression, Role } from '../../src/api/models'
 import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
-import { getUsers, User } from '../support/mock/external/users'
+import { getUsers } from '../support/mock/external/users'
 import { fusionProject1 } from '../support/mock/external/projects'
 import { Answer } from '../support/testsetup/mocks'
 import { EvaluationPage } from '../page_objects/evaluation'
+import * as faker from 'faker'
 
 describe('Viewing answers', () => {
     const users = getUsers(4)
     const roles = [Role.Facilitator, Role.OrganizationLead, Role.Participant, Role.Participant]
     const evaluationPage = new EvaluationPage()
-    const evalWithIndividualAnswers = new EvaluationSeed({
-        progression: Progression.Preparation,
-        users,
-        roles,
-        fusionProjectId: fusionProject1.id,
-        namePrefix: 'someAnswers',
-    })
-    const evalWithIndividualAndPreparationAnswers = new EvaluationSeed({
-        progression: Progression.Workshop,
-        users,
-        roles,
-        fusionProjectId: fusionProject1.id,
-        namePrefix: 'someAnswers',
-    })
     const evalWithIndividualAndPreparationAndWorkshopAnswers = new EvaluationSeed({
-        progression: Progression.FollowUp,
+        progression: faker.random.arrayElement(
+            Object.values(Progression).filter(p => p !== Progression.Finished && p !== Progression.Nomination)
+        ),
         users,
         roles,
         fusionProjectId: fusionProject1.id,
         namePrefix: 'someAnswers',
     })
-    const firstParticipant = evalWithIndividualAnswers.participants.filter(p => p.role === Role.Participant)[0]
-    const secondParticipant = evalWithIndividualAnswers.participants.filter(p => p.role === Role.Participant)[1]
-    const lead = evalWithIndividualAnswers.participants.find(p => p.role === Role.OrganizationLead)!
-    const facilitator = evalWithIndividualAnswers.participants.find(p => p.role === Role.Facilitator)!
+    const firstParticipant = evalWithIndividualAndPreparationAndWorkshopAnswers.participants.filter(p => p.role === Role.Participant)[0]
+    const secondParticipant = evalWithIndividualAndPreparationAndWorkshopAnswers.participants.filter(p => p.role === Role.Participant)[1]
+    const lead = evalWithIndividualAndPreparationAndWorkshopAnswers.participants.find(p => p.role === Role.OrganizationLead)!
+    const facilitator = evalWithIndividualAndPreparationAndWorkshopAnswers.participants.find(p => p.role === Role.Facilitator)!
     const questionOrder = 1
     const firstParticipantAnswerText = 'First Answer by first participant'
     const secondParticipantAnswerText = 'Second Answer by second participant'
@@ -86,18 +75,32 @@ describe('Viewing answers', () => {
         text: facilitatorWorkshopAnswerText,
     })
 
+    before(
+        `Load evaluation with individual answers from all (two participants), one lead and one facilitator
+    and preparation answers, one from lead and one from facilitator
+    and follow-up answers, one from lead and one from facilitator`,
+        () => {
+            evalWithIndividualAndPreparationAndWorkshopAnswers
+                .addAnswer(firstParticipantAnswer)
+                .addAnswer(secondParticipantAnswer)
+                .addAnswer(facilitatorAnswer)
+                .addAnswer(leadAnswer)
+                .addAnswer(facilitatorPrepAnswer)
+                .addAnswer(leadPrepAnswer)
+                .addAnswer(facilitatorWorkshopAnswer)
+            evalWithIndividualAndPreparationAndWorkshopAnswers.plant()
+        }
+    )
+
     const leadFacilitarorRoles = [Role.Facilitator, Role.OrganizationLead]
     context('Viewing answers on stage PREPARATION', () => {
-        evalWithIndividualAnswers
-            .addAnswer(firstParticipantAnswer)
-            .addAnswer(secondParticipantAnswer)
-            .addAnswer(facilitatorAnswer)
-            .addAnswer(leadAnswer)
-        before('Load evaluation with individual answers from all (two participants), one lead and one facilitator', () => {
-            evalWithIndividualAnswers.plant()
-        })
         it('Participant can only see his/her own individual answer', () => {
-            cy.visitProgression(Progression.Preparation, evalWithIndividualAnswers.evaluationId, firstParticipant.user, fusionProject1.id)
+            cy.visitProgression(
+                Progression.Preparation,
+                evalWithIndividualAndPreparationAndWorkshopAnswers.evaluationId,
+                firstParticipant.user,
+                fusionProject1.id
+            )
             evaluationPage.clickViewAnswers(questionOrder)
             cy.contains(firstParticipantAnswerText).should('be.visible')
             cy.contains(secondParticipantAnswerText).should('not.exist')
@@ -109,8 +112,8 @@ describe('Viewing answers', () => {
             it(`${role} can see all individual answers regardless of role`, () => {
                 cy.visitProgression(
                     Progression.Preparation,
-                    evalWithIndividualAnswers.evaluationId,
-                    evalWithIndividualAnswers.participants.find(p => p.role === role)!.user,
+                    evalWithIndividualAndPreparationAndWorkshopAnswers.evaluationId,
+                    evalWithIndividualAndPreparationAndWorkshopAnswers.participants.find(p => p.role === role)!.user,
                     fusionProject1.id
                 )
                 evaluationPage.clickViewAnswers(questionOrder)
@@ -122,25 +125,11 @@ describe('Viewing answers', () => {
         })
     })
     context('Viewing answers on stage Workshop Summary', () => {
-        before(
-            `Load evaluation with individual answers from all (two participants), one lead and one facilitator
-        and preparation answers, one from lead and one from facilitator`,
-            () => {
-                evalWithIndividualAndPreparationAnswers
-                    .addAnswer(firstParticipantAnswer)
-                    .addAnswer(secondParticipantAnswer)
-                    .addAnswer(facilitatorAnswer)
-                    .addAnswer(leadAnswer)
-                    .addAnswer(facilitatorPrepAnswer)
-                    .addAnswer(leadPrepAnswer)
-                evalWithIndividualAndPreparationAnswers.plant()
-            }
-        )
         it(`Participant can only see his/her own individual answer 
             and preparation answers from lead and facilitator`, () => {
             cy.visitProgression(
                 Progression.Workshop,
-                evalWithIndividualAndPreparationAnswers.evaluationId,
+                evalWithIndividualAndPreparationAndWorkshopAnswers.evaluationId,
                 firstParticipant.user,
                 fusionProject1.id
             )
@@ -154,8 +143,13 @@ describe('Viewing answers', () => {
         })
         leadFacilitarorRoles.forEach(role => {
             it(`${role} can see all individual and preparation answers`, () => {
-                const user = evalWithIndividualAndPreparationAnswers.participants.find(p => p.role === role)!.user
-                cy.visitProgression(Progression.Workshop, evalWithIndividualAndPreparationAnswers.evaluationId, user, fusionProject1.id)
+                const user = evalWithIndividualAndPreparationAndWorkshopAnswers.participants.find(p => p.role === role)!.user
+                cy.visitProgression(
+                    Progression.Workshop,
+                    evalWithIndividualAndPreparationAndWorkshopAnswers.evaluationId,
+                    user,
+                    fusionProject1.id
+                )
                 evaluationPage.clickViewAnswers(questionOrder)
                 evaluationPage.verifyAnswerVisible('Individual', firstParticipant.user.name, firstParticipantAnswerText)
                 evaluationPage.verifyAnswerVisible('Individual', secondParticipant.user.name, secondParticipantAnswerText)
@@ -167,22 +161,6 @@ describe('Viewing answers', () => {
         })
     })
     context('Viewing answers on stage Follow-up', () => {
-        before(
-            `Load evaluation with individual answers from all two participant, one lead and one facilitator
-        and preparation answers, one from lead and one from facilitator
-        and follow-up answers, one from lead and one from facilitator`,
-            () => {
-                evalWithIndividualAndPreparationAndWorkshopAnswers
-                    .addAnswer(firstParticipantAnswer)
-                    .addAnswer(secondParticipantAnswer)
-                    .addAnswer(facilitatorAnswer)
-                    .addAnswer(leadAnswer)
-                    .addAnswer(facilitatorPrepAnswer)
-                    .addAnswer(leadPrepAnswer)
-                    .addAnswer(facilitatorWorkshopAnswer)
-                evalWithIndividualAndPreparationAndWorkshopAnswers.plant()
-            }
-        )
         it(`Participant can only see his/her own individual answer 
         and preparation answers from lead and facilitator
         and workshop answer from facilitator`, () => {
@@ -203,7 +181,7 @@ describe('Viewing answers', () => {
         })
         leadFacilitarorRoles.forEach(role => {
             it(`${role} can see all individual, preparation and workshop answers`, () => {
-                const user = evalWithIndividualAndPreparationAnswers.participants.find(p => p.role === role)!.user
+                const user = evalWithIndividualAndPreparationAndWorkshopAnswers.participants.find(p => p.role === role)!.user
                 cy.visitProgression(
                     Progression.FollowUp,
                     evalWithIndividualAndPreparationAndWorkshopAnswers.evaluationId,
