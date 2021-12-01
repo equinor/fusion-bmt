@@ -42,7 +42,7 @@ describe('Viewing answers', () => {
     const facilitatorPrepAnswerText = 'Facilitator prep answer text'
     const leadPrepAnswerText = 'Lead prep answer text'
     const facilitatorWorkshopAnswerText = 'Facilitator workshop answer text'
-    const leadWorkshopAnswerText = 'Lead workshop answer text'
+
     const firstParticipantAnswer = new Answer({
         questionOrder: questionOrder,
         answeredBy: firstParticipant,
@@ -85,12 +85,7 @@ describe('Viewing answers', () => {
         progression: Progression.Workshop,
         text: facilitatorWorkshopAnswerText,
     })
-    const leadWorkshopAnswer = new Answer({
-        questionOrder: questionOrder,
-        answeredBy: lead,
-        progression: Progression.Workshop,
-        text: leadWorkshopAnswerText,
-    })
+
     const leadFacilitarorRoles = [Role.Facilitator, Role.OrganizationLead]
     context('Viewing answers on stage PREPARATION', () => {
         evalWithIndividualAnswers
@@ -184,14 +179,13 @@ describe('Viewing answers', () => {
                     .addAnswer(leadAnswer)
                     .addAnswer(facilitatorPrepAnswer)
                     .addAnswer(leadPrepAnswer)
-                    .addAnswer(leadWorkshopAnswer)
                     .addAnswer(facilitatorWorkshopAnswer)
                 evalWithIndividualAndPreparationAndWorkshopAnswers.plant()
             }
         )
         it(`Participant can only see his/her own individual answer 
         and preparation answers from lead and facilitator
-        and workshop answers from lead and facilitator`, () => {
+        and workshop answer from facilitator`, () => {
             cy.visitProgression(
                 Progression.FollowUp,
                 evalWithIndividualAndPreparationAndWorkshopAnswers.evaluationId,
@@ -205,7 +199,6 @@ describe('Viewing answers', () => {
             cy.contains(leadAnswerText).should('not.exist')
             cy.contains(facilitatorPrepAnswerText).should('be.visible')
             cy.contains(leadPrepAnswerText).should('be.visible')
-            cy.contains(leadWorkshopAnswerText).should('be.visible')
             cy.contains(facilitatorWorkshopAnswerText).should('be.visible')
         })
         leadFacilitarorRoles.forEach(role => {
@@ -225,7 +218,6 @@ describe('Viewing answers', () => {
                 evaluationPage.verifyAnswerVisible('Preparation', facilitator.user.name, facilitatorPrepAnswerText)
                 evaluationPage.verifyAnswerVisible('Preparation', lead.user.name, leadPrepAnswerText)
                 evaluationPage.verifyAnswerVisible('Workshop', 'Facilitators', facilitatorWorkshopAnswerText)
-                evaluationPage.verifyAnswerVisible('Workshop', lead.user.name, leadWorkshopAnswerText)
             })
         })
     })
