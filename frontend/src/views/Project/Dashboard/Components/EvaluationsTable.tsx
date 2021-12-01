@@ -81,9 +81,14 @@ const EvaluationsTable = ({ evaluations }: Props) => {
 
     const renderRow = (evaluation: Evaluation, index: number) => {
         const project = useProject()
-        const isWorkshopOrFollowUp = evaluation.progression === Progression.Workshop || evaluation.progression === Progression.FollowUp
-        const showBowtieContent = evaluation.questions && isWorkshopOrFollowUp
-        const answersWithBarrier = showBowtieContent ? assignAnswerToBarrierQuestions(evaluation.questions, evaluation.progression) : []
+        const isWorkshopOrLater =
+            evaluation.progression === Progression.Workshop ||
+            evaluation.progression === Progression.FollowUp ||
+            evaluation.progression === Progression.Finished
+        const showBowtieContent = evaluation.questions && isWorkshopOrLater
+        const answersWithBarrier = showBowtieContent
+            ? assignAnswerToBarrierQuestions(evaluation.questions, Progression.Finished ? Progression.FollowUp : evaluation.progression)
+            : []
         const actionsByState = getEvaluationActionsByState(evaluation)
 
         return (
