@@ -76,9 +76,9 @@ describe('Viewing answers', () => {
     })
 
     before(
-        `Load evaluation with individual answers from all (two participants), one lead and one facilitator
+        `Load evaluation with individual answers from all: two participants, one lead and one facilitator
     and preparation answers, one from lead and one from facilitator
-    and follow-up answers, one from lead and one from facilitator`,
+    and one workshop answer from facilitator`,
         () => {
             evalWithIndividualAndPreparationAndWorkshopAnswers
                 .addAnswer(firstParticipantAnswer)
