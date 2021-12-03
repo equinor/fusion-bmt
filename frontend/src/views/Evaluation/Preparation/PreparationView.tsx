@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core'
 import { Button, Typography } from '@equinor/eds-core-react'
 
 import { Barrier, Evaluation, Question, Progression, Organization, Severity } from '../../../api/models'
-import EvaluationSidebar from '../EvaluationSidebar'
+import EvaluationSidebar from '../../../components/EvaluationSidebar'
 import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
 import { barrierToString, progressionToString } from '../../../utils/EnumToString'
 import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSwitch'
@@ -49,7 +49,7 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
         setSelectedQuestion(question)
     }
 
-    const localOnClompleteClick = () => {
+    const localOnCompleteClick = () => {
         const nextProgression = getNextProgression(participant!.progression)
         onProgressParticipant(nextProgression)
     }
@@ -156,7 +156,7 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                                 <ProgressionCompleteSwitch
                                     isCheckedInitially={isParticipantCompleted}
                                     disabled={disableCompleteSwitch(participant, evaluation, viewProgression)}
-                                    onCompleteClick={localOnClompleteClick}
+                                    onCompleteClick={localOnCompleteClick}
                                     onUncompleteClick={localOnUncompleteClick}
                                 />
                                 {participantCanProgressEvaluation(participant) && (

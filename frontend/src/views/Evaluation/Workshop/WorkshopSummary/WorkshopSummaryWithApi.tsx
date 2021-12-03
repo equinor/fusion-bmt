@@ -1,12 +1,11 @@
-import { ApolloError, gql, useMutation } from '@apollo/client'
-import { TextArea } from '@equinor/fusion-components'
 import { useEffect, useState } from 'react'
-import { apiErrorMessage } from '../../../api/error'
-import { Evaluation } from '../../../api/models'
-import { useEffectNotOnMount } from '../../../utils/hooks'
-import { SavingState } from '../../../utils/Variables'
+import { ApolloError, gql, useMutation } from '@apollo/client'
+
+import { Evaluation } from '../../../../api/models'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
+import { SavingState } from '../../../../utils/Variables'
+import { deriveNewSavingState } from '../../../helpers'
 import WorkshopSummary from './WorkshopSummary'
-import { deriveNewSavingState } from '../../helpers'
 
 const WRITE_DELAY_MS = 1000
 
@@ -26,7 +25,7 @@ const WorkshopSummaryWithApi = ({ evaluation, disable }: React.PropsWithChildren
     }
 
     useEffect(() => {
-        setSavingState(deriveNewSavingState(loading, savingState))
+        setSavingState(deriveNewSavingState(loading, savingState, error !== undefined))
     }, [loading])
 
     useEffectNotOnMount(() => {
@@ -38,17 +37,9 @@ const WorkshopSummaryWithApi = ({ evaluation, disable }: React.PropsWithChildren
         }
     }, [localSummary])
 
-    if (error !== undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not save summary')} onChange={() => {}} />
-            </div>
-        )
-    }
-
     return (
         <div style={{ padding: '30px' }} data-testid="workshop_summary_div">
-            <WorkshopSummary localSummary={localSummary} onChange={onChange} savingState={savingState} disable={disable} />
+            <WorkshopSummary localSummary={localSummary} onChange={onChange} savingState={savingState} disable={disable} error={error} />
         </div>
     )
 }

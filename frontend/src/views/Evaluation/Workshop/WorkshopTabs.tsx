@@ -4,7 +4,7 @@ import { Tabs } from '@equinor/eds-core-react'
 import { Evaluation, Role } from '../../../api/models'
 import { useParticipant } from '../../../globals/contexts'
 import { StyledTabPanel } from '../../../components/StyledTabs'
-import WorkshopSummaryWithApi from './WorkshopSummaryWithApi'
+import WorkshopSummaryWithApi from './WorkshopSummary/WorkshopSummaryWithApi'
 import { participantCanEditWorkshopSummary, participantCanViewWorkshopSummary } from '../../../utils/RoleBasedAccess'
 
 const { List, Tab, Panels } = Tabs

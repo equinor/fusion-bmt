@@ -1,20 +1,12 @@
 import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import {
-    PersonCard,
-    Button,
-    SearchableDropdown,
-    SearchableDropdownOption,
-    Spinner,
-    ModalSideSheet,
-    ApplicationGuidanceAnchor,
-} from '@equinor/fusion-components'
+import { PersonCard, Button, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
 
-import { Organization, Role, Participant } from '../../../api/models'
+import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
-import { organizationToString, roleToString } from '../../../utils/EnumToString'
+import { organizationToString, roleToString } from '../../../../utils/EnumToString'
 import { Divider, TextField } from '@equinor/eds-core-react'
-import { useEffectNotOnMount } from '../../../utils/hooks'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
 
 interface AddNomineeDialogProps {
     currentNominees: Array<Participant>
@@ -142,7 +134,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     data-testid="nominee_dialog_search_text_field"
                 />
                 <br />
-                {isSearching && (
+                {(isSearching || createParticipantLoading) && (
                     <div style={{ justifyContent: 'center' }}>
                         <Spinner />
                     </div>

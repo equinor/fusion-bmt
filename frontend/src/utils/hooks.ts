@@ -4,6 +4,7 @@ import { Validity } from '../components/Action/utils'
 import { deriveNewSavingState, updateValidity } from '../views/helpers'
 import { SavingState } from './Variables'
 import { Evaluation } from '../api/models'
+import { ApolloError } from '@apollo/client'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -69,7 +70,8 @@ export const noProjectMasterTitle = 'No project master title'
 
 export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsByProjectMasterAndPortfolio => {
     const apiClients = useApiClients()
-    const [allEvaluationsWithProjectMasterAndPortfolio, setAllEvaluationsWithProjectMasterPortfolio] = React.useState<EvaluationsByProjectMasterAndPortfolio>({})
+    const [allEvaluationsWithProjectMasterAndPortfolio, setAllEvaluationsWithProjectMasterPortfolio] =
+        React.useState<EvaluationsByProjectMasterAndPortfolio>({})
 
     const collectUniqueProjectIds = (evaluations: Evaluation[]) => {
         const projectIds: string[] = []
@@ -103,9 +105,9 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
             projectIds.map(async projectId => {
                 try {
                     const [portfolio, projectMasterTitle] = await lookupPortfolioAndProjectMaster(projectId)
-                    projectIdsWithPortfoliosAndProjectMasters[projectId] = {portfolio, projectMasterTitle}
+                    projectIdsWithPortfoliosAndProjectMasters[projectId] = { portfolio, projectMasterTitle }
                 } catch (err) {
-                    projectIdsWithPortfoliosAndProjectMasters[projectId] = {portfolio: '', projectMasterTitle: ''}
+                    projectIdsWithPortfoliosAndProjectMasters[projectId] = { portfolio: '', projectMasterTitle: '' }
                 }
             })
         )
@@ -144,7 +146,7 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
                                 }
                             }
                         } else {
-                            if (projectMasterTitle === "") {
+                            if (projectMasterTitle === '') {
                                 if (evaluationsByProjectMasterAndPortfolio[noPortfolioKey][noProjectMasterTitle]) {
                                     evaluationsByProjectMasterAndPortfolio[noPortfolioKey][noProjectMasterTitle].push(evaluation)
                                 } else {
@@ -204,6 +206,18 @@ export const useValidityCheck = <Type>(value: Type, isValid: () => boolean) => {
     }, [value, valueValidity])
 
     return { valueValidity }
+}
+
+export const useShowErrorHook = (error: ApolloError | undefined) => {
+    const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false)
+
+    useEffectNotOnMount(() => {
+        if (error !== undefined) {
+            setShowErrorMessage(true)
+        }
+    }, [error])
+
+    return { showErrorMessage, setShowErrorMessage }
 }
 
 export const useSavingStateCheck = <Type>(isLoading: boolean, hasError: boolean, doWhenLoadingFinishes: () => void) => {
