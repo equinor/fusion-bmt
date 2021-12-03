@@ -2,22 +2,22 @@ import React from 'react'
 import { Box } from '@material-ui/core'
 import { Button, Typography } from '@equinor/eds-core-react'
 
-import { Barrier, Evaluation, Organization, Progression, Question, Severity } from '../../../api/models'
-import EvaluationSidebar from '../EvaluationSidebar'
-import AnswerSummarySidebar from '../../../components/AnswerSummarySidebar'
-import { barrierToString, progressionToString } from '../../../utils/EnumToString'
-import ProgressionCompleteSwitch from '../../../components/ProgressionCompleteSwitch'
-import { useParticipant } from '../../../globals/contexts'
-import { getNextProgression, progressionLessThan } from '../../../utils/ProgressionStatus'
-import QuestionsList from '../../../components/QuestionsList'
-import { useFilter } from '../../../utils/hooks'
-import OrganizationFilter from '../../../components/OrganizationFilter'
-import { getBarrierAnswers, onScroll } from '../../helpers'
-import SeveritySummary from '../../../components/SeveritySummary'
-import { countSeverities } from '../../../utils/Severity'
-import { hasSeverity, hasOrganization, toggleFilter } from '../../../utils/QuestionAndAnswerUtils'
-import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../utils/disableComponents'
-import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
+import { Barrier, Evaluation, Organization, Progression, Question, Severity } from '../../../../api/models'
+import EvaluationSidebar from '../../../../components/EvaluationSidebar'
+import AnswerSummarySidebar from '../../../../components/AnswerSummarySidebar'
+import { barrierToString, progressionToString } from '../../../../utils/EnumToString'
+import ProgressionCompleteSwitch from '../../../../components/ProgressionCompleteSwitch'
+import { useParticipant } from '../../../../globals/contexts'
+import { getNextProgression, progressionLessThan } from '../../../../utils/ProgressionStatus'
+import QuestionsList from '../../../../components/QuestionsList'
+import { useFilter } from '../../../../utils/hooks'
+import OrganizationFilter from '../../../../components/OrganizationFilter'
+import { getBarrierAnswers, onScroll } from '../../../helpers'
+import SeveritySummary from '../../../../components/SeveritySummary'
+import { countSeverities } from '../../../../utils/Severity'
+import { hasSeverity, hasOrganization, toggleFilter } from '../../../../utils/QuestionAndAnswerUtils'
+import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../../utils/disableComponents'
+import { participantCanProgressEvaluation } from '../../../../utils/RoleBasedAccess'
 
 interface WorkshopViewProps {
     evaluation: Evaluation
@@ -48,7 +48,7 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
     const participant = useParticipant()
     const isParticipantCompleted = participant ? progressionLessThan(viewProgression, participant.progression) : false
 
-    const localOnClompleteClick = () => {
+    const localOnCompleteClick = () => {
         const nextProgression = getNextProgression(participant!.progression)
         onProgressParticipant(nextProgression)
     }
@@ -155,7 +155,7 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                                 <ProgressionCompleteSwitch
                                     isCheckedInitially={isParticipantCompleted}
                                     disabled={disableCompleteSwitch(participant, evaluation, viewProgression)}
-                                    onCompleteClick={localOnClompleteClick}
+                                    onCompleteClick={localOnCompleteClick}
                                     onUncompleteClick={localOnUncompleteClick}
                                 />
                                 {participantCanProgressEvaluation(participant) && (

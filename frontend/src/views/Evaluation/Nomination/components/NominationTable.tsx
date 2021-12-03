@@ -1,15 +1,17 @@
-import { DataTable, DataTableColumn, Button } from '@equinor/fusion-components'
-import React from 'react'
+import { DataTable, DataTableColumn } from '@equinor/fusion-components'
+import React, { useState } from 'react'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 
-import { Evaluation, Organization, Participant, Progression, Role } from '../../../api/models'
-import { useAzureUniqueId } from '../../../utils/Variables'
-import ParticipantCard from '../../../components/ParticipantCard'
-import { ProgressionStatus } from '../../../utils/ProgressionStatus'
-import { roleToString, organizationToString } from '../../../utils/EnumToString'
-import { useEvaluation } from '../../../globals/contexts'
-import { participantCanDeleteParticipant } from '../../../utils/RoleBasedAccess'
-import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { Evaluation, Organization, Participant, Progression, Role } from '../../../../api/models'
+import { genericErrorMessage, useAzureUniqueId } from '../../../../utils/Variables'
+import { roleToString, organizationToString } from '../../../../utils/EnumToString'
+import { participantCanDeleteParticipant } from '../../../../utils/RoleBasedAccess'
+import { PARTICIPANT_FIELDS_FRAGMENT } from '../../../../api/fragments'
+import { useEffectNotOnMount } from '../../../../utils/hooks'
+import { useEvaluation } from '../../../../globals/contexts'
+import ParticipantCard from '../../../../components/ParticipantCard'
+import ErrorBanner from '../../../../components/ErrorBanner'
+import ButtonWithSaveIndicator from '../../../../components/ButtonWithSaveIndicator'
 
 interface DataTableItem {
     organization: Organization
@@ -17,6 +19,8 @@ interface DataTableItem {
     participant: Participant
     rowIdentifier: string
     disableDelete: boolean
+    deleteParticipant: (id: string) => void
+    isDeletingParticipant: boolean
 }
 
 interface DataTableRowProps {
@@ -31,18 +35,17 @@ const DeleteColumnItemRenderer: React.FC<DataTableRowProps> = ({ item }) => {
 
     if (item.participant.azureUniqueId === azureUniqueId) return <></>
 
-    const { deleteParticipant, loading } = useDeleteParticipantMutation()
-
     return (
         <div data-testid={'delete_button_' + item.participant.azureUniqueId}>
-            <Button
+            <ButtonWithSaveIndicator
                 onClick={() => {
-                    deleteParticipant(item.participant.id)
+                    item.deleteParticipant(item.participant.id)
                 }}
-                disabled={item.disableDelete || loading}
+                disabled={item.disableDelete || item.isDeletingParticipant}
+                isLoading={item.isDeletingParticipant}
             >
                 Delete
-            </Button>
+            </ButtonWithSaveIndicator>
         </div>
     )
 }
@@ -105,17 +108,33 @@ interface NominationTableProps {
 }
 
 const NominationTable = ({ participants }: NominationTableProps) => {
+    const { deleteParticipant, loading, error } = useDeleteParticipantMutation()
+    const [showDeleteUserErrorMessage, setShowDeleteUserErrorMessage] = useState<boolean>(false)
     const disable = disableDelete(useEvaluation(), useAzureUniqueId())
+
+    useEffectNotOnMount(() => {
+        if (error !== undefined) {
+            setShowDeleteUserErrorMessage(true)
+        }
+    }, [error])
 
     const data: DataTableItem[] = participants.map(participant => ({
         participant,
         organization: participant.organization,
         role: participant.role,
         rowIdentifier: participant.id,
-        disableDelete: disable
+        disableDelete: disable,
+        deleteParticipant: deleteParticipant,
+        isDeletingParticipant: loading,
     }))
     return (
         <>
+            {showDeleteUserErrorMessage && (
+                <ErrorBanner
+                    message={'Could not delete user. ' + genericErrorMessage}
+                    onClose={() => setShowDeleteUserErrorMessage(false)}
+                />
+            )}
             <DataTable columns={columns} data={data} isFetching={false} rowIdentifier={'rowIdentifier'} />
         </>
     )

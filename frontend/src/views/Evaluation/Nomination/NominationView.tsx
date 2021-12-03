@@ -1,15 +1,14 @@
 import React from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-
 import { Box } from '@material-ui/core'
-import { ApplicationGuidanceAnchor, TextArea } from '@equinor/fusion-components'
-import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
+import { ApplicationGuidanceAnchor, ErrorMessage, TextArea } from '@equinor/fusion-components'
+import { Button, CircularProgress, Icon, Tooltip } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
 import { useCurrentUser } from '@equinor/fusion'
 
-import AddNomineeDialog from './AddNomineeDialog'
+import AddNomineeDialog from './components/AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role, Status } from '../../../api/models'
-import NominationTable from './NominationTable'
+import NominationTable from './components/NominationTable'
 import {
     participantCanAddParticipant,
     participantCanHideEvaluation,
@@ -20,9 +19,10 @@ import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../.
 import { useParticipant } from '../../../globals/contexts'
 import { disableProgression } from '../../../utils/disableComponents'
 import SaveIndicator from '../../../components/SaveIndicator'
-import { SavingState } from '../../../utils/Variables'
+import { genericErrorMessage, SavingState } from '../../../utils/Variables'
 import { useEffectNotOnMount } from '../../../utils/hooks'
-import ErrorMessage from '../../Project/Admin/Components/ErrorMessage'
+import { centered } from '../../../utils/styles'
+import ErrorBanner from '../../../components/ErrorBanner'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -32,12 +32,14 @@ interface NominationViewProps {
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const currentUser = useCurrentUser()
     const participant = useParticipant()
-    const { createParticipant, loading: createParticipantLoading, error: errorMutation } = useCreateParticipantMutation()
+
+    const { createParticipant, loading: createParticipantLoading, error: errorCreateParticipant } = useCreateParticipantMutation()
     const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
     const { setEvaluationStatus, loading, error } = useSetEvaluationStatusMutation()
 
     const [panelOpen, setPanelOpen] = React.useState(false)
     const [statusSavingState, setStatusSavingState] = React.useState(SavingState.None)
+    const [showErrorMessage, setShowErrorMessage] = React.useState<boolean>(false)
 
     const viewProgression = Progression.Nomination
     const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
@@ -55,6 +57,12 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     }, [loading])
 
     useEffectNotOnMount(() => {
+        if (error !== undefined) {
+            setShowErrorMessage(true)
+        }
+    }, [error])
+
+    useEffectNotOnMount(() => {
         if (error) {
             setStatusSavingState(SavingState.NotSaved)
         }
@@ -69,23 +77,19 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     }
 
     if (loadingQuery) {
-        return <>Loading...</>
-    }
-
-    if (errorMutation !== undefined) {
         return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not add participant')} onChange={() => {}} />
+            <div style={centered}>
+                <CircularProgress />
             </div>
         )
     }
 
     if (errorQuery !== undefined || participants === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not load participants')} onChange={() => {}} />
-            </div>
-        )
+        return <ErrorMessage hasError errorType={'noData'} title="Could not load participants" message={genericErrorMessage} />
+    }
+
+    if (errorCreateParticipant !== undefined) {
+        return <ErrorMessage hasError errorType={'error'} title="Could not add participant" message={genericErrorMessage} />
     }
 
     const toggleStatus = () => {
@@ -130,9 +134,12 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                     </Box>
                 )}
             </Box>
-            {error && (
+            {showErrorMessage && (
                 <Box mb={1}>
-                    <ErrorMessage text={'Not able change evaluation state'} />
+                    <ErrorBanner
+                        message={'Could not change evaluation state. ' + genericErrorMessage}
+                        onClose={() => setShowErrorMessage(false)}
+                    />
                 </Box>
             )}
             <Button

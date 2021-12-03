@@ -1,11 +1,11 @@
-import { ApplicationGuidanceAnchor, Step, Stepper } from '@equinor/fusion-components'
 import React from 'react'
+import { Step, Stepper } from '@equinor/fusion-components'
 import { Evaluation, Progression, Role } from '../../api/models'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 import NominationView from './Nomination/NominationView'
 import IndividualView from './Individual/IndividualView'
 import PreparationView from './Preparation/PreparationView'
-import WorkshopView from './Workshop/WorkshopView'
+import WorkshopView from './Workshop/Questionaire/WorkshopView'
 import QuestionnaireStatusTabs from '../../components/StatusTab'
 import { progressionToString } from '../../utils/EnumToString'
 import FollowUpStepView from './FollowUp/FollowUpStepView'
@@ -79,10 +79,7 @@ const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParti
                     description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
                     stepKey={Progression.FollowUp}
                 >
-                    <FollowUpStepView
-                        evaluation={evaluation}
-                        onNextStepClick={() => onProgressEvaluationClick()}
-                    />
+                    <FollowUpStepView evaluation={evaluation} onNextStepClick={() => onProgressEvaluationClick()} />
                 </Step>
             </Stepper>
         </>

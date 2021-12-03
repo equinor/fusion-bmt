@@ -2,14 +2,13 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 
-import { TextArea } from '@equinor/fusion-components'
+import { ErrorMessage, TextArea } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
-import styled from 'styled-components'
 
 import { Evaluation, Participant, Progression } from '../../api/models'
 import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
 import EvaluationView from './EvaluationView'
-import { useAzureUniqueId } from '../../utils/Variables'
+import { genericErrorMessage, useAzureUniqueId } from '../../utils/Variables'
 import { getNextProgression } from '../../utils/ProgressionStatus'
 import { CurrentParticipantContext, EvaluationContext } from '../../globals/contexts'
 import { apiErrorMessage } from '../../api/error'
@@ -23,13 +22,7 @@ import {
     QUESTION_FIELDS_FRAGMENT,
     CLOSING_REMARK_FIELDS_FRAGMENT,
 } from '../../api/fragments'
-
-const Centered = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
-`
+import { centered } from '../../utils/styles'
 
 interface Params {
     fusionProjectId: string
@@ -58,10 +51,6 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
         setIsProgressDialogOpen(true)
     }
 
-    if (loading) {
-        return <>Loading...</>
-    }
-
     if (errorProgressingParticipant !== undefined) {
         return (
             <div>
@@ -70,36 +59,24 @@ const EvaluationRoute = ({ match }: RouteComponentProps<Params>) => {
         )
     }
 
-    if (errorLoadingEvaluation !== undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not load evaluation')} onChange={() => {}} />
-            </div>
-        )
+    if (errorLoadingEvaluation !== undefined || (!loading && evaluation === undefined)) {
+        return <ErrorMessage hasError errorType={'noData'} title="Could not load evaluation" message={genericErrorMessage} />
     }
 
-    if (errorProgressEvaluation !== undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not progress evaluation')} onChange={() => {}} />
-            </div>
-        )
+    if (errorProgressingParticipant !== undefined) {
+        return <ErrorMessage hasError errorType={'error'} title="Could not progress evaluation" message={genericErrorMessage} />
     }
 
-    if (loadingProgressEvaluation) {
+    if (loadingProgressEvaluation || loading) {
         return (
-            <Centered>
+            <div style={centered}>
                 <CircularProgress />
-            </Centered>
+            </div>
         )
     }
 
     if (evaluation === undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Evaluation is undefined')} onChange={() => {}} />
-            </div>
-        )
+        return <ErrorMessage hasError errorType={'noData'} title="Could not load evaluation" message={genericErrorMessage} />
     }
 
     const onProgressParticipant = (newProgressions: Progression) => {
@@ -216,7 +193,7 @@ interface EvaluationQueryProps {
 
 const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
     const GET_EVALUATION = gql`
-        query($evaluationId: String!) {
+        query ($evaluationId: String!) {
             evaluations(where: { id: { eq: $evaluationId } }) {
                 ...EvaluationFields
                 ...ParticipantsArray
