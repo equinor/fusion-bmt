@@ -75,22 +75,76 @@ stages:
                 - Deploy_${{ parameters.envshortname }}_Frontend
                 - Update_${{ parameters.envshortname }}_Tags
             displayName: Trigger Radix Deploy
-            pool: server
+            cancelTimeoutInMinutes: 60
+            timeoutInMinutes: 60
             steps:
-                - task: InvokeRESTAPI@1
+                - task: PowerShell@2
+                  displayName: "Trigger Radix Build-Deploy"
                   inputs:
-                      connectionType: "connectedServiceName"
-                      serviceConnection: "radix"
-                      method: "POST"
-                      headers: |
-                          {
-                          "Content-Type":"application/json",
-                          "Authorization": "Bearer ${{ parameters.radixToken }}"
+                      targetType: "inline"
+                      script: |
+                          $url = "https://api.radix.equinor.com/api/v1/applications/fusion-bmt/pipelines/build-deploy"
+
+                          $requestdata = @{
+                              Uri     = "https://api.radix.equinor.com/api/v1/applications/fusion-bmt/pipelines/build-deploy"
+                              Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
                           }
-                      body: '{"branch": "${{ parameters.branch }}",  "triggeredBy": "${{ parameters.buildId }}-${{ parameters.branch }}"}'
-                      urlSuffix: "api/v1/applications/fusion-bmt/pipelines/build-deploy"
-                      waitForCompletion: "false"
-                      successCriteria: eq(root['status'], 'Waiting')
+
+                          $body = @'
+                          {"branch":"${{ parameters.branch }}",
+                          "triggeredBy":"${{ parameters.buildId }}-${{ parameters.branch }}"
+                          }
+                          '@
+
+                          $result = Invoke-RestMethod -Uri $url -Headers $requestdata.Headers -Body $body -Method Post                          
+                          $pipelineName = $result.name
+                          Write-Host $pipelineName
+                          Write-Host "##vso[task.setvariable variable=radixJobName;]$pipelineName"
+                          Write-Host "Done. JobName:" $(radixJobName)
+                - task: PowerShell@2
+                  displayName: "Wait for Radix Build-Deploy job"
+                  inputs:
+                      targetType: "inline"
+                      script: |
+                          $url = 'https://api.radix.equinor.com/api/v1/applications/fusion-bmt/jobs/$(radixJobName)'
+
+                          $body = @{
+                              Uri     = 'https://api.radix.equinor.com/api/v1/applications/fusion-bmt/jobs/$(radixJobName)'
+                              Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
+                          }
+
+                          $TimeoutAfter = New-TimeSpan -Minutes 60
+                          $WaitBetweenPolling = New-TimeSpan -Seconds 10
+
+                          $Timeout = (Get-Date).Add($TimeoutAfter)
+                          $stepCounter = 0
+                          do
+                          {
+                              $result = Invoke-RestMethod -Uri $url -Headers $body.Headers 
+                              $steps = $result.steps |  where { $_.status -eq "Succeeded" } 
+                              if ($stepCounter -eq $steps.Length) {
+
+                              } else {
+                                  $stepCounter = $steps.Length
+                                  Write-Host "Steps:" $steps.Length "of" $result.steps.length
+                              }
+                              
+                              Start-Sleep -Seconds $WaitBetweenPolling.Seconds
+
+                          }
+                          while ((($result.status -eq "Running") -or ($result.status -eq "Waiting")) -and ((Get-Date) -lt $Timeout))
+
+                          if ($result.status -eq "Succeeded")
+                          {
+                              Write-Host "Build-deploy Success"
+                              Write-Host $result
+                              [Environment]::Exit(0)
+                          } else {
+                              Write-Host "Build-deploy Non-success"
+                              Write-Host $result
+                              [Environment]::Exit(1)
+
+                          }
           - job: AddDbMigrations_${{ parameters.envshortname }}
             dependsOn: Trigger_Radix_Deploy_${{ parameters.envshortname }}
             steps:
