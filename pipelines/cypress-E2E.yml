@@ -59,6 +59,8 @@ jobs:
             displayName: "Start frontend"
 
           - script: |
+                COMMIT_INFO_MESSAGE=$(git log --oneline -2 --pretty=format:%s | tail -1)
+                echo $COMMIT_INFO_MESSAGE
                 npx cypress run \
                 --env FRONTEND_URL=http://localhost:3000,API_URL=http://localhost:5000,AUTH_URL=http://localhost:8080 \
                 --config-file ./cypress.json \
