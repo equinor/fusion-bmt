@@ -1,6 +1,7 @@
 import { contains } from 'cypress/types/jquery'
 import { Progression } from '../../src/api/models'
 import { progressionToString } from '../../src/utils/EnumToString'
+import { MarkdownEditor } from '../page_objects/common'
 
 export class EvaluationPage {
     progressionStepLink = (progression: Progression, state: 'In Progress' | 'Complete' | 'Awaiting' | '' = '') => {
@@ -42,6 +43,26 @@ export class EvaluationPage {
         cy.contains('h5', stage).nextUntil().contains(user).scrollIntoView()
         cy.contains('h5', stage).nextUntil().contains(user).should('be.visible')
         cy.contains('h5', stage).nextUntil().contains(user).next().contains(answer).should('be.visible')
+    }
+
+    writeAnswer = (questionNo: number, answer: string) => {
+        const markdownEditor = new MarkdownEditor()
+        cy.get(`[id=question-${questionNo}]`).within(fn => {
+            markdownEditor.setContent(answer)
+        })
+    }
+
+    assertCannotWriteAnswer = (questionNo: number) => {
+        cy.get(`[id=question-${questionNo}]`).within(fn => {
+            cy.getByDataTestid('disabler_box_div').should('have.css', 'display', 'block')
+        })
+    }
+
+    assertAnswerText = (questionNo: number, answer: string) => {
+        const markdownEditor = new MarkdownEditor()
+        cy.get(`[id=question-${questionNo}]`).within(fn => {
+            markdownEditor.assertContent(answer)
+        })
     }
 }
 
