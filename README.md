@@ -197,37 +197,58 @@ We aim to create a system that
 **'describes and validates the behaviour of the system as seen from a user perspective'.**
 
 This implicitly ensures that business requirements are tested (covered by tests).
-In many of the tests we adopt a **BDD style** coding.
+
 The automated tests run in a CI pipeline.
+
+### BDD style coding in Cypress
+
+In the majority of the tests we adopt a **BDD style** coding.
+
+This means that we in the testcase describe the user actions and the behavior
+of the software using a ubiquitous language based on English. (A ubiquitous
+language is a vocabulary shared by all stakeholders.)
 
 ### Organization of tests
 
-The tests are organized after pages and areas of concern (major capabilities) for the users of the application.
-The tests for each area of concern or each page reside in their respective `_spec.ts` file.
+The tests are organized after pages and areas of concern (major capabilities)
+for the users of the application.
+The tests for each area of concern or each page reside in their respective
+`_spec.ts` file.
 
-One example of an area of concern is actions management (creation, editing, completing, voiding, viewing on different stages of actions).
+One example of an area of concern is actions management (creation, editing,
+completing, voiding, viewing on different stages of actions).
 The set of tests for action management reside in `actions_spec.ts`.
-Each test in the set of tests tests one specific capability in the area of concern or on the page.
+Each test in the set of tests tests one specific capability in the area of concern
+or on the page.
 One example from `actions_spec.ts` is Creating and editing actions.
 
 We use parameterization of test extensively to iterate over sets of input values.
 
 #### Randomization of test data
 
-Randomization of test data is frequently used to select one random element from an equivalence class for input data.
-The progression of evaluations is a typical example.
+In many tests we use randomization to select one random element from a
+a set of possible input values where BMT behaves equivalent for any of
+those input values.
+
+For instance, the progression of an evaluation is often chosen randomly from
+a list of progressions. Which progressions that are included in this list
+are determined based on the behaviour that is being verified.
 
 #### Lifecycle
 
-We develop the tests immideately after the relevant functionality is developed in separate PRs.
+We develop the tests immideately after the relevant functionality is developed
+in separate PRs.
 
-The team discussed creating the tests on the same PR as the functionality itself but found this to be impractical and too complex.
+The team discussed creating the tests on the same PR as the functionality itself
+but found this to be impractical and too complex.
 
 ### Mocking of external systems
 
-We mock authentication and the integration with the Fusion framework but we have no type safety for these mocks.
+We mock authentication and the integration with the Fusion framework but we have
+no type safety for these mocks.
 
-To mitigate these risks we employ short sessions of exploratory testing prior to release into production.
+To mitigate these risks we employ short sessions of exploratory testing prior
+to release into production.
 
 ## Deploy
 
