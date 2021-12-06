@@ -43,7 +43,7 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
 
     return (
         <>
-            <Box paddingLeft="9rem">
+            <Box paddingLeft="13rem">
                 <Box display="flex" alignItems="center">
                     <Box flexGrow={1}>
                         <Typography variant="body_short" bold>
