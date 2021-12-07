@@ -1,19 +1,28 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import { Grid } from '@material-ui/core'
-import { Button, Icon, TextField } from '@equinor/eds-core-react'
+import { Icon, TextField } from '@equinor/eds-core-react'
 import { add } from '@equinor/eds-icons'
 
 import { TextFieldChangeEvent } from '../utils'
+import ButtonWithSaveIndicator from '../../ButtonWithSaveIndicator'
+import { ApolloError } from '@apollo/client'
+import ErrorBanner from '../../ErrorBanner'
+import { genericErrorMessage } from '../../../utils/Variables'
+import { useShowErrorHook } from '../../../utils/hooks'
 
 interface Props {
     text: string
     onChange: (text: string) => void
     onCreateClick: (text: string) => void
     disabled: boolean
+    isCreatingNote: boolean
+    apiErrorNote: ApolloError | undefined
 }
 
-const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
+const NoteCreateForm = ({ text, onChange, onCreateClick, disabled, isCreatingNote, apiErrorNote }: Props) => {
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(apiErrorNote)
+
     const addNote = () => {
         if (text.length > 0) {
             onCreateClick(text)
@@ -22,6 +31,12 @@ const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
 
     return (
         <>
+            {showErrorMessage && (
+                <ErrorBanner
+                    message={'Could not create note at this time. ' + genericErrorMessage}
+                    onClose={() => setShowErrorMessage(false)}
+                />
+            )}
             <Grid container spacing={3} style={{ marginTop: '20px' }}>
                 <Grid item xs={10}>
                     <TextField
@@ -42,15 +57,16 @@ const NoteCreateForm = ({ text, onChange, onCreateClick, disabled }: Props) => {
                     />
                 </Grid>
                 <Grid item xs={2} container={true} alignItems="center">
-                    <Button
+                    <ButtonWithSaveIndicator
                         variant="ghost"
                         onClick={addNote}
                         disabled={disabled}
                         style={{ marginTop: '20px' }}
-                        data-testid="add_note_button"
+                        testId="add_note_button"
+                        isLoading={isCreatingNote}
                     >
                         <Icon data={add}></Icon>
-                    </Button>
+                    </ButtonWithSaveIndicator>
                 </Grid>
             </Grid>
         </>

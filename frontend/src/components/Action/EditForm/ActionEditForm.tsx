@@ -8,11 +8,14 @@ import styled from 'styled-components'
 
 import { Action, Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
-import { useEffectNotOnMount } from '../../../utils/hooks'
+import { useEffectNotOnMount, useShowErrorHook } from '../../../utils/hooks'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 import { check_circle_outlined, link } from '@equinor/eds-icons'
 import { updateValidity } from '../../../views/helpers'
 import { tokens } from '@equinor/eds-tokens'
+import { ApolloError } from '@apollo/client'
+import ErrorBanner from '../../ErrorBanner'
+import { genericErrorMessage } from '../../../utils/Variables'
 
 const StyledDate = styled(Typography)`
     float: right;
@@ -40,8 +43,8 @@ interface Props {
     onEditShouldNotDelay: (action: Action, isValid: boolean) => void
     createClosingRemark: (text: string) => void
     isClosingRemarkSaved: boolean
-    apiErrorClosingRemark: string
-    apiErrorAction: string
+    apiErrorClosingRemark: ApolloError | undefined
+    apiErrorAction: ApolloError | undefined
     disableEditAction: boolean
 }
 
@@ -71,6 +74,9 @@ const ActionEditForm = ({
     const [completed, setCompleted] = useState<boolean>(action.completed)
     const [completeActionViewOpen, setCompleteActionViewOpen] = useState<boolean>(false)
     const [completingReason, setCompletingReason] = useState<string>('')
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(apiErrorAction)
+    const { showErrorMessage: showClosingNoteErrorMessage, setShowErrorMessage: setShowClosingNoteErrorMessage } =
+        useShowErrorHook(apiErrorClosingRemark)
 
     const assigneesOptions: SearchableDropdownOption[] = possibleAssigneesDetails.map(personDetails => ({
         title: personDetails.name,
@@ -139,7 +145,7 @@ const ActionEditForm = ({
     }, [action.completed])
 
     useEffect(() => {
-        if (apiErrorAction && completeActionViewOpen) {
+        if (apiErrorAction !== undefined && completeActionViewOpen) {
             setCompleteActionViewOpen(false)
             setCompleted(false)
         }
@@ -159,6 +165,9 @@ const ActionEditForm = ({
     return (
         <>
             <Grid container spacing={3}>
+                {showErrorMessage && (
+                    <ErrorBanner message={'Could not update action. ' + genericErrorMessage} onClose={() => setShowErrorMessage(false)} />
+                )}
                 {action.completed && (
                     <Grid item xs={6}>
                         <div style={{ display: 'flex', flexDirection: 'row' }} data-testid="action_completed_text">
@@ -283,11 +292,14 @@ const ActionEditForm = ({
                                 }}
                             />
                         </Grid>
-                        {apiErrorClosingRemark && (
+                        {showClosingNoteErrorMessage && (
                             <Grid item xs={12}>
-                                <div style={{ marginTop: 20 }}>
-                                    <TextArea value={apiErrorClosingRemark} onChange={() => {}} />
-                                </div>
+                                <ErrorBanner
+                                    message={
+                                        'Unfortunately, we were not able to create a closing note when completing the action. Try again, or write your closing note as a regular note below.'
+                                    }
+                                    onClose={() => setShowClosingNoteErrorMessage(false)}
+                                />
                             </Grid>
                         )}
                         <Grid item xs={12}>

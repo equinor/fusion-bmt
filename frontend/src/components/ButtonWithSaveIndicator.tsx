@@ -10,11 +10,12 @@ interface Props {
     children?: React.ReactNode
     testId?: string
     variant?: 'contained' | 'outlined' | 'ghost' | 'ghost_icon'
+    style?: object
 }
 
-const ButtonWithSaveIndicator = ({ isLoading, onClick, disabled, children, testId, variant = 'contained' }: Props) => {
+const ButtonWithSaveIndicator = ({ isLoading, onClick, disabled, children, testId, variant = 'contained', style = {} }: Props) => {
     return (
-        <>
+        <div style={style}>
             {isLoading ? (
                 <Button disabled data-testid={testId} variant={variant}>
                     <SaveIndicatorOnButton
@@ -27,7 +28,7 @@ const ButtonWithSaveIndicator = ({ isLoading, onClick, disabled, children, testI
                     {children}
                 </Button>
             )}
-        </>
+        </div>
     )
 }
 

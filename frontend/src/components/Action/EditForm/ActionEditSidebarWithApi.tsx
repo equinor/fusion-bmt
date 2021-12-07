@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { Action, ClosingRemark, Note, Participant, Question } from '../../../api/models'
 import ActionEditSidebar from './ActionEditSidebar'
-import { apiErrorMessage } from '../../../api/error'
 import {
     ACTION_CLOSING_REMARKS_FRAGMENT,
     ACTION_FIELDS_FRAGMENT,
@@ -29,34 +28,7 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
         loading: isClosingRemarkSaving,
         error: errorCreatingClosingRemark,
     } = useCreateClosingRemarkMutation()
-    const [actionError, setActionError] = useState('')
-    const [noteError, setNoteError] = useState('')
-    const [closingRemarkError, setClosingRemarkError] = useState('')
     const [localNote, setLocalNote] = useState<string>('')
-
-    useEffect(() => {
-        if (errorEditingAction) {
-            setActionError(apiErrorMessage('Could not save changes to action'))
-        } else {
-            setActionError('')
-        }
-    }, [errorEditingAction])
-
-    useEffect(() => {
-        if (errorCreatingNote) {
-            setNoteError(apiErrorMessage('Could not create note'))
-        } else {
-            setNoteError('')
-        }
-    }, [errorCreatingNote])
-
-    useEffect(() => {
-        if (errorCreatingClosingRemark) {
-            setClosingRemarkError(apiErrorMessage('Could not save reason for changing complete-status'))
-        } else {
-            setClosingRemarkError('')
-        }
-    }, [errorCreatingClosingRemark])
 
     const onChangeNote = (value: string) => {
         setLocalNote(value)
@@ -95,9 +67,9 @@ const ActionEditSidebarWithApi = ({ action, isOpen, onClose, connectedQuestion, 
             onCreateClosingRemark={onCreateClosingRemark}
             isClosingRemarkSaved={closingRemark !== undefined}
             note={localNote}
-            apiErrorAction={actionError}
-            apiErrorNote={noteError}
-            apiErrorClosingRemark={closingRemarkError}
+            apiErrorAction={errorEditingAction}
+            apiErrorNote={errorCreatingNote}
+            apiErrorClosingRemark={errorCreatingClosingRemark}
             isEditingFromDashboard={isEditingFromDashboard}
         />
     )

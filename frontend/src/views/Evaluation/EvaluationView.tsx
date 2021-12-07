@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 
-import { ErrorMessage, TextArea } from '@equinor/fusion-components'
+import { ErrorMessage } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
 
 import { Evaluation, Participant, Progression } from '../../api/models'
@@ -11,7 +11,6 @@ import EvaluationSteps from './EvaluationSteps'
 import { genericErrorMessage, useAzureUniqueId } from '../../utils/Variables'
 import { getNextProgression } from '../../utils/ProgressionStatus'
 import { CurrentParticipantContext, EvaluationContext } from '../../globals/contexts'
-import { apiErrorMessage } from '../../api/error'
 import {
     ACTION_FIELDS_FRAGMENT,
     ANSWER_FIELDS_FRAGMENT,
@@ -51,19 +50,15 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
         setIsProgressDialogOpen(true)
     }
 
-    if (errorProgressingParticipant !== undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not progress participant')} onChange={() => {}} />
-            </div>
-        )
-    }
-
     if (errorLoadingEvaluation !== undefined || (!loading && evaluation === undefined)) {
         return <ErrorMessage hasError errorType={'noData'} title="Could not load evaluation" message={genericErrorMessage} />
     }
 
     if (errorProgressingParticipant !== undefined) {
+        return <ErrorMessage hasError errorType={'error'} title="Could not progress participant" message={genericErrorMessage} />
+    }
+
+    if (errorProgressEvaluation !== undefined) {
         return <ErrorMessage hasError errorType={'error'} title="Could not progress evaluation" message={genericErrorMessage} />
     }
 
