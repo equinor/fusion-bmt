@@ -9,7 +9,7 @@ import { Action, Barrier, Organization } from '../../api/models'
 import SortableTable, { Column } from '../SortableTable'
 import { sort, SortDirection, sortPriority } from '../../utils/sort'
 import { barrierToString, organizationToString } from '../../utils/EnumToString'
-import { getFusionProjectName } from '../helpers'
+import { getFusionProjectName } from '../../utils/helpers'
 import PriorityIndicator from '../Action/PriorityIndicator'
 
 const { Row, Cell } = Table

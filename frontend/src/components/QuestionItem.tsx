@@ -5,7 +5,7 @@ import QuestionActionsListWithApi from './Action/QuestionActionsListWithApi'
 import AnswerSummaryButton from './AnswerSummaryButton'
 import { Progression, Question } from '../api/models'
 import { useParticipant } from '../globals/contexts'
-import { useSharedFacilitatorAnswer, findCorrectAnswer } from './helpers'
+import { useSharedFacilitatorAnswer, findCorrectAnswer } from '../utils/helpers'
 
 interface Props {
     question: Question

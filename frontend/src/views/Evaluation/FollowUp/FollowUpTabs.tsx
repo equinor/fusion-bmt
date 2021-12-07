@@ -1,13 +1,12 @@
 import React from 'react'
-
 import { Tabs } from '@equinor/eds-core-react'
 
 import { Evaluation } from '../../../api/models'
-import FollowUpView from './FollowUpView'
-import WorkshopSummaryView from './Summaries/WorkshopSummaryView'
 import { StyledTabPanel } from '../../../components/StyledTabs'
-import ActionTableWithApi from '../../../components/ActionTable/ActionTableWithApi'
-import FollowUpSummaryView from './Summaries/FollowUpSummaryView'
+import FollowUpView from './Views/Questionaire/FollowUpView'
+import WorkshopSummaryView from './Views/WorkshopSummary/WorkshopSummaryView'
+import FollowUpSummaryView from './Views/FollowUpSummary/FollowUpSummaryView'
+import ActionTableWithApi from './Views/Actions/ActionTableWithApi'
 
 const { List, Tab, Panels } = Tabs
 

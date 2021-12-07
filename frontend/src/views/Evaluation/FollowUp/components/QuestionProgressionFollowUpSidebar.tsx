@@ -2,11 +2,11 @@ import React from 'react'
 
 import { NavigationStructure, NavigationDrawer } from '@equinor/fusion-components'
 
-import { Barrier, Question, Progression } from '../../../api/models'
-import { barrierToString } from '../../../utils/EnumToString'
-import Sticky from '../../../components/Sticky'
-import SeveritySummary from '../../../components/SeveritySummary'
-import { countSeverities } from '../../../utils/Severity'
+import { Barrier, Question, Progression } from '../../../../api/models'
+import { barrierToString } from '../../../../utils/EnumToString'
+import Sticky from '../../../../components/Sticky'
+import SeveritySummary from '../../../../components/SeveritySummary'
+import { countSeverities } from '../../../../utils/Severity'
 
 interface Props {
     questions: Question[]

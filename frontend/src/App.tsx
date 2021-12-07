@@ -4,8 +4,8 @@ import { ErrorBoundary } from '@equinor/fusion-components'
 
 import { useCurrentContext } from '@equinor/fusion'
 import { Switch, Route } from 'react-router-dom'
-import ProjectRoute from './views/Project/ProjectRoute'
-import EvaluationRoute from './views/Evaluation/EvaluationRoute'
+import ProjectTabs from './views/Project/ProjectTabs'
+import EvaluationView from './views/Evaluation/EvaluationView'
 
 const App = () => {
     const currentProject = useCurrentContext()
@@ -22,8 +22,8 @@ const App = () => {
         <>
             <ErrorBoundary>
                 <Switch>
-                    <Route path="/:fusionProjectId" exact component={ProjectRoute} />
-                    <Route path="/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationRoute} />
+                    <Route path="/:fusionProjectId" exact component={ProjectTabs} />
+                    <Route path="/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationView} />
                 </Switch>
             </ErrorBoundary>
         </>

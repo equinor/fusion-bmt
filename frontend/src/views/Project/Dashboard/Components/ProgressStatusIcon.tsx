@@ -1,7 +1,7 @@
 import React from 'react'
 import { CheckCircleIcon, ScheduleIcon } from '@equinor/fusion-components'
-import { calcProgressionStatus, ProgressionStatus } from '../utils/ProgressionStatus'
-import { Progression } from '../api/models'
+import { calcProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
+import { Progression } from '../../../../api/models'
 
 interface ProgressStatusIconProps {
     progression: Progression

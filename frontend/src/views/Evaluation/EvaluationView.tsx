@@ -1,89 +1,238 @@
-import React from 'react'
-import { Step, Stepper } from '@equinor/fusion-components'
-import { Evaluation, Progression, Role } from '../../api/models'
-import { calcProgressionStatus } from '../../utils/ProgressionStatus'
-import NominationView from './Nomination/NominationView'
-import IndividualView from './Individual/IndividualView'
-import PreparationView from './Preparation/PreparationView'
-import WorkshopView from './Workshop/Questionaire/WorkshopView'
-import QuestionnaireStatusTabs from '../../components/StatusTab'
-import { progressionToString } from '../../utils/EnumToString'
-import FollowUpStepView from './FollowUp/FollowUpStepView'
-import WorkshopTabs from './Workshop/WorkshopTabs'
+import React, { useState } from 'react'
+import { RouteComponentProps } from 'react-router-dom'
+import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 
-interface EvaluationViewProps {
-    evaluation: Evaluation
-    onProgressEvaluationClick: () => void
-    onProgressParticipant: (newProgressions: Progression) => void
+import { ErrorMessage, TextArea } from '@equinor/fusion-components'
+import { CircularProgress } from '@equinor/eds-core-react'
+
+import { Evaluation, Participant, Progression } from '../../api/models'
+import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
+import EvaluationSteps from './EvaluationSteps'
+import { genericErrorMessage, useAzureUniqueId } from '../../utils/Variables'
+import { getNextProgression } from '../../utils/ProgressionStatus'
+import { CurrentParticipantContext, EvaluationContext } from '../../globals/contexts'
+import { apiErrorMessage } from '../../api/error'
+import {
+    ACTION_FIELDS_FRAGMENT,
+    ANSWER_FIELDS_FRAGMENT,
+    EVALUATION_FIELDS_FRAGMENT,
+    NOTE_FIELDS_FRAGMENT,
+    PARTICIPANTS_ARRAY_FRAGMENT,
+    PARTICIPANT_FIELDS_FRAGMENT,
+    QUESTION_FIELDS_FRAGMENT,
+    CLOSING_REMARK_FIELDS_FRAGMENT,
+} from '../../api/fragments'
+import { centered } from '../../utils/styles'
+
+interface Params {
+    fusionProjectId: string
+    evaluationId: string
 }
 
-const EvaluationView = ({ evaluation, onProgressEvaluationClick, onProgressParticipant }: EvaluationViewProps) => {
-    const allRoles = Object.values(Role)
-    const activeStepKey = evaluation.progression !== Progression.Finished ? evaluation.progression : Progression.FollowUp
+const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
+    const evaluationId: string = match.params.evaluationId
+    const azureUniqueId = useAzureUniqueId()
+
+    const { loading, evaluation, error: errorLoadingEvaluation } = useEvaluationQuery(evaluationId)
+    const { progressEvaluation, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useProgressEvaluationMutation()
+    const { progressParticipant, error: errorProgressingParticipant } = useProgressParticipantMutation()
+
+    const [isProgressDialogOpen, setIsProgressDialogOpen] = useState<boolean>(false)
+
+    const onConfirmProgressEvaluationClick = () => {
+        const newProgression = getNextProgression(evaluation!.progression)
+        progressEvaluation(evaluationId, newProgression)
+        setIsProgressDialogOpen(false)
+    }
+    const onCancelProgressEvaluation = () => {
+        setIsProgressDialogOpen(false)
+    }
+    const onProgressEvaluationClick = () => {
+        setIsProgressDialogOpen(true)
+    }
+
+    if (errorProgressingParticipant !== undefined) {
+        return (
+            <div>
+                <TextArea value={apiErrorMessage('Could not progress participant')} onChange={() => {}} />
+            </div>
+        )
+    }
+
+    if (errorLoadingEvaluation !== undefined || (!loading && evaluation === undefined)) {
+        return <ErrorMessage hasError errorType={'noData'} title="Could not load evaluation" message={genericErrorMessage} />
+    }
+
+    if (errorProgressingParticipant !== undefined) {
+        return <ErrorMessage hasError errorType={'error'} title="Could not progress evaluation" message={genericErrorMessage} />
+    }
+
+    if (loadingProgressEvaluation || loading) {
+        return (
+            <div style={centered}>
+                <CircularProgress />
+            </div>
+        )
+    }
+
+    if (evaluation === undefined) {
+        return <ErrorMessage hasError errorType={'noData'} title="Could not load evaluation" message={genericErrorMessage} />
+    }
+
+    const onProgressParticipant = (newProgressions: Progression) => {
+        progressParticipant(evaluation.id, newProgressions)
+    }
+
+    const participant: Participant | undefined = evaluation.participants.find(p => p.azureUniqueId === azureUniqueId)
 
     return (
         <>
-            <Stepper forceOrder={false} activeStepKey={activeStepKey} hideNavButtons={true}>
-                <Step
-                    title={progressionToString(Progression.Nomination)}
-                    description={calcProgressionStatus(evaluation.progression, Progression.Nomination)}
-                    stepKey={Progression.Nomination}
-                >
-                    <NominationView evaluation={evaluation} onNextStep={() => onProgressEvaluationClick()} />
-                </Step>
-                <Step
-                    title={progressionToString(Progression.Individual)}
-                    description={calcProgressionStatus(evaluation.progression, Progression.Individual)}
-                    stepKey={Progression.Individual}
-                >
-                    <QuestionnaireStatusTabs evaluation={evaluation} viewProgression={Progression.Individual} allowedRoles={allRoles}>
-                        <IndividualView
-                            evaluation={evaluation}
-                            onNextStepClick={() => onProgressEvaluationClick()}
-                            onProgressParticipant={onProgressParticipant}
-                        />
-                    </QuestionnaireStatusTabs>
-                </Step>
-                <Step
-                    title={progressionToString(Progression.Preparation)}
-                    description={calcProgressionStatus(evaluation.progression, Progression.Preparation)}
-                    stepKey={Progression.Preparation}
-                >
-                    <QuestionnaireStatusTabs
+            <CurrentParticipantContext.Provider value={participant}>
+                <EvaluationContext.Provider value={evaluation}>
+                    <EvaluationSteps
                         evaluation={evaluation}
-                        viewProgression={Progression.Preparation}
-                        allowedRoles={[Role.OrganizationLead, Role.Facilitator]}
-                    >
-                        <PreparationView
-                            evaluation={evaluation}
-                            onNextStepClick={() => onProgressEvaluationClick()}
-                            onProgressParticipant={onProgressParticipant}
-                        />
-                    </QuestionnaireStatusTabs>
-                </Step>
-                <Step
-                    title={progressionToString(Progression.Workshop)}
-                    description={calcProgressionStatus(evaluation.progression, Progression.Workshop)}
-                    stepKey={Progression.Workshop}
-                >
-                    <WorkshopTabs evaluation={evaluation}>
-                        <WorkshopView
-                            evaluation={evaluation}
-                            onNextStepClick={() => onProgressEvaluationClick()}
-                            onProgressParticipant={onProgressParticipant}
-                        />
-                    </WorkshopTabs>
-                </Step>
-                <Step
-                    title={progressionToString(Progression.FollowUp)}
-                    description={calcProgressionStatus(evaluation.progression, Progression.FollowUp)}
-                    stepKey={Progression.FollowUp}
-                >
-                    <FollowUpStepView evaluation={evaluation} onNextStepClick={() => onProgressEvaluationClick()} />
-                </Step>
-            </Stepper>
+                        onProgressEvaluationClick={onProgressEvaluationClick}
+                        onProgressParticipant={onProgressParticipant}
+                    />
+                    <ProgressEvaluationDialog
+                        isOpen={isProgressDialogOpen}
+                        currentProgression={evaluation.progression}
+                        onConfirmClick={onConfirmProgressEvaluationClick}
+                        onCancelClick={onCancelProgressEvaluation}
+                    />
+                </EvaluationContext.Provider>
+            </CurrentParticipantContext.Provider>
         </>
     )
 }
 
 export default EvaluationView
+
+interface ProgressEvaluationMutationProps {
+    progressEvaluation: (evaluationId: string, newProgression: Progression) => void
+    loading: boolean
+    evaluation: Evaluation | undefined
+    error: ApolloError | undefined
+}
+
+const useProgressEvaluationMutation = (): ProgressEvaluationMutationProps => {
+    const apolloClient = useApolloClient()
+
+    const PROGRESS_EVALUATION = gql`
+        mutation ProgressEvaluation($evaluationId: String!, $newProgression: Progression!) {
+            progressEvaluation(evaluationId: $evaluationId, newProgression: $newProgression) {
+                ...EvaluationFields
+                ...ParticipantsArray
+            }
+        }
+        ${EVALUATION_FIELDS_FRAGMENT}
+        ${PARTICIPANTS_ARRAY_FRAGMENT}
+    `
+
+    const [progressEvaluationApolloFunc, { loading, data, error }] = useMutation(PROGRESS_EVALUATION, {
+        update(cache, { data: { progressEvaluation } }) {
+            apolloClient.resetStore()
+        },
+    })
+
+    const progressEvaluation = (evaluationId: string, newProgression: Progression) => {
+        progressEvaluationApolloFunc({ variables: { evaluationId, newProgression } })
+    }
+
+    return {
+        progressEvaluation: progressEvaluation,
+        loading,
+        evaluation: data?.progressEvaluation,
+        error,
+    }
+}
+
+interface ProgressParticipantMutationProps {
+    progressParticipant: (evaluationId: string, newProgression: Progression) => void
+    loading: boolean
+    participant: Participant | undefined
+    error: ApolloError | undefined
+}
+
+const useProgressParticipantMutation = (): ProgressParticipantMutationProps => {
+    const PROGRESS_PARTICIPANT = gql`
+        mutation ProgressParticipant($evaluationId: String!, $newProgression: Progression!) {
+            progressParticipant(evaluationId: $evaluationId, newProgression: $newProgression) {
+                ...ParticipantFields
+            }
+        }
+        ${PARTICIPANT_FIELDS_FRAGMENT}
+    `
+
+    const [progressParticipantApolloFunc, { loading, data, error }] = useMutation(PROGRESS_PARTICIPANT, {
+        update(cache, { data: { progressParticipant } }) {
+            cache.writeFragment({
+                data: progressParticipant,
+                fragment: PARTICIPANT_FIELDS_FRAGMENT,
+            })
+        },
+    })
+
+    const progressParticipant = (evaluationId: string, newProgression: Progression) => {
+        progressParticipantApolloFunc({ variables: { evaluationId, newProgression } })
+    }
+
+    return {
+        progressParticipant: progressParticipant,
+        loading,
+        participant: data?.progressParticipant,
+        error,
+    }
+}
+
+interface EvaluationQueryProps {
+    loading: boolean
+    evaluation: Evaluation | undefined
+    error: ApolloError | undefined
+}
+
+const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
+    const GET_EVALUATION = gql`
+        query ($evaluationId: String!) {
+            evaluations(where: { id: { eq: $evaluationId } }) {
+                ...EvaluationFields
+                ...ParticipantsArray
+                questions {
+                    ...QuestionFields
+                    answers {
+                        ...AnswerFields
+                    }
+                    evaluation {
+                        ...EvaluationFields
+                    }
+                    actions {
+                        ...ActionFields
+                        notes {
+                            ...NoteFields
+                        }
+                        closingRemarks {
+                            ...ClosingRemarkFields
+                        }
+                    }
+                }
+            }
+        }
+        ${EVALUATION_FIELDS_FRAGMENT}
+        ${PARTICIPANTS_ARRAY_FRAGMENT}
+        ${QUESTION_FIELDS_FRAGMENT}
+        ${ANSWER_FIELDS_FRAGMENT}
+        ${ACTION_FIELDS_FRAGMENT}
+        ${NOTE_FIELDS_FRAGMENT}
+        ${CLOSING_REMARK_FIELDS_FRAGMENT}
+    `
+
+    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATION, {
+        variables: { evaluationId },
+    })
+
+    return {
+        loading,
+        evaluation: data?.evaluations.find(evaluation => evaluation.id === evaluationId),
+        error,
+    }
+}
