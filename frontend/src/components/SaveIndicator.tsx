@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { CircularProgress, Icon, Typography } from '@equinor/eds-core-react'
 import { check_circle_outlined, block } from '@equinor/eds-icons'
 import { SavingState } from '../utils/Variables'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box } from '@material-ui/core'
-import { Button, CircularProgress, Dialog, Scrim, Typography } from '@equinor/eds-core-react'
+import { Button, Dialog, Scrim, Typography } from '@equinor/eds-core-react'
 import ButtonWithSaveIndicator from './ButtonWithSaveIndicator'
 
 interface ConfirmationDialogProps {

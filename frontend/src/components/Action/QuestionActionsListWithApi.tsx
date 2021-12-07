@@ -11,7 +11,7 @@ interface Props {
 
 const QuestionActionsListWithApi = ({ question }: Props) => {
     const evaluation = useEvaluation()
-    const { cancelAction, error: errorDeletingAction } = useCancelActionMutation()
+    const { cancelAction, loading, error: errorDeletingAction } = useCancelActionMutation()
 
     return (
         <>
@@ -20,6 +20,7 @@ const QuestionActionsListWithApi = ({ question }: Props) => {
                 participants={evaluation.participants}
                 cancelAction={cancelAction}
                 errorDeletingAction={errorDeletingAction}
+                cancelActionLoading={loading}
             />
         </>
     )

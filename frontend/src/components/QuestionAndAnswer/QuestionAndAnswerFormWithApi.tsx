@@ -1,14 +1,13 @@
-import { TextArea } from '@equinor/fusion-components'
 import React, { useEffect, useState } from 'react'
 
 import { Answer, Progression, Question, Severity } from '../../api/models'
 import QuestionAndAnswerForm from './QuestionAndAnswerForm'
-import { SavingState } from '../../utils/Variables'
-import { useEffectNotOnMount } from '../../utils/hooks'
-import { apiErrorMessage } from '../../api/error'
+import { genericErrorMessage, SavingState } from '../../utils/Variables'
+import { useEffectNotOnMount, useShowErrorHook } from '../../utils/hooks'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { ANSWER_FIELDS_FRAGMENT, QUESTION_ANSWERS_FRAGMENT } from '../../api/fragments'
 import { deriveNewSavingState } from '../../views/helpers'
+import ErrorBanner from '../ErrorBanner'
 
 interface QuestionAndAnswerFormWithApiProps {
     question: Question
@@ -34,6 +33,7 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [localAnswerText, setLocalAnswerText] = useState<string>(answer && answer.text ? answer.text : '')
     const [localSeverity, setLocalSeverity] = useState<Severity>(answer && answer.severity ? answer.severity : Severity.Na)
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(errorSettingAnswer)
 
     useEffect(() => {
         setSavingState(deriveNewSavingState(loading, savingState))
@@ -52,16 +52,11 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
         setAnswer(question.id, localSeverity, localAnswerText, viewProgression)
     }, [localSeverity])
 
-    if (errorSettingAnswer !== undefined) {
-        return (
-            <div>
-                <TextArea value={apiErrorMessage('Could not save answer')} onChange={() => {}} />
-            </div>
-        )
-    }
-
     return (
         <>
+            {showErrorMessage && (
+                <ErrorBanner message={'Could not save answer. ' + genericErrorMessage} onClose={() => setShowErrorMessage(false)} />
+            )}
             <QuestionAndAnswerForm
                 question={question}
                 answer={{ ...(answer || emptyAnswer), text: localAnswerText, severity: localSeverity }}

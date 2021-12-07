@@ -1,5 +1,5 @@
 import { Answer, Organization, Participant, Progression, Question, QuestionTemplate, Severity } from '../api/models'
-import { findCorrectAnswer, useSharedFacilitatorAnswer } from '../components/helpers'
+import { findCorrectAnswer, useSharedFacilitatorAnswer } from './helpers'
 
 export const checkIfAnswerFilled = (answer: Answer): boolean => {
     return answer.text !== ''
@@ -16,7 +16,12 @@ export const getFilledUserAnswersForProgression = (questions: Question[], progre
     return participantAnswers.filter(a => checkIfAnswerFilled(a))
 }
 
-export const hasSeverity = (question: Question, severityFilter: Severity[], participant: Participant | undefined, viewProgression: Progression) => {
+export const hasSeverity = (
+    question: Question,
+    severityFilter: Severity[],
+    participant: Participant | undefined,
+    viewProgression: Progression
+) => {
     if (severityFilter.length === 0) {
         return true
     } else {

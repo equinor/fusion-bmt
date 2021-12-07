@@ -11,11 +11,11 @@ import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
 import { Evaluation, Progression } from '../../../../api/models'
-import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/Summaries/helpers'
+import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/util/helpers'
 import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
 import SortableTable, { Column } from '../../../../components/SortableTable'
-import ProgressStatusIcon from '../../../../components/ProgressStatusIcon'
+import ProgressStatusIcon from './ProgressStatusIcon'
 
 const { Row, Cell } = Table
 

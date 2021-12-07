@@ -1,11 +1,11 @@
 import React from 'react'
 import { Box } from '@material-ui/core'
 
-import { Evaluation, Progression } from '../../../../api/models'
-import ListView from './ListView'
-import BowtieView from './BowtieView'
-import { AnswersWithBarrier } from '../../../../utils/Variables'
-import { assignAnswerToBarrierQuestions } from './helpers'
+import { Evaluation, Progression } from '../../../../../api/models'
+import ListView from '../../components/ListView'
+import BowtieView from '../../components/BowtieView'
+import { AnswersWithBarrier } from '../../../../../utils/Variables'
+import { assignAnswerToBarrierQuestions } from '../../util/helpers'
 
 interface Props {
     evaluation: Evaluation

@@ -3,7 +3,7 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
 import { ErrorMessage } from '@equinor/fusion-components'
-import { CircularProgress, Tabs } from '@equinor/eds-core-react'
+import { Tabs } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
 
 import { Project } from '../../api/models'
@@ -20,7 +20,7 @@ interface Params {
     fusionProjectId: string
 }
 
-const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
+const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const currentUser = useCurrentUser()
     const fusionProjectId = match.params.fusionProjectId
 
@@ -65,7 +65,7 @@ const ProjectRoute = ({ match }: RouteComponentProps<Params>) => {
     )
 }
 
-export default ProjectRoute
+export default ProjectTabs
 
 interface ProjectQueryProps {
     loading: boolean

@@ -19,9 +19,10 @@ interface Props {
     participants: Participant[]
     cancelAction: (actionId: string) => void
     errorDeletingAction: ApolloError | undefined
+    cancelActionLoading: boolean
 }
 
-const QuestionActionsList = ({ question, participants, cancelAction, errorDeletingAction }: Props) => {
+const QuestionActionsList = ({ question, participants, cancelAction, errorDeletingAction, cancelActionLoading }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState<boolean>(false)
     const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState<boolean>(false)
@@ -150,6 +151,7 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
                     setIsConfirmDeleteDialogOpen(false)
                     setActionToCancel(undefined)
                 }}
+                isLoading={cancelActionLoading}
             />
         </>
     )

@@ -1,8 +1,13 @@
 import { Context } from '@equinor/fusion'
 import { Question, Progression, Role, Severity, Participant } from '../api/models'
-import { SeverityCount } from '../utils/Severity'
+import { SeverityCount } from './Severity'
 
-export const findCorrectAnswer = (question: Question, viewProgression: Progression, useFacilitatorAnswer: boolean, participant: Participant | undefined) => {
+export const findCorrectAnswer = (
+    question: Question,
+    viewProgression: Progression,
+    useFacilitatorAnswer: boolean,
+    participant: Participant | undefined
+) => {
     const answers = question.answers.filter(a => a.progression === viewProgression)
 
     if (useFacilitatorAnswer) {
