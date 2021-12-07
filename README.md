@@ -8,7 +8,6 @@
 **Dev**: [![Dev Build Status!](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/dev/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/dev)
 **QA**: [![QA Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/qa/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/qa)
 
-
 To run the project with docker-compose use:
 
 -   `docker-compose up --build`
@@ -24,6 +23,7 @@ To run the project with docker-compose use:
 The frontend is built using TypeScript and components from the Equinor Design System ([EDS](https://eds.equinor.com/components/component-status/)).
 
 ### Run frontend
+
 If no `API_URL` is provided, it will resolve to `https://backend-fusion-bmt-dev.radix.equinor.com`
 which is the dev server from master. If you want to run frontend with local
 backend, you need to provide explicitly `API_URL`. It can be set as an environment
@@ -121,7 +121,7 @@ dotnet ef migrations add {migration-name}
 Note that the {migration-name} is just a descriptive name of your choosing.
 Also note that `Database__ConnectionString` should be pointed at one of our
 databases when running `add`. The reason for this is that the migration will be
-created slightly different when based of the in-memory database. `add` will *not*
+created slightly different when based of the in-memory database. `add` will _not_
 update or alter the connected database in any way.
 
 If you for some reason are unhappy with your migration, you can delete it with
@@ -188,6 +188,69 @@ Cypress tests will be run in Azure DevOps when pushing to the upstream branch cy
 This can be done with the following command:
 `git push upstream HEAD:cypress -f`
 
+## Test strategy
+
+We are using Cypress to create a suite of automated functional regression tests.
+
+We aim to create a system that
+
+**'describes and validates the behavior of the system as seen from a user perspective'.**
+
+This implicitly ensures that business requirements are tested (covered by
+tests).
+
+The automated tests run in a CI pipeline.
+
+### BDD style coding in Cypress
+
+In the majority of the tests we adopt a **BDD style** coding.
+
+This means that we in the testcase describe the user actions and the behavior
+of the software using a ubiquitous language based on English. (A ubiquitous
+language is a vocabulary shared by all stakeholders.)
+
+See here for more information:
+https://en.wikipedia.org/wiki/Behavior-driven_development
+
+### Organization of tests
+
+The tests are organized after pages and areas of concern (major capabilities)
+for the users of the application.
+The tests for each area of concern or each page reside in their respective
+`_spec.ts` file.
+
+One example of an area of concern is actions management (creation, editing,
+completing, voiding, viewing on different stages of actions).
+The set of tests for action management reside in `actions_spec.ts`.
+Each test in the set of tests tests one specific capability in the area of
+concern or on the page.
+One example from `actions_spec.ts` is Creating and editing actions.
+
+We use parameterization of tests extensively to iterate over sets of input values.
+
+#### Randomization of test data
+
+In many tests we use randomization to select one random element from a
+a set of possible input values where BMT behaves equivalent for any of
+those input values.
+
+For instance, the progression of an evaluation is often chosen randomly from
+a list of progressions. Which progressions that are included in this list
+are determined based on the behavior that is being verified.
+
+#### Lifecycle
+
+We develop the tests immideately after the relevant functionality is developed
+in separate PRs.
+
+### Mocking of external systems
+
+We mock authentication and the integration with the Fusion framework but we have
+no type safety for these mocks.
+
+To mitigate these risks we employ short sessions of exploratory testing prior
+to release into production.
+
 ## Deploy
 
 We have 4 different environments in use; dev, qa, prod and pr. Dev is the
@@ -224,9 +287,11 @@ before performing this.
 
 We use both Azure Application Insight and dynatrace to monitor our applications.
 To start components with Dynatrace OneAgent locally, simply run
+
 ```
 docker-compose -f docker-compose.dynatrace.yml up --build
 ```
+
 ## Model overview
 
 ![alt text](docs/model.png?raw=true "Simple domain model diagram")
