@@ -13,6 +13,7 @@ import NoteCreateForm from './NoteCreateForm'
 import { useParticipant } from '../../../globals/contexts'
 import { deriveNewSavingState } from '../../../views/helpers'
 import { disableActionEdit } from '../../../utils/disableComponents'
+import { ApolloError } from '@apollo/client'
 
 const WRITE_DELAY_MS = 1000
 
@@ -30,9 +31,9 @@ interface Props {
     onCreateClosingRemark: (text: string) => void
     isClosingRemarkSaved: boolean
     onClose: () => void
-    apiErrorAction: string
-    apiErrorNote: string
-    apiErrorClosingRemark: string
+    apiErrorAction: ApolloError | undefined
+    apiErrorNote: ApolloError | undefined
+    apiErrorClosingRemark: ApolloError | undefined
     isEditingFromDashboard?: boolean
 }
 
@@ -75,7 +76,7 @@ const ActionEditSidebar = ({
     }, [isActionSaving])
 
     useEffect(() => {
-        if (apiErrorAction) {
+        if (apiErrorAction !== undefined) {
             setSavingState(SavingState.NotSaved)
         }
     }, [apiErrorAction])
@@ -139,21 +140,13 @@ const ActionEditSidebar = ({
                         apiErrorAction={apiErrorAction}
                         disableEditAction={disableActionEdit(isEditingFromDashboard, participant, action)}
                     />
-                    {apiErrorAction && (
-                        <div style={{ marginTop: 20 }}>
-                            <TextArea value={apiErrorAction} onChange={() => {}} />
-                        </div>
-                    )}
-                    {apiErrorNote && (
-                        <div style={{ marginTop: 20 }}>
-                            <TextArea value={apiErrorNote} onChange={() => {}} />
-                        </div>
-                    )}
                     <NoteCreateForm
                         text={note}
                         onChange={onChangeNote}
                         onCreateClick={onCreateNote}
                         disabled={isNoteSaving || disableActionEdit(isEditingFromDashboard, participant, action)}
+                        isCreatingNote={isNoteSaving}
+                        apiErrorNote={apiErrorNote}
                     />
                     <NotesAndClosingRemarksList notesAndClosingRemarks={notesAndClosingRemarks} participantsDetails={personDetailsList} />
                 </div>

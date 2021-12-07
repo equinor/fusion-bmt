@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import ActionCreateSidebar from './ActionCreateSidebar'
 import { Action, Participant, Priority, Question } from '../../../api/models'
-import { apiErrorMessage } from '../../../api/error'
 import { ACTION_FIELDS_FRAGMENT, QUESTION_ACTIONS_FRAGMENT } from '../../../api/fragments'
+import { useShowErrorHook } from '../../../utils/hooks'
 
 interface Props {
     isOpen: boolean
@@ -14,7 +14,7 @@ interface Props {
 
 const ActionCreateSidebarWithApi = ({ isOpen, connectedQuestion, possibleAssignees, onClose }: Props) => {
     const { createAction, error: errorCreatingAction, action, loading } = useCreateActionMutation()
-    const [error, setError] = useState('')
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(errorCreatingAction)
 
     // Wait for a response and only close Sideview if mutation was successful
     useEffect(() => {
@@ -23,27 +23,20 @@ const ActionCreateSidebarWithApi = ({ isOpen, connectedQuestion, possibleAssigne
         }
     }, [action])
 
-    useEffect(() => {
-        if (errorCreatingAction) {
-            setError(apiErrorMessage('Could not create action'))
-        }
-        else {
-            setError('')
-        }
-    }, [errorCreatingAction])
-
     return (
         <ActionCreateSidebar
             open={isOpen}
-            onClose={ () => {
+            onClose={() => {
                 onClose()
-                setError('')
+                setShowErrorMessage(false)
             }}
             connectedQuestion={connectedQuestion}
             possibleAssignees={possibleAssignees}
             onActionCreate={createAction}
-            apiError={error}
             disableCreate={loading}
+            creatingAction={loading}
+            showErrorMessage={showErrorMessage}
+            setShowErrorMessage={setShowErrorMessage}
         />
     )
 }

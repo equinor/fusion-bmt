@@ -9,6 +9,7 @@ import { Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 import { DataToCreateAction } from './ActionCreateSidebarWithApi'
+import ButtonWithSaveIndicator from '../../ButtonWithSaveIndicator'
 
 interface Props {
     connectedQuestion: Question
@@ -17,6 +18,7 @@ interface Props {
     onActionCreate: (action: DataToCreateAction) => void
     onCancelClick: () => void
     disableCreate: boolean
+    creatingAction: boolean
 }
 
 const ActionCreateForm = ({
@@ -26,6 +28,7 @@ const ActionCreateForm = ({
     onActionCreate,
     onCancelClick,
     disableCreate,
+    creatingAction,
 }: Props) => {
     const [title, setTitle] = useState<string>('')
     const [titleValidity, setTitleValidity] = useState<Validity>('default')
@@ -185,9 +188,9 @@ const ActionCreateForm = ({
                     </Button>
                 </Grid>
                 <Grid item>
-                    <Button onClick={onLocalCreateClick} disabled={disableCreate}>
+                    <ButtonWithSaveIndicator onClick={onLocalCreateClick} disabled={disableCreate} isLoading={creatingAction}>
                         Create
-                    </Button>
+                    </ButtonWithSaveIndicator>
                 </Grid>
             </Grid>
         </>

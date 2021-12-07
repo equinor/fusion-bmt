@@ -13,6 +13,9 @@ import ActionCreateSidebarWithApi from './CreateForm/ActionCreateSidebarWithApi'
 import ConfirmationDialog from './../ConfirmationDialog'
 import { useParticipant } from '../../globals/contexts'
 import { participantCanCreateAction, participantCanCancelAction } from '../../utils/RoleBasedAccess'
+import { genericErrorMessage } from '../../utils/Variables'
+import ErrorBanner from '../ErrorBanner'
+import { useShowErrorHook } from '../../utils/hooks'
 
 interface Props {
     question: Question
@@ -28,6 +31,7 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
     const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState<boolean>(false)
     const [actionIdToEdit, setActionIdToEdit] = useState<string | undefined>()
     const [actionToCancel, setActionToCancel] = useState<string | undefined>()
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(errorDeletingAction)
     const actions = [...question.actions]
     const participant = useParticipant()
 
@@ -71,15 +75,14 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
                         return 0
                     })
                     .map(action => {
-                        if (errorDeletingAction !== undefined && actionToCancel === action.id) {
-                            return (
-                                <div>
-                                    <TextArea value={`Error deleting action: ${JSON.stringify(errorDeletingAction)}`} onChange={() => {}} />
-                                </div>
-                            )
-                        }
                         return (
                             <div key={action.id}>
+                                {showErrorMessage && actionToCancel === action.id && (
+                                    <ErrorBanner
+                                        message={'Could not cancel action at this time. ' + genericErrorMessage}
+                                        onClose={() => setShowErrorMessage(false)}
+                                    />
+                                )}
                                 <Box display="flex" alignItems="center">
                                     <Box p="0.3rem">
                                         <PriorityIndicator priority={action.priority} />
