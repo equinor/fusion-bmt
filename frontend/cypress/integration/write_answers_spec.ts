@@ -7,6 +7,7 @@ import { SaveIndicator } from '../page_objects/common'
 import { SavingState } from '../../src/utils/Variables'
 
 import * as faker from 'faker'
+import { random } from 'cypress/types/lodash'
 
 describe('Writing answers', () => {
     const users = getUsers(3)
@@ -88,5 +89,26 @@ describe('Writing answers', () => {
                 }
             })
         })
+    })
+
+    const randomTestDataElement = faker.random.arrayElement(testdata)
+    const randomParticipantThatCanWrite = faker.random.arrayElement(randomTestDataElement.roles.filter(r => r.canWriteAnswer === true))
+    it(`Role ${randomParticipantThatCanWrite.role} visits progression ${randomTestDataElement.evaluation.progression}
+    then writes an answer on the first question, refreshes the application
+    and verifies that the answer is present`, () => {
+        const participant = randomTestDataElement.evaluation.participants.find(p => p.role === randomParticipantThatCanWrite.role)!
+        cy.visitProgression(
+            randomTestDataElement.evaluation.progression,
+            randomTestDataElement.evaluation.evaluationId,
+            participant.user,
+            fusionProject1.id
+        )
+        const answerText = 'IntegrationTest Answer' + randomParticipantThatCanWrite.role
+        evaluationPage.writeAnswer(questionNo, answerText)
+        new SaveIndicator().assertState(SavingState.Saved)
+        cy.testCacheAndDB(() => {
+            evaluationPage.progressionStepLink(randomTestDataElement.evaluation.progression).click()
+            evaluationPage.assertAnswerText(questionNo, answerText)
+        }, fusionProject1.id)
     })
 })
