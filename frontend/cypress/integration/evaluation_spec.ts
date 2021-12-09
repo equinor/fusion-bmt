@@ -15,7 +15,7 @@ let seed: EvaluationSeed
 describe('Evaluation management', () => {
     const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
         let seed = new EvaluationSeed({
-            progression: faker.random.arrayElement(Object.values(Progression).filter(p => p!== Progression.Finished)),
+            progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
             users: [creator, otherUser],
             roles,
             namePrefix: prefix,
@@ -42,8 +42,8 @@ describe('Evaluation management', () => {
             { withPreviousEvaluation: true, projectCategory: 'CircleField' },
         ]
 
-        testdata.forEach(t => {
-            it(`Create evaluation ${t.withPreviousEvaluation ? 'with' : 'without'} previous evaluation, 
+        /*testdata.forEach(t => {
+            it(`Create evaluation ${t.withPreviousEvaluation ? 'with' : 'without'} previous evaluation,
             and verify only questions in selected project category ${t.projectCategory} are present
             and verify questions are numbered sequentially globally across the barriers`, () => {
                 const name = evaluationName({ prefix: 'evaluation' })
@@ -92,7 +92,7 @@ describe('Evaluation management', () => {
                     })
                 })
             })
-        })
+        })*/
     })
 
     context('Progressing an Evaluation', () => {
@@ -135,7 +135,9 @@ describe('Evaluation management', () => {
             seed.plant()
         })
         const randomProgression = faker.random.arrayElement(
-            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.Individual && p!== Progression.Finished)
+            Object.values(Progression).filter(
+                p => p !== Progression.Nomination && p !== Progression.Individual && p !== Progression.Finished
+            )
         )
         const progIndex = Object.values(Progression).indexOf(randomProgression)
         const previousProgression = Object.values(Progression)[progIndex - 1]
@@ -146,7 +148,7 @@ describe('Evaluation management', () => {
         })
 
         const randomProgressionThatHasCompleteToggle = faker.random.arrayElement(
-            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.FollowUp && p!== Progression.Finished)
+            Object.values(Progression).filter(p => p !== Progression.Nomination && p !== Progression.FollowUp && p !== Progression.Finished)
         )
         it(`Complete and undo complete on progression ${randomProgressionThatHasCompleteToggle}`, () => {
             progressEvaluation(seed.evaluationId, randomProgressionThatHasCompleteToggle)

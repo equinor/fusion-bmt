@@ -9,15 +9,18 @@ import { Evaluation } from '../../../../api/models'
 import { EVALUATION_FIELDS_FRAGMENT } from '../../../../api/fragments'
 import CreateEvaluationDialog from './CreateEvaluationDialog'
 import { useEffectNotOnMount } from '../../../../utils/hooks'
+import { useCurrentUser } from '@equinor/fusion'
 
 interface CreateEvaluationButtonProps {
     projectId: string
 }
 
 const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
+    const currentUser = useCurrentUser()
     const project = useProject()
     const [showDialog, setShowDialog] = useState<boolean>(false)
     const { createEvaluation, loading: creatingEvaluation, evaluation, error: createEvaluationError } = useCreateEvaluationMutation()
+    const canCreateEvaluation = currentUser && currentUser.roles.includes('Role.Facilitator')
 
     useEffectNotOnMount(() => {
         if (!creatingEvaluation && evaluation !== undefined) {
@@ -40,10 +43,11 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     if (evaluation === undefined) {
         return (
             <>
-                <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
-                    Create evaluation
-                </Button>
-
+                {canCreateEvaluation && (
+                    <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
+                        Create evaluation
+                    </Button>
+                )}
                 {showDialog && (
                     <CreateEvaluationDialog
                         open={showDialog}
