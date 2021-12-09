@@ -202,15 +202,13 @@ describe('Landing page', () => {
                 cy.contains('Portfolios').click()
                 portfolios.forEach(p => {
                     cy.contains(p.portfolio).click()
-                    cy.getByDataTestid('project-master-title' + p.projectMasterTitle.replace(/ /g, '')).should(
-                        'have.text',
-                        p.projectMasterTitle
-                    )
+                    cy.contains(p.projectMasterTitle).click()
                     evaluationsByPortfolio.forEach(e => {
-                        e.portfolio === p.portfolio && e.eval.status !== Status.Voided
+                        e.portfolio === p.portfolio && e.title === p.projectMasterTitle && e.eval.status !== Status.Voided
                             ? cy.contains('div', p.portfolio).contains('p', e.eval.name).should('exist')
                             : cy.contains('div', p.portfolio).contains('p', e.eval.name).should('not.exist')
                     })
+                    cy.contains(p.projectMasterTitle).click()
                     cy.contains(p.portfolio).click()
                 })
             })
