@@ -50,21 +50,41 @@ describe('User management', () => {
                     deleteUserBtn(p, seed.participants, e.deleteUserBtn)
                 })
             })
+        })
+    })
 
-            it('TODO: A participant that is added is part of the evaluation', () => {
-                // To be added
-            })
+    describe('Adding and deleting users', () => {
+        let seed: EvaluationSeed
+        let participant: Participant
+        before(() => {
+            seed = createSeed(progression)
+            seed.plant()
+            participant = seed.participants.find(p => p.role === roleThatCanAddParticipant)!
+        })
+        const roleThatCanAddParticipant = faker.random.arrayElement([Role.Facilitator, Role.OrganizationLead])
+        let progression: Progression
+        roleThatCanAddParticipant === Role.OrganizationLead
+            ? (progression = Progression.Individual)
+            : (progression = faker.random.arrayElement([
+                  Progression.Individual,
+                  Progression.Preparation,
+                  Progression.Workshop,
+                  Progression.FollowUp,
+              ]))
+        it(`${roleThatCanAddParticipant} on progression ${progression} adds a participant to the evaluation
+        refreshes the application and verifies that the particpant was added to the evaluation`, () => {
+            cy.visitProgression(progression, seed.evaluationId, participant.user, fusionProject1.id)
+        })
 
-            it('A participant that is deleted is no longer part of evaluation', () => {
-                const role = faker.random.arrayElement([Role.Facilitator, Role.OrganizationLead])
-                const p = findRandomParticipant(seed, role)
-                cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
-                const userToDelete = findRandomParticipant(seed, Role.Participant)
-                nominationPage.deletePersonDiv(userToDelete.user).click()
-                cy.visitEvaluation(seed.evaluationId, p.user, fusionProject1.id)
-                nominationPage.assertParticipantPresent(p.user)
-                nominationPage.assertParticipantAbsent(userToDelete.user)
-            })
+        it(`${roleThatCanAddParticipant} on an evaluation in progression ${progression}
+        deletes a participant,
+        then refreshes application and verifies participant is deleted`, () => {
+            cy.visitProgression(Progression.Nomination, seed.evaluationId, participant.user, fusionProject1.id)
+            const userToDelete = findRandomParticipant(seed, Role.Participant)
+            nominationPage.deletePersonDiv(userToDelete.user).click()
+            cy.visitProgression(Progression.Nomination, seed.evaluationId, participant.user, fusionProject1.id)
+            nominationPage.assertParticipantPresent(participant.user)
+            nominationPage.assertParticipantAbsent(userToDelete.user)
         })
     })
 
