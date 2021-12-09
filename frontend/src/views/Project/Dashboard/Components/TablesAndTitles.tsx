@@ -1,4 +1,4 @@
-import { Typography } from '@equinor/eds-core-react'
+import { Accordion } from '@equinor/eds-core-react'
 import { EvaluationsByProjectMaster } from '../../../../utils/hooks'
 import EvaluationsTable from './EvaluationsTable'
 
@@ -9,20 +9,18 @@ interface Props {
 const TablesAndTitles = ({ evaluationsWithProjectMasterTitle }: Props) => {
     return (
         <>
-            {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
-                return (
-                    <div key={index}>
-                        <Typography
-                            variant={'h2'}
-                            style={{ marginBottom: '7px', marginTop: '15px' }}
-                            data-testid={'project-master-title' + projectMasterTitle.replace(/ /g, '')}
-                        >
-                            {projectMasterTitle}
-                        </Typography>
-                        <EvaluationsTable evaluations={evaluations} />
-                    </div>
-                )
-            })}
+            <Accordion headerLevel="h2">
+                {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
+                    return (
+                        <Accordion.Item key={index}>
+                            <Accordion.Header>{projectMasterTitle}</Accordion.Header>
+                            <Accordion.Panel>
+                                <EvaluationsTable evaluations={evaluations} />
+                            </Accordion.Panel>
+                        </Accordion.Item>
+                    )
+                })}
+            </Accordion>
         </>
     )
 }
