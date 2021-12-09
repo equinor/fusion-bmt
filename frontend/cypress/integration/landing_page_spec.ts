@@ -1,10 +1,10 @@
 import * as faker from 'faker'
 import { Progression, Role, Status } from '../../src/api/models'
 import { EvaluationSeed } from '../support/testsetup/evaluation_seed'
-import { getUsers, User } from '../support/mock/external/users'
+import { getUsers } from '../support/mock/external/users'
 import { EvaluationPage } from '../page_objects/evaluation'
-import { fusionProject1, fusionProject4, fusionProject8, fusionProjects } from '../support/mock/external/projects'
-import { findProjectMasterForProject, projectMasters } from '../support/mock/external/projectMaster'
+import { fusionProject1, fusionProject4, fusionProject8 } from '../support/mock/external/projects'
+import { projectMasters } from '../support/mock/external/projectMaster'
 import { ActionTable } from '../page_objects/action-table'
 import { EditActionDialog, editAction } from '../page_objects/action'
 import { Note } from '../support/testsetup/mocks'
@@ -134,27 +134,9 @@ describe('Landing page', () => {
         beforeEach('Log in as user', () => {
             cy.visitProject(user, fusionProject1.id)
         })
-        context('My evaluations are listed regardless of status and project', () => {
-            it(`All evaluations of user are listed under my evaluations - irrespective of status and project`, () => {
-                cy.get(`[data-testid=project-table]`).within(() => {
-                    evaluations.forEach(t => {
-                        const evalName = t.evaluation.name
-                        t.mine ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
-                    })
-                })
-            })
-
-            it('User can open own evaluation of selected project', () => {
-                const myEvalName = myActiveEvaluationInProject.name
-                cy.contains(myEvalName).click()
-                const evaluationPage = new EvaluationPage()
-                evaluationPage.progressionStepLink(myActiveEvaluationInProject.progression).should('be.visible')
-            })
-        })
 
         context('Project evaluations (only active evaluation of selected project are listed)', () => {
             it('Only active evaluations in selected project are listed under Project evaluations', () => {
-                cy.contains('Project evaluations').click()
                 cy.get(`[data-testid=project-table]`).within(() => {
                     evaluations.forEach(t => {
                         const evalName = t.evaluation.name
@@ -169,6 +151,25 @@ describe('Landing page', () => {
                 cy.contains(notMyEvalName).click()
                 const evaluationPage = new EvaluationPage()
                 evaluationPage.progressionStepLink(notMyActiveEvaluationInProject.progression).should('be.visible')
+            })
+        })
+
+        context('My evaluations are listed regardless of status and project', () => {
+            it(`All evaluations of user are listed under my evaluations - irrespective of status and project`, () => {
+                cy.contains('My evaluations').click()
+                cy.get(`[data-testid=project-table]`).within(() => {
+                    evaluations.forEach(t => {
+                        const evalName = t.evaluation.name
+                        t.mine ? cy.contains(evalName).should('exist') : cy.contains(evalName).should('not.exist')
+                    })
+                })
+            })
+
+            it('User can open own evaluation of selected project', () => {
+                const myEvalName = myActiveEvaluationInProject.name
+                cy.contains(myEvalName).click()
+                const evaluationPage = new EvaluationPage()
+                evaluationPage.progressionStepLink(myActiveEvaluationInProject.progression).should('be.visible')
             })
         })
 
@@ -252,7 +253,7 @@ describe('Landing page', () => {
             })
 
             it(`Verify user can edit his own actions
-            verify existing title, assignedTo, dueDate, description, priority, notes, 
+            verify existing title, assignedTo, dueDate, description, priority, notes,
             then revise above fields except assignedTo and add note
             then verify revisions were saved`, () => {
                 cy.get('button').contains('Actions').click()
