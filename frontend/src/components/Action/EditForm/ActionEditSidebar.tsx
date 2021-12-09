@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
-import { TextArea, ModalSideSheet } from '@equinor/fusion-components'
+import { ModalSideSheet } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
 
 import { Action, ClosingRemark, Note, Participant, Question } from '../../../api/models'
 import ActionEditForm from './ActionEditForm'
 import SaveIndicator from '../../SaveIndicator'
 import { SavingState } from '../../../utils/Variables'
-import { useAllPersonDetailsAsync, useEffectNotOnMount } from '../../../utils/hooks'
+import { useAllPersonDetailsAsync, useEffectNotOnMount, useSavingStateCheck } from '../../../utils/hooks'
 import NotesAndClosingRemarksList from './NotesAndClosingRemarksList'
 import NoteCreateForm from './NoteCreateForm'
 import { useParticipant } from '../../../globals/contexts'
-import { deriveNewSavingState } from '../../../views/helpers'
 import { disableActionEdit } from '../../../utils/disableComponents'
 import { ApolloError } from '@apollo/client'
 
@@ -59,7 +58,7 @@ const ActionEditSidebar = ({
     const { personDetailsList, isLoading: isLoadingPersonDetails } = useAllPersonDetailsAsync(
         possibleAssignees.map(assignee => assignee.azureUniqueId)
     )
-    const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
+    const { savingState, setSavingState } = useSavingStateCheck(isActionSaving, apiErrorAction !== undefined)
     const [delayedAction, setDelayedAction] = useState<Action | undefined>(undefined)
     const notesAndClosingRemarks: (Note | ClosingRemark)[] = action.notes.map(note => note)
 
@@ -70,16 +69,6 @@ const ActionEditSidebar = ({
             notesAndClosingRemarks.push(closingRemark)
         })
     }
-
-    useEffect(() => {
-        setSavingState(deriveNewSavingState(isActionSaving, savingState))
-    }, [isActionSaving])
-
-    useEffect(() => {
-        if (apiErrorAction !== undefined) {
-            setSavingState(SavingState.NotSaved)
-        }
-    }, [apiErrorAction])
 
     const onEditWithoutDelay = (action: Action, isValid: boolean) => {
         if (isValid) {

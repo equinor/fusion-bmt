@@ -1,7 +1,7 @@
 import React from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
-import { ApplicationGuidanceAnchor, ErrorMessage, TextArea } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor, ErrorMessage } from '@equinor/fusion-components'
 import { Button, CircularProgress, Icon, Tooltip } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
 import { useCurrentUser } from '@equinor/fusion'
@@ -14,13 +14,12 @@ import {
     participantCanHideEvaluation,
     participantCanProgressEvaluation,
 } from '../../../utils/RoleBasedAccess'
-import { apiErrorMessage } from '../../../api/error'
 import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useParticipant } from '../../../globals/contexts'
 import { disableProgression } from '../../../utils/disableComponents'
 import SaveIndicator from '../../../components/SaveIndicator'
 import { genericErrorMessage, SavingState } from '../../../utils/Variables'
-import { useEffectNotOnMount } from '../../../utils/hooks'
+import { useEffectNotOnMount, useShowErrorHook } from '../../../utils/hooks'
 import { centered } from '../../../utils/styles'
 import ErrorBanner from '../../../components/ErrorBanner'
 
@@ -39,7 +38,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 
     const [panelOpen, setPanelOpen] = React.useState(false)
     const [statusSavingState, setStatusSavingState] = React.useState(SavingState.None)
-    const [showErrorMessage, setShowErrorMessage] = React.useState<boolean>(false)
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(error)
 
     const viewProgression = Progression.Nomination
     const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
@@ -55,12 +54,6 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
             }, 2000)
         }
     }, [loading])
-
-    useEffectNotOnMount(() => {
-        if (error !== undefined) {
-            setShowErrorMessage(true)
-        }
-    }, [error])
 
     useEffectNotOnMount(() => {
         if (error) {

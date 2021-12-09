@@ -13,8 +13,8 @@ import { ProjectCategory, QuestionTemplate } from '../../../../api/models'
 import { organizationToString } from '../../../../utils/EnumToString'
 import SaveIndicator from '../../../../components/SaveIndicator'
 import { genericErrorMessage, SavingState } from '../../../../utils/Variables'
-import { deriveNewSavingState, getNextNextQuestion, getNextQuestion, getPrevQuestion } from '../../../helpers'
-import { useEffectNotOnMount } from '../../../../utils/hooks'
+import { getNextNextQuestion, getNextQuestion, getPrevQuestion } from '../../../helpers'
+import { useEffectNotOnMount, useSavingStateCheck } from '../../../../utils/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
 import QuestionTemplateButtons from './QuestionTemplateButtons'
 import ErrorBanner from '../../../../components/ErrorBanner'
@@ -74,7 +74,6 @@ const StaticQuestionItem = ({
     setIsAddingQuestion,
     questionToScrollIntoView,
 }: Props) => {
-    const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
     const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
     const [reorderUpClicked, setReorderUpClicked] = useState<boolean>(false)
     const [reorderDownClicked, setReorderDownClicked] = useState<boolean>(false)
@@ -108,6 +107,11 @@ const StaticQuestionItem = ({
         loading: reorderingQuestionTemplate,
         error: reorderingQuestionTemplateError,
     } = useReorderQuestionTemplateMutation()
+
+    const { savingState } = useSavingStateCheck(
+        addingToProjectCategory || removingFromProjectCategory,
+        addingToProjectCategoryError !== undefined || removingFromProjectCategoryError !== undefined
+    )
 
     useEffectNotOnMount(() => {
         if (addingToProjectCategoryError !== undefined) {
@@ -154,14 +158,6 @@ const StaticQuestionItem = ({
             setReorderDownClicked(false)
         }
     }, [reorderingQuestionTemplate])
-
-    useEffectNotOnMount(() => {
-        setSavingState(deriveNewSavingState(addingToProjectCategory, savingState, addingToProjectCategoryError !== undefined))
-    }, [addingToProjectCategory])
-
-    useEffectNotOnMount(() => {
-        setSavingState(deriveNewSavingState(removingFromProjectCategory, savingState, removingFromProjectCategoryError !== undefined))
-    }, [removingFromProjectCategory])
 
     useEffectNotOnMount(() => {
         if (deletingQuestionTemplateError !== undefined) {

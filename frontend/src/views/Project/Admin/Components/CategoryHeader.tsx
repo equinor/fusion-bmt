@@ -7,7 +7,7 @@ import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add, delete_to_trash } from '@equinor/eds-icons'
 
 import { ProjectCategory } from '../../../../api/models'
-import { useEffectNotOnMount } from '../../../../utils/hooks'
+import { useEffectNotOnMount, useShowErrorHook } from '../../../../utils/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
 import CreateProjectCategorySidebar from './CreateProjectCategorySidebar'
 import { genericErrorMessage } from '../../../../utils/Variables'
@@ -30,13 +30,14 @@ const CategoryHeader = ({
 }: Props) => {
     const [isInCreateProjectCategoryMode, setIsInCreateProjectCategoryMode] = useState<boolean>(false)
     const [isInConfirmDeleteMode, setIsInConfirmDeleteMode] = useState<boolean>(false)
-    const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false)
 
     const {
         deleteProjectCategory,
         loading: deletingProjectCategory,
         error: deletingProjectCategoryError,
     } = useDeleteProjectCategoryMutation()
+
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(deletingProjectCategoryError)
 
     useEffectNotOnMount(() => {
         if (!deletingProjectCategory) {
@@ -47,12 +48,6 @@ const CategoryHeader = ({
             }
         }
     }, [deletingProjectCategory])
-
-    useEffectNotOnMount(() => {
-        if (deletingProjectCategoryError !== undefined) {
-            setShowErrorMessage(true)
-        }
-    }, [deletingProjectCategoryError])
 
     const projectCategoryOptions: SearchableDropdownOption[] = [
         {

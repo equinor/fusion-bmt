@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { Answer, Progression, Question, Severity } from '../../api/models'
 import QuestionAndAnswerForm from './QuestionAndAnswerForm'
-import { genericErrorMessage, SavingState } from '../../utils/Variables'
-import { useEffectNotOnMount, useShowErrorHook } from '../../utils/hooks'
+import { genericErrorMessage } from '../../utils/Variables'
+import { useEffectNotOnMount, useSavingStateCheck, useShowErrorHook } from '../../utils/hooks'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { ANSWER_FIELDS_FRAGMENT, QUESTION_ANSWERS_FRAGMENT } from '../../api/fragments'
-import { deriveNewSavingState } from '../../views/helpers'
 import ErrorBanner from '../ErrorBanner'
 
 interface QuestionAndAnswerFormWithApiProps {
@@ -30,14 +29,10 @@ const QuestionAndAnswerFormWithApi = ({ question, answer, disabled, viewProgress
     }
 
     const { setAnswer, loading, error: errorSettingAnswer } = useSetAnswerMutation()
-    const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
+    const { savingState } = useSavingStateCheck(loading, errorSettingAnswer !== undefined)
     const [localAnswerText, setLocalAnswerText] = useState<string>(answer && answer.text ? answer.text : '')
     const [localSeverity, setLocalSeverity] = useState<Severity>(answer && answer.severity ? answer.severity : Severity.Na)
     const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(errorSettingAnswer)
-
-    useEffect(() => {
-        setSavingState(deriveNewSavingState(loading, savingState))
-    }, [loading])
 
     useEffectNotOnMount(() => {
         const timeout = setTimeout(() => {

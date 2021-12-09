@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
-import { Box, Grid } from '@material-ui/core'
+import { Box } from '@material-ui/core'
 import { ApolloError } from '@apollo/client'
 
 import { Barrier, Organization, QuestionTemplate } from '../../../../api/models'
 import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
 import { getOrganizationOptionsForDropdown } from '../../../helpers'
-import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
+import { useShowErrorHook, useValidityCheck } from '../../../../utils/hooks'
 import { DataToCreateQuestionTemplate } from '../AdminView'
 import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
 import ErrorBanner from '../../../../components/ErrorBanner'
@@ -35,13 +35,7 @@ const CreateQuestionItem = ({
     const [text, setText] = React.useState<string>(questionTemplateToCopy?.text || '')
     const [organization, setOrganization] = React.useState<Organization>(questionTemplateToCopy?.organization || Organization.All)
     const [supportNotes, setSupportNotes] = React.useState<string>(questionTemplateToCopy?.supportNotes || '')
-    const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false)
-
-    useEffectNotOnMount(() => {
-        if (saveError !== undefined) {
-            setShowErrorMessage(true)
-        }
-    }, [saveError])
+    const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(saveError)
 
     const isTextfieldValid = () => {
         return text.length > 0

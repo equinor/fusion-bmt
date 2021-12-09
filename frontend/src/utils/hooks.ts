@@ -220,15 +220,11 @@ export const useShowErrorHook = (error: ApolloError | undefined) => {
     return { showErrorMessage, setShowErrorMessage }
 }
 
-export const useSavingStateCheck = <Type>(isLoading: boolean, hasError: boolean, doWhenLoadingFinishes: () => void) => {
+export const useSavingStateCheck = (isLoading: boolean, hasError: boolean) => {
     const [savingState, setSavingState] = useState<SavingState>(SavingState.None)
 
     useEffectNotOnMount(() => {
         setSavingState(deriveNewSavingState(isLoading, savingState))
-
-        if (!isLoading && !hasError) {
-            doWhenLoadingFinishes()
-        }
     }, [isLoading])
 
     useEffect(() => {
@@ -237,5 +233,5 @@ export const useSavingStateCheck = <Type>(isLoading: boolean, hasError: boolean,
         }
     }, [hasError])
 
-    return { savingState }
+    return { savingState, setSavingState }
 }
