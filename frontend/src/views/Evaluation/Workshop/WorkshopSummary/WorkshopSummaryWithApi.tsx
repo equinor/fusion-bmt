@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 
 import { Evaluation } from '../../../../api/models'
-import { useEffectNotOnMount } from '../../../../utils/hooks'
+import { useEffectNotOnMount, useSavingStateCheck } from '../../../../utils/hooks'
 import { SavingState } from '../../../../utils/Variables'
-import { deriveNewSavingState } from '../../../helpers'
 import WorkshopSummary from './WorkshopSummary'
 
 const WRITE_DELAY_MS = 1000
@@ -16,17 +15,13 @@ interface WorkshopSummaryWithApiProps {
 
 const WorkshopSummaryWithApi = ({ evaluation, disable }: React.PropsWithChildren<WorkshopSummaryWithApiProps>) => {
     const [localSummary, setLocalSummary] = useState(evaluation.summary ?? '')
-    const [savingState, setSavingState] = useState(SavingState.None)
     const { setSummary, loading, error } = useSummaryMutation()
+    const { savingState, setSavingState } = useSavingStateCheck(loading, error !== undefined)
 
     const onChange = (value: string) => {
         setSavingState(SavingState.Saving)
         setLocalSummary(value)
     }
-
-    useEffect(() => {
-        setSavingState(deriveNewSavingState(loading, savingState, error !== undefined))
-    }, [loading])
 
     useEffectNotOnMount(() => {
         const timeout = setTimeout(() => {
