@@ -27,8 +27,8 @@ const StyledChip = styled(Chip)`
 `
 
 enum TableSelection {
-    User = 'USER',
     Project = 'PROJECT',
+    User = 'USER',
     Hidden = 'HIDDEN',
     Portfolio = 'PORTFOLIO',
 }
@@ -69,7 +69,7 @@ const DashboardView = ({ project }: Props) => {
         return <p>Please log in.</p>
     }
 
-    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.User)
+    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Project)
     const userIsAdmin = currentUser && currentUser.roles.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
