@@ -36,7 +36,7 @@ describe('Evaluation management', () => {
             previousEvaluation.plant()
         })
         usersAndAccessITRoles.forEach(u => {
-            it(`User with AccessIT role ${
+            it(`User ${
                 u.roles.includes('Role.Facilitator')
                     ? 'with AccessIT role ' + u.roles + ' can'
                     : 'without AccessIT role Role.Facilitator cannot'
@@ -50,17 +50,17 @@ describe('Evaluation management', () => {
         })
 
         const testdata = [
-            { withPreviousEvaluation: false, projectCategory: 'SquareField', user: userFacilitator },
-            { withPreviousEvaluation: true, projectCategory: 'CircleField', user: userFacilitator },
+            { withPreviousEvaluation: false, projectCategory: 'SquareField' },
+            { withPreviousEvaluation: true, projectCategory: 'CircleField' },
         ]
 
         testdata.forEach(t => {
-            it(`User with AccessIT roles ${t.user.roles} creates evaluation ${
+            it(`User with AccessIT roles ${userFacilitator.roles} creates evaluation ${
                 t.withPreviousEvaluation ? 'with' : 'without'
             } previous evaluation,
             and verify only questions in selected project category ${t.projectCategory} are present
             and verify questions are numbered sequentially globally across the barriers`, () => {
-                cy.visitProject(t.user, fusionProject1.id)
+                cy.visitProject(userFacilitator, fusionProject1.id)
                 const name = evaluationName({ prefix: 'evaluation' })
 
                 const projectPage = new ProjectPage()
@@ -80,7 +80,7 @@ describe('Evaluation management', () => {
                             expectedTemplates.length
                         )
                     })
-                    cy.visitProgression(Progression.Individual, currentEvaluation.id, t.user, fusionProject1.id)
+                    cy.visitProgression(Progression.Individual, currentEvaluation.id, userFacilitator, fusionProject1.id)
                     cy.contains('Questionaire')
                     const evaluationPage = new EvaluationPage()
                     let questionCounter = 0

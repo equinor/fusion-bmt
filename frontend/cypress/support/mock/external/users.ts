@@ -106,11 +106,11 @@ export function getUserWithAdminRole(): User {
 }
 
 export function getUserWithFacilitatorRole(): User {
-    const adminUser = users.find(u => u.roles.includes('Role.Facilitator'))
-    if (adminUser === undefined) {
+    const facilitatorUser = users.find(u => u.roles.includes('Role.Facilitator'))
+    if (facilitatorUser === undefined) {
         throw new Error('Could not find user with facilitator role')
     }
-    return adminUser
+    return facilitatorUser
 }
 
 export function getUserWithNoRoles(): User {
