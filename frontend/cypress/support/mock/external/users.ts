@@ -1,3 +1,4 @@
+import { urlGetAbsoluteUrl } from '@microsoft/applicationinsights-common'
 import * as faker from 'faker'
 
 const Type = {
@@ -83,6 +84,7 @@ const unknown1 = new User({
     username: 'raccoon',
     type: Type.UNKNOWN,
     jobTitle: 'Secret Agent 🦝',
+    roles: ['Role.Facilitator'],
 })
 const local1 = new User({
     id: '666',
@@ -101,6 +103,22 @@ export function getUserWithAdminRole(): User {
         throw new Error('Could not find user with admin role')
     }
     return adminUser
+}
+
+export function getUserWithFacilitatorRole(): User {
+    const facilitatorUser = users.find(u => u.roles.includes('Role.Facilitator'))
+    if (facilitatorUser === undefined) {
+        throw new Error('Could not find user with facilitator role')
+    }
+    return facilitatorUser
+}
+
+export function getUserWithNoRoles(): User {
+    const noRoleUser = users.find(u => !u.roles.includes('Role.Admin') && !u.roles.includes('Role.Facilitator'))
+    if (noRoleUser === undefined) {
+        throw new Error('Could not find user with no roles')
+    }
+    return noRoleUser
 }
 
 export function getUserWithNoAdminRole(): User {

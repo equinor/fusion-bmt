@@ -75,7 +75,7 @@
                         "givenName": "Raccoon",
                         "name": "Trashy Raccoon",
                         "oid": "555",
-                        "roles": ["Role.User"],
+                        "roles": ["Role.Facilitator"],
                         "tid": "common",
                         "upn": "raccoon",
                         "ver": "1.0"

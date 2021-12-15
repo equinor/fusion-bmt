@@ -3,7 +3,7 @@ import { EvaluationSeed, evaluation, activeQuestionTemplates, progressEvaluation
 import { evaluationName } from '../support/helpers/helpers'
 import NominationPage from '../page_objects/nomination'
 import ProjectPage from '../page_objects/project'
-import { getUsers, users, User } from '../support/mock/external/users'
+import { getUsers, users, User, getUserWithFacilitatorRole, getUserWithAdminRole, getUserWithNoRoles } from '../support/mock/external/users'
 import * as faker from 'faker'
 import { Barrier, EvaluationPage } from '../page_objects/evaluation'
 import { ConfirmationDialog } from '../page_objects/common'
@@ -13,10 +13,10 @@ import { PROGRESS_EVALUATION } from '../support/testsetup/gql'
 const evaluationPage = new EvaluationPage()
 let seed: EvaluationSeed
 describe('Evaluation management', () => {
-    const createEvaluation = (creator: User, otherUser: User, roles: Role[], prefix: string) => {
+    const createEvaluation = (users: User[], roles: Role[], prefix: string) => {
         let seed = new EvaluationSeed({
             progression: faker.random.arrayElement(Object.values(Progression).filter(p => p !== Progression.Finished)),
-            users: [creator, otherUser],
+            users,
             roles,
             namePrefix: prefix,
             fusionProjectId: fusionProject1.id,
@@ -25,16 +25,28 @@ describe('Evaluation management', () => {
     }
 
     context('Creating a new Evaluation', () => {
-        const user = users[2]
-        const roles = [Role.Facilitator, Role.Participant]
-        const previousEvaluation = createEvaluation(user, users[0], roles, 'previous evaluation')
+        const userFacilitator = getUserWithFacilitatorRole()
+        const userNoRoles = getUserWithNoRoles()
+
+        const usersAndAccessITRoles = [userNoRoles, userFacilitator]
+        const roles = [Role.Facilitator, Role.Facilitator]
+        const previousEvaluation = createEvaluation(usersAndAccessITRoles, roles, 'previous evaluation')
 
         before(() => {
             previousEvaluation.plant()
         })
-
-        beforeEach(() => {
-            cy.visitProject(user, fusionProject1.id)
+        usersAndAccessITRoles.forEach(u => {
+            it(`User ${
+                u.roles.includes('Role.Facilitator')
+                    ? 'with AccessIT role ' + u.roles + ' can'
+                    : 'without AccessIT role Role.Facilitator cannot'
+            } create an evaluation`, () => {
+                cy.visitProject(u, fusionProject1.id)
+                const projectPage = new ProjectPage()
+                u.roles.includes('Role.Facilitator')
+                    ? projectPage.createEvaluationButton().should('exist')
+                    : projectPage.createEvaluationButton().should('not.exist')
+            })
         })
 
         const testdata = [
@@ -42,10 +54,13 @@ describe('Evaluation management', () => {
             { withPreviousEvaluation: true, projectCategory: 'CircleField' },
         ]
 
-        /*testdata.forEach(t => {
-            it(`Create evaluation ${t.withPreviousEvaluation ? 'with' : 'without'} previous evaluation,
+        testdata.forEach(t => {
+            it(`User with AccessIT roles ${userFacilitator.roles} creates evaluation ${
+                t.withPreviousEvaluation ? 'with' : 'without'
+            } previous evaluation,
             and verify only questions in selected project category ${t.projectCategory} are present
             and verify questions are numbered sequentially globally across the barriers`, () => {
+                cy.visitProject(userFacilitator, fusionProject1.id)
                 const name = evaluationName({ prefix: 'evaluation' })
 
                 const projectPage = new ProjectPage()
@@ -65,7 +80,7 @@ describe('Evaluation management', () => {
                             expectedTemplates.length
                         )
                     })
-                    cy.visitProgression(Progression.Individual, currentEvaluation.id, user, fusionProject1.id)
+                    cy.visitProgression(Progression.Individual, currentEvaluation.id, userFacilitator, fusionProject1.id)
                     cy.contains('Questionaire')
                     const evaluationPage = new EvaluationPage()
                     let questionCounter = 0
@@ -92,7 +107,7 @@ describe('Evaluation management', () => {
                     })
                 })
             })
-        })*/
+        })
     })
 
     context('Progressing an Evaluation', () => {
