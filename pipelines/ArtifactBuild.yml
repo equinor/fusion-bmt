@@ -14,7 +14,7 @@ pool:
 variables:
     - name: radixJobName
       value: ""
-
+    - group: FusionVariables
 stages:
     - template: templates/stage-build.yml
       parameters:
