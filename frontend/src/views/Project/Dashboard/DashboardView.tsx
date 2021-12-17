@@ -110,8 +110,11 @@ const DashboardView = ({ project }: Props) => {
                 <ApplicationGuidanceAnchor anchor={'dashboard-create-evaluations-button'} scope="bmt">
                     <CreateEvaluationButton projectId={project.id} />
                 </ApplicationGuidanceAnchor>
-                <Typography link href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/System-design.aspx">
-                    Project Development Centre
+                <Typography
+                    link
+                    href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"
+                >
+                    Order a BMT evaluation through PDC
                 </Typography>
             </div>
             <Box marginY={2}>
