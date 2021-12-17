@@ -106,9 +106,14 @@ const DashboardView = ({ project }: Props) => {
 
     return (
         <div style={{ margin: 20 }}>
-            <ApplicationGuidanceAnchor anchor={'dashboard-create-evaluations-button'} scope="bmt">
-                <CreateEvaluationButton projectId={project.id} />
-            </ApplicationGuidanceAnchor>
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <ApplicationGuidanceAnchor anchor={'dashboard-create-evaluations-button'} scope="bmt">
+                    <CreateEvaluationButton projectId={project.id} />
+                </ApplicationGuidanceAnchor>
+                <Typography link href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/System-design.aspx">
+                    Project Development Centre
+                </Typography>
+            </div>
             <Box marginY={2}>
                 <Typography variant="h2">Evaluations</Typography>
             </Box>

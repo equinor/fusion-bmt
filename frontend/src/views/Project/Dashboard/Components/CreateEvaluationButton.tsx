@@ -44,9 +44,11 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
         return (
             <>
                 {canCreateEvaluation && (
-                    <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
-                        Create evaluation
-                    </Button>
+                    <div style={{ marginRight: 20 }}>
+                        <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
+                            Create evaluation
+                        </Button>
+                    </div>
                 )}
                 {showDialog && (
                     <CreateEvaluationDialog
