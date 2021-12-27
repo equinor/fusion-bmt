@@ -6,6 +6,10 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+- group: bmt-key-vault
+- group: bmt-variables
+
 jobs:
   - job: 'Deploy_Fusion_BMT'
     steps:
@@ -66,5 +70,5 @@ jobs:
         inputs:
           command: 'custom'
           custom: 'ef'
-          arguments: 'database update --connection $(DBCONTEXT) --verbose'
+          arguments: 'database update --connection $(dbContextQa) --verbose'
           workingDirectory: 'backend/api'
