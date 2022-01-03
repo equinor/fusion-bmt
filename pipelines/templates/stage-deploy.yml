@@ -155,5 +155,5 @@ stages:
                   inputs:
                       command: "custom"
                       custom: "ef"
-                      arguments: "database update --connection ${{ parameters.DBContext }} --verbose"
+                      arguments: "database update --connection \"${{ parameters.DBContext }}\" --verbose"
                       workingDirectory: "$(Build.SourcesDirectory)/backend/api"
