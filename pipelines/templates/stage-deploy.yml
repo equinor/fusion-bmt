@@ -87,10 +87,7 @@ stages:
                       script: |
                           $url = "https://api.radix.equinor.com/api/v1/applications/fusion-bmt/pipelines/build-deploy"
 
-                          $requestdata = @{
-                              Uri     = "https://api.radix.equinor.com/api/v1/applications/fusion-bmt/pipelines/build-deploy"
-                              Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
-                          }
+                          $Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
 
                           $body = @'
                           {"branch":"${{ parameters.branch }}",
@@ -98,7 +95,7 @@ stages:
                           }
                           '@
 
-                          $result = Invoke-RestMethod -Uri $url -Headers $requestdata.Headers -Body $body -Method Post                          
+                          $result = Invoke-RestMethod -Uri $url -Headers $Headers -Body $body -Method Post                          
                           $pipelineName = $result.name
                           Write-Host $pipelineName
                           Write-Host "##vso[task.setvariable variable=radixJobName;]$pipelineName"
@@ -110,10 +107,7 @@ stages:
                       script: |
                           $url = 'https://api.radix.equinor.com/api/v1/applications/fusion-bmt/jobs/$(radixJobName)'
 
-                          $body = @{
-                              Uri     = 'https://api.radix.equinor.com/api/v1/applications/fusion-bmt/jobs/$(radixJobName)'
-                              Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
-                          }
+                          $Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
 
                           $TimeoutAfter = New-TimeSpan -Minutes 60
                           $WaitBetweenPolling = New-TimeSpan -Seconds 10
@@ -122,15 +116,14 @@ stages:
                           $stepCounter = 0
                           do
                           {
-                              $result = Invoke-RestMethod -Uri $url -Headers $body.Headers 
-                              $steps = $result.steps |  where { $_.status -eq "Succeeded" } 
+                              $result = Invoke-RestMethod -Uri $url -Headers $Headers
+                              $steps = $result.steps |  where { $_.status -eq "Succeeded" }
                               if ($stepCounter -eq $steps.Length) {
 
                               } else {
                                   $stepCounter = $steps.Length
                                   Write-Host "Steps:" $steps.Length "of" $result.steps.length
                               }
-                              
                               Start-Sleep -Seconds $WaitBetweenPolling.Seconds
 
                           }
