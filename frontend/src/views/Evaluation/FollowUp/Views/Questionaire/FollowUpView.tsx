@@ -95,6 +95,7 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
     const boxPadding = 20
     const boxPaddingTopPlusBottom = boxPadding * 2
     const tabsPanelPadding = 16
+    const extraPixelToAvoidScrollbar = 1
 
     return (
         <>
@@ -113,7 +114,9 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
                         onScroll(selectedQuestion, tablistPositionBottom, barrierQuestions, onQuestionSummarySelected)
                     }}
                     style={{
-                        height: `calc(100vh - ${tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding}px)`,
+                        height: `calc(100vh - ${
+                            tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
+                        }px)`,
                         overflow: 'scroll',
                     }}
                 >
