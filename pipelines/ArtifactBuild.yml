@@ -12,9 +12,8 @@ pool:
     vmImage: "ubuntu-latest"
 
 variables:
-    - name: radixJobName
-      value: ""
-    - group: FusionVariables
+    - group: bmt-key-vault
+    - group: bmt-variables
 
 stages:
     - template: templates/stage-build.yml
@@ -22,7 +21,7 @@ stages:
           workSpace: $(Pipeline.Workspace)
           buildId: $(Build.BuildId)
           dt_tenant: $(dt_tenant)
-          dt_password: $(dt_password)
+          dt_password: $(dynatrace-prod-token)
           dt_url: $(dt_url)
           sourcesDirectory: $(Build.SourcesDirectory)
           name: "Build_applications"
@@ -33,7 +32,6 @@ stages:
           envshortname: ci
           envfullname: CI
           fusionToken: "$(tokenResource)"
-          fusionBundlePath: "$(Agent.BuildDirectory)/bmt.zip"
           portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
@@ -46,7 +44,6 @@ stages:
           envshortname: qa
           envfullname: QA
           fusionToken: "$(tokenResource)"
-          fusionBundlePath: "$(Agent.BuildDirectory)/bmt.zip"
           portalUrl: "https://pro-s-portal-fqa.azurewebsites.net/"
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
@@ -59,7 +56,6 @@ stages:
           envshortname: prod
           envfullname: Production
           fusionToken: "$(tokenResourceProd)"
-          fusionBundlePath: "$(Agent.BuildDirectory)/bmt.zip"
           portalUrl: "https://pro-s-portal-fprd.azurewebsites.net"
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)

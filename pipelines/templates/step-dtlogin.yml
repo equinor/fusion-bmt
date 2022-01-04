@@ -5,5 +5,5 @@ parameters:
 
 steps:
     - script: |
-          docker login -u $(dt_tenant) $(dt_url) --password $(dt_password)
+          echo ${{ parameters.dt_password }} | docker login -u ${{ parameters.dt_tenant }} ${{ parameters.dt_url }} --password-stdin
       displayName: "docker login dynatrace"

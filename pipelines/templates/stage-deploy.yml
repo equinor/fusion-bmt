@@ -3,7 +3,6 @@ parameters:
     - name: envshortname
     - name: envfullname
     - name: fusionToken
-    - name: fusionBundlePath
     - name: portalUrl
     - name: buildId
     - name: radixToken
@@ -29,19 +28,13 @@ stages:
                                   targetType: "inline"
                                   script: |
                                       $TokenUrl = "https://login.microsoftonline.com/3aa4a235-b6e2-48d5-9195-7fcf05b459b0/oauth2/v2.0/token"
-                                      $URL = "https://pro-s-portal-fqa.azurewebsites.net/api/apps/bmt/versions?api-version=1.0"
-                                      $categoryUrl = "https://pro-s-portal-fqa.azurewebsites.net/api/apps/categories?api-version=1.0"
-                                      $versionUrl = "https://pro-s-portal-fqa.azurewebsites.net/api/apps/bmt/versions/8eb37e3e-72d9-4751-bb2f-724dcc66c910"
-                                      $appUrl = "https://pro-s-portal-fqa.azurewebsites.net/api/apps/"
-                                      $configUrl = "https://pro-s-portal-fqa.azurewebsites.net/api/apps/bmt/config"
-                                      $publishUrl = "https://pro-s-portal-fqa.azurewebsites.net/api/apps/bmt/publish"
-                                      $ResultFilePath =  ${{ parameters.fusionBundlePath }}
-                                      $BmtCategoryName = "Safety"                                      
+                                      $URL = "${{ parameters.portalUrl }}/api/apps/bmt/versions?api-version=1.0"
+                                      $publishUrl = "${{ parameters.portalUrl }}/api/apps/bmt/publish"
                                       $tokenbody = @{
-                                          grant_type = "$(grant_type)"
-                                          client_id="$(client_id)"
-                                          client_secret="$(client_secret)"
-                                          scope="$(scope)"      
+                                          grant_type = "client_credentials"
+                                          client_id="$(appRegistrationClientId)"
+                                          client_secret="$(AzureAdClientSecret)"
+                                          scope="5a842df8-3238-415d-b168-9f16a6a6031b/.default"
                                       }
 
                                       $Result = Invoke-RestMethod -Uri $TokenUrl -Method Post  -Body $tokenbody
@@ -49,10 +42,10 @@ stages:
 
                                       $requestdata = @{
                                           Headers = @{
-                                              "Authorization" = "Bearer $jwtToken"     
+                                              "Authorization" = "Bearer $jwtToken"
                                           }
                                       }
-                                      $deployResult = Invoke-RestMethod -Uri $URL -Headers $requestdata.Headers -Method Post -Infile "$(Agent.BuildDirectory)/bmt.zip" -ContentType "application/zip" 
+                                      $deployResult = Invoke-RestMethod -Uri $URL -Headers $requestdata.Headers -Method Post -Infile "$(Agent.BuildDirectory)/bmt.zip" -ContentType "application/zip"
                                       $publishResult = Invoke-RestMethod -Uri $publishUrl -Headers $requestdata.Headers -Method Post
           - deployment: "Update_${{ parameters.envshortname }}_Tags"
             environment: ${{ parameters.envfullname }}
@@ -94,10 +87,7 @@ stages:
                       script: |
                           $url = "https://api.radix.equinor.com/api/v1/applications/fusion-bmt/pipelines/build-deploy"
 
-                          $requestdata = @{
-                              Uri     = "https://api.radix.equinor.com/api/v1/applications/fusion-bmt/pipelines/build-deploy"
-                              Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
-                          }
+                          $Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
 
                           $body = @'
                           {"branch":"${{ parameters.branch }}",
@@ -105,7 +95,7 @@ stages:
                           }
                           '@
 
-                          $result = Invoke-RestMethod -Uri $url -Headers $requestdata.Headers -Body $body -Method Post                          
+                          $result = Invoke-RestMethod -Uri $url -Headers $Headers -Body $body -Method Post                          
                           $pipelineName = $result.name
                           Write-Host $pipelineName
                           Write-Host "##vso[task.setvariable variable=radixJobName;]$pipelineName"
@@ -117,10 +107,7 @@ stages:
                       script: |
                           $url = 'https://api.radix.equinor.com/api/v1/applications/fusion-bmt/jobs/$(radixJobName)'
 
-                          $body = @{
-                              Uri     = 'https://api.radix.equinor.com/api/v1/applications/fusion-bmt/jobs/$(radixJobName)'
-                              Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
-                          }
+                          $Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
 
                           $TimeoutAfter = New-TimeSpan -Minutes 60
                           $WaitBetweenPolling = New-TimeSpan -Seconds 10
@@ -129,15 +116,14 @@ stages:
                           $stepCounter = 0
                           do
                           {
-                              $result = Invoke-RestMethod -Uri $url -Headers $body.Headers 
-                              $steps = $result.steps |  where { $_.status -eq "Succeeded" } 
+                              $result = Invoke-RestMethod -Uri $url -Headers $Headers
+                              $steps = $result.steps |  where { $_.status -eq "Succeeded" }
                               if ($stepCounter -eq $steps.Length) {
 
                               } else {
                                   $stepCounter = $steps.Length
                                   Write-Host "Steps:" $steps.Length "of" $result.steps.length
                               }
-                              
                               Start-Sleep -Seconds $WaitBetweenPolling.Seconds
 
                           }
@@ -169,5 +155,5 @@ stages:
                   inputs:
                       command: "custom"
                       custom: "ef"
-                      arguments: "database update --connection ${{ parameters.DBContext }} --verbose"
+                      arguments: "database update --connection \"${{ parameters.DBContext }}\" --verbose"
                       workingDirectory: "$(Build.SourcesDirectory)/backend/api"
