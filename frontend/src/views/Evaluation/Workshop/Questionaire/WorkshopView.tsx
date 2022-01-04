@@ -109,6 +109,7 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
     const boxPadding = 20
     const boxPaddingTopPlusBottom = boxPadding * 2
     const tabsPanelPadding = 16
+    const extraPixelToAvoidScrollbar = 1
 
     return (
         <>
@@ -128,7 +129,9 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                         onScroll(selectedQuestion, tablistPositionBottom, barrierQuestions, onQuestionSummarySelected)
                     }}
                     style={{
-                        height: `calc(100vh - ${tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding}px)`,
+                        height: `calc(100vh - ${
+                            tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
+                        }px)`,
                         overflow: 'scroll',
                     }}
                 >
