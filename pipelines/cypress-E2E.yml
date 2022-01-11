@@ -7,9 +7,6 @@ pr:
 pool:
     vmImage: "ubuntu-latest"
 
-variables:
-    - group: bmt-variables
-
 name: $(Build.BuildId).$(rev:r)
 jobs:
     - job: Cypress_E2E_Tests
