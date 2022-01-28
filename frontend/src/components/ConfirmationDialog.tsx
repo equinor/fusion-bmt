@@ -19,7 +19,7 @@ const ConfirmationDialog = ({ isOpen, isLoading = false, title, description, onC
 
     return (
         <>
-            <Scrim isDismissable={true} onClose={onCancelClick}>
+            <Scrim isDismissable={true} onClose={onCancelClick} open={isOpen}>
                 <Dialog data-testid="confirmation_dialog">
                     <Dialog.Title>{title}</Dialog.Title>
                     {description && (
