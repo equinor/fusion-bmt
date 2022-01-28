@@ -327,7 +327,7 @@ describe('Actions management', () => {
         const roleThatCanComplete = faker.random.arrayElement([Role.Facilitator, Role.Participant, Role.OrganizationLead])
         const randomProgression = getRandomProgressionWorkshopOrFollowUp()
         const randomVerifyProgression = getRandomProgressionWorkshopOrFollowUp()
-        it(`Complete action by ${roleThatCanComplete} on ${randomProgression} 
+        it(`Complete action by ${roleThatCanComplete} on ${randomProgression}
             and fill in reason (obligatory)
             then verify action was completed on ${randomVerifyProgression}`, () => {
             let user = seed.findParticipantByRole(roleThatCanComplete).user
