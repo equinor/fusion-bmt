@@ -216,7 +216,7 @@ export class EditActionDialog extends ActionDialog {
             cy.get('section').contains(participantName).should('be.disabled')
         })
         this.dueDateInput().should('be.disabled')
-        this.priorityInput().children().eq(0).children().eq(0).should('have.class', 'fc--Select__disabled--TZzty')
+        this.priorityInput().children().eq(0).children().eq(0).should('have.class', 'fc--Select__selectContainer--2Car7')
         this.descriptionInput().should('be.disabled')
         this.notesInput().should('be.disabled')
         this.addNoteButton().should('be.disabled')

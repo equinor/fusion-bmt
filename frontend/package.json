@@ -1,6 +1,6 @@
 {
     "name": "bmt",
-    "version": "1.11.0",
+    "version": "2.2",
     "description": "Barrier Management Tool",
     "repository": "https://github.com/equinor/fusion-bmt",
     "main": "src/index.tsx",
@@ -28,6 +28,7 @@
         "@equinor/eds-icons": "^0.7.0",
         "@equinor/eds-tokens": "^0.7.0",
         "@equinor/fusion": "^3.3.0",
+        "@equinor/fusion-components": "^2.5.8",
         "@material-ui/core": "^4.12.3",
         "@microsoft/applicationinsights-react-js": "^3.2.0",
         "@microsoft/applicationinsights-web": "^2.7.0",
@@ -53,7 +54,6 @@
         "cypress": "8.4.0",
         "dotenv-webpack": "^7.0.3",
         "faker": "^5.5.3",
-        "history": "^5.0.1",
         "jest": "^27.3.1",
         "prettier": "2.4.1",
         "styled-components": "^5.3.3",
