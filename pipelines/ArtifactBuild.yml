@@ -31,7 +31,7 @@ stages:
           name: Deploy_CI
           envshortname: ci
           envfullname: CI
-          fusionToken: "$(tokenResource)"
+          fusionToken: $(fusionClientIdDev)
           portalUrl: "https://pro-s-portal-ci.azurewebsites.net"
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
@@ -43,7 +43,7 @@ stages:
           name: Deploy_QA
           envshortname: qa
           envfullname: QA
-          fusionToken: "$(tokenResource)"
+          fusionToken: $(fusionClientIdDev)
           portalUrl: "https://pro-s-portal-fqa.azurewebsites.net/"
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
@@ -55,7 +55,7 @@ stages:
           name: Deploy_Prod
           envshortname: prod
           envfullname: Production
-          fusionToken: "$(tokenResourceProd)"
+          fusionToken: $(fusionClientIdProd)
           portalUrl: "https://pro-s-portal-fprd.azurewebsites.net"
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)

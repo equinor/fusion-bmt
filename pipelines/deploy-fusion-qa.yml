@@ -70,5 +70,5 @@ jobs:
         inputs:
           command: 'custom'
           custom: 'ef'
-          arguments: 'database update --connection $(dbContextQa) --verbose'
+          arguments: "database update --connection \"$(dbContextQa)\" --verbose"
           workingDirectory: 'backend/api'

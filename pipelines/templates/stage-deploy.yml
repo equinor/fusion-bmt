@@ -34,7 +34,7 @@ stages:
                                           grant_type = "client_credentials"
                                           client_id="$(appRegistrationClientId)"
                                           client_secret="$(AzureAdClientSecret)"
-                                          scope="5a842df8-3238-415d-b168-9f16a6a6031b/.default"
+                                          scope="${{ parameters.fusionToken }}/.default"
                                       }
 
                                       $Result = Invoke-RestMethod -Uri $TokenUrl -Method Post  -Body $tokenbody
