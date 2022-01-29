@@ -60,5 +60,5 @@ jobs:
         inputs:
           command: 'custom'
           custom: 'ef'
-          arguments: 'database update --connection $(dbContextProd) --verbose'
+          arguments: "database update --connection \"$(dbContextProd)\" --verbose"
           workingDirectory: 'backend/api'
