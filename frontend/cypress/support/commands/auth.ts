@@ -39,6 +39,7 @@ Cypress.Commands.add('login', (user: User) => {
         cy.request({
             method: 'GET',
             followRedirect: false,
+            // file deepcode ignore Ssrf: <only used for mock auth>
             url: authorizationURL,
             qs: {
                 client_id: user.username,
