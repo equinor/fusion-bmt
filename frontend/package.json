@@ -51,7 +51,7 @@
         "@types/styled-components": "^5.1.22",
         "@types/webpack-env": "^1.16.3",
         "babel-jest": "^27.5.0",
-        "cypress": "8.4.0",
+        "cypress": "9.4.1",
         "dotenv-webpack": "^7.1.0",
         "faker": "^5.5.3",
         "jest": "^27.5.0",
