@@ -9,3 +9,4 @@ generates:
     config:
       # Disallow Maybe to be null
       maybeValue: T
+      sort: false
