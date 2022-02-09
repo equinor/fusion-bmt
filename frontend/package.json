@@ -40,8 +40,8 @@
     "devDependencies": {
         "@babel/preset-env": "^7.16.11",
         "@equinor/fusion-cli": "^2.4.6",
-        "@graphql-codegen/cli": "1.21.8",
-        "@graphql-codegen/typescript": "2.3.0",
+        "@graphql-codegen/cli": "2.5.0",
+        "@graphql-codegen/typescript": "2.4.3",
         "@testing-library/react": "^12.1.2",
         "@types/faker": "^5.5.9",
         "@types/history": "^4.7.11",
@@ -60,7 +60,6 @@
         "ts-jest": "^27.1.3",
         "tslib": "^2.3.1",
         "typescript": "^4.5.5",
-        "webpack": "^5.68.0",
-        "@graphql-codegen/introspection": "2.1.1"
+        "webpack": "^5.68.0"
     }
 }
