@@ -33,7 +33,7 @@
         "@microsoft/applicationinsights-react-js": "^3.2.3",
         "@microsoft/applicationinsights-web": "^2.7.3",
         "apollo-link-token-refresh": "^0.4.0",
-        "graphql": "^15.7.0",
+        "graphql": "^16.3.0",
         "jwt-decode": "^3.1.2",
         "react": "^17.0.1"
     },
