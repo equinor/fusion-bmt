@@ -40,7 +40,7 @@
     "devDependencies": {
         "@babel/preset-env": "^7.16.11",
         "@equinor/fusion-cli": "^2.4.6",
-        "@graphql-codegen/cli": "2.5.0",
+        "@graphql-codegen/cli": "2.6.1",
         "@graphql-codegen/typescript": "2.4.3",
         "@testing-library/react": "^12.1.2",
         "@types/faker": "^5.5.9",
