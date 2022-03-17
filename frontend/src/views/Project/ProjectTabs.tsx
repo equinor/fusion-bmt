@@ -5,6 +5,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { ErrorMessage } from '@equinor/fusion-components'
 import { Tabs } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion'
+// import { module } from '@equinor/fusion-framework'
 
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
@@ -27,7 +28,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const [activeTab, setActiveTab] = React.useState(0)
     const { loading, project, error } = useProjectQuery(fusionProjectId)
 
-    const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+    const isAdmin = currentUser // && currentUser.roles.includes('Role.Admin')
 
     if (loading) {
         return <>Loading...</>

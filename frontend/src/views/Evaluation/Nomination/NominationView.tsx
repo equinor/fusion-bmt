@@ -41,7 +41,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(error)
 
     const viewProgression = Progression.Nomination
-    const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+    const isAdmin = currentUser //&& currentUser.roles.includes('Role.Admin')
 
     useEffectNotOnMount(() => {
         if (loading) {

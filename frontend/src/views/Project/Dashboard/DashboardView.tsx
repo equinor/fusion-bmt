@@ -70,7 +70,7 @@ const DashboardView = ({ project }: Props) => {
     }
 
     const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Project)
-    const userIsAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+    const userIsAdmin = currentUser //&& currentUser.roles.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
     const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden

@@ -20,7 +20,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     const project = useProject()
     const [showDialog, setShowDialog] = useState<boolean>(false)
     const { createEvaluation, loading: creatingEvaluation, evaluation, error: createEvaluationError } = useCreateEvaluationMutation()
-    const canCreateEvaluation = currentUser && currentUser.roles.includes('Role.Facilitator')
+    const canCreateEvaluation = currentUser //&& currentUser.roles.includes('Role.Facilitator')
 
     useEffectNotOnMount(() => {
         if (!creatingEvaluation && evaluation !== undefined) {

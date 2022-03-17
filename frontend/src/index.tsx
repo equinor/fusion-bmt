@@ -40,12 +40,12 @@ const Start = () => {
     }, [runtimeConfig])
 
     const login = async () => {
-        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [])
+        // const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [])
 
-        if (!isLoggedIn) {
-            await fusionContext.auth.container.loginAsync(config.AD_APP_ID)
-            return
-        }
+        // if (!isLoggedIn) {
+        //     await fusionContext.auth.container.loginAsync(config.AD_APP_ID)
+        //     return
+        // }
 
         setHasLoggedIn(true)
     }
