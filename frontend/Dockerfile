@@ -6,7 +6,7 @@ COPY package.json package-lock.json tsconfig.json ./
 RUN npm install
 COPY . .
 
-FROM node:slim
+FROM node:17.7.1-slim
 WORKDIR /app
 COPY --from=build /app ./
 EXPOSE 3000
