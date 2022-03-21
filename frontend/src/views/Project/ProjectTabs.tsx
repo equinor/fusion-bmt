@@ -4,7 +4,7 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 import { RouteComponentProps } from 'react-router-dom'
 import { ErrorMessage } from '@equinor/fusion-components'
 import { Tabs } from '@equinor/eds-core-react'
-import { useCurrentUser } from '@equinor/fusion'
+import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser } from '@equinor/fusion'
 
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
@@ -27,6 +27,10 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const [activeTab, setActiveTab] = React.useState(0)
     const { loading, project, error } = useProjectQuery(fusionProjectId)
 
+
+    const currentUserRoles = useFusionContext().auth.container.getCachedUser()?.roles
+    console.log("User has roles:")
+    console.log(currentUserRoles)
     const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
 
     if (loading) {
