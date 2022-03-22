@@ -5,6 +5,7 @@ import { Box } from '@material-ui/core'
 import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
 import { ApplicationGuidanceAnchor, ErrorMessage } from '@equinor/fusion-components'
 import { useCurrentUser } from '@equinor/fusion'
+import { getCachedRoles } from '../../../utils/helpers'
 
 import { genericErrorMessage } from '../../../utils/Variables'
 import { Evaluation, Project, Status } from '../../../api/models'
@@ -70,7 +71,7 @@ const DashboardView = ({ project }: Props) => {
     }
 
     const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Project)
-    const userIsAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+    const userIsAdmin = currentUser && getCachedRoles().includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
     const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden

@@ -4,7 +4,7 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 import { RouteComponentProps } from 'react-router-dom'
 import { ErrorMessage } from '@equinor/fusion-components'
 import { Tabs } from '@equinor/eds-core-react'
-import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser } from '@equinor/fusion'
+import { useCurrentUser } from '@equinor/fusion'
 
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
@@ -13,6 +13,7 @@ import ActionsView from './Actions/ActionsView'
 import AdminView from './Admin/AdminView'
 import DashboardView from './Dashboard/DashboardView'
 import { genericErrorMessage } from '../../utils/Variables'
+import { getCachedRoles } from '../../utils/helpers'
 
 const { List, Tab, Panels } = Tabs
 
@@ -21,17 +22,14 @@ interface Params {
 }
 
 const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
+
     const currentUser = useCurrentUser()
     const fusionProjectId = match.params.fusionProjectId
 
     const [activeTab, setActiveTab] = React.useState(0)
     const { loading, project, error } = useProjectQuery(fusionProjectId)
 
-
-    const currentUserRoles = useFusionContext().auth.container.getCachedUser()?.roles
-    console.log("User has roles:")
-    console.log(currentUserRoles)
-    const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+    const isAdmin = currentUser && getCachedRoles().includes('Role.Admin')
 
     if (loading) {
         return <>Loading...</>

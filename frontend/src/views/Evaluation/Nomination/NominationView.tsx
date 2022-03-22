@@ -22,6 +22,7 @@ import { genericErrorMessage, SavingState } from '../../../utils/Variables'
 import { useEffectNotOnMount, useShowErrorHook } from '../../../utils/hooks'
 import { centered } from '../../../utils/styles'
 import ErrorBanner from '../../../components/ErrorBanner'
+import { getCachedRoles } from '../../../utils/helpers'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -41,7 +42,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const { showErrorMessage, setShowErrorMessage } = useShowErrorHook(error)
 
     const viewProgression = Progression.Nomination
-    const isAdmin = currentUser && currentUser.roles.includes('Role.Admin')
+    const isAdmin = currentUser && getCachedRoles().includes('Role.Admin')
 
     useEffectNotOnMount(() => {
         if (loading) {
