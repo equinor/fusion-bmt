@@ -12,14 +12,14 @@ const CACHE_ENTRY = 'FUSION_AUTH_CACHE'
 export const getCachedRoles = (): string[] => {
     const fusionStorageJson: string | null = localStorage.getItem(CACHE_ENTRY)
     if (fusionStorageJson === null) {
-        throw new Error('Could not find auth token in local storage')
+        return []
     }
     const fusionStorage = JSON.parse(fusionStorageJson)
     const token: string = fusionStorage[`${CACHE_ENTRY}:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN`]
     const objectFromDecodedToken: Token = jwtDecode(token) as Token
-    const roles: string[] = objectFromDecodedToken["roles"]
+    const roles: string[] = objectFromDecodedToken['roles']
     return roles
-} 
+}
 
 export const findCorrectAnswer = (
     question: Question,
