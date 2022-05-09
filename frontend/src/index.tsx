@@ -74,7 +74,7 @@ registerApp('bmt', {
     AppComponent: Start,
     name: 'Barrier Management Tool',
     context: {
-        types: [ContextTypes.Project],
+        types: [ContextTypes.ProjectMaster],
         buildUrl: (context: Context | null, url: string) => {
             if (!context) return ''
             return `/${context.id}`
