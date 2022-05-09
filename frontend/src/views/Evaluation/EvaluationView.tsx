@@ -190,9 +190,6 @@ const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
     const GET_EVALUATION = gql`
         query ($evaluationId: String!) {
             evaluations(where: { id: { eq: $evaluationId } }) {
-                project {
-                    fusionProjectId
-                }
                 ...EvaluationFields
                 ...ParticipantsArray
                 questions {

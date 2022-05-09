@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HotChocolate.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
@@ -321,6 +322,7 @@ namespace api.GQL
         {
             return _projectCategoryService.Create(name);
         }
+        
 
         [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory DeleteProjectCategory(string projectCategoryId)
