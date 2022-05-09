@@ -169,12 +169,10 @@ namespace api.GQL
             string destinationProjectFusionId
         )
         {
-            Console.WriteLine(evaluationId);
-            Console.WriteLine("1");
-            
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-            Console.WriteLine("2");
-            // Project destinationProject = _projectService.GetProject(destinationProjectFusionId);
+
+            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             Project destinationProject;
             try {
@@ -183,13 +181,7 @@ namespace api.GQL
                 destinationProject = _projectService.Create(destinationProjectFusionId);
                 _logger.LogInformation($"Created new project with fusionProjectId: {destinationProjectFusionId}");
             }
-            
-            Console.WriteLine("3");
-
             Evaluation updatedEvaluation = _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
-            
-            Console.WriteLine("4");
-
             return updatedEvaluation;
         }
         public Participant DeleteParticipant(string participantId)
@@ -308,7 +300,7 @@ namespace api.GQL
             Action action = queryableAction.First();
             Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
 
-            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead, Role };
             AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             return _closingRemarkService.Create(CurrentUser(evaluation), text, action);
