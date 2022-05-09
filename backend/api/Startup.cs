@@ -209,7 +209,7 @@ namespace api
              * For Admin mutations the @authorize directive for the given
              * mutation also has to be commented out.
              */
-            app.UseAuthorization();
+           app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
