@@ -172,9 +172,6 @@ namespace api.GQL
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
-            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
-
             Project destinationProject;
             try {
                 destinationProject = _projectService.GetProjectFromFusionId(destinationProjectFusionId);
