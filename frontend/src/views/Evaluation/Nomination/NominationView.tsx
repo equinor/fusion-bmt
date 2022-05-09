@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core'
 import { ApplicationGuidanceAnchor, ErrorMessage, SearchableDropdown, SearchableDropdownOption, Spinner } from '@equinor/fusion-components'
 import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
-import { useCurrentUser } from '@equinor/fusion'
+import { ContextTypes, useCurrentUser } from '@equinor/fusion'
 
 import AddNomineeDialog from './components/AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role, Status } from '../../../api/models'
@@ -47,7 +47,7 @@ export const createDropdownOptionsFromProjects = (
     if (list.length === 0) {
         return [
             {
-                title: 'No eligible people found', //What to display here? Unrealistic case?
+                title: 'No projects found', 
                 key: 'empty',
                 isDisabled: true,
             },
@@ -137,7 +137,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         if (projects.length === 0) {
             setIsFetchingProjects(true)
             
-            apiClients.context.getContextsAsync().then(projects => {
+            apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
                 setProjects(projects.data)
                 setIsFetchingProjects(false)
             })
@@ -145,16 +145,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
             apiClients.context.getContextAsync(projectId).then(project => {
                 setCurrentProject(project.data)
             })
-
-            /*
-            
-            apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
-                setProjects(projects.data)
-                setIsFetchingProjects(false)
-            })
-           */
         }
-        
     }, [])
 
     const onNextStepClick = () => {
