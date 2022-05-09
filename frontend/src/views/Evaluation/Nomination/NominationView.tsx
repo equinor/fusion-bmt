@@ -102,6 +102,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     
     const [projects, setProjects] = useState<Context[]>([])
     const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
+    const [currentProject, setCurrentProject] = useState<Context>()
     const projectOptions: SearchableDropdownOption[] = createDropdownOptionsFromProjects(projects, "1", true)
     const apiClients = useApiClients()
 
@@ -138,19 +139,22 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         if (projects.length === 0) {
             setIsFetchingProjects(true)
             
-            /*
-            apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
-                setProjects(projects.data)
-                setIsFetchingProjects(false)
-            })
-            */
-            
-           
             apiClients.context.getContextsAsync().then(projects => {
                 setProjects(projects.data)
                 setIsFetchingProjects(false)
             })
-           
+            const projectId: string = window.location.pathname.split("/")[1] ?? ""
+            apiClients.context.getContextAsync(projectId).then(project => {
+                setCurrentProject(project.data)
+            })
+
+            /*
+            
+            apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
+                setProjects(projects.data)
+                setIsFetchingProjects(false)
+            })
+           */
         }
         
     }, [])
@@ -180,25 +184,13 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     }
 
     const updateEvaluationToNewProject = (item: SearchableDropdownOption) =>  {
-        console.log(item.key)
-        console.log(item.title)
         setEvaluationToAnotherProject(evaluation.id, item.key)
         window.location.pathname = `${item.key}/evaluation/${evaluation.id}`
     }
 
-
-
     const toggleStatus = () => {
         const newStatus = evaluation.status === Status.Voided ? Status.Active : Status.Voided
         setEvaluationStatus(evaluation.id, newStatus)
-
-        projects.forEach((project, index )=> { 
-            if (project.id === "8875a060-2ec4-4ac9-99fb-2cc9b55095ff") {
-                console.log("Manni")
-                console.log(project.title)
-            }
-       })
-
     }
 
     const isVisible = evaluation.status !== Status.Voided
@@ -222,18 +214,20 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                             >
                                 {isVisible ? 'Hide from list' : 'Make visible'}
                             </Button>
-                            <p> Assign to project: </p>
                             
-                            
-                            { isFetchingProjects ? <Spinner/> : projects.length }
-                            
-                            <SearchableDropdown
-                                    label="Hei"
-                                    placeholder="Select Project"
+                            { isFetchingProjects ? 
+                            <Spinner/> : 
+                            <div>
+                                Switch evaluation to another project
+                                <SearchableDropdown
+                                    label={currentProject?.title}
+                                    placeholder={currentProject?.title}
                                     onSelect={option => updateEvaluationToNewProject(option)}
                                     options={projectOptions}
                                 />
-                                
+                            
+                            </div>
+                            }     
                         </ApplicationGuidanceAnchor>
                     )}
                 </Box>
