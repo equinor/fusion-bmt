@@ -4,7 +4,6 @@ using System.Linq;
 using HotChocolate.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-
 using api.Services;
 using api.Models;
 using Action = api.Models.Action;
@@ -320,7 +319,7 @@ namespace api.GQL
             return _projectCategoryService.Create(name);
         }
 
-        
+
         [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory DeleteProjectCategory(string projectCategoryId)
         {
