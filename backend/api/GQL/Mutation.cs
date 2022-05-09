@@ -319,6 +319,7 @@ namespace api.GQL
         {
             return _projectCategoryService.Create(name);
         }
+
         
         [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory DeleteProjectCategory(string projectCategoryId)

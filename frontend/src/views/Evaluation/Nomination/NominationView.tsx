@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { ApplicationGuidanceAnchor, ErrorMessage, SearchableDropdown, SearchableDropdownOption, Spinner } from '@equinor/fusion-components'
-import { Button, CircularProgress, Icon, Tooltip, Typography } from '@equinor/eds-core-react'
+import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
-import { ContextType, ContextTypes, useCurrentUser } from '@equinor/fusion'
+import { useCurrentUser } from '@equinor/fusion'
 
 import AddNomineeDialog from './components/AddNomineeDialog'
-import { Evaluation, Organization, Participant, Progression, Project, ProjectCategory, Role, Status } from '../../../api/models'
+import { Evaluation, Organization, Participant, Progression, Role, Status } from '../../../api/models'
 import NominationTable from './components/NominationTable'
 import {
     participantCanAddParticipant,
@@ -16,7 +16,7 @@ import {
 } from '../../../utils/RoleBasedAccess'
 import { useApiClients, Context } from '@equinor/fusion'
 import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
-import { useEvaluation, useParticipant, useProject } from '../../../globals/contexts'
+import { useParticipant } from '../../../globals/contexts'
 import { disableProgression } from '../../../utils/disableComponents'
 import SaveIndicator from '../../../components/SaveIndicator'
 import { genericErrorMessage, SavingState } from '../../../utils/Variables'
@@ -24,8 +24,6 @@ import { useEffectNotOnMount, useShowErrorHook } from '../../../utils/hooks'
 import { centered } from '../../../utils/styles'
 import ErrorBanner from '../../../components/ErrorBanner'
 import { getCachedRoles } from '../../../utils/helpers'
-import { Link, Redirect, useHistory } from 'react-router-dom'
-import { createBrowserHistory } from 'history'
 
 interface NominationViewProps {
     evaluation: Evaluation
