@@ -300,7 +300,7 @@ namespace api.GQL
             Action action = queryableAction.First();
             Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
 
-            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead, Role };
+            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
             AssertCanPerformMutation(evaluation, canBePerformedBy);
 
             return _closingRemarkService.Create(CurrentUser(evaluation), text, action);
@@ -316,27 +316,27 @@ namespace api.GQL
         private const string adminRole = "Role.Admin";
 
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory CreateProjectCategory(string name)
         {
             return _projectCategoryService.Create(name);
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory DeleteProjectCategory(string projectCategoryId)
         {
             var projectCategory = _projectCategoryService.Get(projectCategoryId);
             return _projectCategoryService.Delete(projectCategory);
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
         {
             var other = _projectCategoryService.GetAll().Include(x => x.QuestionTemplates).Single(x => x.Id == projectCategoryId);
             return _projectCategoryService.CopyFrom(newName, other);
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public QuestionTemplate CreateQuestionTemplate(
             Barrier barrier,
             Organization organization,
@@ -356,7 +356,7 @@ namespace api.GQL
             return qt;
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public QuestionTemplate EditQuestionTemplate(
             string questionTemplateId,
             Barrier barrier,
@@ -381,14 +381,14 @@ namespace api.GQL
             );
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public QuestionTemplate DeleteQuestionTemplate(string questionTemplateId)
         {
             QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
             return _questionTemplateService.Delete(questionTemplate);
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public QuestionTemplate ReorderQuestionTemplate(
             string questionTemplateId,
             string newNextQuestionTemplateId
@@ -406,7 +406,7 @@ namespace api.GQL
             }
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public QuestionTemplate AddToProjectCategory(
             string questionTemplateId,
             string projectCategoryId
@@ -415,7 +415,7 @@ namespace api.GQL
             return _questionTemplateService.AddToProjectCategory(questionTemplateId, projectCategoryId);
         }
 
-        // [Authorize(Roles = new[] { adminRole })]
+        [Authorize(Roles = new[] { adminRole })]
         public QuestionTemplate RemoveFromProjectCategories(
             string questionTemplateId,
             List<string> projectCategoryIds
