@@ -141,8 +141,13 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 setProjects(projects.data)
                 setIsFetchingProjects(false)
             })
+<<<<<<< HEAD
             
             apiClients.context.getContextAsync(evaluation.project.fusionProjectId).then(project => {
+=======
+            const projectId: string = window.location.pathname.split("/")[1] ?? ""
+            apiClients.context.getContextAsync(projectId).then(project => {
+>>>>>>> master
                 setCurrentProject(project.data)
             })
         }
