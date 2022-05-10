@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { ApplicationGuidanceAnchor, ErrorMessage, SearchableDropdown, SearchableDropdownOption, Spinner } from '@equinor/fusion-components'
-import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
+import { Button, CircularProgress, Icon, Tooltip } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
 import { ContextTypes, useCurrentUser } from '@equinor/fusion'
 
@@ -47,7 +47,7 @@ export const createDropdownOptionsFromProjects = (
     if (list.length === 0) {
         return [
             {
-                title: 'No projects found', 
+                title: 'No projects found',
                 key: 'empty',
                 isDisabled: true,
             },
@@ -90,18 +90,20 @@ const useSetEvaluationToAnotherProjectMutation = (): SetEvaluationToAnotherProje
     }
 }
 
-
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
-
     const currentUser = useCurrentUser()
     const participant = useParticipant()
 
-    const { setEvaluationToAnotherProject, loading: setEvaluationToAnotherProjectLoading, error: setEvaluationToAnotherProjectError, } = useSetEvaluationToAnotherProjectMutation()
-    
+    const {
+        setEvaluationToAnotherProject,
+        loading: setEvaluationToAnotherProjectLoading,
+        error: setEvaluationToAnotherProjectError,
+    } = useSetEvaluationToAnotherProjectMutation()
+
     const [projects, setProjects] = useState<Context[]>([])
     const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
     const [currentProject, setCurrentProject] = useState<Context>()
-    const projectOptions: SearchableDropdownOption[] = createDropdownOptionsFromProjects(projects, "1", true)
+    const projectOptions: SearchableDropdownOption[] = createDropdownOptionsFromProjects(projects, '1', true)
     const apiClients = useApiClients()
 
     const { createParticipant, loading: createParticipantLoading, error: errorCreateParticipant } = useCreateParticipantMutation()
@@ -136,12 +138,12 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     useEffect(() => {
         if (projects.length === 0) {
             setIsFetchingProjects(true)
-            
-            apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
+
+            apiClients.context.queryContextsAsync('', ContextTypes.ProjectMaster).then(projects => {
                 setProjects(projects.data)
                 setIsFetchingProjects(false)
             })
-            
+
             apiClients.context.getContextAsync(evaluation.project.fusionProjectId).then(project => {
                 setCurrentProject(project.data)
             })
@@ -163,7 +165,6 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
             </div>
         )
     }
-    
 
     if (errorQuery !== undefined || participants === undefined) {
         return <ErrorMessage hasError errorType={'noData'} title="Could not load participants" message={genericErrorMessage} />
@@ -173,14 +174,9 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         return <ErrorMessage hasError errorType={'error'} title="Could not add participant" message={genericErrorMessage} />
     }
 
-    const updateEvaluationToNewProject = (item: SearchableDropdownOption) =>  {
+    const updateEvaluationToNewProject = (item: SearchableDropdownOption) => {
         setEvaluationToAnotherProject(evaluation.id, item.key)
-
-        if (process.env.IS_DEVELOPMENT === 'true') {
-            window.location.pathname = `${item.key}/evaluation/${evaluation.id}`
-        } else {
-            window.location.pathname = `apps/bmt/${item.key}/evaluation/${evaluation.id}`
-        }
+        window.location.pathname = `${item.key}/evaluation/${evaluation.id}`
     }
 
     const toggleStatus = () => {
@@ -209,20 +205,20 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                             >
                                 {isVisible ? 'Hide from list' : 'Make visible'}
                             </Button>
-                            
-                            { isFetchingProjects ? 
-                            <Spinner/> : 
-                            <div>
-                                Switch evaluation to another project
-                                <SearchableDropdown
-                                    label={currentProject?.title}
-                                    placeholder={currentProject?.title}
-                                    onSelect={option => updateEvaluationToNewProject(option)}
-                                    options={projectOptions}
-                                />
-                            
-                            </div>
-                            }     
+
+                            {isFetchingProjects ? (
+                                <Spinner />
+                            ) : (
+                                <div>
+                                    Switch evaluation to another project
+                                    <SearchableDropdown
+                                        label={currentProject?.title}
+                                        placeholder={currentProject?.title}
+                                        onSelect={option => updateEvaluationToNewProject(option)}
+                                        options={projectOptions}
+                                    />
+                                </div>
+                            )}
                         </ApplicationGuidanceAnchor>
                     )}
                 </Box>
