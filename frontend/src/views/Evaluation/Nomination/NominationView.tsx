@@ -141,8 +141,8 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 setProjects(projects.data)
                 setIsFetchingProjects(false)
             })
-            const projectId: string = window.location.pathname.split("/")[1] ?? ""
-            apiClients.context.getContextAsync(projectId).then(project => {
+            
+            apiClients.context.getContextAsync(evaluation.project.fusionProjectId).then(project => {
                 setCurrentProject(project.data)
             })
         }
@@ -163,6 +163,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
             </div>
         )
     }
+    
 
     if (errorQuery !== undefined || participants === undefined) {
         return <ErrorMessage hasError errorType={'noData'} title="Could not load participants" message={genericErrorMessage} />
@@ -174,7 +175,12 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 
     const updateEvaluationToNewProject = (item: SearchableDropdownOption) =>  {
         setEvaluationToAnotherProject(evaluation.id, item.key)
-        window.location.pathname = `${item.key}/evaluation/${evaluation.id}`
+
+        if (process.env.IS_DEVELOPMENT === 'true') {
+            window.location.pathname = `${item.key}/evaluation/${evaluation.id}`
+        } else {
+            window.location.pathname = `apps/bmt/${item.key}/evaluation/${evaluation.id}`
+        }
     }
 
     const toggleStatus = () => {
