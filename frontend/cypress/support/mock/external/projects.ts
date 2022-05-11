@@ -80,7 +80,7 @@ export function getFusionProjectData(project: FusionProject) {
         id: project.id,
         externalId: 'M.O0000.00.0.0000',
         source: null,
-        type: { id: 'Project', isChildType: true, parentTypeIds: ['ProjectMaster'] },
+        type: { id: 'ProjectMaster', isChildType: false, parentTypeIds: [] },
         value: { wbs: 'M.O0000.00.0.0000', projectMasterId: project.projectMasterId, isValid: faker.datatype.boolean() },
         title: project.name,
         isActive: faker.datatype.boolean(),
