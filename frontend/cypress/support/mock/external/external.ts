@@ -6,6 +6,10 @@ const settingsURL = /https:\/\/pro-s-portal-ci\.azurewebsites\.net\/api\/persons
 const featuresURL = /https:\/\/pro-s-portal-ci\.azurewebsites\.net\/log\/features/
 const configURL = /https:\/\/pro-s-portal-ci\.azurewebsites\.net\/api\/apps\/bmt\/config/
 const projectURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts\/(.+)/
+const projectMasterContextURL =
+    /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts\/(.+)\/relations\?\$filter=type%20in%20\(%27ProjectMaster%27\)/
+
+const projectMasterURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts\?\$filter=type%20in%20\(%27ProjectMaster%27\)/
 const projectsURL = /https:\/\/pro-s-context-ci\.azurewebsites\.net\/contexts$/
 const personURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)(?:(\?\$.*)|$)/
 const personPresenceURL = /https:\/\/pro-s-people-ci\.azurewebsites\.net\/persons\/(.+?)\/presence/
@@ -40,6 +44,22 @@ Cypress.Commands.add('interceptExternal', () => {
         const project = findFusionProjectByID(fusionProjectId)
         req.reply({
             body: getFusionProjectData(project),
+        })
+    })
+
+    cy.intercept(projectMasterContextURL, req => {
+        const fusionProjectId = req.url.match(projectMasterContextURL)![1]
+        const project = findFusionProjectByID(fusionProjectId)
+        req.reply({
+            body: getFusionProjectData(project),
+        })
+    })
+
+    cy.intercept(projectMasterURL, req => {
+        const fusionProjectId = '123'
+        const project = findFusionProjectByID(fusionProjectId)
+        req.reply({
+            body: [getFusionProjectData(project)],
         })
     })
 
