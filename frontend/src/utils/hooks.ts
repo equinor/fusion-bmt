@@ -94,6 +94,15 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
             const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
             const projectMasterTitle = projectMaster.data[0].title
             return [portfolio, projectMasterTitle]
+        } else {
+            const projectMaster = await apiClients.context.getContextAsync(project.data.externalId!)
+            const projectMasterId = projectMaster.data.value.projectMasterId
+            if (projectMasterId) {
+                const projectMaster = await apiClients.context.queryContextsAsync(projectMasterId, ContextTypes.ProjectMaster)
+                const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
+                const projectMasterTitle = projectMaster.data[0].title
+                return [portfolio, projectMasterTitle]
+            }
         }
         return ['', '']
     }
