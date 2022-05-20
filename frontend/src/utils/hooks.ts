@@ -93,7 +93,7 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
             const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
             const projectMasterTitle = projectMaster.data[0].title
             return [portfolio, projectMasterTitle]
-        } else if (project.data.value.type === "ProjectMaster") {
+        } else if (project.data.type.id === "ProjectMaster") {
             const portfolio = project.data.value.portfolioOrganizationalUnit
             const projectMasterTitle = project.data.title
             return [portfolio, projectMasterTitle]
