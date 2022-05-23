@@ -75,7 +75,14 @@ namespace api.Services
             _context.SaveChanges();
             return evaluation;
         }
-
+        
+        public Evaluation SetEvaluationToAnotherProject(Evaluation evaluation, Project newProject) {
+            evaluation.Project = newProject;
+            _context.Evaluations.Update(evaluation);
+            _context.SaveChanges();
+            return evaluation;
+        }
+        
         public IQueryable<Evaluation> GetAll()
         {
             return _context.Evaluations;

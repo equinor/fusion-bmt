@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using HotChocolate.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-
 using api.Services;
 using api.Models;
 using Action = api.Models.Action;
@@ -166,6 +164,23 @@ namespace api.GQL
             return _participantService.Create(azureUniqueId, evaluation, organization, role);
         }
 
+        public Evaluation setEvaluationToAnotherProject(
+            string evaluationId,
+            string destinationProjectFusionId
+        )
+        {
+            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            Project destinationProject;
+            try {
+                destinationProject = _projectService.GetProjectFromFusionId(destinationProjectFusionId);
+            } catch {
+                destinationProject = _projectService.Create(destinationProjectFusionId);
+                _logger.LogInformation($"Created new project with fusionProjectId: {destinationProjectFusionId}");
+            }
+            Evaluation updatedEvaluation = _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
+            return updatedEvaluation;
+        }
         public Participant DeleteParticipant(string participantId)
         {
             Evaluation evaluation = _participantService.GetAll()
@@ -303,6 +318,7 @@ namespace api.GQL
         {
             return _projectCategoryService.Create(name);
         }
+
 
         [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory DeleteProjectCategory(string projectCategoryId)
