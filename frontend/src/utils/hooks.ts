@@ -93,7 +93,8 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
             const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
             const projectMasterTitle = projectMaster.data[0].title
             return [portfolio, projectMasterTitle]
-        } else if (project.data.type.id === "ProjectMaster") {
+        } // If evaluation has changed project, the new Id is the ProjectMasterId instead of ProjectId. This was necessary in the transition from Project to ProjectMaster
+        else if (project.data.type.id === ContextTypes.ProjectMaster) {
             const portfolio = project.data.value.portfolioOrganizationalUnit
             const projectMasterTitle = project.data.title
             return [portfolio, projectMasterTitle]
@@ -117,7 +118,7 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
 
         return projectIdsWithPortfoliosAndProjectMasters
     }
-
+    
     useEffect(() => {
         if (evaluations) {
             const evaluationsByProjectMasterAndPortfolio: EvaluationsByProjectMasterAndPortfolio = {
