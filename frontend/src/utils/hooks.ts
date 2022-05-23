@@ -86,13 +86,16 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
     }
 
     const lookupPortfolioAndProjectMaster = async (projectId: string) => {
-        const project = await apiClients.context.getContextAsync(projectId)
-        const projectMasterId = project.data.value.projectMasterId
-
+        let project = await apiClients.context.getContextAsync(projectId)
+        let projectMasterId = project.data.value.projectMasterId
         if (projectMasterId) {
             const projectMaster = await apiClients.context.queryContextsAsync(projectMasterId, ContextTypes.ProjectMaster)
             const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
             const projectMasterTitle = projectMaster.data[0].title
+            return [portfolio, projectMasterTitle]
+        } else if (project.data.type.id === "ProjectMaster") {
+            const portfolio = project.data.value.portfolioOrganizationalUnit
+            const projectMasterTitle = project.data.title
             return [portfolio, projectMasterTitle]
         }
         return ['', '']
