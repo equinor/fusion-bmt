@@ -27,14 +27,22 @@ export const useAllPersonDetailsAsync = (azureUniqueIds: string[]): PersonDetail
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const apiClients = useApiClients()
 
-    const getAllPersonDetails = (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
+    const getAllPersonDetails = async (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
         const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
             return apiClients.people.getPersonDetailsAsync(azureUniqueId).then(response => {
                 return response.data
             })
         })
 
-        return Promise.all(manyPromises)
+        let personDetails: PersonDetails[] = []
+
+        await Promise.allSettled(manyPromises).then(results => results.forEach(element => {
+            if (element.status === "fulfilled") {
+                personDetails.push(element.value)
+            }
+        }))
+
+        return personDetails
     }
 
     useEffect(() => {
