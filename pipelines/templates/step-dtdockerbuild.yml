@@ -9,8 +9,9 @@ parameters:
 steps:
     - script: |
           docker build -f ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/dynatrace.Dockerfile \
-          --build-arg dt_url=${{ parameters.dt_url }} \
-          --build-arg dt_tenant=${{ parameters.dt_tenant }} \
+            --build-arg DYNATRACE_URL=${{ parameters.dt_url }} \
+            --build-arg DYNATRACE_TENANT=${{ parameters.dt_tenant }} \
+            --build-arg DYNATRACE_PAAS_TOKEN=${{ parameters.dt_password }} \
           ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/ \
           -t fusionbmt.azurecr.io/${{ parameters.appName }}:release \
           -t fusionbmt.azurecr.io/${{ parameters.appName }}:${{ parameters.buildId }}
