@@ -141,9 +141,20 @@ spec:
               memory: "3000Mi"
           variables:
             API_URL: "https://backend-acr-fusion-bmt-dev.radix.equinor.com"
+            DT_ENVIRONMENT: "dev"
+            DT_TAGS: "SHELLVIS SERVICENAME=FUSION-BMT ENVIRONMENT=DEV"
+            DT_CUSTOM_PROP: "SERVICENAME=FUSION-BMT ENVIRONMENT=DEV"
+            DT_PROCESS_GROUP: "FUSION-BMT-DEV"
+            DT_ENTITY__PROCESS_GROUP_INSTANCE: "FUSION-BMT-DEV"
         - environment: pr
           imageTagName: pr-release
           replicas: 0
+          variables:
+            DT_ENVIRONMENT: "pr"
+            DT_TAGS: "SHELLVIS SERVICENAME=FUSION-BMT ENVIRONMENT=PR"
+            DT_CUSTOM_PROP: "SERVICENAME=FUSION-BMT ENVIRONMENT=PR"
+            DT_PROCESS_GROUP: "FUSION-BMT-PR"
+            DT_ENTITY__PROCESS_GROUP_INSTANCE: "FUSION-BMT-PR"
         - environment: qa
           imageTagName: qa-release
           resources:
@@ -151,9 +162,20 @@ spec:
               memory: "3000Mi"
           variables:
             API_URL: "https://backend-acr-fusion-bmt-qa.radix.equinor.com"
+            DT_ENVIRONMENT: "qa"
+            DT_TAGS: "SHELLVIS SERVICENAME=FUSION-BMT ENVIRONMENT=QA"
+            DT_CUSTOM_PROP: "SERVICENAME=FUSION-BMT ENVIRONMENT=QA"
+            DT_PROCESS_GROUP: "FUSION-BMT-QA"
+            DT_ENTITY__PROCESS_GROUP_INSTANCE: "FUSION-BMT-QA"
         - environment: prod
           imageTagName: prod-release
           replicas: 0
+          variables:
+            DT_ENVIRONMENT: "prod"
+            DT_TAGS: "SHELLVIS SERVICENAME=FUSION-BMT ENVIRONMENT=PROD"
+            DT_CUSTOM_PROP: "SERVICENAME=FUSION-BMT ENVIRONMENT=PROD"
+            DT_PROCESS_GROUP: "FUSION-BMT-PROD"
+            DT_ENTITY__PROCESS_GROUP_INSTANCE: "FUSION-BMT-PROD"
 
   dnsAppAlias:
     environment: qa
