@@ -1,4 +1,4 @@
-FROM node:lts-slim as build
+FROM node:16.14-alpine as build
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY package.json package-lock.json tsconfig.json ./
 RUN npm install
 COPY . .
 
-FROM node:slim
+FROM node:16.14-alpine
 WORKDIR /app
 COPY --from=build /app ./
 EXPOSE 3000
