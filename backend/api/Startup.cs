@@ -36,6 +36,7 @@ namespace api
         {
             Configuration = configuration;
 
+            // test
             _sqlConnectionString = Configuration.GetSection("Database").GetValue<string>("ConnectionString");
             if (string.IsNullOrEmpty(_sqlConnectionString))
             {
