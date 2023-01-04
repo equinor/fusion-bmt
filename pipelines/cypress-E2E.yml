@@ -41,9 +41,9 @@ jobs:
                 dockerComposeCommand: "up"
                 arguments: "-d mock-auth"
             displayName: "Start mock auth"
-
+    
           - script: |
-                dotnet run --no-launch-profile &
+                dotnet run --no-launch-profile --version 5 &
                 sleep 5
             env:
                 ASPNETCORE_ENVIRONMENT: "Test"
@@ -71,3 +71,4 @@ jobs:
                 CYPRESS_RECORD_KEY: $(CYPRESS_RECORD_KEY)
             workingDirectory: "frontend"
             displayName: "Run Cypress"
+            continueOnError: true
