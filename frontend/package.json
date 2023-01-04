@@ -1,6 +1,5 @@
 {
     "name": "bmt",
-    "version": "2.2",
     "description": "Barrier Management Tool",
     "repository": "https://github.com/equinor/fusion-bmt",
     "main": "src/index.tsx",
@@ -9,8 +8,8 @@
         "build": "fusion build-app",
         "test": "jest",
         "schema": "graphql-codegen --config src/api/schema.yml",
-        "cyopen": "./node_modules/.bin/cypress open",
-        "cyrun": "./node_modules/.bin/cypress run"
+        "cyopen": "npx cypress open",
+        "cyrun": "npx cypress run"
     },
     "author": "Software Innovation Bergen",
     "license": "MIT",
