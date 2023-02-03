@@ -8,6 +8,10 @@ parameters:
     - name: radixToken
     - name: branch
     - name: DBContext
+    - name: SpAzureClientId
+    - name: SpAzureClientSecret
+    - name: AzureTenantId
+
 
 stages:
     - stage: ${{ parameters.name }}
@@ -85,9 +89,14 @@ stages:
                   inputs:
                       targetType: "inline"
                       script: |
+                          $AzureClientId = "${{ parameters.SpAzureClientId }}"
+                          $AzureTenantId = "${{ parameters.AzureTenantId }}"
+                          $AzureClientSecret = "${{ parameters.SpAzureClientSecret }}"
                           $url = "https://api.radix.equinor.com/api/v1/applications/fusion-bmt/pipelines/build-deploy"
+                          az login --service-principal -u $AzureClientId -p $AzureClientSecret --tenant $AzureTenantId  --allow-no-subscriptions
+                          $radixToken = az account get-access-token --resource 6dae42f8-4368-4678-94ff-3960e28e3630 --query=accessToken -otsv
 
-                          $Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
+                          $Headers = @{"Authorization" = "Bearer $radixToken"}
 
                           $body = @'
                           {"branch":"${{ parameters.branch }}",
@@ -105,9 +114,14 @@ stages:
                   inputs:
                       targetType: "inline"
                       script: |
+                          $AzureClientId = "${{ parameters.SpAzureClientId }}"
+                          $AzureTenantId = "${{ parameters.AzureTenantId }}"
+                          $AzureClientSecret = "${{ parameters.SpAzureClientSecret }}"
                           $url = 'https://api.radix.equinor.com/api/v1/applications/fusion-bmt/jobs/$(radixJobName)'
+                          az login --service-principal -u $AzureClientId -p $AzureClientSecret --tenant $AzureTenantId  --allow-no-subscriptions
+                          $radixToken = az account get-access-token --resource 6dae42f8-4368-4678-94ff-3960e28e3630 --query=accessToken -otsv
 
-                          $Headers = @{"Authorization" = "Bearer ${{ parameters.radixToken }}"}
+                          $Headers = @{"Authorization" = "Bearer $radixToken"}
 
                           $TimeoutAfter = New-TimeSpan -Minutes 60
                           $WaitBetweenPolling = New-TimeSpan -Seconds 10
