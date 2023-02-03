@@ -1,7 +1,7 @@
-ARG dt_tenant
-ARG dt_url
-
-FROM ${dt_url}/e/${dt_tenant}/linux/oneagent-codemodules:all as DYNATRACE_ONEAGENT_IMAGE
+ARG DYNATRACE_PAAS_TOKEN
+ARG DYNATRACE_TENANT
+ARG DYNATRACE_URL
+FROM ${DYNATRACE_URL}/e/${DYNATRACE_TENANT}/linux/oneagent-codemodules:all as dynatrace_repo
 FROM node:lts-slim as build
 
 WORKDIR /app
@@ -10,14 +10,12 @@ COPY package.json package-lock.json tsconfig.json ./
 RUN npm install
 COPY . .
 
-FROM node:slim
+FROM node:lts-slim
 WORKDIR /app
 COPY --from=build /app ./
 
 #Dynatrace config
-COPY --from=DYNATRACE_ONEAGENT_IMAGE / /
 ENV LD_PRELOAD /opt/dynatrace/oneagent/agent/lib64/liboneagentproc.so
-ENV DT_TAGS=SHELLVIS
 
 EXPOSE 3000
 

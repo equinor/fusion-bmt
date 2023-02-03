@@ -37,6 +37,9 @@ stages:
           radixToken: $(RadixToken)
           branch: master
           DBContext: $(dbContextDev)
+          SpAzureClientId: $(SpPreProdAzureClientId)
+          SpAzureClientSecret: $(SpPreProdAzureClientSecret)
+          AzureTenantId: $(SpAzureTenantId)
 
     - template: templates/stage-deploy.yml
       parameters:
@@ -49,6 +52,9 @@ stages:
           radixToken: $(RadixToken)
           branch: qa
           DBContext: $(dbContextQa)
+          SpAzureClientId: $(SpPreProdAzureClientId)
+          SpAzureClientSecret: $(SpPreProdAzureClientSecret)
+          AzureTenantId: $(SpAzureTenantId)
 
     - template: templates/stage-deploy.yml
       parameters:
@@ -61,3 +67,6 @@ stages:
           radixToken: $(RadixToken)
           branch: prod
           DBContext: $(dbContextProd)
+          SpAzureClientId: $(SpPreProdAzureClientId)
+          SpAzureClientSecret: $(SpPreProdAzureClientSecret)
+          AzureTenantId: $(SpAzureTenantId)
