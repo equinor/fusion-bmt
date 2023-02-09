@@ -23,7 +23,6 @@ spec:
       email: radix@statoilsrm.onmicrosoft.com
 
   components:
-
     - name: backend-acr
       image: fusionbmt.azurecr.io/backend:{imageTagName}
       alwaysPullImageOnDeploy: true
@@ -65,7 +64,6 @@ spec:
     - name: frontend-acr
       image: fusionbmt.azurecr.io/frontend:{imageTagName}
       alwaysPullImageOnDeploy: true
-
       ports:
         - name: http
           port: 3000
@@ -118,4 +116,4 @@ spec:
 
   dnsAppAlias:
     environment: qa
-    component: frontend
+    component: frontend-acr
