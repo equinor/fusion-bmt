@@ -163,6 +163,13 @@ stages:
                       command: "custom"
                       custom: "tool"
                       arguments: "install --global --version 5.0 dotnet-ef"
+                
+                - task: DotNetCoreCLI@2
+                  displayName: Install dotnet sdk
+                  inputs:
+                      command: "custom"
+                      custom: "tool"
+                      arguments: "install --global --version 5.0 dotnet-sdk-5.0"
 
                 - task: DotNetCoreCLI@2
                   displayName: "Apply DB migrations"
