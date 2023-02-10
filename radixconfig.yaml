@@ -60,6 +60,9 @@ spec:
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString
+        - DT_TENANT
+        - DT_TENANTTOKEN
+        - DT_CONNECTIONPOINT
 
     - name: frontend-acr
       image: fusionbmt.azurecr.io/frontend:{imageTagName}
@@ -113,7 +116,10 @@ spec:
             DT_CUSTOM_PROP: "SERVICENAME=FUSION-BMT ENVIRONMENT=PROD"
             DT_PROCESS_GROUP: "FUSION-BMT-PROD"
             DT_ENTITY__PROCESS_GROUP_INSTANCE: "FUSION-BMT-PROD"
-
+      secrets:
+        - DT_TENANT
+        - DT_TENANTTOKEN
+        - DT_CONNECTIONPOINT
   dnsAppAlias:
     environment: qa
     component: frontend-acr
