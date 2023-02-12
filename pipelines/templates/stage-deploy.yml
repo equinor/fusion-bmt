@@ -157,6 +157,11 @@ stages:
           - job: AddDbMigrations_${{ parameters.envshortname }}
             dependsOn: Trigger_Radix_Deploy_${{ parameters.envshortname }}
             steps:
+
+                - task: UseDotNet@2
+                  inputs:
+                    packageType: 'sdk'
+                    version: '5.0.x'
                 - task: DotNetCoreCLI@2
                   displayName: Install dotnet-ef
                   inputs:
@@ -164,13 +169,6 @@ stages:
                       custom: "tool"
                       arguments: "install --global --version 5.0 dotnet-ef"
                 
-                - task: DotNetCoreCLI@2
-                  displayName: Install dotnet sdk
-                  inputs:
-                      command: "custom"
-                      custom: "tool"
-                      arguments: "install --global --version 5.0 dotnet-sdk-5.0"
-
                 - task: DotNetCoreCLI@2
                   displayName: "Apply DB migrations"
                   inputs:
