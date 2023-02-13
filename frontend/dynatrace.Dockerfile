@@ -16,6 +16,10 @@ COPY --from=build /app ./
 
 #Dynatrace config
 ENV LD_PRELOAD /opt/dynatrace/oneagent/agent/lib64/liboneagentproc.so
+USER root
+RUN mkdir /home/node/app && chown 1001:1001 /home/node/app/
+ENV npm_config_cache /home/node/app/.npm
+
 
 EXPOSE 3000
 
