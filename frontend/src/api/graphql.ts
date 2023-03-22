@@ -32,12 +32,20 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 })
 
 const getToken = (): string => {
+    console.log("getToken")
     const fusionStorageJson = localStorage.getItem(`FUSION_AUTH_CACHE`)
+    console.log("getToken fusionStorageJson", fusionStorageJson)
     if (fusionStorageJson === null) {
+        console.log("fusionStorageJson === null")
         throw new Error('Could not find auth token in local storage')
     }
+
     const fusionStorage = JSON.parse(fusionStorageJson)
-    const token = fusionStorage[`FUSION_AUTH_CACHE:${config.AD_APP_ID}:TOKEN`]
+    console.log("fusionStorage", fusionStorage)
+    const token = fusionStorage[`FUSION_AUTH_CACHE:5a842df8-3238-415d-b168-9f16a6a6031b:TOKEN`]
+    console.log("getToken token: ", token)
+    const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
+    return window.sessionStorage.getItem("token") ?? ""
     return token
 }
 
