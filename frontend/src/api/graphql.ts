@@ -32,13 +32,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 })
 
 const getToken = (): string => {
-    const fusionStorageJson = localStorage.getItem(`FUSION_AUTH_CACHE`)
-    if (fusionStorageJson === null) {
-        throw new Error('Could not find auth token in local storage')
-    }
-    const fusionStorage = JSON.parse(fusionStorageJson)
-    const token = fusionStorage[`FUSION_AUTH_CACHE:${config.AD_APP_ID}:TOKEN`]
-    return token
+    return window.sessionStorage.getItem("token") ?? ""
 }
 
 const refreshLink = new TokenRefreshLink({

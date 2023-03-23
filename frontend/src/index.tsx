@@ -1,5 +1,6 @@
-import React from 'react'
-import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser } from '@equinor/fusion'
+import React, { useEffect } from 'react'
+import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser, useFusionEnvironment } from '@equinor/fusion'
+import { createLegacyApp } from "@equinor/fusion-framework-react-app"
 import { ApolloProvider } from '@apollo/client'
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
@@ -10,6 +11,7 @@ import App from './App'
 import { config } from './config'
 
 import './styles.css'
+import { ResolveConfiguration } from './utils/config'
 
 const browserHistory = createBrowserHistory()
 const reactPlugin = new ReactPlugin()
@@ -27,43 +29,39 @@ appInsights.loadAppInsights()
 appInsights.trackPageView()
 
 const Start = () => {
-    const fusionContext = useFusionContext()
-    const currentUser = useCurrentUser()
     const runtimeConfig = useAppConfig()
-    const [hasLoggedIn, setHasLoggedIn] = React.useState(false)
     const [apiUrl, setApiUrl] = React.useState('')
+
+    const fusionEnvironment = useFusionEnvironment()
 
     React.useLayoutEffect(() => {
         if (runtimeConfig.value) {
             config.API_URL ? setApiUrl(config.API_URL) : setApiUrl(runtimeConfig.value.endpoints['API_URL'])
         }
+        else {
+            const config = ResolveConfiguration(fusionEnvironment.env)
+            setApiUrl(config.API_URL)
+        }
     }, [runtimeConfig])
 
-    const login = async () => {
-        const isLoggedIn = await fusionContext.auth.container.registerAppAsync(config.AD_APP_ID, [])
+    useEffect(() => {
+        (async () => {
+            const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
+            const token = await window.Fusion.modules.auth.acquireAccessToken({ scopes })
 
-        if (!isLoggedIn) {
-            await fusionContext.auth.container.loginAsync(config.AD_APP_ID)
-            return
-        }
-
-        setHasLoggedIn(true)
-    }
-
-    React.useEffect(() => {
-        login()
+            window.sessionStorage.setItem("token", token ?? "")
+        })()
     }, [])
 
     if (!apiUrl) {
-        return <></>
+        return <>Missing API url</>
     }
-    if (!currentUser || !hasLoggedIn) {
-        return <p>Please log in.</p>
-    }
+
+    const apolloClient = createClient(apiUrl)
 
     return (
         <>
-            <ApolloProvider client={createClient(apiUrl)}>
+            <ApolloProvider client={apolloClient}>
                 <App />
             </ApolloProvider>
         </>
@@ -71,17 +69,12 @@ const Start = () => {
 }
 
 registerApp('bmt', {
-    AppComponent: Start,
+    AppComponent: createLegacyApp(Start),
     name: 'Barrier Management Tool',
     context: {
         types: [ContextTypes.ProjectMaster],
-        buildUrl: (context: Context | null, url: string) => {
-            if (!context) return ''
-            return `/${context.id}`
-        },
-        getContextFromUrl: (url: string) => {
-            return url.split('/')[1]
-        },
+        buildUrl: (context: Context | null) => (context ? `/${context.id}` : ""),
+        getContextFromUrl: (url: string) => url.split("/")[1],
     },
 })
 

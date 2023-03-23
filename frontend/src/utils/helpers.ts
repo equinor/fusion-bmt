@@ -15,9 +15,7 @@ export const getCachedRoles = (): string[] => {
         return []
     }
     const fusionStorage = JSON.parse(fusionStorageJson)
-    const token: string = fusionStorage[`${CACHE_ENTRY}:8829d4ca-93e8-499a-8ce1-bc0ef4840176:TOKEN`]
-    const objectFromDecodedToken: Token = jwtDecode(token) as Token
-    const roles: string[] = objectFromDecodedToken['roles']
+    const roles = fusionStorage["USER"]?.roles
     return roles
 }
 
