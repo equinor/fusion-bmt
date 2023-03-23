@@ -82,10 +82,12 @@ namespace api
                         "https://pro-s-portal-ci.azurewebsites.net",
                         "https://pro-s-portal-fqa.azurewebsites.net",
                         "https://pro-s-portal-fprd.azurewebsites.net",
+                        "https://pro-s-portal-fprd.azurewebsites.net",
                         "https://fusion-s-portal-ci.azurewebsites.net",
                         "https://fusion-s-portal-fqa.azurewebsites.net",
                         "https://fusion-s-portal-fprd.azurewebsites.net",
-                        "https://pr-3422.fusion-dev.net"
+                        "https://pr-3422.fusion-dev.net",
+                        "https://pr-*.fusion-dev.net"
                     ).SetIsOriginAllowedToAllowWildcardSubdomains();
                 });
             });
