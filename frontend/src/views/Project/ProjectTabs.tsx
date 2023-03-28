@@ -23,9 +23,11 @@ interface Params {
 
 const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const currentUser = useCurrentUser()
+
     const fusionProjectId = match.params.fusionProjectId
 
     const [activeTab, setActiveTab] = React.useState(0)
+
     const { loading, project, error } = useProjectQuery(fusionProjectId)
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
