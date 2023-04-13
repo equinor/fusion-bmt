@@ -56,8 +56,13 @@ const refreshLink = new TokenRefreshLink({
     },
 })
 
-export const createClient = (apiUrl: string) =>
-    new ApolloClient({
+export const createClient = (apiUrl: string) => {
+    console.log("Creating client")
+    console.log("authLink", authLink)
+    console.log("refreshLink", refreshLink)
+    console.log("errorLink", errorLink)
+    console.log("apiUrl", apiUrl)
+    return new ApolloClient({
         link: authLink
             .concat(refreshLink)
             .concat(errorLink)
@@ -68,3 +73,4 @@ export const createClient = (apiUrl: string) =>
             ),
         cache: new InMemoryCache(),
     })
+}

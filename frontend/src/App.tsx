@@ -10,6 +10,8 @@ import EvaluationView from './views/Evaluation/EvaluationView'
 const App = () => {
     const currentProject = useCurrentContext()
 
+    console.log("currentProject in App.tsx: ", currentProject)
+
     if (!currentProject) {
         return (
             <>

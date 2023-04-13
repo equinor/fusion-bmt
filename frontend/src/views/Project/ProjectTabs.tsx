@@ -22,10 +22,16 @@ interface Params {
 }
 
 const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
+    console.log("ProjectTabs.tsx")
     const currentUser = useCurrentUser()
     const currentProject = useCurrentContext()
 
+    console.log("currentProject: ", currentProject)
+    console.log("currentUser: ", currentUser)
+
     const fusionProjectId = currentProject?.id ?? match.params.fusionProjectId
+
+    console.log("fusionProjectId: ", fusionProjectId)
 
     const [activeTab, setActiveTab] = React.useState(0)
 
@@ -34,10 +40,14 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
 
     if (loading) {
+        console.log("loading")
         return <>Loading...</>
     }
 
     if (error !== undefined || project === undefined) {
+        console.log("error")
+        console.log("error: ", error)
+        console.log("project: ", project)
         return <ErrorMessage hasError errorType={'noData'} title="Could not load project" message={genericErrorMessage} />
     }
 
