@@ -67,7 +67,7 @@ const Start = () => {
 
     const token = getToken()
     if (token === "") {
-        return <>Missing token</>
+        return <>Missing  token</>
     }
 
     console.log("creating apollo client with url: ", apiUrl)
