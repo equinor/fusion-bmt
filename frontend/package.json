@@ -16,9 +16,21 @@
     "license": "MIT",
     "manifest": {
         "name": "Barrier Management Tool",
-        "shortName": "BMT",
+        "shortName": "bmt",
+        "description": "Concept App",
+        "owners": [
+            "eriei@equinor.com",
+            "eisande@equinor.com",
+            "ahmab@equinor.com",
+            "toaus@equinor.com",
+            "dboh@equinor.com"
+        ],
         "admins": [
-            "krr@equinor.com"
+            "eriei@equinor.com",
+            "eisande@equinor.com",
+            "ahmab@equinor.com",
+            "toaus@equinor.com",
+            "dboh@equinor.com"
         ]
     },
     "icon": "../docs/app-icon.svg",

@@ -6,7 +6,7 @@ import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
 import { createBrowserHistory } from 'history'
 
-import { createClient } from './api/graphql'
+import { createClient, getToken } from './api/graphql'
 import App from './App'
 import { config } from './config'
 
@@ -46,10 +46,18 @@ const Start = () => {
 
     useEffect(() => {
         (async () => {
-            const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
-            const token = await window.Fusion.modules.auth.acquireAccessToken({ scopes })
+            try {
+                console.log("trying to get token")
+                const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
+                const token = await window.Fusion.modules.auth.acquireAccessToken({ scopes })
 
-            window.sessionStorage.setItem("token", token ?? "")
+                console.log("token: ", token)
+
+                window.sessionStorage.setItem("token", token ?? "")
+            }
+            catch (error) {
+                console.log("error: ", error)
+            }
         })()
     }, [])
 
@@ -57,7 +65,14 @@ const Start = () => {
         return <>Missing API url</>
     }
 
+    const token = getToken()
+    if (token === "") {
+        return <>Missing token</>
+    }
+
+    console.log("creating apollo client with url: ", apiUrl)
     const apolloClient = createClient(apiUrl)
+    console.log("apolloClient: ", apolloClient)
 
     return (
         <>
@@ -73,8 +88,14 @@ registerApp('bmt', {
     name: 'Barrier Management Tool',
     context: {
         types: [ContextTypes.ProjectMaster],
-        buildUrl: (context: Context | null) => (context ? `/${context.id}` : ""),
-        getContextFromUrl: (url: string) => url.split("/")[1],
+        buildUrl: (context: Context | null) => {
+            const result = (context ? `/${context.id}` : "")
+            return result
+        },
+        getContextFromUrl: (url: string) => {
+            const result = url.split("/")[1]
+            return result
+        },
     },
 })
 
