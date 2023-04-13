@@ -50,9 +50,9 @@ const Start = () => {
                 console.log("trying to get token")
                 const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
                 const token = await window.Fusion.modules.auth.acquireAccessToken({ scopes })
-
+    
                 console.log("token: ", token)
-
+    
                 window.sessionStorage.setItem("token", token ?? "")
             }
             catch (error) {
