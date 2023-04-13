@@ -27,7 +27,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const currentProject = useCurrentContext()
 
     console.log("currentProject: ", currentProject)
-    console.log("currentUser: ", currentUser)
+    console.log("currentUser:  ", currentUser)
 
     const fusionProjectId = currentProject?.id ?? match.params.fusionProjectId
 
