@@ -17,7 +17,7 @@
     "manifest": {
         "name": "Barrier Management Tool",
         "shortName": "bmt",
-        "description": "Concept App",
+        "description": "Barrier Management Tool",
         "owners": [
             "eriei@equinor.com",
             "eisande@equinor.com",
@@ -63,7 +63,7 @@
     },
     "devDependencies": {
         "@babel/preset-env": "^7.16.11",
-        "@equinor/fusion-cli": "3.0.0-beta.37",
+        "@equinor/fusion-cli": "3.0.0-beta.39",
         "@graphql-codegen/cli": "2.5.0",
         "@graphql-codegen/typescript": "2.4.3",
         "@testing-library/react": "^12.1.2",
