@@ -14,7 +14,6 @@ const Test = ({ match }: RouteComponentProps<Params>) => {
     console.log("match.params.fusionProjectId in Test.tsx: ", match.params.fusionProjectId)
 
     if (currentProject !== undefined && currentProject !== null) {
-        history.push(`/apps/bmt/${currentProject.id}`)
         history.push(`/${currentProject.id}}`)
     }
 
