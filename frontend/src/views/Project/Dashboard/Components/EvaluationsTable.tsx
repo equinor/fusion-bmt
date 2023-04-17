@@ -98,11 +98,21 @@ const EvaluationsTable = ({ evaluations }: Props) => {
             : []
         const actionsByState = getEvaluationActionsByState(evaluation)
 
+        const getEvaluationLink = (location: any) => {
+            console.log("location: ", location);
+            if (location.pathname.includes('bmt/')) {
+                console.log("includes bmt/");
+                return ({...location, pathname: `${currentProject.id}/evaluation/${evaluation.id}`})
+            }
+            console.log("does not include bmt/");
+            return ({...location, pathname: `bmt/${currentProject.id}/evaluation/${evaluation.id}`})
+        }
+
         return (
             <Row key={index}>
                 <CellWithBorder>
                     {/* <Link to={`${currentProject.id}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}> */}
-                    <Link to={location => {console.log("location: ", location); return ({...location, pathname: `${currentProject.id}/evaluation/${evaluation.id}`})}} style={{ textDecoration: 'none' }}>
+                    <Link to={location => getEvaluationLink(location)} style={{ textDecoration: 'none' }}>
                         <Typography
                             color="primary"
                             variant="body_short"
