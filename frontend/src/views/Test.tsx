@@ -22,6 +22,12 @@ const Test = ({ match }: RouteComponentProps<Params>) => {
     // }
 
     useEffect(() => {
+        history.listen((location) => {
+            console.log(`You changed the page to: ${location.pathname}`)
+        })
+    }, [history])
+
+    useEffect(() => {
         if (match?.params?.fusionProjectId !== undefined && match?.params?.fusionProjectId !== null) {
             history.push(`/${match.params.fusionProjectId}}`)
         }
