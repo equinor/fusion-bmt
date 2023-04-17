@@ -12,7 +12,6 @@ import { config } from './config'
 
 import './styles.css'
 import { ResolveConfiguration } from './utils/config'
-import { enableAgGrid } from '@equinor/fusion-framework-module-ag-grid'
 
 const browserHistory = createBrowserHistory()
 const reactPlugin = new ReactPlugin()
@@ -48,11 +47,8 @@ const Start = () => {
     useEffect(() => {
         (async () => {
             try {
-                console.log("trying to get token")
                 const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
                 const token = await window.Fusion.modules.auth.acquireAccessToken({ scopes })
-
-                console.log("token: ", token)
 
                 window.sessionStorage.setItem("token", token ?? "")
             }
@@ -66,14 +62,7 @@ const Start = () => {
         return <>Missing API url</>
     }
 
-    const token = getToken()
-    if (token === "") {
-        return <>Missing  token</>
-    }
-
-    console.log("creating apollo client with url: ", apiUrl)
     const apolloClient = createClient(apiUrl)
-    console.log("apolloClient: ", apolloClient)
 
     return (
         <>
@@ -85,7 +74,7 @@ const Start = () => {
 }
 
 registerApp('bmt', {
-    AppComponent: createLegacyApp(Start, (config) => enableAgGrid(config)),
+    AppComponent: createLegacyApp(Start),
     context: {
         types: [ContextTypes.ProjectMaster],
         buildUrl: (context: Context | null) => {

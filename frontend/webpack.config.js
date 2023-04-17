@@ -3,9 +3,9 @@ require('dotenv').config({ path: './.env' })
 const Dotenv = require('dotenv-webpack')
 
 let isProduction = false
-// if (process.env.BUILD_MODE && process.env.BUILD_MODE === 'production') {
-//     isProduction = true
-// }
+if (process.env.BUILD_MODE && process.env.BUILD_MODE === 'production') {
+    isProduction = true
+}
 const mode = isProduction ? 'production' : 'development'
 
 const API_URL = process.env.API_URL

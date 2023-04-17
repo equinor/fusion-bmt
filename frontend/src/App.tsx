@@ -10,7 +10,6 @@ import EvaluationView from './views/Evaluation/EvaluationView'
 const App = () => {
     const currentProject = useCurrentContext()
 
-
     if (!currentProject) {
         return (
             <>

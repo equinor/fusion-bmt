@@ -46,10 +46,6 @@ const refreshLink = new TokenRefreshLink({
         const contextStore: { [key: string]: any } = window
         const context: IFusionContext = contextStore[FUSION_APP_KEY]
         return new Promise(() => getToken())
-        // return context.auth.container.acquireTokenAsync(config.AD_APP_ID).then(token => {
-        //     // This code might not run since fusion refreshes after acquiring
-        //     return new Response(token)
-        // })
     },
     handleFetch: (token: string) => {
         // This code might not run since fusion refreshes after acquiring
@@ -58,11 +54,6 @@ const refreshLink = new TokenRefreshLink({
 })
 
 export const createClient = (apiUrl: string) => {
-    console.log("Creating client")
-    console.log("authLink", authLink)
-    console.log("refreshLink", refreshLink)
-    console.log("errorLink", errorLink)
-    console.log("apiUrl", apiUrl)
     return new ApolloClient({
         link: authLink
             .concat(refreshLink)
