@@ -101,7 +101,8 @@ const EvaluationsTable = ({ evaluations }: Props) => {
         return (
             <Row key={index}>
                 <CellWithBorder>
-                    <Link to={`${currentProject.id}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}>
+                    {/* <Link to={`${currentProject.id}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}> */}
+                    <Link to={location => {console.log("location: ", location); return ({...location, pathname: `${currentProject.id}/evaluation/${evaluation.id}`})}} style={{ textDecoration: 'none' }}>
                         <Typography
                             color="primary"
                             variant="body_short"
