@@ -6,6 +6,7 @@ import { useCurrentContext } from '@equinor/fusion'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 import ProjectTabs from './views/Project/ProjectTabs'
 import EvaluationView from './views/Evaluation/EvaluationView'
+import Test from './views/Test'
 
 const App = () => {
     const currentProject = useCurrentContext()
@@ -27,6 +28,7 @@ const App = () => {
                     <Switch>
                         <Route path="/apps/bmt/:fusionProjectId" exact component={ProjectTabs} />
                         <Route path="/apps/bmt/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationView} />
+                        <Route path="/" component={Test} />
                     </Switch>
                 </BrowserRouter>
             </ErrorBoundary>
