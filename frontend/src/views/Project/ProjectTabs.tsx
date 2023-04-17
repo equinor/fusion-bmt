@@ -39,6 +39,14 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
 
+    if (!currentProject) {
+        return (
+            <>
+                <p>Please select a project.</p>
+            </>
+        )
+    }
+
     if (loading) {
         console.log("loading")
         return <>Loading...</>
