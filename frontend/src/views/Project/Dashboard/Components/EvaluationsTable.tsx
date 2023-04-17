@@ -16,6 +16,7 @@ import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
 import SortableTable, { Column } from '../../../../components/SortableTable'
 import ProgressStatusIcon from './ProgressStatusIcon'
+import { useCurrentContext } from '@equinor/fusion'
 
 const { Row, Cell } = Table
 
@@ -46,6 +47,12 @@ interface Props {
 }
 
 const EvaluationsTable = ({ evaluations }: Props) => {
+    const currentProject = useCurrentContext()
+
+    if (currentProject === null || currentProject === undefined) {
+        return <p>No project selected</p>
+    }
+
     const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
         switch (accessor) {
             case 'name': {
@@ -94,7 +101,7 @@ const EvaluationsTable = ({ evaluations }: Props) => {
         return (
             <Row key={index}>
                 <CellWithBorder>
-                    <Link to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}>
+                    <Link to={`${currentProject.id}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}>
                         <Typography
                             color="primary"
                             variant="body_short"
