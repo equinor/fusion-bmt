@@ -19,7 +19,9 @@ const Test = ({ match }: RouteComponentProps<Params>) => {
     // }
 
     useEffect(() => {
-        history.push(`/${match.params.fusionProjectId}}`)
+        if (match?.params?.fusionProjectId === undefined) {
+            history.push(`/${match.params.fusionProjectId}}`)
+        }
     }, [match.params.fusionProjectId, match.params, match])
 
     return (
