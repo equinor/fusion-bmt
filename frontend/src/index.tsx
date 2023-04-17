@@ -77,10 +77,10 @@ registerApp('bmt', {
     AppComponent: createLegacyApp(Start),
     context: {
         types: [ContextTypes.ProjectMaster],
-        // buildUrl: (context: Context | null) => {
-        //     const result = (context ? `/${context.id}` : "")
-        //     return result
-        // },
+        buildUrl: (context: Context | null) => {
+            const result = (context ? `/${context.id}` : "")
+            return result
+        },
         // getContextFromUrl: (url: string) => {
         //     const result = url.split("/")[1]
         //     return result
