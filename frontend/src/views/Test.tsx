@@ -1,5 +1,5 @@
 import { RouteComponentProps } from 'react-router-dom'
-import { useCurrentContext } from '@equinor/fusion'
+import { useCurrentContext, useHistory } from '@equinor/fusion'
 
 interface Params {
     fusionProjectId: string
@@ -8,13 +8,19 @@ interface Params {
 
 const Test = ({ match }: RouteComponentProps<Params>) => {
     const currentProject = useCurrentContext()
+    let history = useHistory();
     
     console.log("currentProject in Test.tsx: ", currentProject)
     console.log("match.params.fusionProjectId in Test.tsx: ", match.params.fusionProjectId)
 
+    if (currentProject !== undefined && currentProject !== null) {
+        history.push(`/apps/bmt/${currentProject.id}`)
+        history.push(`/${currentProject.id}}`)
+    }
+
     return (
         <>
-            <p>Test page</p>
+            <p>Reload page</p>
         </>
     )
 }
