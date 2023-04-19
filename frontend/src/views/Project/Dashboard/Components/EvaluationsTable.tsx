@@ -16,6 +16,7 @@ import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
 import SortableTable, { Column } from '../../../../components/SortableTable'
 import ProgressStatusIcon from './ProgressStatusIcon'
+import { useCurrentContext } from '@equinor/fusion'
 
 const { Row, Cell } = Table
 
@@ -46,6 +47,12 @@ interface Props {
 }
 
 const EvaluationsTable = ({ evaluations }: Props) => {
+    const currentProject = useCurrentContext()
+
+    if (currentProject === null || currentProject === undefined) {
+        return <p>No project selected</p>
+    }
+
     const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
         switch (accessor) {
             case 'name': {
@@ -80,7 +87,6 @@ const EvaluationsTable = ({ evaluations }: Props) => {
     }
 
     const renderRow = (evaluation: Evaluation, index: number) => {
-        const project = useProject()
         const isWorkshopOrLater =
             evaluation.progression === Progression.Workshop ||
             evaluation.progression === Progression.FollowUp ||
@@ -91,10 +97,17 @@ const EvaluationsTable = ({ evaluations }: Props) => {
             : []
         const actionsByState = getEvaluationActionsByState(evaluation)
 
+        const getEvaluationLink = (location: any) => {
+            if (location.pathname.includes('bmt/')) {
+                return ({ ...location, pathname: `${currentProject.id}/evaluation/${evaluation.id}` })
+            }
+            return ({ ...location, pathname: `bmt/${currentProject.id}/evaluation/${evaluation.id}` })
+        }
+
         return (
             <Row key={index}>
                 <CellWithBorder>
-                    <Link to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} style={{ textDecoration: 'none' }}>
+                    <Link to={location => getEvaluationLink(location)} style={{ textDecoration: 'none' }}>
                         <Typography
                             color="primary"
                             variant="body_short"
