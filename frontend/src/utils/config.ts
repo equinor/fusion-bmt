@@ -6,7 +6,7 @@ export const ResolveConfiguration = (env: string) => {
             }
         case "FQA":
             return {
-                API_URL: "https://backend-fusion-bmt-qa.radix.equinor.com",
+                API_URL: "https://backend-acr-fusion-bmt-qa.radix.equinor.com",
             }
         case "CI":
             return {
