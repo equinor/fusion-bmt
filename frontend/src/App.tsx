@@ -27,6 +27,7 @@ const App = () => {
                         <Route path="/apps/bmt/:fusionProjectId" exact component={ProjectTabs} />
                         <Route path="/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationView} />
                         <Route path="/apps/bmt/:fusionProjectId/evaluation/:evaluationId" exact component={EvaluationView} />
+                        <Route path="/" component={ProjectTabs} />
                     </Switch>
                 </BrowserRouter>
             </ErrorBoundary>

@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
 import { ErrorMessage } from '@equinor/fusion-components'
 import { Tabs } from '@equinor/eds-core-react'
-import { useCurrentUser } from '@equinor/fusion'
+import { useCurrentContext, useCurrentUser } from '@equinor/fusion'
 
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
@@ -23,14 +23,23 @@ interface Params {
 
 const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const currentUser = useCurrentUser()
+    const currentProject = useCurrentContext()
 
-    const fusionProjectId = match.params.fusionProjectId
+    const fusionProjectId = currentProject?.id ?? match.params.fusionProjectId
 
     const [activeTab, setActiveTab] = React.useState(0)
 
     const { loading, project, error } = useProjectQuery(fusionProjectId)
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
+
+    if (!currentProject) {
+        return (
+            <>
+                <p>Please select a project.</p>
+            </>
+        )
+    }
 
     if (loading) {
         return <>Loading...</>
