@@ -97,8 +97,15 @@ const EvaluationsTable = ({ evaluations }: Props) => {
             : []
         const actionsByState = getEvaluationActionsByState(evaluation)
 
+        const getLastCharacter = (str: string) => {
+            return str.charAt(str.length - 1)
+        }
+
         const getEvaluationLink = (location: any) => {
             if (location.pathname.includes('bmt/')) {
+                if (getLastCharacter(location.pathname) === "/") {
+                    return ({ ...location, pathname: `evaluation/${evaluation.id}` })
+                }
                 return ({ ...location, pathname: `${currentProject.id}/evaluation/${evaluation.id}` })
             }
             return ({ ...location, pathname: `bmt/${currentProject.id}/evaluation/${evaluation.id}` })
