@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { Button } from '@equinor/eds-core-react'
+import { Button } from '@equinor/fusion-components'
 
 import { useProject } from '../../../../globals/contexts'
 import { Evaluation } from '../../../../api/models'
