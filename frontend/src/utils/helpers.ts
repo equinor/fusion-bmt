@@ -7,16 +7,14 @@ interface Token {
     [key: string]: any
 }
 
-const CACHE_ENTRY = 'FUSION_AUTH_CACHE'
-
 export const getCachedRoles = (): string[] => {
-    const fusionStorageJson: string | null = localStorage.getItem(CACHE_ENTRY)
-    if (fusionStorageJson === null) {
-        return []
+    const token = window.sessionStorage.getItem("token");
+    if (token !== null) {
+        const objectFromDecodedToken: Token = jwtDecode(token) as Token
+        const roles: string[] = objectFromDecodedToken['roles']
+        return roles
     }
-    const fusionStorage = JSON.parse(fusionStorageJson)
-    const roles = fusionStorage["USER"]?.roles
-    return roles
+    return []
 }
 
 export const findCorrectAnswer = (
