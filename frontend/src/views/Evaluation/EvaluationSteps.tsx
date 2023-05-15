@@ -10,6 +10,8 @@ import QuestionnaireStatusTabs from '../../components/StatusTab'
 import { progressionToString } from '../../utils/EnumToString'
 import FollowUpTabs from './FollowUp/FollowUpTabs'
 import WorkshopTabs from './Workshop/WorkshopTabs'
+import { Link } from "react-router-dom";
+import { useCurrentContext } from '@equinor/fusion'
 
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -18,11 +20,24 @@ interface EvaluationViewProps {
 }
 
 const EvaluationSteps = ({ evaluation, onProgressEvaluationClick, onProgressParticipant }: EvaluationViewProps) => {
+    const currentProject = useCurrentContext()
+
+    if (currentProject === null || currentProject === undefined) {
+        return <p>No project selected</p>
+    }
+
     const allRoles = Object.values(Role)
     const activeStepKey = evaluation.progression !== Progression.Finished ? evaluation.progression : Progression.FollowUp
 
+    // Return the new location that doesn't include the /evaluation part
+    const getProjectTabsLink = (location: any) => {
+        const newPath = location.pathname.split('/evaluation')[0]
+        return ({ ...location, pathname: newPath })
+    }
+
     return (
         <>
+            <Link to={location => getProjectTabsLink(location)}>Project dashboard</Link>
             <Stepper forceOrder={false} activeStepKey={activeStepKey} hideNavButtons={true}>
                 <Step
                     title={progressionToString(Progression.Nomination)}
