@@ -74,7 +74,7 @@ const Start = () => {
 }
 
 registerApp('bmt', {
-    AppComponent: createLegacyApp(Start),
+    AppComponent: Start,
     context: {
         types: [ContextTypes.ProjectMaster],
         buildUrl: (context: Context | null) => {
