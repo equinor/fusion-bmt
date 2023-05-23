@@ -125,40 +125,40 @@ namespace tests
             var service = new QuestionTemplateService(fixture.context);
             Barrier barrier = Randomize.Barrier();
             var originalQT = service.Create(
-                barrier:      barrier,
+                barrier: barrier,
                 organization: Randomize.Organization(),
-                text:         Randomize.String(),
+                text: Randomize.String(),
                 supportNotes: Randomize.String()
             );
 
-            var projectCategory  = new ProjectCategoryService(fixture.context).GetAll().First();
+            var projectCategory = new ProjectCategoryService(fixture.context).GetAll().First();
             originalQT = service.AddToProjectCategory(originalQT.Id, projectCategory.Id);
 
             var nTemplates = service.GetAll().Count();
             var nActive = service.ActiveQuestions(projectCategory).Count();
 
-            var newText         = Randomize.String();
+            var newText = Randomize.String();
             var newSupportNotes = Randomize.String();
             var newOrganization = Randomize.Organization();
 
             var updatedQT = service.Edit(
                 questionTemplate: originalQT,
-                barrier:          barrier,
-                organization:     newOrganization,
-                text:             newText,
-                supportNotes:     newSupportNotes,
-                status:           Status.Active
+                barrier: barrier,
+                organization: newOrganization,
+                text: newText,
+                supportNotes: newSupportNotes,
+                status: Status.Active
             );
 
             Assert.Equal(nTemplates + 1, service.GetAll().Count());
             Assert.Equal(nActive, service.ActiveQuestions(projectCategory).Count());
 
-            Assert.Equal(newText,          updatedQT.Text);
-            Assert.Equal(newSupportNotes,  updatedQT.SupportNotes);
-            Assert.Equal(barrier,          updatedQT.Barrier);
-            Assert.Equal(newOrganization,  updatedQT.Organization);
+            Assert.Equal(newText, updatedQT.Text);
+            Assert.Equal(newSupportNotes, updatedQT.SupportNotes);
+            Assert.Equal(barrier, updatedQT.Barrier);
+            Assert.Equal(newOrganization, updatedQT.Organization);
 
-            Assert.Equal(originalQT,       updatedQT.previous);
+            Assert.Equal(originalQT, updatedQT.previous);
             Assert.True(updatedQT.ProjectCategories.Count() == 1);
 
             Assert.Equal(updatedQT.AdminOrder, originalQT.AdminOrder);
@@ -169,9 +169,9 @@ namespace tests
         {
             var service = new QuestionTemplateService(fixture.context);
             var questionTemplateToCopy = service.Create(
-                barrier:      Randomize.Barrier(),
+                barrier: Randomize.Barrier(),
                 organization: Randomize.Organization(),
-                text:         Randomize.String(),
+                text: Randomize.String(),
                 supportNotes: Randomize.String()
             );
             int maxAdminOrder = service.GetAll()
@@ -180,11 +180,11 @@ namespace tests
             ;
 
             var newQuestionTemplate = service.Create(
-                barrier:      questionTemplateToCopy.Barrier,
+                barrier: questionTemplateToCopy.Barrier,
                 organization: questionTemplateToCopy.Organization,
-                text:         questionTemplateToCopy.Text,
+                text: questionTemplateToCopy.Text,
                 supportNotes: questionTemplateToCopy.SupportNotes,
-                newOrder:     questionTemplateToCopy.Order + 1
+                newOrder: questionTemplateToCopy.Order + 1
             );
 
             Assert.Equal(questionTemplateToCopy.Order + 1, newQuestionTemplate.Order);
@@ -197,13 +197,13 @@ namespace tests
             var service = new QuestionTemplateService(fixture.context);
             Barrier barrier = Randomize.Barrier();
             var questionTemplateToDelete = service.Create(
-                barrier:      barrier,
+                barrier: barrier,
                 organization: Randomize.Organization(),
-                text:         Randomize.String(),
+                text: Randomize.String(),
                 supportNotes: Randomize.String()
             );
 
-            var projectCategory  = new ProjectCategoryService(fixture.context).GetAll().First();
+            var projectCategory = new ProjectCategoryService(fixture.context).GetAll().First();
             questionTemplateToDelete = service.AddToProjectCategory(questionTemplateToDelete.Id, projectCategory.Id);
 
             int maxOrderActive = service.GetAll()
@@ -235,7 +235,7 @@ namespace tests
                 .Where(qt => qt.Status == Status.Active)
                 .Max(qt => qt.AdminOrder)
             ;
-            
+
             int maxOrder = fixture.context.QuestionTemplates
                 .Where(qt => qt.Status == Status.Active)
                 .Max(qt => qt.Order) + 1
@@ -297,11 +297,11 @@ namespace tests
             var originalQT = getAll.First();
             var updatedQT = questionTemplateService.Edit(
                 questionTemplate: originalQT,
-                barrier:          originalQT.Barrier,
-                organization:     Randomize.Organization(),
-                text:             Randomize.String(),
-                supportNotes:     Randomize.String(),
-                status:           Status.Active
+                barrier: originalQT.Barrier,
+                organization: Randomize.Organization(),
+                text: Randomize.String(),
+                supportNotes: Randomize.String(),
+                status: Status.Active
             );
 
             var inactiveQuestionTemplate = getAll
@@ -332,7 +332,7 @@ namespace tests
             Assert.True(updatedSP.QuestionTemplates.Contains(updatedQT));
 
             Assert.Equal(nActive + 1, service.ActiveQuestions(projectCategory).Count());
-            Assert.Equal(nTemplates,  service.GetAll().Count());
+            Assert.Equal(nTemplates, service.GetAll().Count());
 
             /* Adding the same QuestionTemplate should fail */
             Assert.Throws<Exception>(() =>
@@ -354,18 +354,18 @@ namespace tests
             var nActive = service.ActiveQuestions(projectCategory).Count();
             var nTemplates = service.GetAll().Count();
 
-            var updatedQT = service.RemoveFromProjectCategories(template.Id, new List<string> {projectCategory.Id});
+            var updatedQT = service.RemoveFromProjectCategories(template.Id, new List<string> { projectCategory.Id });
             var updatedPC = projectCategoryService.Get(projectCategory.Id);
 
             Assert.False(updatedQT.ProjectCategories.Contains(updatedPC));
             Assert.False(updatedPC.QuestionTemplates.Contains(updatedQT));
 
-            Assert.Equal(nActive - 1, service.ActiveQuestions(projectCategory).Count());
-            Assert.Equal(nTemplates,  service.GetAll().Count());
+            Assert.Equal(nActive > 0 ? nActive - 1 : 0, service.ActiveQuestions(projectCategory).Count());
+            Assert.Equal(nTemplates, service.GetAll().Count());
 
             /* Removing the same QuestionTemplate should fail */
             Assert.Throws<Exception>(() =>
-                service.RemoveFromProjectCategories(template.Id, new List<string> {projectCategory.Id})
+                service.RemoveFromProjectCategories(template.Id, new List<string> { projectCategory.Id })
             );
         }
 
@@ -375,7 +375,7 @@ namespace tests
             var projectCategoryService = new ProjectCategoryService(fixture.context);
             var projectCategory1 = projectCategoryService.Create(Randomize.String());
             var projectCategory2 = projectCategoryService.Create(Randomize.String());
-            var projectCategoryIds = new List<string> {projectCategory1.Id, projectCategory2.Id};
+            var projectCategoryIds = new List<string> { projectCategory1.Id, projectCategory2.Id };
 
             var service = new QuestionTemplateService(fixture.context);
             var template = service.GetAll().First();
@@ -398,7 +398,7 @@ namespace tests
 
             Assert.Equal(nActiveFirstCategory - 1, service.ActiveQuestions(projectCategory1).Count());
             Assert.Equal(nActiveSecondCategory - 1, service.ActiveQuestions(projectCategory2).Count());
-            Assert.Equal(nTemplates,  service.GetAll().Count());
+            Assert.Equal(nTemplates, service.GetAll().Count());
         }
     }
 }

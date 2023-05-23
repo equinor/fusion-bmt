@@ -179,7 +179,7 @@ namespace tests
             Evaluation evaluation = project.Evaluations.First();
             ParticipantService participantService = new ParticipantService(fixture.context);
 
-            int participantsBefore = project.Evaluations.First().Participants.Count;
+            int participantsBefore = project?.Evaluations?.First()?.Participants?.Count ?? 0;
             participantService.Create("ParticipantAddedToProject", evaluation, Organization.Engineering, Role.Participant);
             int participantsAfter = project.Evaluations.First().Participants.Count;
 

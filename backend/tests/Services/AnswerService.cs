@@ -88,7 +88,7 @@ namespace tests
             AnswerService answerService = new AnswerService(fixture.context);
             Answer answerCreate = answerService.Create(participant, question, Severity.OnTrack, "test_answer", participant.Progression);
 
-            Answer answerGet = answerService.GetAnswer(question, participant, question.Evaluation.Progression);
+            Answer answerGet = answerService.GetAnswer(answerCreate.Id);
 
             Assert.Equal(answerCreate, answerGet);
         }

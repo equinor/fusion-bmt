@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HotChocolate.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using api.Services;
 using api.Models;
 using Action = api.Models.Action;
 using api.Authorization;
+using HotChocolate.Authorization;
 
 namespace api.GQL
 {
