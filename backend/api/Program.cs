@@ -18,8 +18,10 @@ using Microsoft.OpenApi.Models;
 using api.Swagger;
 using Microsoft.AspNetCore.Rewrite;
 using System.Collections.Generic;
+using api.Helpers;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 try
 {
@@ -42,6 +44,12 @@ try
 
     var config = configBuilder.Build();
     builder.Configuration.AddConfiguration(config);
+
+    Log.Logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(config)
+        .Enrich.FromLogContext()
+        .Enrich.WithProperty("Environment", environment)
+        .CreateLogger();
 
     var _sqlConnectionString = builder.Configuration.GetSection("Database").GetValue<string>("ConnectionString");
 
@@ -173,7 +181,7 @@ try
         c.DocumentFilter<GraphEndpoint>();
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "api", Version = "v1" });
     });
-
+    builder.Host.UseSerilog();
     var app = builder.Build();
 
     app.Logger.LogInformation("Starting application...");
@@ -216,7 +224,7 @@ try
     app.UseCors(_accessControlPolicyName);
 
     app.UseAuthentication();
-
+    app.UseMiddleware<RequestLoggingMiddleware>();
     app.UseAuthorization();
 
     app.UseEndpoints(endpoints =>
