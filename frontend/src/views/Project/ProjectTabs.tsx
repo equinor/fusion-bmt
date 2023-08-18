@@ -25,11 +25,17 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const currentUser = useCurrentUser()
     const currentProject = useCurrentContext()
 
+    useEffect(() => {
+        console.log("CurrentProject: ", currentProject)
+    }, [currentProject])
+
     const fusionProjectId = currentProject?.id ?? match.params.fusionProjectId
+    const externalId = currentProject?.externalId
+    console.log("ExternalId: ", externalId)
 
     const [activeTab, setActiveTab] = React.useState(0)
 
-    const { loading, project, error } = useProjectQuery(fusionProjectId)
+    const { loading, project, error } = useProjectQuery(fusionProjectId, externalId ?? '')
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
 
@@ -85,12 +91,13 @@ interface ProjectQueryProps {
     error: ApolloError | undefined
 }
 
-const useProjectQuery = (fusionProjectId: string): ProjectQueryProps => {
+const useProjectQuery = (fusionProjectId: string, externalID: string): ProjectQueryProps => {
     const GET_PROJECT = gql`
         query {
-            project(fusionProjectID: "${fusionProjectId}") {
+            project(fusionProjectID: "${fusionProjectId}", externalID: "${externalID}") {
                 id
                 fusionProjectId
+                externalId
                 createDate
             }
         }

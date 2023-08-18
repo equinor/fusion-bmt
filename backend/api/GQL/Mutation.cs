@@ -166,16 +166,21 @@ namespace api.GQL
 
         public Evaluation setEvaluationToAnotherProject(
             string evaluationId,
-            string destinationProjectFusionId
+            string destinationProjectFusionId,
+            string destinationProjectExternalId
         )
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
             Project destinationProject;
-            try {
-                destinationProject = _projectService.GetProjectFromFusionId(destinationProjectFusionId);
-            } catch {
-                destinationProject = _projectService.Create(destinationProjectFusionId);
+            try
+            {
+                destinationProject = _projectService.GetProjectFromExternalId(destinationProjectExternalId);
+                destinationProject ??= _projectService.GetProjectFromFusionId(destinationProjectFusionId);
+            }
+            catch
+            {
+                destinationProject = _projectService.Create(destinationProjectFusionId, destinationProjectExternalId);
                 _logger.LogInformation($"Created new project with fusionProjectId: {destinationProjectFusionId}");
             }
             Evaluation updatedEvaluation = _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
