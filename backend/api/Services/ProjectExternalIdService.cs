@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Context;
 using api.Models;
-using datasheetapi.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Services
@@ -27,8 +26,19 @@ namespace api.Services
 
         public async Task<List<string>> UpdateExistingProjectWithExternalId()
         {
+            if (ProjectExternalIdServiceHelper.GetRunning())
+            {
+                var count = ProjectExternalIdServiceHelper.GetNumProjectsWithoutExternalId();
+                var resultInProgress = new List<string> { "Update already running", $"Count: {count}" };
+                // resultInProgress.AddRange(updatedProjectIds);
+                return resultInProgress;
+            }
+
+            ProjectExternalIdServiceHelper.SetRunning(true);
+
             var updatedProjectIds = new List<string>();
             var projectsWithoutExternalId = await _context.Projects.Where(project => project.ExternalId == null || project.ExternalId == Guid.Empty.ToString()).ToListAsync();
+            ProjectExternalIdServiceHelper.SetNumProjectsWithoutExternalId(projectsWithoutExternalId.Count);
 
             foreach (var project in projectsWithoutExternalId)
             {
@@ -48,6 +58,8 @@ namespace api.Services
             }
 
             await _context.SaveChangesAsync();
+
+            ProjectExternalIdServiceHelper.SetRunning(false);
 
             return updatedProjectIds;
         }

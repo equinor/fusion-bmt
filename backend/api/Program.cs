@@ -164,6 +164,8 @@ try
     builder.Services.AddScoped<QuestionTemplateService>();
     builder.Services.AddScoped<ProjectCategoryService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IFusionService, FusionService>();
+
     builder.Services.AddScoped<IProjectExternalIdService, ProjectExternalIdService>();
 
     builder.Services.AddGraphQLServer()
