@@ -242,7 +242,8 @@ namespace api.Services
         private QuestionTemplate ReorderQuestionTemplateInternal(QuestionTemplate questionTemplate, int newOrder)
         {
             // Reordering is not necessary for question templates that are not Active
-            if (questionTemplate.Status != Status.Active) {
+            if (questionTemplate.Status != Status.Active)
+            {
                 return questionTemplate;
             }
 
