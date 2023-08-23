@@ -21,7 +21,7 @@ namespace api.Services
             Project newProject = new Project
             {
                 ExternalId = externalID,
-                // FusionProjectId = fusionProjectID,
+                FusionProjectId = "",
                 CreateDate = createDate
             };
 

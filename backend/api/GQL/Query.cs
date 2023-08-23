@@ -60,8 +60,14 @@ namespace api.GQL
             Project project;
             try
             {
-                project = _projectService.GetProjectFromExternalId(externalID);
-                // project = _projectService.GetProjectFromFusionId(fusionProjectID);
+                try
+                {
+                    project = _projectService.GetProjectFromExternalId(externalID);
+                }
+                catch (NotFoundInDBException)
+                {
+                    project = _projectService.GetProjectFromFusionId(fusionProjectID);
+                }
             }
             catch (NotFoundInDBException)
             {

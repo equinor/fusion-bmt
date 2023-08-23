@@ -5,6 +5,7 @@ using api.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace datasheetapi.Controllers;
 
@@ -27,6 +28,7 @@ public class ProjectExternalIdController : ControllerBase
     [HttpPost(Name = "UpdateExistingProjectWithExternalId")]
     public async Task<ActionResult<List<string>>> UpdateExistingProjectWithExternalId()
     {
+        Console.WriteLine("UpdateExistingProjectWithExternalId");
         var result = await _projectExternalIdService.UpdateExistingProjectWithExternalId();
         return Ok(result);
     }

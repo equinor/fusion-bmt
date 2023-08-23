@@ -28,6 +28,7 @@ namespace api.Services
         {
             if (ProjectExternalIdServiceHelper.GetRunning())
             {
+                Console.WriteLine("Update already running");
                 var count = ProjectExternalIdServiceHelper.GetNumProjectsWithoutExternalId();
                 var resultInProgress = new List<string> { "Update already running", $"Count: {count}" };
                 // resultInProgress.AddRange(updatedProjectIds);
@@ -37,7 +38,7 @@ namespace api.Services
             ProjectExternalIdServiceHelper.SetRunning(true);
 
             var updatedProjectIds = new List<string>();
-            var projectsWithoutExternalId = await _context.Projects.Where(project => project.ExternalId == null || project.ExternalId == Guid.Empty.ToString()).ToListAsync();
+            var projectsWithoutExternalId = await _context.Projects.Where(project => project.ExternalId == null || project.ExternalId == Guid.Empty.ToString() || project.ExternalId == string.Empty).ToListAsync();
             ProjectExternalIdServiceHelper.SetNumProjectsWithoutExternalId(projectsWithoutExternalId.Count);
 
             foreach (var project in projectsWithoutExternalId)
