@@ -3,7 +3,7 @@
     "httpServer": "NettyWrapper",
     "tokenCallbacks": [
         {
-            "issuerId": "common",
+            "issuerId": "http://localhost:8080/common",
             "tokenExpiry": 5000,
             "requestMappings": [
                 {
@@ -15,7 +15,9 @@
                         "givenName": "Fat",
                         "name": "Fat Cat",
                         "oid": "111",
-                        "roles": ["Role.User"],
+                        "roles": [
+                            "Role.User"
+                        ],
                         "tid": "common",
                         "upn": "Fat Cat",
                         "ver": "1.0"
@@ -30,7 +32,9 @@
                         "givenName": "Doggy",
                         "name": "Cool Doggy",
                         "oid": "222",
-                        "roles": ["Role.User"],
+                        "roles": [
+                            "Role.User"
+                        ],
                         "tid": "common",
                         "upn": "doggy",
                         "ver": "1.0"
@@ -45,7 +49,9 @@
                         "givenName": "Giraffe",
                         "name": "Scared Giraffe",
                         "oid": "333",
-                        "roles": ["Role.User"],
+                        "roles": [
+                            "Role.User"
+                        ],
                         "tid": "common",
                         "upn": "giraffe",
                         "ver": "1.0"
@@ -60,7 +66,9 @@
                         "givenName": "Unicorn",
                         "name": "Rainbow Unicorn",
                         "oid": "444",
-                        "roles": ["Role.User"],
+                        "roles": [
+                            "Role.User"
+                        ],
                         "tid": "common",
                         "upn": "unicorn",
                         "ver": "1.0"
@@ -75,7 +83,9 @@
                         "givenName": "Raccoon",
                         "name": "Trashy Raccoon",
                         "oid": "555",
-                        "roles": ["Role.Facilitator"],
+                        "roles": [
+                            "Role.Facilitator"
+                        ],
                         "tid": "common",
                         "upn": "raccoon",
                         "ver": "1.0"
@@ -90,7 +100,9 @@
                         "givenName": "Penguin",
                         "name": "Dancing Penguin",
                         "oid": "666",
-                        "roles": ["Role.Admin"],
+                        "roles": [
+                            "Role.Admin"
+                        ],
                         "tid": "common",
                         "upn": "penguin",
                         "ver": "1.0"
