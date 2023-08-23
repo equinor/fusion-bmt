@@ -44,9 +44,9 @@ public class FusionService : IFusionService
         return projectMasterContext;
     }
 
-    private async Task<FusionContext?> ResolveProjectMasterContext(string contextId)
+    private async Task<FusionContext> ResolveProjectMasterContext(string contextId)
     {
-        FusionContext? projectMasterContext = await _fusionContextResolver.ResolveContextAsync(contextId, FusionContextType.ProjectMaster);
+        FusionContext projectMasterContext = await _fusionContextResolver.ResolveContextAsync(contextId, FusionContextType.ProjectMaster);
 
         Console.WriteLine("ResolveProjectMasterContext - contextId: " + contextId);
         Console.WriteLine("ResolveProjectMasterContext - projectMasterContext: " + projectMasterContext);

@@ -53,10 +53,11 @@ try
 
     var _sqlConnectionString = builder.Configuration.GetSection("Database").GetValue<string>("ConnectionString");
 
-    if (string.IsNullOrEmpty(_sqlConnectionString))
+    if (true)
     {
         DbContextOptionsBuilder<BmtDbContext> contextBuilder = new();
-        _sqlConnectionString = new SqliteConnectionStringBuilder { DataSource = "file::memory:", Cache = SqliteCacheMode.Shared }.ToString();
+        _sqlConnectionString = new SqliteConnectionStringBuilder { DataSource = "C:\\Workspace\\bmt.db", Mode = SqliteOpenMode.ReadWriteCreate, Cache = SqliteCacheMode.Shared }
+            .ToString();
 
         // In-memory sqlite requires an open connection throughout the whole lifetime of the database
         _connectionToInMemorySqlite = new SqliteConnection(_sqlConnectionString);

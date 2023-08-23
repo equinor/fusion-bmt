@@ -180,8 +180,8 @@ namespace api.GQL
             }
             catch
             {
-                destinationProject = _projectService.Create(destinationProjectFusionId, destinationProjectExternalId);
-                _logger.LogInformation($"Created new project with fusionProjectId: {destinationProjectFusionId}");
+                destinationProject = _projectService.Create(destinationProjectExternalId);
+                _logger.LogInformation($"Created new project with externalId: {destinationProjectExternalId}");
             }
             Evaluation updatedEvaluation = _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
             return updatedEvaluation;
