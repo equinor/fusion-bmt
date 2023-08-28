@@ -3,7 +3,7 @@
     "httpServer": "NettyWrapper",
     "tokenCallbacks": [
         {
-            "issuerId": "http://localhost:8080/common",
+            "issuerId": "common",
             "tokenExpiry": 5000,
             "requestMappings": [
                 {
