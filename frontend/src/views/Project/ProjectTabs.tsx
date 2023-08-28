@@ -25,13 +25,8 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const currentUser = useCurrentUser()
     const currentProject = useCurrentContext()
 
-    useEffect(() => {
-        console.log("CurrentProject: ", currentProject)
-    }, [currentProject])
-
     const fusionProjectId = currentProject?.id ?? match.params.fusionProjectId
     const externalId = currentProject?.externalId
-    console.log("ExternalId: ", externalId)
 
     const [activeTab, setActiveTab] = React.useState(0)
 

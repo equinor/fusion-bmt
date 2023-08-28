@@ -175,8 +175,14 @@ namespace api.GQL
             Project destinationProject;
             try
             {
-                destinationProject = _projectService.GetProjectFromExternalId(destinationProjectExternalId);
-                destinationProject ??= _projectService.GetProjectFromFusionId(destinationProjectFusionId);
+                try
+                {
+                    destinationProject = _projectService.GetProjectFromExternalId(destinationProjectExternalId);
+                }
+                catch (NotFoundInDBException)
+                {
+                    destinationProject = _projectService.GetProjectFromFusionId(destinationProjectFusionId);
+                }
             }
             catch
             {
