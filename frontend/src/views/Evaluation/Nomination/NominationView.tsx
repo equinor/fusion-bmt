@@ -141,7 +141,6 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
             setIsFetchingProjects(true)
 
             apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
-                console.log("projects in nomination view", projects.data)
                 setProjects(projects.data)
                 setIsFetchingProjects(false)
             })
