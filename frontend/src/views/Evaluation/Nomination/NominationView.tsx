@@ -40,7 +40,6 @@ export const createDropdownOptionsFromProjects = (
             {
                 title: 'Loading...',
                 key: 'loading',
-                externalId: null,
                 isDisabled: true,
             },
         ]
@@ -50,7 +49,6 @@ export const createDropdownOptionsFromProjects = (
             {
                 title: 'No projects found',
                 key: 'empty',
-                externalId: null,
                 isDisabled: true,
             },
         ]
@@ -176,7 +174,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         return <ErrorMessage hasError errorType={'error'} title="Could not add participant" message={genericErrorMessage} />
     }
 
-    const updateEvaluationToNewProject = (item: SearchableDropdownOption) => {
+    const updateEvaluationToNewProject = (item: any) => {
         setEvaluationToAnotherProject(evaluation.id, item.key, item.externalId)
 
         if (process.env.IS_DEVELOPMENT === 'true') {
