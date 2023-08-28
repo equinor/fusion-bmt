@@ -40,6 +40,7 @@ export const createDropdownOptionsFromProjects = (
             {
                 title: 'Loading...',
                 key: 'loading',
+                externalId: null,
                 isDisabled: true,
             },
         ]
@@ -47,8 +48,9 @@ export const createDropdownOptionsFromProjects = (
     if (list.length === 0) {
         return [
             {
-                title: 'No projects found', 
+                title: 'No projects found',
                 key: 'empty',
+                externalId: null,
                 isDisabled: true,
             },
         ]
@@ -56,20 +58,21 @@ export const createDropdownOptionsFromProjects = (
     return list.map((item, index) => ({
         title: item.title,
         key: item.id,
+        externalId: item.externalId,
         isSelected: item.id === selectedOption,
     }))
 }
 
 interface SetEvaluationToAnotherProjectMutationProps {
-    setEvaluationToAnotherProject: (evaluationId: string, destinationProjectFusionId: string) => void
+    setEvaluationToAnotherProject: (evaluationId: string, destinationProjectFusionId: string, destinationProjectExternalId: string | null | undefined) => void
     loading: boolean
     error: ApolloError | undefined
 }
 
 const useSetEvaluationToAnotherProjectMutation = (): SetEvaluationToAnotherProjectMutationProps => {
     const SET_EVALUATION_TO_ANOTHER_PROJECT = gql`
-        mutation setEvaluationToAnotherProject($evaluationId: String!, $destinationProjectFusionId: String!) {
-            setEvaluationToAnotherProject(evaluationId: $evaluationId, destinationProjectFusionId: $destinationProjectFusionId) {
+        mutation setEvaluationToAnotherProject($evaluationId: String!, $destinationProjectFusionId: String!, $destinationProjectExternalId: String) {
+            setEvaluationToAnotherProject(evaluationId: $evaluationId, destinationProjectFusionId: $destinationProjectFusionId, destinationProjectExternalId: $destinationProjectExternalId) {
                 id
             }
         }
@@ -77,9 +80,9 @@ const useSetEvaluationToAnotherProjectMutation = (): SetEvaluationToAnotherProje
 
     const [setEvaluationToAnotherProjectApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_TO_ANOTHER_PROJECT)
 
-    const setEvaluationToAnotherProject = (evaluationId: string, destinationProjectFusionId: string) => {
+    const setEvaluationToAnotherProject = (evaluationId: string, destinationProjectFusionId: string, destinationProjectExternalId: string | null | undefined) => {
         setEvaluationToAnotherProjectApolloFunc({
-            variables: { evaluationId, destinationProjectFusionId },
+            variables: { evaluationId, destinationProjectFusionId, destinationProjectExternalId },
         })
     }
 
@@ -97,7 +100,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const participant = useParticipant()
 
     const { setEvaluationToAnotherProject, loading: setEvaluationToAnotherProjectLoading, error: setEvaluationToAnotherProjectError, } = useSetEvaluationToAnotherProjectMutation()
-    
+
     const [projects, setProjects] = useState<Context[]>([])
     const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
     const [currentProject, setCurrentProject] = useState<Context>()
@@ -136,12 +139,13 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     useEffect(() => {
         if (projects.length === 0) {
             setIsFetchingProjects(true)
-            
+
             apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
+                console.log("projects in nomination view", projects.data)
                 setProjects(projects.data)
                 setIsFetchingProjects(false)
             })
-            
+
             apiClients.context.getContextAsync(evaluation.project.fusionProjectId).then(project => {
                 setCurrentProject(project.data)
             })
@@ -163,7 +167,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
             </div>
         )
     }
-    
+
 
     if (errorQuery !== undefined || participants === undefined) {
         return <ErrorMessage hasError errorType={'noData'} title="Could not load participants" message={genericErrorMessage} />
@@ -173,8 +177,8 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         return <ErrorMessage hasError errorType={'error'} title="Could not add participant" message={genericErrorMessage} />
     }
 
-    const updateEvaluationToNewProject = (item: SearchableDropdownOption) =>  {
-        setEvaluationToAnotherProject(evaluation.id, item.key)
+    const updateEvaluationToNewProject = (item: SearchableDropdownOption) => {
+        setEvaluationToAnotherProject(evaluation.id, item.key, item.externalId)
 
         if (process.env.IS_DEVELOPMENT === 'true') {
             window.location.pathname = `${item.key}/evaluation/${evaluation.id}`
@@ -209,20 +213,20 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                             >
                                 {isVisible ? 'Hide from list' : 'Make visible'}
                             </Button>
-                            
-                            { isFetchingProjects ? 
-                            <Spinner/> : 
-                            <div>
-                                Switch evaluation to another project
-                                <SearchableDropdown
-                                    label={currentProject?.title}
-                                    placeholder={currentProject?.title}
-                                    onSelect={option => updateEvaluationToNewProject(option)}
-                                    options={projectOptions}
-                                />
-                            
-                            </div>
-                            }     
+
+                            {isFetchingProjects ?
+                                <Spinner /> :
+                                <div>
+                                    Switch evaluation to another project
+                                    <SearchableDropdown
+                                        label={currentProject?.title}
+                                        placeholder={currentProject?.title}
+                                        onSelect={option => updateEvaluationToNewProject(option)}
+                                        options={projectOptions}
+                                    />
+
+                                </div>
+                            }
                         </ApplicationGuidanceAnchor>
                     )}
                 </Box>
