@@ -14,13 +14,14 @@ namespace api.Services
         {
             _context = context;
         }
-        public Project Create(string fusionProjectID)
+        public Project Create(string externalID)
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Project newProject = new Project
             {
-                FusionProjectId = fusionProjectID,
+                ExternalId = externalID,
+                FusionProjectId = "",
                 CreateDate = createDate
             };
 
@@ -33,6 +34,17 @@ namespace api.Services
         public IQueryable<Project> GetAll()
         {
             return _context.Projects;
+        }
+
+        public Project GetProjectFromExternalId(string externalId)
+        {
+            Project project = _context.Projects
+                .FirstOrDefault(project => project.ExternalId.Equals(externalId));
+            if (project == null)
+            {
+                throw new NotFoundInDBException($"Project with externalId: {externalId} not found");
+            }
+            return project;
         }
 
         public Project GetProjectFromFusionId(string fusionProjectId)

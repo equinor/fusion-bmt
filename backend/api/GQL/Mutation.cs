@@ -166,17 +166,28 @@ namespace api.GQL
 
         public Evaluation setEvaluationToAnotherProject(
             string evaluationId,
-            string destinationProjectFusionId
+            string destinationProjectFusionId,
+            string destinationProjectExternalId
         )
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
             Project destinationProject;
-            try {
-                destinationProject = _projectService.GetProjectFromFusionId(destinationProjectFusionId);
-            } catch {
-                destinationProject = _projectService.Create(destinationProjectFusionId);
-                _logger.LogInformation($"Created new project with fusionProjectId: {destinationProjectFusionId}");
+            try
+            {
+                try
+                {
+                    destinationProject = _projectService.GetProjectFromExternalId(destinationProjectExternalId);
+                }
+                catch (NotFoundInDBException)
+                {
+                    destinationProject = _projectService.GetProjectFromFusionId(destinationProjectFusionId);
+                }
+            }
+            catch
+            {
+                destinationProject = _projectService.Create(destinationProjectExternalId);
+                _logger.LogInformation($"Created new project with externalId: {destinationProjectExternalId}");
             }
             Evaluation updatedEvaluation = _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
             return updatedEvaluation;

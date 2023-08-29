@@ -242,11 +242,13 @@ namespace api.Context
             var project1 = new Project
             {
                 FusionProjectId = "1",
+                ExternalId = "1",
                 CreateDate = DateTimeOffset.UtcNow
             };
             var project2 = new Project
             {
                 FusionProjectId = "2",
+                ExternalId = "2",
                 CreateDate = DateTimeOffset.UtcNow
             };
 

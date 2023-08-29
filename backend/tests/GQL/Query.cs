@@ -35,7 +35,7 @@ namespace tests
         public void EnsureCreatedProject()
         {
             int projectsBefore = _query.GetProjects().Count();
-            _query.GetProject("some_id_that_does_not_exist");
+            _query.GetProject("some_id_that_does_not_exist", "some_id_that_does_not_exist");
             int projectsAfter = _query.GetProjects().Count();
 
             Assert.Equal(projectsBefore + 1, projectsAfter);
@@ -44,9 +44,9 @@ namespace tests
         [Fact]
         public void EnsureCreatedProjectExists()
         {
-            _query.GetProject("some_id_that_does_not_exist_2");
+            _query.GetProject("some_id_that_does_not_exist_2", "some_id_that_does_not_exist_2");
             int projectsBefore = _query.GetProjects().Count();
-            _query.GetProject("some_id_that_does_not_exist_2");
+            _query.GetProject("some_id_that_does_not_exist_2", "some_id_that_does_not_exist_2");
             int projectsAfter = _query.GetProjects().Count();
 
             Assert.Equal(projectsBefore, projectsAfter);

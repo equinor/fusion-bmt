@@ -55,16 +55,23 @@ namespace api.GQL
             return _projectService.GetAll();
         }
 
-        public Project GetProject(string fusionProjectID)
+        public Project GetProject(string fusionProjectID, string externalID)
         {
             Project project;
             try
             {
-                project = _projectService.GetProjectFromFusionId(fusionProjectID);
+                try
+                {
+                    project = _projectService.GetProjectFromExternalId(externalID);
+                }
+                catch (NotFoundInDBException)
+                {
+                    project = _projectService.GetProjectFromFusionId(fusionProjectID);
+                }
             }
             catch (NotFoundInDBException)
             {
-                project = _projectService.Create(fusionProjectID);
+                project = _projectService.Create(externalID);
                 _logger.LogInformation($"Created new project with fusionProjectId: {fusionProjectID}");
             }
             return project;
