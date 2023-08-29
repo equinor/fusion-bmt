@@ -43,6 +43,7 @@ spec:
           imageTagName: qa-release
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
+            environment: qa
         - environment: prod
           imageTagName: prod-release
           resources:
@@ -57,6 +58,7 @@ spec:
             maxReplicas: 6
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
+            environment: prod
       secrets:
         - AzureAd__ClientSecret
         - Database__ConnectionString
