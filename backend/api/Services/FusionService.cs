@@ -44,9 +44,37 @@ public class FusionService : IFusionService
         return projectMasterContext;
     }
 
+    private FusionContext GetProjectMasterContextFromFusionContext(FusionContext fusionContext)
+    {
+        if (fusionContext.Type.Name == "ProjectMaster")
+        {
+            return fusionContext;
+        }
+
+        return null;
+    }
+
     private async Task<FusionContext> ResolveProjectMasterContext(string contextId)
     {
         FusionContext projectMasterContext = await _fusionContextResolver.ResolveContextAsync(contextId, FusionContextType.ProjectMaster);
+
+        try
+        {
+            var contextRelationships = await _fusionContextResolver.GetContextRelationsAsync(Guid.Parse(contextId));
+            FusionContext projectMasterFusionContext = null;
+            foreach (var fusionContext in contextRelationships)
+            {
+                projectMasterFusionContext = GetProjectMasterContextFromFusionContext(fusionContext);
+                if (projectMasterFusionContext != null)
+                {
+                    return projectMasterFusionContext;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ResolveProjectMasterContext - Exception: " + e);
+        }
 
         Console.WriteLine("ResolveProjectMasterContext - contextId: " + contextId);
         Console.WriteLine("ResolveProjectMasterContext - projectMasterContext: " + projectMasterContext);
