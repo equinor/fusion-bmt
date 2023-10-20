@@ -4,7 +4,9 @@ import { ApolloError } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { Button, Typography, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add, clear } from '@equinor/eds-icons'
-import { IconButton, DoneIcon, TextArea } from '@equinor/fusion-components'
+import { DoneIcon } from '@equinor/fusion-components'
+import { IconButton } from '@equinor/fusion-react-button'
+
 
 import { Action, Participant, Question } from '../../api/models'
 import PriorityIndicator from './PriorityIndicator'
@@ -102,7 +104,8 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
                                             <Box p="0.1rem">
                                                 <Tooltip placement="bottom" title="Completed">
                                                     <Typography>
-                                                        <DoneIcon data-testid={`action_complete_${action.id}`} />
+                                                        <p>Done Icon</p>
+                                                        {/* <DoneIcon data-testid={`action_complete_${action.id}`} /> */}
                                                     </Typography>
                                                 </Tooltip>
                                             </Box>

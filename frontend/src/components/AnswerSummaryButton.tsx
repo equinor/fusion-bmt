@@ -1,5 +1,5 @@
 import React from 'react'
-import { CopyIcon, IconButton } from '@equinor/fusion-components'
+import { IconButton } from '@equinor/fusion-react-button'
 
 interface Props {
     onClick: () => void
@@ -9,7 +9,8 @@ const AnswerSummaryButton = ({ onClick }: Props) => {
     return (
         <>
             <IconButton onClick={onClick} data-testid="view-answers">
-                <CopyIcon />
+                <p>Copy Icon</p>
+                {/* <CopyIcon /> */}
             </IconButton>
         </>
     )
