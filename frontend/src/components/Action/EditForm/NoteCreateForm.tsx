@@ -52,7 +52,6 @@ const NoteCreateForm = ({ text, onChange, onCreateClick, disabled, isCreatingNot
                                 addNote()
                             }
                         }}
-                        variant="default"
                         style={{ height: 75 }}
                     />
                 </Grid>

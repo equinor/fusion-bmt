@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { Box } from '@material-ui/core'
 import { tokens } from '@equinor/eds-tokens'
 import { MarkdownViewer } from '@equinor/fusion-components'
-import { Button, Chip, Icon, MultiSelect, Tooltip, Typography } from '@equinor/eds-core-react'
+import { Button, Chip, Icon, Autocomplete, Tooltip, Typography, AutocompleteChanges } from '@equinor/eds-core-react'
 import { arrow_down, arrow_up, platform, work } from '@equinor/eds-icons'
 import { UseMultipleSelectionStateChange } from 'downshift'
 
@@ -327,12 +327,13 @@ const StaticQuestionItem = ({
                                 ))}
                                 {isInAddCategoryMode && (
                                     <Box width={200} mb={1}>
-                                        <MultiSelect
+                                        <Autocomplete
                                             data-testid={'project-category-selector-' + question.adminOrder}
                                             label=""
-                                            items={projectCategoriesOptions}
-                                            initialSelectedItems={question.projectCategories.map(cat => cat.name)}
-                                            handleSelectedItemsChange={(changes: UseMultipleSelectionStateChange<string>) => {
+                                            multiple
+                                            options={projectCategoriesOptions}
+                                            initialSelectedOptions={question.projectCategories.map(cat => cat.name)}
+                                            onOptionsChange={(changes: AutocompleteChanges<string>) => {
                                                 updateProjectCategories(changes.selectedItems)
                                             }}
                                         />

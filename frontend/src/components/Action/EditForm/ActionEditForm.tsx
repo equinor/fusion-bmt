@@ -62,11 +62,11 @@ const ActionEditForm = ({
     disableEditAction,
 }: Props) => {
     const [title, setTitle] = useState<string>((action && action.title) || '')
-    const [titleValidity, setTitleValidity] = useState<Validity>('default')
+    const [titleValidity, setTitleValidity] = useState<Validity>()
 
     const [assignedToId, setAssignedToId] = useState<string | undefined>(action.assignedTo?.azureUniqueId)
     const assignedTo: Participant | undefined = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
-    const [assignedToValidity, setAssignedToValidity] = useState<Validity>('default')
+    const [assignedToValidity, setAssignedToValidity] = useState<Validity>()
 
     const [dueDate, setDueDate] = useState<Date>(new Date(action.dueDate))
     const [priority, setPriority] = useState<Priority>(action.priority)
@@ -254,7 +254,6 @@ const ActionEditForm = ({
                         onChange={(event: TextFieldChangeEvent) => {
                             setDescription(event.target.value)
                         }}
-                        variant="default"
                         style={{ height: 150 }}
                         disabled={disableEditAction}
                     />

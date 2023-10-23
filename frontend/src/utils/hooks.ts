@@ -204,7 +204,7 @@ export const useFilter = <Type>() => {
  * Updates the Validity every time the value changes.
  */
 export const useValidityCheck = <Type>(value: Type, isValid: () => boolean) => {
-    const [valueValidity, setValueValidity] = useState<Validity>('default')
+    const [valueValidity, setValueValidity] = useState<Validity>()
 
     useEffectNotOnMount(() => {
         if (!isValid()) {
