@@ -31,11 +31,11 @@ const ActionCreateForm = ({
     creatingAction,
 }: Props) => {
     const [title, setTitle] = useState<string>('')
-    const [titleValidity, setTitleValidity] = useState<Validity>('default')
+    const [titleValidity, setTitleValidity] = useState<Validity>()
 
     const [assignedToId, setAssignedToId] = useState<string | undefined>(undefined)
     const assignedTo: Participant | undefined = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
-    const [assignedToValidity, setAssignedToValidity] = useState<Validity>('default')
+    const [assignedToValidity, setAssignedToValidity] = useState<Validity>()
 
     const [dueDate, setDueDate] = useState<Date>(new Date())
     const [priority, setPriority] = useState<Priority>(Priority.High)
@@ -176,7 +176,6 @@ const ActionCreateForm = ({
                         onChange={(event: TextFieldChangeEvent) => {
                             setDescription(event.target.value)
                         }}
-                        variant="default"
                         style={{ height: 150 }}
                     />
                 </Grid>

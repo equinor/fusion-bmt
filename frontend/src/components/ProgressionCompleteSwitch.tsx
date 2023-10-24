@@ -30,7 +30,6 @@ const ProgressionCompleteSwitch = ({ isCheckedInitially, disabled, onCompleteCli
                 onClick={onLocalClick}
                 disabled={disabled}
                 label="Complete"
-                crossOrigin={null}
             />
         </>
     )

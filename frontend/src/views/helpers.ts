@@ -84,7 +84,7 @@ export const getBarrierAnswers = (barrierQuestions: Question[], viewProgression:
     })
 }
 
-export const updateValidity = (isFieldValid: boolean, validityStatus: Validity, setValidity: (validity: Validity) => void) => {
+export const updateValidity = (isFieldValid: boolean, validityStatus: Validity | undefined, setValidity: (validity: Validity) => void) => {
     if (validityStatus === 'error') {
         if (isFieldValid) {
             setValidity('success')
