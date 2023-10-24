@@ -2,7 +2,7 @@
 
 ### Prerequisites
 
--   [.NET 5.0+](https://dotnet.microsoft.com/download/dotnet/5.0)
+-   [.NET 6.0+](https://dotnet.microsoft.com/download/dotnet/5.0)
 -   [Node 16+ with npm 7+](https://github.com/nodesource/distributions/blob/master/README.md)
 -   [Docker](https://docs.docker.com/engine/install/)
 
@@ -45,7 +45,7 @@ that for `npm run schema` to run properly the backend must be running and
 
 ## Backend
 
-The backend is build using .NET 5.0. We use GraphQL to handle requests
+The backend is build using .NET 6.0. We use GraphQL to handle requests
 to the backend, and [Hot Chocolate](https://github.com/ChilliCream/hotchocolate)
 is used as the implementation in .NET.
 

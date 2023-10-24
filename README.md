@@ -10,7 +10,7 @@
 
 ## Runbook
 
-- [Runbook](https://github.com/equinor/fusion-bmt/blob/master/docs/runbook.md) can be found in this repo.
+[Runbook](https://github.com/equinor/fusion-bmt/blob/master/docs/runbook.md) can be found in this repo.
 
 ## Test strategy
 
