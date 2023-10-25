@@ -12,8 +12,8 @@ interface Token {
 
 const FUSION_APP_KEY: string = '74b1613f-f22a-451b-a5c3-1c9391e91e68'
 
-const authLink = setContext((_, { headers }) => {
-    const token = getToken()
+const authLink = setContext(async (_, { headers }) => {
+    const token = await getToken()
     return {
         headers: {
             ...headers,
@@ -31,13 +31,15 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (networkError) console.log(`[Network error]: ${networkError}`)
 })
 
-export const getToken = (): string => {
-    return window.sessionStorage.getItem("token") ?? ""
+export const getToken = async (): Promise<string> => {
+    const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
+    const token = await window.Fusion.modules.auth.acquireAccessToken({ scopes })
+    return token ?? ""
 }
 
 const refreshLink = new TokenRefreshLink({
-    isTokenValidOrUndefined: () => {
-        const token = getToken()
+    isTokenValidOrUndefined: async () => {
+        const token = await getToken()
         const decodedToken = jwt_decode(token) as Token
         const isTokenValid: boolean = decodedToken.exp * 1000 > Date.now()
         return isTokenValid
