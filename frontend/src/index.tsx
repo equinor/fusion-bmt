@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser, useFusionEnvironment } from '@equinor/fusion'
-import { createLegacyApp } from "@equinor/fusion-framework-react-app"
+import { createComponent, createLegacyApp } from "@equinor/fusion-framework-react-app"
 import { ApolloProvider } from '@apollo/client'
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
@@ -12,6 +12,7 @@ import { config } from './config'
 
 import './styles.css'
 import { ResolveConfiguration } from './utils/config'
+import { configurator } from './configurator'
 
 const browserHistory = createBrowserHistory()
 const reactPlugin = new ReactPlugin()
@@ -48,6 +49,7 @@ const Start = () => {
         (async () => {
             try {
                 const scopes = ["api://8829d4ca-93e8-499a-8ce1-bc0ef4840176/user_impersonation"]
+                // @ts-ignore
                 const token = await window.Fusion.modules.auth.acquireAccessToken({ scopes })
 
                 window.sessionStorage.setItem("token", token ?? "")
@@ -73,22 +75,15 @@ const Start = () => {
     )
 }
 
-registerApp('bmt', {
+const render = createComponent(Start, configurator)
+
+registerApp("bmt", {
     AppComponent: Start,
-    context: {
-        types: [ContextTypes.ProjectMaster],
-        buildUrl: (context: Context | null) => {
-            const result = (context ? `/${context.id}` : "")
-            return result
-        },
-        // getContextFromUrl: (url: string) => {
-        //     const result = url.split("/")[1]
-        //     return result
-        // },
-    },
-    name: 'Barrier Management Tool',
+    render,
 })
 
 if (module.hot) {
     module.hot.accept()
 }
+
+export default render

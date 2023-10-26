@@ -1,5 +1,4 @@
 import { Action, Evaluation, Question } from '../api/models'
-import { useEvaluationQuery } from '../views/Evaluation/EvaluationView'
 
 export interface ActionQuestionAndEvaluation {
     action: Action
@@ -29,37 +28,17 @@ export const getActionQuestionsAndEvaluations = (evaluations: Evaluation[]): Act
     return actionQuestionAndEvaluations
 }
 
-export const getVoidedActions = (e: Evaluation): Action[] => {
-    const { evaluation } = useEvaluationQuery(e.id)
-    const actions: Action[] = []
-
-    if (evaluation === null || evaluation === undefined) {
-        return actions
-    }
-    evaluation.questions.forEach((question: Question) => {
-        question.actions.forEach(action => {
-            if (action.isVoided) {
-                actions.push(action)
-            }
-        })
-    })
-    return actions
-}
-
 export const getEvaluationActionsByState = (evaluation: Evaluation): ActionByState => {
     const overdueActions: Action[] = []
     const openActions: Action[] = []
     const closedActions: Action[] = []
     const now = new Date()
-    const voidedActions = getVoidedActions(evaluation)
 
     evaluation.questions.forEach((question: Question) => {
         question.actions.forEach(action => {
             const dueDate = new Date(action.dueDate)
-            if (now >= dueDate && action.completed === false) {
-                if (!voidedActions.some(a => a.id === action.id)) {
-                    overdueActions.push(action)
-                }
+            if (now >= dueDate && action.completed === false && !action.isVoided) {
+                overdueActions.push(action)
             } else if (now < dueDate && action.completed === false) {
                 openActions.push(action)
             } else if (action.completed === true) {
