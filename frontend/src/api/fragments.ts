@@ -55,6 +55,7 @@ export const EVALUATION_DASHBOARD_FIELDS_FRAGMENT = gql`
                 id
                 dueDate
                 completed
+                isVoided
             }
         }
     }

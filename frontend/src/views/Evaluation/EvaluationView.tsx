@@ -186,7 +186,7 @@ interface EvaluationQueryProps {
     error: ApolloError | undefined
 }
 
-export const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
+const useEvaluationQuery = (evaluationId: string): EvaluationQueryProps => {
     const GET_EVALUATION = gql`
         query ($evaluationId: String!) {
             evaluations(where: { id: { eq: $evaluationId } }) {
