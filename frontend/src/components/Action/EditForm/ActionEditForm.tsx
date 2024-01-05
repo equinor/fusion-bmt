@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { PersonDetails } from '@equinor/fusion'
-import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select, TextArea } from '@equinor/fusion-components'
+import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
 import { Button, Icon, TextField, Typography } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
 import styled from 'styled-components'
