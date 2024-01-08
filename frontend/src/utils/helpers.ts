@@ -8,7 +8,7 @@ interface Token {
 }
 
 export const getCachedRoles = (): string[] => {
-    const token = window.sessionStorage.getItem("token");
+    const token = window.sessionStorage.getItem('token')
     if (token !== null) {
         const objectFromDecodedToken: Token = jwtDecode(token) as Token
         const roles: string[] = objectFromDecodedToken['roles']
@@ -63,4 +63,8 @@ export const selectSeverity = (severityCount: SeverityCount) => {
 export const getFusionProjectName = (projects: Context[] | undefined, fusionProjectId: string) => {
     const fusionProject = projects?.find(project => project.id === fusionProjectId)
     return fusionProject?.title
+}
+
+export const toCapitalizedCase = (input: string): string => {
+    return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
 }

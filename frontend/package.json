@@ -43,6 +43,7 @@
         "@equinor/fusion-framework-react-module-context": "^6.0.16",
         "@equinor/fusion-observable": "^7.0.3",
         "@equinor/fusion-query": "^2.0.7",
+        "@equinor/fusion-react-searchable-dropdown": "^0.4.4",
         "@floating-ui/react-dom-interactions": "^0.13.3",
         "@material-ui/core": "^4.12.3",
         "@microsoft/applicationinsights-react-js": "^3.4.1",
