@@ -1,13 +1,35 @@
 import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
+import { PersonCard, Spinner, ModalSideSheet } from '@equinor/fusion-components'
 import { Button } from '@equinor/eds-core-react'
 import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../../utils/EnumToString'
 import { Divider, TextField } from '@equinor/eds-core-react'
 import { useEffectNotOnMount } from '../../../../utils/hooks'
+import SearchableDropdown from '../../../../components/SearchableDropDown'
+import styled from 'styled-components'
 
+const Wrapper = styled.div`
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+`
+
+const SearchResults = styled.div`
+    padding: 20px;
+`
+
+const PersonInfo = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+`
 interface AddNomineeDialogProps {
     currentNominees: Array<Participant>
     open: boolean
@@ -23,28 +45,24 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
 
     const [searchQuery, setSearchQuery] = React.useState<string>('')
     const [searchResults, setSearchResults] = React.useState<PersonDetails[]>([])
-
     const [selectedRole, setSelectedRole] = React.useState<Role>(Role.Participant)
     const [selectedOrg, setSelectedOrg] = React.useState<Organization>(Organization.Commissioning)
-
     const [isSearching, setIsSearching] = React.useState<boolean>(false)
 
-    const [orgOptions, setOrgOptions] = React.useState<SearchableDropdownOption[]>(
+    const [orgOptions, setOrgOptions] = React.useState(
         Object.entries(Organization).map(([key, org]) => {
             return {
-                key: key,
+                id: key,
                 title: organizationToString(org),
-                isSelected: selectedOrg === org,
             }
         })
     )
 
-    const [roleOptions, setRoleOptions] = React.useState<SearchableDropdownOption[]>(
+    const [roleOptions, setRoleOptions] = React.useState(
         Object.entries(Role).map(([key, role]) => {
             return {
-                key: key,
+                id: key,
                 title: roleToString(role),
-                isSelected: selectedRole === role,
             }
         })
     )
@@ -65,20 +83,20 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
         }
     }, [searchQuery])
 
-    const updateOrgOptions = (item: SearchableDropdownOption) =>
+    const updateOrgOptions = (item: any) =>
         setOrgOptions(oldOptions =>
             oldOptions.map(option => {
                 return {
                     ...option,
-                    isSelected: item.key === option.key,
+                    isSelected: item.id === option.id,
                 }
             })
         )
 
-    const updateRoleOptions = (item: SearchableDropdownOption) =>
+    const updateRoleOptions = (item: any) =>
         setRoleOptions(oldOptions =>
             oldOptions.map(option => {
-                return { ...option, isSelected: item.key === option.key }
+                return { ...option, isSelected: item.id === option.id }
             })
         )
 
@@ -103,25 +121,33 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
 
     return (
         <ModalSideSheet header="Add Person" show={open} size="medium" onClose={onCloseClick} isResizable={false}>
-            <div style={{ margin: 20 }} data-testid="nominee_dialog_body">
+            <Wrapper data-testid="nominee_dialog_body">
                 <SearchableDropdown
                     options={orgOptions}
+                    value={selectedOrg}
                     label="Organization"
-                    onSelect={item => {
-                        updateOrgOptions(item)
-                        setSelectedOrg(Organization[item.key as keyof typeof Organization])
+                    onSelect={option => {
+                        const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                        updateOrgOptions(selectedOption)
+                        setSelectedOrg(Organization[selectedOption.id as keyof typeof Organization])
+                    }} 
+                    searchQuery={ async (query: string) => {
+                        return orgOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
                     }}
                 />
-                <br />
                 <SearchableDropdown
                     options={roleOptions}
+                    value={selectedRole}
                     label="Role"
-                    onSelect={item => {
-                        updateRoleOptions(item)
-                        setSelectedRole(Role[item.key as keyof typeof Role])
+                    onSelect={option => {
+                        const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                        updateRoleOptions(selectedOption)
+                        setSelectedRole(Role[selectedOption.id as keyof typeof Role])
+                    }}
+                    searchQuery={ async (query: string) => {
+                        return roleOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
                     }}
                 />
-                <br />
                 <TextField
                     id="" // avoids error
                     autoFocus={true}
@@ -133,7 +159,8 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     placeholder="Search for person..."
                     data-testid="nominee_dialog_search_text_field"
                 />
-                <br />
+            </Wrapper>
+            <SearchResults>
                 {(isSearching || createParticipantLoading) && (
                     <div style={{ justifyContent: 'center' }}>
                         <Spinner />
@@ -144,7 +171,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                         .filter(p => p.azureUniqueId !== null)
                         .map(p => {
                             return (
-                                <div style={{ marginBottom: 10 }} key={p.azureUniqueId}>
+                                <PersonInfo style={{ marginBottom: 10 }} key={p.azureUniqueId}>
                                     <PersonCard person={p} />
                                     <Button
                                         onClick={() => {
@@ -154,11 +181,10 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                                     >
                                         Add
                                     </Button>
-                                    <Divider />
-                                </div>
+                                </PersonInfo>
                             )
                         })}
-            </div>
+            </SearchResults>
         </ModalSideSheet>
     )
 }

@@ -114,7 +114,6 @@ export const getOrganizationOptionsForDropdown = (selectedOrganization: Organiza
         return {
             title: key,
             id: value,
-            isSelected: selectedOrganization === value,
         }
     })
     return organizationOptions

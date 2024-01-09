@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
-import { ApplicationGuidanceAnchor, ErrorMessage, SearchableDropdown, SearchableDropdownOption, Spinner } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor, ErrorMessage, Spinner } from '@equinor/fusion-components'
 import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
 import { ContextTypes, useCurrentUser } from '@equinor/fusion'
-
+import SearchableDropdown from '../../../components/SearchableDropDown'
 import AddNomineeDialog from './components/AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role, Status } from '../../../api/models'
 import NominationTable from './components/NominationTable'
@@ -34,13 +34,13 @@ export const createDropdownOptionsFromProjects = (
     list: Context[],
     selectedOption: string,
     hasFetched: boolean
-): SearchableDropdownOption[] => {
+) => {
     if (!hasFetched) {
         return [
             {
                 title: 'Loading...',
-                key: 'loading',
-                isDisabled: true,
+                id: 'loading',
+
             },
         ]
     }
@@ -48,16 +48,14 @@ export const createDropdownOptionsFromProjects = (
         return [
             {
                 title: 'No projects found',
-                key: 'empty',
-                isDisabled: true,
+                id: 'empty',
             },
         ]
     }
     return list.map((item, index) => ({
         title: item.title,
-        key: item.id,
+        id: item.id,
         externalId: item.externalId,
-        isSelected: item.id === selectedOption,
     }))
 }
 
@@ -102,7 +100,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const [projects, setProjects] = useState<Context[]>([])
     const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
     const [currentProject, setCurrentProject] = useState<Context>()
-    const projectOptions: SearchableDropdownOption[] = createDropdownOptionsFromProjects(projects, "1", true)
+    const projectOptions = createDropdownOptionsFromProjects(projects, "1", true)
     const apiClients = useApiClients()
 
     const { createParticipant, loading: createParticipantLoading, error: errorCreateParticipant } = useCreateParticipantMutation()
@@ -175,12 +173,12 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     }
 
     const updateEvaluationToNewProject = (item: any) => {
-        setEvaluationToAnotherProject(evaluation.id, item.key, item.externalId)
+        setEvaluationToAnotherProject(evaluation.id, item.id, item.externalId)
 
         if (process.env.IS_DEVELOPMENT === 'true') {
-            window.location.pathname = `${item.key}/evaluation/${evaluation.id}`
+            window.location.pathname = `${item.id}/evaluation/${evaluation.id}`
         } else {
-            window.location.pathname = `apps/bmt/${item.key}/evaluation/${evaluation.id}`
+            window.location.pathname = `apps/bmt/${item.id}/evaluation/${evaluation.id}`
         }
     }
 
@@ -216,10 +214,19 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                                 <div>
                                     Switch evaluation to another project
                                     <SearchableDropdown
-                                        label={currentProject?.title}
-                                        placeholder={currentProject?.title}
-                                        onSelect={option => updateEvaluationToNewProject(option)}
+                                        label='Select project'
+                                        value={currentProject?.title}
+                                        onSelect={(option: any) => {
+                                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                                            updateEvaluationToNewProject(selectedOption)}
+                                        }
                                         options={projectOptions}
+                                        searchQuery={async (searchTerm: string) => {
+                                            const filteredOptions = projectOptions.filter(option => {
+                                                return option.title.toLowerCase().includes(searchTerm.toLowerCase())
+                                            })
+                                            return filteredOptions
+                                        }} 
                                     />
 
                                 </div>

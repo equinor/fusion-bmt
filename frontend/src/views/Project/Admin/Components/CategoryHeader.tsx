@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
-
 import { Box } from '@material-ui/core'
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
+import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { Button, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add, delete_to_trash } from '@equinor/eds-icons'
-
 import { ProjectCategory } from '../../../../api/models'
 import { useEffectNotOnMount, useShowErrorHook } from '../../../../utils/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
@@ -49,19 +47,17 @@ const CategoryHeader = ({
         }
     }, [deletingProjectCategory])
 
-    const projectCategoryOptions: SearchableDropdownOption[] = [
+    const projectCategoryOptions = [
         {
             title: 'All project categories',
-            key: 'all',
-            isSelected: 'all' === selectedProjectCategory,
+            id: 'all',
         },
     ]
 
     projectCategories.forEach((projectCategory: ProjectCategory) =>
         projectCategoryOptions.push({
             title: projectCategory.name,
-            key: projectCategory.id,
-            isSelected: projectCategory.id === selectedProjectCategory,
+            id: projectCategory.id
         })
     )
 
@@ -92,9 +88,14 @@ const CategoryHeader = ({
                         <Box ml={4} width={'250px'}>
                             <SearchableDropdown
                                 label="Project Category"
-                                placeholder="Select Project Category"
-                                onSelect={option => setSelectedProjectCategory(option.key)}
+                                value={selectedProjectCategory}
+                                onSelect={option => setSelectedProjectCategory(option.id)}
                                 options={projectCategoryOptions}
+                                searchQuery={( async (query: string) => {
+                                    return projectCategoryOptions.filter((option) => {
+                                        return option.title.toLowerCase().includes(query.toLowerCase())
+                                    })
+                                })}
                             />
                         </Box>
                     </Box>

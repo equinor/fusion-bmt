@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
+import { ModalSideSheet } from '@equinor/fusion-components'
 import { TextField } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
-
+import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { genericErrorMessage } from '../../../../utils/Variables'
 import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
 import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
@@ -54,13 +54,12 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
 
     const { valueValidity } = useValidityCheck<string>(projectCategoryName, isNameValid)
 
-    const projectCategoryOptions: SearchableDropdownOption[] = []
+    const projectCategoryOptions: { title: string; id: string; }[] = []
 
     projectCategories.forEach((projectCategory: ProjectCategory) =>
         projectCategoryOptions.push({
             title: projectCategory.name,
-            key: projectCategory.id,
-            isSelected: projectCategory.id === projectCategoryToCopy,
+            id: projectCategory.id
         })
     )
 
@@ -109,8 +108,14 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                 <Grid item xs={12} style={{ marginTop: 20 }}>
                     <SearchableDropdown
                         label="Add questions from project category (optional)"
-                        placeholder="Add questions from project category (optional)"
+                        value={projectCategoryToCopy}
                         onSelect={option => setProjectCategoryToCopy(option.key)}
+                        searchQuery={async (searchTerm: string) => {
+                            const filteredOptions = projectCategoryOptions.filter(option => {
+                                return option.title.toLowerCase().includes(searchTerm.toLowerCase())
+                            })
+                            return filteredOptions
+                        } }
                         options={projectCategoryOptions}
                     />
                 </Grid>

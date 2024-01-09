@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import { ErrorMessage, ModalSideSheet, SearchableDropdown, SearchableDropdownOption } from '@equinor/fusion-components'
+import { ErrorMessage, ModalSideSheet } from '@equinor/fusion-components'
 import { CircularProgress, TextField } from '@equinor/eds-core-react'
 import { Container, Grid } from '@material-ui/core'
-
+import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { genericErrorMessage } from '../../../../utils/Variables'
 import { useProject } from '../../../../globals/contexts'
 import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
@@ -13,7 +13,13 @@ import { ErrorIcon } from '../../../../components/Action/utils'
 import ErrorBanner from '../../../../components/ErrorBanner'
 import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
 import { centered } from '../../../../utils/styles'
+import styled from 'styled-components'
 
+const ButtonGrid = styled(Grid)`
+    margin: 20px 12px;
+    display: flex;
+    justify-content: end;
+`
 interface CreateEvaluationDialogProps {
     open: boolean
     onCreate: (name: string, projectCategoryId: string, previousEvaluationId?: string) => void
@@ -73,19 +79,17 @@ const CreateEvaluationDialog = ({
 
     const isFetchingData = loadingEvaluationQuery || loadingProjectCategoryQuery
 
-    const projectCategoryOptions: SearchableDropdownOption[] = projectCategories
+    const projectCategoryOptions = projectCategories
         ? projectCategories.map((projectCategory: ProjectCategory) => ({
               title: projectCategory.name,
-              key: projectCategory.id,
-              isSelected: projectCategory.id == selectedProjectCategory,
+              id: projectCategory.id,
           }))
         : []
 
-    const evaluationOptions: SearchableDropdownOption[] = evaluations
+    const evaluationOptions = evaluations
         ? evaluations.map((evaluation: Evaluation) => ({
               title: evaluation.name,
-              key: evaluation.id,
-              isSelected: evaluation.id === selectedEvaluation,
+              id: evaluation.id,
           }))
         : []
 
@@ -136,22 +140,33 @@ const CreateEvaluationDialog = ({
                             <Grid item xs={12}>
                                 <SearchableDropdown
                                     label="Project Category (required)"
-                                    placeholder="Select Project Category"
-                                    onSelect={option => setSelectedProjectCategory(option.key)}
+                                    value={projectCategoryOptions.find(option => option.id === selectedProjectCategory)?.title}
+                                    onSelect={option => {
+                                        const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                                        setSelectedProjectCategory(selectedOption.id)
+                                    }}
                                     options={projectCategoryOptions}
-                                    error={categorySelectionValidity === 'error'}
-                                    errorMessage="A Project Category must be selected"
+                                    searchQuery={ async (searchTerm: string) => {
+                                        return projectCategoryOptions
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <SearchableDropdown
                                     label="Previous evaluation (optional)"
-                                    placeholder="Select previous evaluation"
-                                    onSelect={option => setSelectedEvaluation(option.key)}
+                                    value={evaluationOptions.find(option => option.id === selectedEvaluation)?.title}
+                                    onSelect={option => {
+                                        const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                                        setSelectedEvaluation(selectedOption.id)
+                                    }}
                                     options={evaluationOptions}
+                                    searchQuery={ async (searchTerm: string) => {
+                                        return evaluationOptions
+                                    }}
                                 />
+                                
                             </Grid>
-                            <Grid container justify="flex-end" style={{ margin: '20px 12px' }}>
+                            <ButtonGrid container>
                                 <CancelAndSaveButton
                                     onClickSave={handleCreateClick}
                                     onClickCancel={onCancelClick}
@@ -160,7 +175,7 @@ const CreateEvaluationDialog = ({
                                     disableSaveButton={!isNameInputValid() || !isCategorySelectionValid()}
                                     isSaving={creatingEvaluation}
                                 />
-                            </Grid>
+                            </ButtonGrid>
                         </Grid>
                     </Container>
                 )}
