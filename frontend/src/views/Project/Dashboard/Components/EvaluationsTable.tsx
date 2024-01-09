@@ -108,7 +108,7 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                 }
                 return ({ ...location, pathname: `${currentProject.id}/evaluation/${evaluation.id}` })
             }
-            return ({ ...location, pathname: `bmt/${currentProject.id}/evaluation/${evaluation.id}` })
+            return ({ ...location, pathname: `/${currentProject.id}/evaluation/${evaluation.id}` })
         }
 
         return (

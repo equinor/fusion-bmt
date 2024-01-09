@@ -14,13 +14,8 @@ import { ApolloError } from '@apollo/client'
 import ErrorBanner from '../../ErrorBanner'
 import { genericErrorMessage } from '../../../utils/Variables'
 import { toCapitalizedCase } from '../../../utils/helpers'
-import { 
-    DropdownProvider,
-    Dropdown,
-    SearchableDropdownResolver,
-    useDropdownProviderRef,
-    SearchableDropdownSelectEvent 
-} from '@equinor/fusion-react-searchable-dropdown'
+import SearchableDropdown from '../../../components/SearchableDropDown'
+
 
 const StyledDate = styled(Typography)`
     float: right;
@@ -104,30 +99,6 @@ const ActionEditForm = ({
             return false
         }
         return true
-    }
-
-    const DropDownResolver: SearchableDropdownResolver = {
-        initialResult: assigneesOptions,
-        searchQuery: async (searchTerm: string) => {
-            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
-        }
-    }
-    const SearchableDropdown = (props: any) => {
-    const providerRef = useDropdownProviderRef(DropDownResolver)
-        return (
-            <DropdownProvider ref={providerRef}>
-            <Dropdown 
-                {...props} 
-                label='Assignee'
-                value={assigneesOptions.find(option => option.id === assignedToId)?.title}
-                onSelect={(option) => {
-                    const selectedOption = (option as SearchableDropdownSelectEvent).nativeEvent.detail.selected[0]
-                    setAssignedToId(selectedOption.id)
-
-                } }
-            />
-            </DropdownProvider>
-        )
     }
 
     useEffectNotOnMount(() => {
@@ -223,7 +194,18 @@ const ActionEditForm = ({
                     />
                 </Grid>
                 <Grid item xs={5}>
-                    <SearchableDropdown />
+                    <SearchableDropdown 
+                        label="Assignee"
+                        options={assigneesOptions}
+                        value={assigneesOptions.find(option => option.id === assignedToId)?.title}
+                        onSelect={(option) => {
+                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                            setAssignedToId(selectedOption.id)
+                        }}
+                        searchQuery={async (searchTerm: string) => {
+                            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                        } }
+                    />
                 </Grid>
                 <Grid item xs={4}>
                      <TextField

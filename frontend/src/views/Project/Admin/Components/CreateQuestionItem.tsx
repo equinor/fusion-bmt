@@ -1,9 +1,8 @@
 import React from 'react'
-import { MarkdownEditor, SearchableDropdown } from '@equinor/fusion-components'
+import { MarkdownEditor } from '@equinor/fusion-components'
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 import { ApolloError } from '@apollo/client'
-
 import { Barrier, Organization, QuestionTemplate } from '../../../../api/models'
 import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
 import { getOrganizationOptionsForDropdown } from '../../../helpers'
@@ -12,7 +11,9 @@ import { DataToCreateQuestionTemplate } from '../AdminView'
 import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
 import ErrorBanner from '../../../../components/ErrorBanner'
 import { genericErrorMessage } from '../../../../utils/Variables'
-
+import { SearchableDropdownSelectEvent } from '@equinor/fusion-react-searchable-dropdown'
+import SearchableDropdown from '../../../../components/SearchableDropDown'
+import {toCapitalizedCase} from '../../../../utils/helpers'
 interface Props {
     barrier: Barrier
     setIsInAddMode: (isAddingQuestion: boolean) => void
@@ -116,10 +117,17 @@ const CreateQuestionItem = ({
                 </Box>
                 <Box display="flex" flexDirection={'column'}>
                     <Box flexGrow={1} data-testid="select-organization-dropdown-box" mt={3}>
-                        <SearchableDropdown
+                        <SearchableDropdown 
                             label="Organization"
+                            value={toCapitalizedCase(organization)}
                             options={getOrganizationOptionsForDropdown(organization)}
-                            onSelect={option => setOrganization(option.key as Organization)}
+                            onSelect={(option) => {
+                                const selectedOption = (option as SearchableDropdownSelectEvent).nativeEvent.detail.selected[0]
+                                setOrganization(selectedOption.id as Organization)
+                            }}
+                            searchQuery={async (searchTerm: string) => {
+                                return getOrganizationOptionsForDropdown(organization).filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                            }} 
                         />
                     </Box>
                     <CancelAndSaveButton

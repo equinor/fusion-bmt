@@ -1,4 +1,3 @@
-import { SearchableDropdownOption } from '@equinor/fusion-components'
 import { Organization, Progression, Question, QuestionTemplate } from '../api/models'
 import { Validity } from '../components/Action/utils'
 import { SavingState } from '../utils/Variables'
@@ -111,10 +110,10 @@ export const deriveNewSavingState = (isLoading: boolean, currentSavingState: Sav
 }
 
 export const getOrganizationOptionsForDropdown = (selectedOrganization: Organization) => {
-    const organizationOptions: SearchableDropdownOption[] = Object.entries(Organization).map(([key, value]) => {
+    const organizationOptions = Object.entries(Organization).map(([key, value]) => {
         return {
             title: key,
-            key: value,
+            id: value,
             isSelected: selectedOrganization === value,
         }
     })

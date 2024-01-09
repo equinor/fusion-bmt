@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-
 import { PersonDetails } from '@equinor/fusion'
 import { Button, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
@@ -8,13 +7,7 @@ import { barrierToString } from '../../../utils/EnumToString'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 import { DataToCreateAction } from './ActionCreateSidebarWithApi'
 import ButtonWithSaveIndicator from '../../ButtonWithSaveIndicator'
-import { 
-    DropdownProvider,
-    Dropdown,
-    SearchableDropdownResolver,
-    useDropdownProviderRef,
-    SearchableDropdownSelectEvent 
-} from '@equinor/fusion-react-searchable-dropdown'
+import SearchableDropdown from '../../../components/SearchableDropDown'
 import { toCapitalizedCase } from '../../../utils/helpers'
 interface Props {
     connectedQuestion: Question
@@ -106,30 +99,6 @@ const ActionCreateForm = ({
         }
     }
 
-    const DropDownResolver: SearchableDropdownResolver = {
-        initialResult: assigneesOptions,
-        searchQuery: async (searchTerm: string) => {
-            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
-        }
-        
-    }
-    const SearchableDropdown = (props: any) => {
-    const providerRef = useDropdownProviderRef(DropDownResolver)
-        return (
-            <DropdownProvider ref={providerRef}>
-            <Dropdown 
-                {...props} 
-                label='Assignee'
-                value={assigneesOptions.find(option => option.id === assignedToId)?.title}
-                onSelect={(option) => {
-                    const selectedOption = (option as SearchableDropdownSelectEvent).nativeEvent.detail.selected[0]
-                    setAssignedToId(selectedOption.id)
-                } }
-            />
-            </DropdownProvider>
-        )
-    }
-
     return (
         <>
             <Grid container spacing={3}>
@@ -148,7 +117,15 @@ const ActionCreateForm = ({
                     />
                 </Grid>
                 <Grid item xs={5}>
-                    <SearchableDropdown />
+                    <SearchableDropdown 
+                        label="Assignee"
+                        value={assigneesOptions.find(option => option.id === assignedToId)?.title}
+                        options={assigneesOptions}
+                        onSelect={(option) => {setAssignedToId(option.id)}}
+                        searchQuery={async (searchTerm: string) => {
+                            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                        } }
+                    />
                 </Grid>
                 <Grid item xs={4}>
                     <TextField
