@@ -12,7 +12,26 @@ import FollowUpTabs from './FollowUp/FollowUpTabs'
 import WorkshopTabs from './Workshop/WorkshopTabs'
 import { Link } from "react-router-dom";
 import { useCurrentContext } from '@equinor/fusion'
+import styled from 'styled-components'
+import { Icon } from '@equinor/eds-core-react'
+import { arrow_back_ios } from '@equinor/eds-icons'
 
+const Wrapper = styled.div`
+    padding: 20px 10px 0 10px;
+`
+const ProjectButton = styled(Link)`
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+    cursor: pointer;
+    svg {
+        margin-right: 0.5rem;
+    }
+`
 interface EvaluationViewProps {
     evaluation: Evaluation
     onProgressEvaluationClick: () => void
@@ -37,7 +56,12 @@ const EvaluationSteps = ({ evaluation, onProgressEvaluationClick, onProgressPart
 
     return (
         <>
-            <Link to={location => getProjectTabsLink(location)}>Project dashboard</Link>
+            <Wrapper>
+            <ProjectButton to={location => getProjectTabsLink(location)}>
+                <Icon size={16} data={arrow_back_ios} />
+                Project dashboard
+            </ProjectButton>
+            </Wrapper>
             <Stepper forceOrder={false} activeStepKey={activeStepKey} hideNavButtons={true}>
                 <Step
                     title={progressionToString(Progression.Nomination)}
