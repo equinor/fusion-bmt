@@ -1,7 +1,6 @@
-import { DataTable, DataTableColumn } from '@equinor/fusion-components'
 import React, { useState } from 'react'
 import { ApolloError, gql, useMutation } from '@apollo/client'
-
+import { Table } from '@equinor/eds-core-react'
 import { Evaluation, Organization, Participant, Progression, Role } from '../../../../api/models'
 import { genericErrorMessage, useAzureUniqueId } from '../../../../utils/Variables'
 import { roleToString, organizationToString } from '../../../../utils/EnumToString'
@@ -12,78 +11,11 @@ import { useEvaluation } from '../../../../globals/contexts'
 import ParticipantCard from '../../../../components/ParticipantCard'
 import ErrorBanner from '../../../../components/ErrorBanner'
 import ButtonWithSaveIndicator from '../../../../components/ButtonWithSaveIndicator'
+import styled from 'styled-components'
 
-interface DataTableItem {
-    organization: Organization
-    role: Role
-    participant: Participant
-    rowIdentifier: string
-    disableDelete: boolean
-    deleteParticipant: (id: string) => void
-    isDeletingParticipant: boolean
-}
-
-interface DataTableRowProps {
-    item: DataTableItem
-    rowIndex: number
-}
-
-const ParticipantRenderer: React.FC<DataTableRowProps> = ({ item }) => <ParticipantCard participant={item.participant} />
-
-const DeleteColumnItemRenderer: React.FC<DataTableRowProps> = ({ item }) => {
-    const azureUniqueId: string = useAzureUniqueId()
-
-    if (item.participant.azureUniqueId === azureUniqueId) return <></>
-
-    return (
-        <div data-testid={'delete_button_' + item.participant.azureUniqueId}>
-            <ButtonWithSaveIndicator
-                onClick={() => {
-                    item.deleteParticipant(item.participant.id)
-                }}
-                disabled={item.disableDelete || item.isDeletingParticipant}
-                isLoading={item.isDeletingParticipant}
-            >
-                Delete
-            </ButtonWithSaveIndicator>
-        </div>
-    )
-}
-
-const RoleRenderer: React.FC<DataTableRowProps> = ({ item }) => <>{roleToString(item.role)}</>
-
-const OrganizationRenderer: React.FC<DataTableRowProps> = ({ item }) => <>{organizationToString(item.organization)}</>
-
-const columns: DataTableColumn<DataTableItem>[] = [
-    {
-        key: 'person',
-        accessor: 'participant',
-        label: 'Details',
-        sortable: false,
-        component: ParticipantRenderer,
-    },
-    {
-        key: 'role',
-        accessor: 'role',
-        label: 'Role',
-        sortable: false,
-        component: RoleRenderer,
-    },
-    {
-        key: 'organization',
-        accessor: 'organization',
-        label: 'Organization',
-        component: OrganizationRenderer,
-        sortable: false,
-    },
-    {
-        key: 'delete',
-        accessor: 'participant',
-        label: '',
-        component: DeleteColumnItemRenderer,
-        priority: 3,
-    },
-]
+const StyledTable = styled(Table)`
+    width: 100%;
+`
 
 /** Who (Role) can delete users, and when (Progression)
  *
@@ -94,12 +26,10 @@ const columns: DataTableColumn<DataTableItem>[] = [
  *  Evaluation is at Nomination stage
  */
 const disableDelete = (evaluation: Evaluation, azureUniqueId: string) => {
-    if (evaluation.progression !== Progression.Nomination) {
-        return true
-    }
-
     const loggedInUser = evaluation.participants.find(p => p.azureUniqueId === azureUniqueId)
 
+    if (evaluation.progression !== Progression.Nomination) return true
+    
     return !participantCanDeleteParticipant(loggedInUser)
 }
 
@@ -118,15 +48,6 @@ const NominationTable = ({ participants }: NominationTableProps) => {
         }
     }, [error])
 
-    const data: DataTableItem[] = participants.map(participant => ({
-        participant,
-        organization: participant.organization,
-        role: participant.role,
-        rowIdentifier: participant.id,
-        disableDelete: disable,
-        deleteParticipant: deleteParticipant,
-        isDeletingParticipant: loading,
-    }))
     return (
         <>
             {showDeleteUserErrorMessage && (
@@ -135,7 +56,38 @@ const NominationTable = ({ participants }: NominationTableProps) => {
                     onClose={() => setShowDeleteUserErrorMessage(false)}
                 />
             )}
-            <DataTable columns={columns} data={data} isFetching={false} rowIdentifier={'rowIdentifier'} />
+            <StyledTable>
+                <Table.Head>
+                    <Table.Row>
+                        <Table.Cell>Details</Table.Cell>
+                        <Table.Cell>Organization</Table.Cell>
+                        <Table.Cell>Role</Table.Cell>
+                        <Table.Cell>Delete</Table.Cell>
+                    </Table.Row>
+                </Table.Head>
+                <Table.Body>
+                    {participants.map(participant => (
+                        <Table.Row key={participant.id}>
+                            <Table.Cell>
+                                <ParticipantCard participant={participant} />
+                            </Table.Cell>
+                            <Table.Cell>{organizationToString(participant.organization)}</Table.Cell>
+                            <Table.Cell>{roleToString(participant.role)}</Table.Cell>
+                            <Table.Cell>
+                                <ButtonWithSaveIndicator
+                                    onClick={() => {
+                                        deleteParticipant(participant.id)
+                                    }}
+                                    disabled={disable || loading}
+                                    isLoading={loading}
+                                >
+                                    Delete
+                                </ButtonWithSaveIndicator>
+                            </Table.Cell>
+                        </Table.Row>
+                    ))}
+                </Table.Body>
+            </StyledTable>
         </>
     )
 }
