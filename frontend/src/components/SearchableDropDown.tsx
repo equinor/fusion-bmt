@@ -4,12 +4,11 @@ import {
     Dropdown,
     SearchableDropdownResolver,
     useDropdownProviderRef,
-    SearchableDropdownSelectEvent,
     SearchableDropdownResult
 } from '@equinor/fusion-react-searchable-dropdown'
 
 interface Props {
-    options: { id: string; title: string; isSelected: boolean; }[]
+    options: { id: string; title: string;}[]
     searchQuery: (queryString: string) => SearchableDropdownResult | Promise<SearchableDropdownResult>
     onSelect: (event: any) => void
     label: string

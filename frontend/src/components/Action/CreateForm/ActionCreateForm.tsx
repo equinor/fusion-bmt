@@ -42,7 +42,6 @@ const ActionCreateForm = ({
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
         id: personDetails.azureUniqueId,
         title: personDetails.name,
-        isSelected: personDetails.azureUniqueId === assignedToId,
     }))
 
     useEffect(() => {

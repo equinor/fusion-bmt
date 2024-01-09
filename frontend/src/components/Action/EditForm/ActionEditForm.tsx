@@ -81,7 +81,6 @@ const ActionEditForm = ({
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
         id: personDetails.azureUniqueId,
         title: personDetails.name,
-        isSelected: personDetails.azureUniqueId === assignedToId,
     }))
 
     const createdDateString = new Date(action.createDate).toLocaleDateString()
