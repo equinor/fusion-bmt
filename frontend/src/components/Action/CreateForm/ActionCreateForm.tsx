@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react'
 
 import { PersonDetails } from '@equinor/fusion'
-import { DatePicker, SearchableDropdown, SearchableDropdownOption, Select } from '@equinor/fusion-components'
-import { Button, TextField, Typography } from '@equinor/eds-core-react'
+import { Button, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
-
 import { Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 import { DataToCreateAction } from './ActionCreateSidebarWithApi'
 import ButtonWithSaveIndicator from '../../ButtonWithSaveIndicator'
-
+import { 
+    DropdownProvider,
+    Dropdown,
+    SearchableDropdownResolver,
+    useDropdownProviderRef,
+    SearchableDropdownSelectEvent 
+} from '@equinor/fusion-react-searchable-dropdown'
+import { toCapitalizedCase } from '../../../utils/helpers'
 interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
@@ -41,9 +46,9 @@ const ActionCreateForm = ({
     const [priority, setPriority] = useState<Priority>(Priority.High)
     const [description, setDescription] = useState<string>('')
 
-    const assigneesOptions: SearchableDropdownOption[] = possibleAssigneesDetails.map(personDetails => ({
+    const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
+        id: personDetails.azureUniqueId,
         title: personDetails.name,
-        key: personDetails.azureUniqueId,
         isSelected: personDetails.azureUniqueId === assignedToId,
     }))
 
@@ -101,6 +106,30 @@ const ActionCreateForm = ({
         }
     }
 
+    const DropDownResolver: SearchableDropdownResolver = {
+        initialResult: assigneesOptions,
+        searchQuery: async (searchTerm: string) => {
+            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
+        }
+        
+    }
+    const SearchableDropdown = (props: any) => {
+    const providerRef = useDropdownProviderRef(DropDownResolver)
+        return (
+            <DropdownProvider ref={providerRef}>
+            <Dropdown 
+                {...props} 
+                label='Assignee'
+                value={assigneesOptions.find(option => option.id === assignedToId)?.title}
+                onSelect={(option) => {
+                    const selectedOption = (option as SearchableDropdownSelectEvent).nativeEvent.detail.selected[0]
+                    setAssignedToId(selectedOption.id)
+                } }
+            />
+            </DropdownProvider>
+        )
+    }
+
     return (
         <>
             <Grid container spacing={3}>
@@ -119,47 +148,35 @@ const ActionCreateForm = ({
                     />
                 </Grid>
                 <Grid item xs={5}>
-                    <SearchableDropdown
-                        label="Assigned to"
-                        error={assignedToValidity === 'error'}
-                        errorMessage="required"
-                        options={assigneesOptions}
-                        onSelect={option => setAssignedToId(option.key)}
-                    />
+                    <SearchableDropdown />
                 </Grid>
                 <Grid item xs={4}>
-                    <DatePicker
-                        label="Due date"
-                        onChange={newDate => setDueDate(newDate !== null ? newDate : new Date())}
-                        selectedDate={dueDate}
+                    <TextField
+                        label='Due date'
+                        id='dueDate'
+                        type='date'
+                        onChange={(event: TextFieldChangeEvent) => {
+                            setDueDate(new Date(event.target.value))
+                        }}
+                        value={dueDate.toISOString().slice(0, 10)}
                     />
                 </Grid>
                 <Grid item xs={3}>
-                    <Typography group="input" variant="label">
-                        Priority
-                    </Typography>
-                    <Select
-                        options={[
-                            {
-                                key: Priority.High,
-                                title: 'High',
-                                isSelected: priority === Priority.High,
-                            },
-                            {
-                                key: Priority.Medium,
-                                title: 'Medium',
-                                isSelected: priority === Priority.Medium,
-                            },
-                            {
-                                key: Priority.Low,
-                                title: 'Low',
-                                isSelected: priority === Priority.Low,
-                            },
-                        ]}
-                        onSelect={option => {
-                            setPriority(option.key as Priority)
+                    <NativeSelect 
+                        label="Priority" 
+                        id="priority-select"
+                        defaultValue={toCapitalizedCase(priority)}
+                        onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+                            const selectedPriority = event.target.value as keyof typeof Priority;
+                            setPriority(Priority[selectedPriority]);
                         }}
-                    />
+                    >
+                        <option>High</option>
+                        <option>Medium</option>
+                        <option>Low</option>
+                    </NativeSelect>
+
+
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant="h5">Connected to {connectedQuestion.evaluation.name}</Typography>

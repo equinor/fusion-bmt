@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { Button } from '@equinor/fusion-components'
+import { Button } from '@equinor/eds-core-react'
 
 import { useProject } from '../../../../globals/contexts'
 import { Evaluation } from '../../../../api/models'
@@ -48,7 +48,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
                     <div style={{ marginRight: 20 }}>
                         <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
                             Create evaluation
-                        </Button>
+                        </Button> 
                     </div>
                 )}
                 {showDialog && (

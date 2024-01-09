@@ -1,7 +1,7 @@
 import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard, Button, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
-
+import { PersonCard, SearchableDropdown, SearchableDropdownOption, Spinner, ModalSideSheet } from '@equinor/fusion-components'
+import { Button } from '@equinor/eds-core-react'
 import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../../utils/EnumToString'

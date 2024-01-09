@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
 import { ApolloError } from '@apollo/client'
-
 import { Box } from '@material-ui/core'
 import { Button, Typography, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add, clear } from '@equinor/eds-icons'
-import { IconButton, DoneIcon, TextArea } from '@equinor/fusion-components'
-
+import { done } from '@equinor/eds-icons'
 import { Action, Participant, Question } from '../../api/models'
 import PriorityIndicator from './PriorityIndicator'
 import ActionEditSidebarWithApi from './EditForm/ActionEditSidebarWithApi'
@@ -102,7 +100,7 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
                                             <Box p="0.1rem">
                                                 <Tooltip placement="bottom" title="Completed">
                                                     <Typography>
-                                                        <DoneIcon data-testid={`action_complete_${action.id}`} />
+                                                        <Icon data={done} size={18} data-testid={`action_complete_${action.id}`} />
                                                     </Typography>
                                                 </Tooltip>
                                             </Box>
@@ -110,15 +108,15 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
                                     </Box>
                                     {participantCanCancelAction(participant) && !action.isVoided && (
                                         <Tooltip placement="bottom" title={'Cancel action'}>
-                                            <IconButton
-                                                data-testid={`void_action_button_${action.id}`}
+                                            <Button 
+                                            variant="ghost_icon" 
+                                            data-testid={`void_action_button_${action.id}`}
                                                 onClick={() => {
                                                     setIsConfirmDeleteDialogOpen(true)
                                                     setActionToCancel(action.id)
-                                                }}
-                                            >
+                                                }} >
                                                 <Icon data={clear} />
-                                            </IconButton>
+                                            </Button>
                                         </Tooltip>
                                     )}
                                 </Box>
