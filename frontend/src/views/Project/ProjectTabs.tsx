@@ -56,7 +56,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
                 <List>
                     <Tab>Dashboard</Tab>
                     <Tab>Actions</Tab>
-                    <Tab>Admin</Tab>
+                    {isAdmin ? <Tab>Admin</Tab> : <></>}
                 </List>
                 <Panels>
                     <StyledTabPanel>
@@ -65,11 +65,13 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
                     <StyledTabPanel>
                         <ActionsView azureUniqueId={currentUser!.id} />
                     </StyledTabPanel>
-                    
+                    {isAdmin ? (
                         <StyledTabPanel>
                             <AdminView />
                         </StyledTabPanel>
-                 
+                    ) : (
+                        <></>
+                    )}
                 </Panels>
             </Tabs>
         </ProjectContext.Provider>
