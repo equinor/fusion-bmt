@@ -3,9 +3,22 @@ import React from 'react'
 import { Icon, Typography } from '@equinor/eds-core-react'
 import { radio_button_selected, radio_button_unselected } from '@equinor/eds-icons'
 import { tokens } from '@equinor/eds-tokens'
-
+import styled from 'styled-components'
 import { Severity } from '../api/models'
 
+const NumberOverlay = styled.div < { $color: string } > `
+    position: absolute;
+    left: 35%;
+    top: 17%;
+    
+`;
+
+const Wrapper = styled.div`
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
 export const getColor = (severity: Severity) => {
     switch (severity) {
         case Severity.OnTrack:
@@ -73,13 +86,7 @@ interface SeverityIndicatorWithNumberProps {
 export const SeverityIndicatorWithNumber = ({ num, severity }: SeverityIndicatorWithNumberProps) => {
     return (
         <>
-            <div
-                style={{
-                    display: 'grid',
-                    placeItems: 'center',
-                    gridTemplateAreas: 'inners',
-                }}
-            >
+            <Wrapper>
                 <div
                     style={{
                         gridArea: 'inners',
@@ -87,11 +94,7 @@ export const SeverityIndicatorWithNumber = ({ num, severity }: SeverityIndicator
                 >
                     <Icon data={radio_button_unselected} color={getColor(severity)} />
                 </div>
-                <div
-                    style={{
-                        gridArea: 'inners',
-                    }}
-                >
+                <NumberOverlay $color={getTextColor(severity)}>
                     <Typography
                         color={getTextColor(severity)}
                         token={{
@@ -100,8 +103,8 @@ export const SeverityIndicatorWithNumber = ({ num, severity }: SeverityIndicator
                     >
                         {num}
                     </Typography>
-                </div>
-            </div>
+                </NumberOverlay>
+            </Wrapper>
         </>
     )
 }
