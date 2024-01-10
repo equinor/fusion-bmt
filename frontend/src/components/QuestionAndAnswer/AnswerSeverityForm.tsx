@@ -1,6 +1,14 @@
-import { RadioButton } from '@equinor/fusion-components'
 import React from 'react'
 import { Severity } from '../../api/models'
+import { Radio } from '@equinor/eds-core-react'
+import styled from 'styled-components'
+
+const ColoredRadio = styled(Radio) <{ $color: string }>`
+    .Radio__Svg-sc-we59oz-3.fGTcpM {
+        fill: ${(props) => props.$color} !important;
+    }
+`
+
 
 interface RadioButtonWrapperProps {
     label: string
@@ -14,7 +22,7 @@ const RadioButtonWrapper = ({ label, color, disabled, onClick, isSelected }: Rad
     return (
         <>
             <label style={{ display: 'flex', alignItems: 'center' }}>
-                <RadioButton color={color} onChange={onClick} selected={isSelected} disabled={disabled} />
+                <ColoredRadio $color={color} onChange={onClick}  disabled={disabled} checked={isSelected} />
                 {label}
             </label>
         </>
