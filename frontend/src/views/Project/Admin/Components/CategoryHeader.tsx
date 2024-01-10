@@ -88,8 +88,11 @@ const CategoryHeader = ({
                         <Box ml={4} width={'250px'}>
                             <SearchableDropdown
                                 label="Project Category"
-                                value={selectedProjectCategory}
-                                onSelect={option => setSelectedProjectCategory(option.id)}
+                                value={projectCategoryOptions.find(option => option.id === selectedProjectCategory)?.title}
+                                onSelect={option => {
+                                    const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                                    setSelectedProjectCategory(selectedOption.id)
+                                }}
                                 options={projectCategoryOptions}
                                 searchQuery={( async (query: string) => {
                                     return projectCategoryOptions.filter((option) => {

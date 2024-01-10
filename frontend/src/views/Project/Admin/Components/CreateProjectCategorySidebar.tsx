@@ -108,8 +108,11 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                 <Grid item xs={12} style={{ marginTop: 20 }}>
                     <SearchableDropdown
                         label="Add questions from project category (optional)"
-                        value={projectCategoryToCopy}
-                        onSelect={option => setProjectCategoryToCopy(option.key)}
+                        value={projectCategoryOptions.find(option => option.id === projectCategoryToCopy)?.title}
+                        onSelect={option => {
+                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                            setProjectCategoryToCopy(selectedOption.id)
+                        }}
                         searchQuery={async (searchTerm: string) => {
                             const filteredOptions = projectCategoryOptions.filter(option => {
                                 return option.title.toLowerCase().includes(searchTerm.toLowerCase())
