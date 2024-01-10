@@ -120,7 +120,10 @@ const ActionCreateForm = ({
                         label="Assignee"
                         value={assigneesOptions.find(option => option.id === assignedToId)?.title}
                         options={assigneesOptions}
-                        onSelect={(option) => {setAssignedToId(option.id)}}
+                        onSelect={(option) => {
+                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                            setAssignedToId(selectedOption.id)
+                        }}
                         searchQuery={async (searchTerm: string) => {
                             return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
                         } }
