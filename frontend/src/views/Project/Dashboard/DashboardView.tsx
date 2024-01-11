@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
-import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
 import ErrorMessage from '../../../components/ErrorMessage'
 import { useCurrentUser } from '@equinor/fusion'
 import { getCachedRoles } from '../../../utils/helpers'
@@ -109,9 +108,8 @@ const DashboardView = ({ project }: Props) => {
     return (
         <div style={{ margin: 20 }}>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                <ApplicationGuidanceAnchor anchor={'dashboard-create-evaluations-button'} scope="bmt">
-                    <CreateEvaluationButton projectId={project.id} />
-                </ApplicationGuidanceAnchor>
+                <CreateEvaluationButton projectId={project.id} />
+              
                 <Typography
                     link
                     href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"
@@ -128,14 +126,14 @@ const DashboardView = ({ project }: Props) => {
                         return undefined
                     } else {
                         return (
-                            <ApplicationGuidanceAnchor anchor={'dashboard-evaluations-filter-' + value} scope="bmt" key={value}>
+                            <div key={value}>
                                 <StyledChip
                                     variant={selectedProjectTable === value ? 'active' : 'default'}
                                     onClick={() => setSelectedProjectTable(value)}
                                 >
                                     {mapTableSelectionToText(value)}
                                 </StyledChip>
-                            </ApplicationGuidanceAnchor>
+                            </div>
                         )
                     }
                 })}

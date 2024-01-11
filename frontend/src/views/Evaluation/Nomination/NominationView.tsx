@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
-import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
 import ErrorMessage from '../../../components/ErrorMessage'
 import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
@@ -197,7 +196,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                         {evaluation.name}
                     </h2>
                     {(participantCanHideEvaluation(participant) || isAdmin) && (
-                        <ApplicationGuidanceAnchor anchor={'nomination-view-hide-from-list'} scope="bmt">
+                        <>
                             <Tooltip title={isVisible ? 'Visible in list' : 'Hidden from list'} placement="bottom">
                                 <Icon data={isVisible ? visibility : visibility_off} style={{ marginRight: '10px' }}></Icon>
                             </Tooltip>
@@ -231,18 +230,16 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 
                                 </div>
                             }
-                        </ApplicationGuidanceAnchor>
+                        </>
                     )}
                 </Box>
                 {participantCanProgressEvaluation(participant) && (
                     <Box display={'flex'} alignItems={'center'}>
                         <SaveIndicator savingState={statusSavingState} />
                         <Box ml={2}>
-                            <ApplicationGuidanceAnchor anchor={'nomination-view-finish-nomination-button'} scope="bmt">
-                                <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
-                                    Finish Nomination
-                                </Button>
-                            </ApplicationGuidanceAnchor>
+                            <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
+                                Finish Nomination
+                            </Button>
                         </Box>
                     </Box>
                 )}

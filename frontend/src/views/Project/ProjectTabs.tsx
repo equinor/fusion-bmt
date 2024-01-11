@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
-import { ErrorMessage } from '@equinor/fusion-components'
+import ErrorMessage from '../../components/ErrorMessage'
 import { Tabs } from '@equinor/eds-core-react'
 import { useCurrentContext, useCurrentUser } from '@equinor/fusion'
 
@@ -47,7 +47,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     }
 
     if (error !== undefined || project === undefined) {
-        return <ErrorMessage hasError errorType={'noData'} title="Could not load project" message={genericErrorMessage} />
+        return <ErrorMessage title="Could not load project" message={genericErrorMessage} />
     }
 
     return (
@@ -56,7 +56,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
                 <List>
                     <Tab>Dashboard</Tab>
                     <Tab>Actions</Tab>
-                    {isAdmin ? <Tab>Admin</Tab> : <></>}
+                    <Tab>Admin</Tab>
                 </List>
                 <Panels>
                     <StyledTabPanel>
