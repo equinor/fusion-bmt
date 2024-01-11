@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Box } from '@material-ui/core'
 import { tokens } from '@equinor/eds-tokens'
-import { MarkdownViewer } from '@equinor/fusion-components'
+import { MarkdownViewer } from '@equinor/fusion-react-markdown';
 import { Button, Chip, Icon, Autocomplete, Tooltip, Typography, AutocompleteChanges } from '@equinor/eds-core-react'
 import { arrow_down, arrow_up, platform, work } from '@equinor/eds-icons'
 import { ProjectCategory, QuestionTemplate } from '../../../../api/models'
@@ -339,7 +339,7 @@ const StaticQuestionItem = ({
                                 )}
                             </Box>
                             <Box mt={3}>
-                                <MarkdownViewer markdown={question.supportNotes} />
+                                <MarkdownViewer value={question.supportNotes} />
                             </Box>
                         </Box>
                     </Box>

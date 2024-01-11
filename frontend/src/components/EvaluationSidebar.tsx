@@ -1,6 +1,6 @@
 import React from 'react'
-import { NavigationStructure, Chip, NavigationDrawer } from '@equinor/fusion-components'
-
+import { NavigationStructure, NavigationDrawer } from '@equinor/fusion-components'
+import { Chip } from '@equinor/eds-core-react'
 import { Barrier, Question, Progression } from '../api/models'
 import { useAzureUniqueId } from '../utils/Variables'
 import { barrierToString } from '../utils/EnumToString'
@@ -31,7 +31,7 @@ const EvaluationSidebar = ({ questions, barrier, viewProgression, onBarrierSelec
             title: barrierToString(b),
             icon: <>{b}</>,
             isActive: barrier === b,
-            aside: <Chip title={`${answeredUsersBarrierAnswers.length}/${barrierQuestions.length}`} data-testid={`barrier+${b}`} />,
+            aside: <Chip data-testid={`barrier+${b}`}> {answeredUsersBarrierAnswers.length}/${barrierQuestions.length} </Chip>,
         }
     })
 
