@@ -1,5 +1,4 @@
 import React from 'react'
-import { CheckCircleIcon, ScheduleIcon } from '@equinor/fusion-components'
 import { calcProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { Progression } from '../../../../api/models'
 import { Icon } from '@equinor/eds-core-react'

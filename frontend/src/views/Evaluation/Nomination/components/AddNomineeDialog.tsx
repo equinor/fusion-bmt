@@ -1,6 +1,6 @@
 import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard, Spinner } from '@equinor/fusion-components'
+import { PersonCard } from '@equinor/fusion-components'
 import { Button } from '@equinor/eds-core-react'
 import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
@@ -10,6 +10,7 @@ import { useEffectNotOnMount } from '../../../../utils/hooks'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
 import SideSheet from '@equinor/fusion-react-side-sheet'
 import styled from 'styled-components'
+import { CircularProgress } from '@equinor/eds-core-react'
 
 const Wrapper = styled.div`
     display: flex;
@@ -170,7 +171,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                 <SearchResults>
                     {(isSearching || createParticipantLoading) && (
                         <div style={{ justifyContent: 'center' }}>
-                            <Spinner />
+                            <CircularProgress />
                         </div>
                     )}
                     {!isSearching &&

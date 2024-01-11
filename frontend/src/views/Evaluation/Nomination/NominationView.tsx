@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
-import { ApplicationGuidanceAnchor, ErrorMessage, Spinner } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor, ErrorMessage } from '@equinor/fusion-components'
 import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
 import { ContextTypes, useCurrentUser } from '@equinor/fusion'
@@ -210,7 +210,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                             </Button>
 
                             {isFetchingProjects ?
-                                <Spinner /> :
+                                <CircularProgress /> :
                                 <div>
                                     Switch evaluation to another project
                                     <SearchableDropdown
