@@ -1,5 +1,4 @@
 import React from 'react'
-import { Step, Stepper } from '@equinor/fusion-components'
 import { Evaluation, Progression, Role } from '../../api/models'
 import { calcProgressionStatus } from '../../utils/ProgressionStatus'
 import NominationView from './Nomination/NominationView'
@@ -15,6 +14,7 @@ import { useCurrentContext } from '@equinor/fusion'
 import styled from 'styled-components'
 import { Icon } from '@equinor/eds-core-react'
 import { arrow_back_ios } from '@equinor/eds-icons'
+import { Stepper, Step } from '@equinor/fusion-react-stepper';
 
 const Wrapper = styled.div`
     padding: 20px 10px 0 10px;
@@ -62,6 +62,7 @@ const EvaluationSteps = ({ evaluation, onProgressEvaluationClick, onProgressPart
                 Project dashboard
             </ProjectButton>
             </Wrapper>
+
             <Stepper forceOrder={false} activeStepKey={activeStepKey} hideNavButtons={true}>
                 <Step
                     title={progressionToString(Progression.Nomination)}
