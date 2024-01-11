@@ -45,6 +45,7 @@
         "@equinor/fusion-query": "^2.0.7",
         "@equinor/fusion-react-searchable-dropdown": "^0.4.4",
         "@equinor/fusion-react-side-sheet": "^1.2.5",
+        "@equinor/fusion-react-stepper": "^0.4.3",
         "@floating-ui/react-dom-interactions": "^0.13.3",
         "@material-ui/core": "^4.12.3",
         "@microsoft/applicationinsights-react-js": "^3.4.1",
