@@ -7,8 +7,6 @@ import { tokens } from '@equinor/eds-tokens'
 import { MarkdownViewer } from '@equinor/fusion-components'
 import { Button, Chip, Icon, Autocomplete, Tooltip, Typography, AutocompleteChanges } from '@equinor/eds-core-react'
 import { arrow_down, arrow_up, platform, work } from '@equinor/eds-icons'
-import { UseMultipleSelectionStateChange } from 'downshift'
-
 import { ProjectCategory, QuestionTemplate } from '../../../../api/models'
 import { organizationToString } from '../../../../utils/EnumToString'
 import SaveIndicator from '../../../../components/SaveIndicator'

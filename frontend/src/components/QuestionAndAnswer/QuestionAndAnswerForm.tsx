@@ -1,5 +1,7 @@
 import React from 'react'
-import { Chip, MarkdownViewer } from '@equinor/fusion-components'
+import { MarkdownViewer } from '@equinor/fusion-components'
+import { Chip } from '@equinor/eds-core-react'
+
 import { Typography } from '@equinor/eds-core-react'
 
 import { Answer, Question, Severity } from '../../api/models'
@@ -36,7 +38,7 @@ const QuestionAndAnswerForm = ({
                         <Box mr={2}>
                             <SaveIndicator savingState={savingState} />
                         </Box>
-                        <Chip primary title={organizationToString(question.organization)} />
+                        <Chip> {organizationToString(question.organization)} </Chip>
                     </Box>
                 </Grid>
                 <Grid item xs={12}>
@@ -57,6 +59,7 @@ const QuestionAndAnswerForm = ({
                                     )
                                 })}
                             </Box>
+                            <p>viewer:</p>
                             <MarkdownViewer markdown={question.supportNotes} />
                         </Box>
                     </Box>

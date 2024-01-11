@@ -101,7 +101,7 @@ const ActionEditSidebar = ({
     return (
         <SideSheet
             isOpen={open}
-            minWidth={400}
+            minWidth={550}
             onClose={onClose}
         >
             <SideSheet.Title title="Edit Action" />
