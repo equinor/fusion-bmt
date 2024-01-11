@@ -1,8 +1,6 @@
 import React from 'react'
-
-import { ModalSideSheet } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
-
+import SideSheet from '@equinor/fusion-react-side-sheet'
 import { Participant, Question } from '../../../api/models'
 import ActionCreateForm from './ActionCreateForm'
 import { useAllPersonDetailsAsync } from '../../../utils/hooks'
@@ -36,7 +34,14 @@ const ActionCreateSidebar = ({
     const { personDetailsList, isLoading } = useAllPersonDetailsAsync(possibleAssignees.map(assignee => assignee.azureUniqueId))
 
     return (
-        <ModalSideSheet header={`Add Action`} show={open} size="large" onClose={onClose} isResizable={false}>
+        <SideSheet 
+            isOpen={open}
+            onClose={onClose}
+            minWidth={400}
+        >
+            <SideSheet.Title title="Add Action" />
+            <SideSheet.SubTitle subTitle="" />
+            <SideSheet.Content>
             {isLoading && (
                 <div style={{ textAlign: 'center' }}>
                     <CircularProgress />
@@ -46,7 +51,7 @@ const ActionCreateSidebar = ({
                 <ErrorBanner message={'Could not save action. ' + genericErrorMessage} onClose={() => setShowErrorMessage(false)} />
             )}
             {!isLoading && (
-                <div style={{ margin: 20 }} data-testid="create_action_dialog_body">
+                <div data-testid="create_action_dialog_body">
                     <ActionCreateForm
                         connectedQuestion={connectedQuestion}
                         possibleAssignees={possibleAssignees}
@@ -58,7 +63,8 @@ const ActionCreateSidebar = ({
                     />
                 </div>
             )}
-        </ModalSideSheet>
+            </SideSheet.Content>
+        </SideSheet>
     )
 }
 

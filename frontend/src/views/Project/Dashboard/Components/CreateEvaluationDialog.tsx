@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import { ErrorMessage, ModalSideSheet } from '@equinor/fusion-components'
+import { ErrorMessage } from '@equinor/fusion-components'
 import { CircularProgress, TextField } from '@equinor/eds-core-react'
-import { Container, Grid } from '@material-ui/core'
+import { Grid } from '@material-ui/core'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { genericErrorMessage } from '../../../../utils/Variables'
 import { useProject } from '../../../../globals/contexts'
@@ -13,13 +13,15 @@ import { ErrorIcon } from '../../../../components/Action/utils'
 import ErrorBanner from '../../../../components/ErrorBanner'
 import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
 import { centered } from '../../../../utils/styles'
+import SideSheet from '@equinor/fusion-react-side-sheet'
 import styled from 'styled-components'
 
 const ButtonGrid = styled(Grid)`
-    margin: 20px 12px;
+    margin: 20px 10px;
     display: flex;
     justify-content: end;
 `
+
 interface CreateEvaluationDialogProps {
     open: boolean
     onCreate: (name: string, projectCategoryId: string, previousEvaluationId?: string) => void
@@ -94,9 +96,15 @@ const CreateEvaluationDialog = ({
         : []
 
     return (
-        <>
-            <ModalSideSheet show={open} onClose={onCancelClick} header="Create Evaluation" size="medium">
-                {isFetchingData && (
+        <SideSheet 
+            isOpen={open}
+            minWidth={400}
+            onClose={onCancelClick}
+            >
+            <SideSheet.Title title="Create Evaluation" />
+            <SideSheet.SubTitle subTitle="Create a new evaluation" />
+            <SideSheet.Content>
+            {isFetchingData && (
                     <div style={centered}>
                         <CircularProgress style={{ width: '25px', height: '25px' }} />
                     </div>
@@ -110,7 +118,7 @@ const CreateEvaluationDialog = ({
                     />
                 )}
                 {!isFetchingData && !isMissingData && (
-                    <Container>
+                    <div>
                         {showCreateErrorMessage && (
                             <ErrorBanner
                                 message={'Unable to create evaluation. ' + genericErrorMessage}
@@ -177,10 +185,10 @@ const CreateEvaluationDialog = ({
                                 />
                             </ButtonGrid>
                         </Grid>
-                    </Container>
+                    </div>
                 )}
-            </ModalSideSheet>
-        </>
+            </SideSheet.Content>
+        </SideSheet>
     )
 }
 

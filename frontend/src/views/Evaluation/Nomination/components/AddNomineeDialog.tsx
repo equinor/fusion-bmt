@@ -1,24 +1,24 @@
 import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard, Spinner, ModalSideSheet } from '@equinor/fusion-components'
+import { PersonCard, Spinner } from '@equinor/fusion-components'
 import { Button } from '@equinor/eds-core-react'
 import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../../utils/EnumToString'
-import { Divider, TextField } from '@equinor/eds-core-react'
+import { TextField } from '@equinor/eds-core-react'
 import { useEffectNotOnMount } from '../../../../utils/hooks'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
+import SideSheet from '@equinor/fusion-react-side-sheet'
 import styled from 'styled-components'
 
 const Wrapper = styled.div`
-    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 `
 
 const SearchResults = styled.div`
-    padding: 20px;
+    padding: 20px 0;
 `
 
 const PersonInfo = styled.div`
@@ -120,72 +120,80 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
     }
 
     return (
-        <ModalSideSheet header="Add Person" show={open} size="medium" onClose={onCloseClick} isResizable={false}>
-            <Wrapper data-testid="nominee_dialog_body">
-                <SearchableDropdown
-                    options={orgOptions}
-                    value={selectedOrg}
-                    label="Organization"
-                    onSelect={option => {
-                        const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                        updateOrgOptions(selectedOption)
-                        setSelectedOrg(Organization[selectedOption.id as keyof typeof Organization])
-                    }} 
-                    searchQuery={ async (query: string) => {
-                        return orgOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
-                    }}
-                />
-                <SearchableDropdown
-                    options={roleOptions}
-                    value={selectedRole}
-                    label="Role"
-                    onSelect={option => {
-                        const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                        updateRoleOptions(selectedOption)
-                        setSelectedRole(Role[selectedOption.id as keyof typeof Role])
-                    }}
-                    searchQuery={ async (query: string) => {
-                        return roleOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
-                    }}
-                />
-                <TextField
-                    id="" // avoids error
-                    autoFocus={true}
-                    onChange={(e: any) => {
-                        setSearchQuery(e.target.value)
-                    }}
-                    value={searchQuery}
-                    type="search"
-                    placeholder="Search for person..."
-                    data-testid="nominee_dialog_search_text_field"
-                />
-            </Wrapper>
-            <SearchResults>
-                {(isSearching || createParticipantLoading) && (
-                    <div style={{ justifyContent: 'center' }}>
-                        <Spinner />
-                    </div>
-                )}
-                {!isSearching &&
-                    searchResults
-                        .filter(p => p.azureUniqueId !== null)
-                        .map(p => {
-                            return (
-                                <PersonInfo style={{ marginBottom: 10 }} key={p.azureUniqueId}>
-                                    <PersonCard person={p} />
-                                    <Button
-                                        onClick={() => {
-                                            onNomineeSelected(p.azureUniqueId, selectedRole, selectedOrg)
-                                        }}
-                                        disabled={isParticipantNominated(p.azureUniqueId)}
-                                    >
-                                        Add
-                                    </Button>
-                                </PersonInfo>
-                            )
-                        })}
-            </SearchResults>
-        </ModalSideSheet>
+        <SideSheet 
+            isOpen={open} 
+            minWidth={400}
+            onClose={onCloseClick}
+        >
+            <SideSheet.Title title="Create Evaluation" />
+            <SideSheet.SubTitle subTitle="Create a new evaluation" />
+            <SideSheet.Content>
+                <Wrapper data-testid="nominee_dialog_body">
+                    <SearchableDropdown
+                        options={orgOptions}
+                        value={selectedOrg}
+                        label="Organization"
+                        onSelect={option => {
+                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                            updateOrgOptions(selectedOption)
+                            setSelectedOrg(Organization[selectedOption.id as keyof typeof Organization])
+                        }} 
+                        searchQuery={ async (query: string) => {
+                            return orgOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
+                        }}
+                    />
+                    <SearchableDropdown
+                        options={roleOptions}
+                        value={selectedRole}
+                        label="Role"
+                        onSelect={option => {
+                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                            updateRoleOptions(selectedOption)
+                            setSelectedRole(Role[selectedOption.id as keyof typeof Role])
+                        }}
+                        searchQuery={ async (query: string) => {
+                            return roleOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
+                        }}
+                    />
+                    <TextField
+                        id="" // avoids error
+                        autoFocus={true}
+                        onChange={(e: any) => {
+                            setSearchQuery(e.target.value)
+                        }}
+                        value={searchQuery}
+                        type="search"
+                        placeholder="Search for person..."
+                        data-testid="nominee_dialog_search_text_field"
+                    />
+                </Wrapper>
+                <SearchResults>
+                    {(isSearching || createParticipantLoading) && (
+                        <div style={{ justifyContent: 'center' }}>
+                            <Spinner />
+                        </div>
+                    )}
+                    {!isSearching &&
+                        searchResults
+                            .filter(p => p.azureUniqueId !== null)
+                            .map(p => {
+                                return (
+                                    <PersonInfo style={{ marginBottom: 10 }} key={p.azureUniqueId}>
+                                        <PersonCard person={p} />
+                                        <Button
+                                            onClick={() => {
+                                                onNomineeSelected(p.azureUniqueId, selectedRole, selectedOrg)
+                                            }}
+                                            disabled={isParticipantNominated(p.azureUniqueId)}
+                                        >
+                                            Add
+                                        </Button>
+                                    </PersonInfo>
+                                )
+                            })}
+                </SearchResults>
+            </SideSheet.Content>
+        </SideSheet>
     )
 }
 
