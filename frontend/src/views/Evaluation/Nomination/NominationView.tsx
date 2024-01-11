@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
-import { ApplicationGuidanceAnchor, ErrorMessage } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
+import ErrorMessage from '../../../components/ErrorMessage'
 import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
 import { ContextTypes, useCurrentUser } from '@equinor/fusion'
@@ -163,13 +164,12 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         )
     }
 
-
     if (errorQuery !== undefined || participants === undefined) {
-        return <ErrorMessage hasError errorType={'noData'} title="Could not load participants" message={genericErrorMessage} />
+        return <ErrorMessage title="Could not load participants" message={genericErrorMessage} />
     }
 
     if (errorCreateParticipant !== undefined) {
-        return <ErrorMessage hasError errorType={'error'} title="Could not add participant" message={genericErrorMessage} />
+        return <ErrorMessage title="Could not add participant" message={genericErrorMessage} />
     }
 
     const updateEvaluationToNewProject = (item: any) => {

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { CircularProgress, Divider, Typography } from '@equinor/eds-core-react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { ErrorMessage } from '@equinor/fusion-components'
+import ErrorMessage from '../../../components/ErrorMessage'
 import { Box } from '@material-ui/core'
 
 import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../../api/fragments'
@@ -79,7 +79,7 @@ const AdminView = () => {
     }
 
     if (errorProjectCategoryQuery !== undefined || error !== undefined || projectCategories === undefined || questions === undefined) {
-        return <ErrorMessage hasError errorType={'noData'} message={genericErrorMessage} />
+        return <ErrorMessage title="Error" message={genericErrorMessage} />
     }
 
     const onBarrierSelected = (barrier: Barrier) => {
