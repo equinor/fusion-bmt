@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
-import { ModalSideSheet } from '@equinor/fusion-components'
 import { TextField } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
@@ -11,6 +10,7 @@ import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/u
 import { ProjectCategory } from '../../../../api/models'
 import ErrorBanner from '../../../../components/ErrorBanner'
 import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
+import SideSheet from '@equinor/fusion-react-side-sheet'
 
 interface Props {
     isOpen: boolean
@@ -72,69 +72,71 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
     }
 
     return (
-        <ModalSideSheet
-            header={`Create Project Category`}
-            show={isOpen}
-            size="medium"
+        <SideSheet
+            isOpen={isOpen}
+            minWidth={400}
             onClose={() => {
                 setIsOpen(false)
             }}
-            isResizable={false}
-        >
-            <Grid container style={{ paddingLeft: 20, paddingRight: 20 }}>
-                {showErrorMessage && (
-                    <Grid item xs={12}>
-                        <ErrorBanner
-                            message={'Could not save project category. ' + genericErrorMessage}
-                            onClose={() => setShowErrorMessage(false)}
+            >
+            <SideSheet.Title title="Create Project Category" />
+            <SideSheet.SubTitle subTitle="Create a new Project Category" />
+            <SideSheet.Content>
+                <Grid container>
+                    {showErrorMessage && (
+                        <Grid item xs={12}>
+                            <ErrorBanner
+                                message={'Could not save project category. ' + genericErrorMessage}
+                                onClose={() => setShowErrorMessage(false)}
+                            />
+                        </Grid>
+                    )}
+                    <Grid item xs={12} style={{ marginTop: 20 }}>
+                        <TextField
+                            data-testid="projectCategoryName"
+                            id="name"
+                            value={projectCategoryName}
+                            autoFocus={true}
+                            label="Name"
+                            onChange={(event: TextFieldChangeEvent) => {
+                                setProjectCategoryName(event.target.value)
+                            }}
+                            variant={valueValidity}
+                            helperText={valueValidity === 'error' ? 'required' : ''}
+                            helperIcon={valueValidity === 'error' ? ErrorIcon : <></>}
                         />
                     </Grid>
-                )}
-                <Grid item xs={12} style={{ marginTop: 20 }}>
-                    <TextField
-                        data-testid="projectCategoryName"
-                        id="name"
-                        value={projectCategoryName}
-                        autoFocus={true}
-                        label="Name"
-                        onChange={(event: TextFieldChangeEvent) => {
-                            setProjectCategoryName(event.target.value)
-                        }}
-                        variant={valueValidity}
-                        helperText={valueValidity === 'error' ? 'required' : ''}
-                        helperIcon={valueValidity === 'error' ? ErrorIcon : <></>}
-                    />
+                    <Grid item xs={12} style={{ marginTop: 20 }}>
+                        <SearchableDropdown
+                            label="Add questions from project category (optional)"
+                            value={projectCategoryOptions.find(option => option.id === projectCategoryToCopy)?.title}
+                            onSelect={option => {
+                                const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                                setProjectCategoryToCopy(selectedOption.id)
+                            }}
+                            searchQuery={async (searchTerm: string) => {
+                                const filteredOptions = projectCategoryOptions.filter(option => {
+                                    return option.title.toLowerCase().includes(searchTerm.toLowerCase())
+                                })
+                                return filteredOptions
+                            } }
+                            options={projectCategoryOptions}
+                        />
+                    </Grid>
+                    <Grid container justify="flex-end" style={{ marginTop: '20px' }}>
+                        <CancelAndSaveButton
+                            onClickCancel={() => setIsOpen(false)}
+                            onClickSave={onCreateProjectCategory}
+                            cancelButtonTestId="cancelCreateProjectCategory"
+                            saveButtonTestId="saveCreateProjectCategory"
+                            isSaving={loading}
+                            disableCancelButton={loading}
+                            disableSaveButton={!isNameValid() || loading}
+                        />
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} style={{ marginTop: 20 }}>
-                    <SearchableDropdown
-                        label="Add questions from project category (optional)"
-                        value={projectCategoryOptions.find(option => option.id === projectCategoryToCopy)?.title}
-                        onSelect={option => {
-                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                            setProjectCategoryToCopy(selectedOption.id)
-                        }}
-                        searchQuery={async (searchTerm: string) => {
-                            const filteredOptions = projectCategoryOptions.filter(option => {
-                                return option.title.toLowerCase().includes(searchTerm.toLowerCase())
-                            })
-                            return filteredOptions
-                        } }
-                        options={projectCategoryOptions}
-                    />
-                </Grid>
-                <Grid container justify="flex-end" style={{ marginTop: '20px' }}>
-                    <CancelAndSaveButton
-                        onClickCancel={() => setIsOpen(false)}
-                        onClickSave={onCreateProjectCategory}
-                        cancelButtonTestId="cancelCreateProjectCategory"
-                        saveButtonTestId="saveCreateProjectCategory"
-                        isSaving={loading}
-                        disableCancelButton={loading}
-                        disableSaveButton={!isNameValid() || loading}
-                    />
-                </Grid>
-            </Grid>
-        </ModalSideSheet>
+            </SideSheet.Content>
+        </SideSheet>
     )
 }
 

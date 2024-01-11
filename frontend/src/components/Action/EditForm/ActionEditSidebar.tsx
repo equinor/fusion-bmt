@@ -1,8 +1,5 @@
 import React, { useState } from 'react'
-
-import { ModalSideSheet } from '@equinor/fusion-components'
 import { CircularProgress } from '@equinor/eds-core-react'
-
 import { Action, ClosingRemark, Note, Participant, Question } from '../../../api/models'
 import ActionEditForm from './ActionEditForm'
 import SaveIndicator from '../../SaveIndicator'
@@ -13,6 +10,7 @@ import NoteCreateForm from './NoteCreateForm'
 import { useParticipant } from '../../../globals/contexts'
 import { disableActionEdit } from '../../../utils/disableComponents'
 import { ApolloError } from '@apollo/client'
+import SideSheet from '@equinor/fusion-react-side-sheet'
 
 const WRITE_DELAY_MS = 1000
 
@@ -101,21 +99,24 @@ const ActionEditSidebar = ({
     }, [delayedAction])
 
     return (
-        <ModalSideSheet
-            header={`Edit Action`}
-            show={open}
-            size="large"
+        <SideSheet
+            isOpen={open}
+            minWidth={400}
             onClose={onClose}
-            isResizable={false}
-            headerIcons={[<SaveIndicator savingState={savingState} />]}
         >
+            <SideSheet.Title title="Edit Action" />
+            <SideSheet.SubTitle subTitle="" />
+            <SideSheet.Actions>
+                <SaveIndicator savingState={savingState} />
+            </SideSheet.Actions>
+            <SideSheet.Content>
             {isLoadingPersonDetails && (
                 <div style={{ textAlign: 'center' }}>
                     <CircularProgress />
                 </div>
             )}
             {!isLoadingPersonDetails && (
-                <div style={{ margin: 20 }} data-testid="edit_action_dialog_body">
+                <div data-testid="edit_action_dialog_body">
                     <ActionEditForm
                         action={action}
                         connectedQuestion={connectedQuestion}
@@ -140,7 +141,8 @@ const ActionEditSidebar = ({
                     <NotesAndClosingRemarksList notesAndClosingRemarks={notesAndClosingRemarks} participantsDetails={personDetailsList} />
                 </div>
             )}
-        </ModalSideSheet>
+            </SideSheet.Content>
+        </SideSheet>
     )
 }
 
