@@ -37,7 +37,7 @@ const ActionCreateSidebar = ({
         <SideSheet 
             isOpen={open}
             onClose={onClose}
-            minWidth={400}
+            minWidth={550}
         >
             <SideSheet.Title title="Add Action" />
             <SideSheet.SubTitle subTitle="" />

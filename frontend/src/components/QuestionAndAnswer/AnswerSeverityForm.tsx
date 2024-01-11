@@ -4,7 +4,7 @@ import { Radio } from '@equinor/eds-core-react'
 import styled from 'styled-components'
 
 const ColoredRadio = styled(Radio) <{ $color: string }>`
-    .Radio__Svg-sc-we59oz-3.fGTcpM {
+    * {
         fill: ${(props) => props.$color} !important;
     }
 `
