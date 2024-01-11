@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
-import { ErrorMessage } from '@equinor/fusion-components'
+import ErrorMessage from '../../../../components/ErrorMessage'
 import { CircularProgress, TextField } from '@equinor/eds-core-react'
 import { Grid } from '@material-ui/core'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
@@ -111,9 +111,7 @@ const CreateEvaluationDialog = ({
                 )}
                 {!isFetchingData && isMissingData && (
                     <ErrorMessage
-                        hasError
                         title="Missing data"
-                        errorType={'noData'}
                         message={'Unfortunately, we were not able to fetch the necessary data. ' + genericErrorMessage}
                     />
                 )}

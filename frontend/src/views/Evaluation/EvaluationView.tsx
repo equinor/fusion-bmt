@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
-
-import { ErrorMessage } from '@equinor/fusion-components'
+import ErrorMessage from '../../components/ErrorMessage'
 import { CircularProgress } from '@equinor/eds-core-react'
-
 import { Evaluation, Participant, Progression } from '../../api/models'
 import ProgressEvaluationDialog from '../../components/ProgressEvaluationDialog'
 import EvaluationSteps from './EvaluationSteps'
@@ -51,15 +49,15 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
     }
 
     if (errorLoadingEvaluation !== undefined || (!loading && evaluation === undefined)) {
-        return <ErrorMessage hasError errorType={'noData'} title="Could not load evaluation" message={genericErrorMessage} />
+        return <ErrorMessage title="Could not load evaluation" message={genericErrorMessage} />
     }
 
     if (errorProgressingParticipant !== undefined) {
-        return <ErrorMessage hasError errorType={'error'} title="Could not progress participant" message={genericErrorMessage} />
+        return <ErrorMessage title="Could not progress participant" message={genericErrorMessage} />
     }
 
     if (errorProgressEvaluation !== undefined) {
-        return <ErrorMessage hasError errorType={'error'} title="Could not progress evaluation" message={genericErrorMessage} />
+        return <ErrorMessage title="Could not progress evaluation" message={genericErrorMessage} />
     }
 
     if (loadingProgressEvaluation || loading) {
@@ -71,7 +69,7 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
     }
 
     if (evaluation === undefined) {
-        return <ErrorMessage hasError errorType={'noData'} title="Could not load evaluation" message={genericErrorMessage} />
+        return <ErrorMessage title="Could not load evaluation" message={genericErrorMessage} />
     }
 
     const onProgressParticipant = (newProgressions: Progression) => {

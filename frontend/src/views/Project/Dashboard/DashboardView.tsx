@@ -3,7 +3,8 @@ import styled from 'styled-components'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
-import { ApplicationGuidanceAnchor, ErrorMessage } from '@equinor/fusion-components'
+import { ApplicationGuidanceAnchor } from '@equinor/fusion-components'
+import ErrorMessage from '../../../components/ErrorMessage'
 import { useCurrentUser } from '@equinor/fusion'
 import { getCachedRoles } from '../../../utils/helpers'
 
@@ -103,7 +104,7 @@ const DashboardView = ({ project }: Props) => {
 
     const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations)
 
-    const errorMessage = <ErrorMessage hasError errorType={'noData'} message={genericErrorMessage} />
+    const errorMessage = <ErrorMessage title= "Error" message={genericErrorMessage}  />
 
     return (
         <div style={{ margin: 20 }}>

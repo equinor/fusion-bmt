@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { useApiClients, Context } from '@equinor/fusion'
-import { ErrorMessage } from '@equinor/fusion-components'
+import ErrorMessage from '../../../components/ErrorMessage'
 
 import { useAllPersonDetailsAsync } from '../../../utils/hooks'
 import { Action } from '../../../api/models'
@@ -69,7 +69,7 @@ const ActionsView = ({ azureUniqueId }: Props) => {
                 </div>
             )}
             {!isFetchingData && errorLoadingActions !== undefined && (
-                <ErrorMessage hasError errorType={'noData'} message={genericErrorMessage} />
+                <ErrorMessage title="Error" message={genericErrorMessage} />
             )}
             {!isFetchingData && errorLoadingActions === undefined && actionsWithAdditionalInfo.length > 0 && (
                 <ActionTable
