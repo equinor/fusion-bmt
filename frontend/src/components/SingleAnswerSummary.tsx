@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Grid, Box } from '@material-ui/core'
 import { Typography } from '@equinor/eds-core-react'
 import { useApiClients } from '@equinor/fusion'
-import { MarkdownViewer } from '@equinor/fusion-components'
+import { MarkdownViewer } from '@equinor/fusion-react-markdown';
 
 import { Answer, Role } from '../api/models'
 import { organizationToString } from '../utils/EnumToString'
@@ -42,7 +42,7 @@ const SingleAnswerSummary = ({ answer }: SingleAnswerSummaryProps) => {
                             {username}
                             {useShared ? '' : ', '.concat(organization)}
                         </Typography>
-                        <MarkdownViewer markdown={answer.text} />
+                        <MarkdownViewer value={answer.text} />
                     </Box>
                 </Box>
             </Grid>

@@ -123,7 +123,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
     return (
         <SideSheet 
             isOpen={open} 
-            minWidth={400}
+            minWidth={550}
             onClose={onCloseClick}
         >
             <SideSheet.Title title="Create Evaluation" />
@@ -178,6 +178,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                         searchResults
                             .filter(p => p.azureUniqueId !== null)
                             .map(p => {
+                                console.log('p', p)
                                 return (
                                     <PersonInfo style={{ marginBottom: 10 }} key={p.azureUniqueId}>
                                         <PersonCard person={p} />

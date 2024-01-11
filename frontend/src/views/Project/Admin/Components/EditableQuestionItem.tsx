@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-
-import { MarkdownEditor } from '@equinor/fusion-components'
+import { MarkdownEditor } from '@equinor/fusion-react-markdown';
 import { TextField, Typography } from '@equinor/eds-core-react'
 import { Box } from '@material-ui/core'
 import { ApolloError, gql, useMutation } from '@apollo/client'
@@ -93,7 +92,10 @@ const EditableQuestionItem = ({ question, setIsInEditmode, refetchQuestionTempla
                     <Box ml={3} mt={3} mr={1} mb={10}>
                         <MarkdownEditor
                             data-testid="markdown-editor"
-                            onChange={markdown => setSupportNotes(markdown)}
+                            onChange={markdown => {
+                                const value = (markdown as any).target._value
+                                setSupportNotes(value)
+                            }}
                             menuItems={['strong', 'em', 'bullet_list', 'ordered_list', 'blockquote', 'h1', 'h2', 'h3', 'paragraph']}
                         >
                             {supportNotes === '' ? ' ' : supportNotes}

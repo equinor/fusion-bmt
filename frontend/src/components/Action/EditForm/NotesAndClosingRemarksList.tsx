@@ -3,7 +3,7 @@ import { Box } from '@material-ui/core'
 import { ClosingRemark, Note } from '../../../api/models'
 import { PersonDetails } from '@equinor/fusion'
 import { tokens } from '@equinor/eds-tokens'
-import { MarkdownViewer } from '@equinor/fusion-components'
+import { MarkdownViewer } from '@equinor/fusion-react-markdown';
 
 interface Props {
     notesAndClosingRemarks: (Note | ClosingRemark)[]
@@ -60,7 +60,7 @@ const NotesAndClosingRemarksList = ({ notesAndClosingRemarks, participantsDetail
                             </Box>
                         </Box>
                         <Box data-testid={'note_text'}>
-                            <MarkdownViewer markdown={noteOrRemark.text} />
+                            <MarkdownViewer value={noteOrRemark.text} />
                         </Box>
                     </Box>
                 )

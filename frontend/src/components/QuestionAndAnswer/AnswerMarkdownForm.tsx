@@ -1,4 +1,4 @@
-import { MarkdownEditor } from '@equinor/fusion-components'
+import { MarkdownEditor } from '@equinor/fusion-react-markdown';
 import { Box } from '@material-ui/core'
 import React from 'react'
 
@@ -21,8 +21,11 @@ const AnswerMarkdownForm = ({ markdown, disabled, onMarkdownChange }: Props) => 
         <>
             <Box width="100%" key={`${disabled}`}>
                 <MarkdownEditor
-                    onChange={markdown => onLocalMarkdownChange(markdown)}
                     menuItems={['strong', 'em', 'bullet_list', 'ordered_list', 'blockquote', 'h1', 'h2', 'h3', 'paragraph']}
+                    onInput={markdown => {
+                        const value = (markdown as any).target._value
+                        onLocalMarkdownChange(value)
+                    }}
                 >
                     {markdown}
                 </MarkdownEditor>

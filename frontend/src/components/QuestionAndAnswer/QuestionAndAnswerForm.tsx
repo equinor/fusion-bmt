@@ -1,9 +1,7 @@
 import React from 'react'
-import { MarkdownViewer } from '@equinor/fusion-components'
 import { Chip } from '@equinor/eds-core-react'
-
 import { Typography } from '@equinor/eds-core-react'
-
+import { MarkdownViewer } from '@equinor/fusion-react-markdown';
 import { Answer, Question, Severity } from '../../api/models'
 import { Box, Grid } from '@material-ui/core'
 import AnswerSeverityForm from './AnswerSeverityForm'
@@ -59,8 +57,7 @@ const QuestionAndAnswerForm = ({
                                     )
                                 })}
                             </Box>
-                            <p>viewer:</p>
-                            <MarkdownViewer markdown={question.supportNotes} />
+                            <MarkdownViewer value={question.supportNotes} />
                         </Box>
                     </Box>
                 </Grid>
