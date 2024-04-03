@@ -63,7 +63,7 @@
     "devDependencies": {
         "@babel/preset-env": "^7.22.0",
         "@equinor/eslint-config-fusion": "^2.1.5",
-        "@equinor/fusion-cli": "3.1.0",
+        "@equinor/fusion-cli": "3.2.0",
         "@graphql-codegen/cli": "2.6.3",
         "@graphql-codegen/typescript": "2.4.3",
         "@testing-library/react": "^12.1.2",
