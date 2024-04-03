@@ -15,6 +15,7 @@ namespace api.Models
         public string ExternalId { get; set; }
         [Required]
         public string FusionProjectId { get; set; }
+        public string IndicatorEvaluationId { get; set; }
         [Required]
         public DateTimeOffset CreateDate { get; set; }
         [Required]
