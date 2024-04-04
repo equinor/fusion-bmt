@@ -120,7 +120,6 @@ const DashboardView = ({ project }: Props) => {
         <div style={{ margin: 20 }}>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <CreateEvaluationButton projectId={project.id} />
-
                 <Typography
                     link
                     href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"

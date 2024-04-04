@@ -66,7 +66,6 @@
         "@equinor/fusion-cli": "3.2.0",
         "@graphql-codegen/cli": "5.0.2",
         "@graphql-codegen/typescript": "4.0.6",
-        "@graphql-tools/load": "^8.0.2",
         "@testing-library/react": "^12.1.2",
         "@types/faker": "^5.5.9",
         "@types/history": "^4.7.11",
