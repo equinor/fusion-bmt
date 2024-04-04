@@ -42,6 +42,8 @@ namespace api.Models
         public virtual ICollection<Question> Questions { get; private set; }
         [Required]
         public virtual Project Project { get; set; }
+        [Required]
+        public string ProjectId { get; set; }
 
         public virtual string Summary { get; set; }
 

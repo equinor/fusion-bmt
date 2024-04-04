@@ -67,8 +67,9 @@ namespace api.Services
             return project;
         }
 
-        public Project SetIndicatorEvaluation(Project project, Evaluation evaluation)
+        public Project SetIndicatorEvaluation(string projectId, Evaluation evaluation)
         {
+            Project project = GetProject(projectId);
             project.IndicatorEvaluationId = evaluation.Id;
             _context.Projects.Update(project);
             _context.SaveChanges();

@@ -110,7 +110,7 @@ namespace api.GQL
                 _evaluationService.SetWorkshopCompleteDate(evaluation);
                 _answerService.CreateFollowUpAnswers(evaluation);
                 // TODO Set project.IndicatorEvaluationId to evaluation.Id
-                _projectService.SetIndicatorEvaluation(evaluation.Project, evaluation);
+                _projectService.SetIndicatorEvaluation(evaluation.ProjectId, evaluation);
             }
 
             return evaluation;
@@ -144,7 +144,6 @@ namespace api.GQL
 
         public Project SetIndicatorEvaluation(string projectId, string evaluationId)
         {
-            Project project = _projectService.GetProject(projectId);
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
             var roles = _authService.GetRoles();
@@ -155,7 +154,7 @@ namespace api.GQL
                 AssertCanPerformMutation(evaluation, canBePerformedBy);
             }
 
-            return _projectService.SetIndicatorEvaluation(project, evaluation);
+            return _projectService.SetIndicatorEvaluation(projectId, evaluation);
         }
 
         public Participant ProgressParticipant(string evaluationId, Progression newProgression)
