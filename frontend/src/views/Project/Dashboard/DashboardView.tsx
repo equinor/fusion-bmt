@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { ApolloError, gql, useQuery } from '@apollo/client'
+import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@material-ui/core'
 import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
 import ErrorMessage from '../../../components/ErrorMessage'
@@ -66,6 +66,8 @@ interface Props {
 const DashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
 
+    const { generateBMTScore, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoreMutation()
+
     if (!currentUser) {
         return <p>Please log in.</p>
     }
@@ -103,13 +105,22 @@ const DashboardView = ({ project }: Props) => {
 
     const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations)
 
-    const errorMessage = <ErrorMessage title= "Error" message={genericErrorMessage}  />
+    const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
+
+    console.log("Project: ", project)
+
+    useEffect(() => {
+        if (projectEvaluations && projectEvaluations?.length > 0 === true) {
+            const score = generateBMTScore(projectEvaluations[0].id)
+            console.log('BMT Score generated: ', score)
+        }
+    }, [projectEvaluations]);
 
     return (
         <div style={{ margin: 20 }}>
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <CreateEvaluationButton projectId={project.id} />
-              
+
                 <Typography
                     link
                     href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"
@@ -238,6 +249,56 @@ export const useAllEvaluationsQuery = (status: Status): EvaluationQueryProps => 
     return {
         loading,
         evaluations: data?.evaluations,
+        error,
+    }
+}
+
+interface useGenerateBMTScoreMutationProps {
+    generateBMTScore: (evaluationId: string) => void
+    loading: boolean
+    score: string
+    error: ApolloError | undefined
+}
+
+const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
+    const apolloClient = useApolloClient()
+
+    const GENERATE_BMTSCORE = gql`
+        mutation GenerateBMTScore($evaluationId: String!) {
+            generateBMTScore(evaluationId: $evaluationId) {
+                value
+            }
+        }
+    `
+
+    const [progressEvaluationApolloFunc, { loading, data, error }] = useMutation(GENERATE_BMTSCORE, {
+        update(cache, { data: { generateBMTScore } }) {
+            cache.modify({
+                fields: {
+                    evaluations(existingEvaluations = []) {
+                        const newScoreRef = cache.writeFragment({
+                            data: generateBMTScore,
+                            fragment: gql`
+                        fragment NewScore on Score {
+                            value
+                        }
+                    `,
+                        });
+                        return [...existingEvaluations, newScoreRef];
+                    },
+                },
+            });
+        },
+    })
+
+    const generateBMTScore = (evaluationId: string) => {
+        progressEvaluationApolloFunc({ variables: { evaluationId } })
+    }
+
+    return {
+        generateBMTScore: generateBMTScore,
+        loading,
+        score: data?.value,
         error,
     }
 }

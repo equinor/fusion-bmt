@@ -163,6 +163,7 @@ try
     builder.Services.AddScoped<ClosingRemarkService>();
     builder.Services.AddScoped<QuestionTemplateService>();
     builder.Services.AddScoped<ProjectCategoryService>();
+    builder.Services.AddScoped<IndicatorService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IFusionService, FusionService>();
 

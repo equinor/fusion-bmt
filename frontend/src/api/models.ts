@@ -342,6 +342,7 @@ export type Mutation = {
   deleteQuestionTemplate?: Maybe<QuestionTemplate>;
   editAction?: Maybe<Action>;
   editQuestionTemplate?: Maybe<QuestionTemplate>;
+  generateBMTScore?: Maybe<Score>;
   progressEvaluation?: Maybe<Evaluation>;
   progressParticipant?: Maybe<Participant>;
   removeFromProjectCategories?: Maybe<QuestionTemplate>;
@@ -454,6 +455,11 @@ export type MutationEditQuestionTemplateArgs = {
   status: Status;
   supportNotes?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationGenerateBmtScoreArgs = {
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -717,6 +723,11 @@ export type RoleOperationFilterInput = {
   in?: InputMaybe<Array<Role>>;
   neq?: InputMaybe<Role>;
   nin?: InputMaybe<Array<Role>>;
+};
+
+export type Score = {
+  __typename?: 'Score';
+  value: Scalars['Float']['output'];
 };
 
 export enum Severity {
