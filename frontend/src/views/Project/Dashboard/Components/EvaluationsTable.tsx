@@ -114,7 +114,7 @@ const EvaluationsTable = ({ evaluations }: Props) => {
         return (
             <Row key={index}>
                 <CellWithBorder>
-                    <Link to={location => getEvaluationLink(location)} style={{ textDecoration: 'none' }}>
+                    <Link to={(location: any) => getEvaluationLink(location)} style={{ textDecoration: 'none' }}>
                         <Typography
                             color="primary"
                             variant="body_short"

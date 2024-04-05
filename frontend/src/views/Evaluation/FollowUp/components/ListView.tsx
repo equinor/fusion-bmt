@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Table, Typography } from '@equinor/eds-core-react'
 
 import SeveritySummary from '../../../../components/SeveritySummary'

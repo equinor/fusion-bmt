@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Evaluation } from '../../../../../api/models'
 import { useAllPersonDetailsAsync } from '../../../../../utils/hooks'
 import ActionTable from '../../../../../components/ActionTable/ActionTable'

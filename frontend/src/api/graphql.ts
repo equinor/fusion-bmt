@@ -4,7 +4,6 @@ import { setContext } from '@apollo/client/link/context'
 import { IFusionContext } from '@equinor/fusion'
 import { TokenRefreshLink } from 'apollo-link-token-refresh'
 import jwt_decode from 'jwt-decode'
-import { config } from '../config'
 
 interface Token {
     [key: string]: any

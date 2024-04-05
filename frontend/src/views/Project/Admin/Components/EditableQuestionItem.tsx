@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { MarkdownEditor } from '@equinor/fusion-react-markdown';
 import { TextField, Typography } from '@equinor/eds-core-react'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { Barrier, Organization, QuestionTemplate, Status } from '../../../../api/models'
 import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
@@ -104,14 +104,14 @@ const EditableQuestionItem = ({ question, setIsInEditmode, refetchQuestionTempla
                 </Box>
                 <Box display="flex" flexDirection={'column'}>
                     <Box flexGrow={1} mt={3}>
-                        <SearchableDropdown 
+                        <SearchableDropdown
                             label="Organization"
                             value={toCapitalizedCase(organization)}
                             options={getOrganizationOptionsForDropdown(organization)}
                             onSelect={(option) => {
                                 const selectedOption = (option as SearchableDropdownSelectEvent).nativeEvent.detail.selected[0]
                                 setOrganization(selectedOption.id as Organization)
-                            }}                            
+                            }}
                             searchQuery={async (searchTerm: string) => {
                                 return getOrganizationOptionsForDropdown(organization).filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
                             }}

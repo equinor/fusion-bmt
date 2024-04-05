@@ -1,4 +1,4 @@
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Button } from '@equinor/eds-core-react'
 
 import ButtonWithSaveIndicator from './ButtonWithSaveIndicator'

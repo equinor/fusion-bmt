@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { PersonDetails } from '@equinor/fusion'
 import { Button, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
-import { Grid } from '@material-ui/core'
+import { Grid } from '@mui/material'
 import { Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
@@ -116,7 +116,7 @@ const ActionCreateForm = ({
                     />
                 </Grid>
                 <Grid item xs={5}>
-                    <SearchableDropdown 
+                    <SearchableDropdown
                         label="Assignee"
                         value={assigneesOptions.find(option => option.id === assignedToId)?.title}
                         options={assigneesOptions}
@@ -141,8 +141,8 @@ const ActionCreateForm = ({
                     />
                 </Grid>
                 <Grid item xs={3}>
-                    <NativeSelect 
-                        label="Priority" 
+                    <NativeSelect
+                        label="Priority"
                         id="priority-select"
                         defaultValue={toCapitalizedCase(priority)}
                         onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -176,7 +176,7 @@ const ActionCreateForm = ({
                     />
                 </Grid>
             </Grid>
-            <Grid container spacing={3} justify="flex-end" style={{ marginTop: '20px' }}>
+            <Grid container spacing={3} style={{ marginTop: '20px' }}>
                 <Grid item>
                     <Button variant="outlined" onClick={onCancelClick}>
                         Cancel

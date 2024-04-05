@@ -3,11 +3,12 @@ import { useCurrentContext } from '@equinor/fusion'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 import ProjectTabs from './views/Project/ProjectTabs'
 import EvaluationView from './views/Evaluation/EvaluationView'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 const App = () => {
-    const currentProject = useCurrentContext()
+    const { currentContext } = useModuleCurrentContext()
 
-    if (!currentProject) {
+    if (!currentContext?.externalId) {
         return (
             <>
                 <p>Please select a project.</p>

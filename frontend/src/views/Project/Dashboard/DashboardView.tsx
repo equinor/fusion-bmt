@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
 import ErrorMessage from '../../../components/ErrorMessage'
-import { useCurrentUser } from '@equinor/fusion'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import { getCachedRoles } from '../../../utils/helpers'
 
 import { genericErrorMessage } from '../../../utils/Variables'

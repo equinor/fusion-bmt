@@ -57,7 +57,7 @@ const EvaluationSteps = ({ evaluation, onProgressEvaluationClick, onProgressPart
     return (
         <>
             <Wrapper>
-            <ProjectButton to={location => getProjectTabsLink(location)}>
+            <ProjectButton to={(location: any) => getProjectTabsLink(location)}>
                 <Icon size={16} data={arrow_back_ios} />
                 Project dashboard
             </ProjectButton>

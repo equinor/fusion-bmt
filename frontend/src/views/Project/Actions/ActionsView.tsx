@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { useApiClients, Context } from '@equinor/fusion'
 import ErrorMessage from '../../../components/ErrorMessage'
 

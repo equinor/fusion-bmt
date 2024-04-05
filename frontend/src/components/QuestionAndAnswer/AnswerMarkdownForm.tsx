@@ -1,5 +1,5 @@
 import { MarkdownEditor } from '@equinor/fusion-react-markdown';
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import React from 'react'
 
 interface Props {

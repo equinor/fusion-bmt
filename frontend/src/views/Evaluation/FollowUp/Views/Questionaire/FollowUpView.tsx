@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Button, Typography } from '@equinor/eds-core-react'
 
 import { Barrier, Evaluation, Question, Progression, Severity, Organization } from '../../../../../api/models'

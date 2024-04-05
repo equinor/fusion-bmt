@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { CircularProgress, Divider, Typography } from '@equinor/eds-core-react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
 import ErrorMessage from '../../../components/ErrorMessage'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 
 import { PROJECT_CATEGORY_FIELDS_FRAGMENT, QUESTIONTEMPLATE_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { Barrier, Organization, ProjectCategory, QuestionTemplate, Status } from '../../../api/models'

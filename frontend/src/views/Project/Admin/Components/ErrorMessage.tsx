@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { tokens } from '@equinor/eds-tokens'
 import { Icon, Typography } from '@equinor/eds-core-react'
 import { close } from '@equinor/eds-icons'

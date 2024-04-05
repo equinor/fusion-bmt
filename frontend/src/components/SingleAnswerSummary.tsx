@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Grid, Box } from '@material-ui/core'
+import { Grid, Box } from '@mui/material'
 import { Typography } from '@equinor/eds-core-react'
 import { useApiClients } from '@equinor/fusion'
 import { MarkdownViewer } from '@equinor/fusion-react-markdown';

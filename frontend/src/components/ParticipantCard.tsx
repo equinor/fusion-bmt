@@ -1,6 +1,6 @@
 import { PersonDetails, useApiClients } from '@equinor/fusion'
 import { PersonAvatar, PersonResolver } from '@equinor/fusion-react-person'
-import { Box, Typography } from '@material-ui/core'
+import { Box, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { Participant } from '../api/models'
 

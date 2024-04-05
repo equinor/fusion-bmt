@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ApolloError } from '@apollo/client'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Button, Typography, Icon, Tooltip } from '@equinor/eds-core-react'
 import { add, clear } from '@equinor/eds-icons'
 import { done } from '@equinor/eds-icons'
@@ -108,8 +108,8 @@ const QuestionActionsList = ({ question, participants, cancelAction, errorDeleti
                                     </Box>
                                     {participantCanCancelAction(participant) && !action.isVoided && (
                                         <Tooltip placement="bottom" title={'Cancel action'}>
-                                            <Button 
-                                            variant="ghost_icon" 
+                                            <Button
+                                            variant="ghost_icon"
                                             data-testid={`void_action_button_${action.id}`}
                                                 onClick={() => {
                                                     setIsConfirmDeleteDialogOpen(true)

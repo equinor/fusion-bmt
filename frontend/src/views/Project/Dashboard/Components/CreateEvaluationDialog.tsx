@@ -3,7 +3,7 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import ErrorMessage from '../../../../components/ErrorMessage'
 import { CircularProgress, TextField } from '@equinor/eds-core-react'
-import { Grid } from '@material-ui/core'
+import { Grid } from '@mui/material'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { genericErrorMessage } from '../../../../utils/Variables'
 import { useProject } from '../../../../globals/contexts'
@@ -96,7 +96,7 @@ const CreateEvaluationDialog = ({
         : []
 
     return (
-        <SideSheet 
+        <SideSheet
             isOpen={open}
             minWidth={400}
             onClose={onCancelClick}
@@ -170,7 +170,7 @@ const CreateEvaluationDialog = ({
                                         return evaluationOptions
                                     }}
                                 />
-                                
+
                             </Grid>
                             <ButtonGrid container>
                                 <CancelAndSaveButton

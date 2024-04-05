@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import ErrorMessage from '../../../components/ErrorMessage'
 import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
@@ -225,7 +225,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                                                 return option.title.toLowerCase().includes(searchTerm.toLowerCase())
                                             })
                                             return filteredOptions
-                                        }} 
+                                        }}
                                     />
 
                                 </div>

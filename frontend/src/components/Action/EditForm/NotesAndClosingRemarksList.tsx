@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { ClosingRemark, Note } from '../../../api/models'
 import { PersonDetails } from '@equinor/fusion'
 import { tokens } from '@equinor/eds-tokens'

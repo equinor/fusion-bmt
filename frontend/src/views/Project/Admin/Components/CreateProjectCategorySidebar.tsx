@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import { TextField } from '@equinor/eds-core-react'
-import { Grid } from '@material-ui/core'
+import { Grid } from '@mui/material'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { genericErrorMessage } from '../../../../utils/Variables'
 import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
@@ -123,7 +123,7 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                             options={projectCategoryOptions}
                         />
                     </Grid>
-                    <Grid container justify="flex-end" style={{ marginTop: '20px' }}>
+                    <Grid container style={{ marginTop: '20px' }}>
                         <CancelAndSaveButton
                             onClickCancel={() => setIsOpen(false)}
                             onClickSave={onCreateProjectCategory}
