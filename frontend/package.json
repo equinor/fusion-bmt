@@ -2,35 +2,19 @@
     "name": "bmt",
     "version": "2.2.0",
     "description": "Barrier Management Tool",
-    "type": "module",
     "repository": "https://github.com/equinor/fusion-bmt",
+    "license": "MIT",
+    "author": "Software Innovation Bergen",
+    "type": "module",
     "main": "src/index.tsx",
     "scripts": {
-        "start": "fusion-framework-cli app dev",
         "build": "fusion build-app",
-        "test": "jest",
-        "schema": "graphql-codegen --config src/api/schema.yml",
         "cyopen": "./node_modules/.bin/cypress open",
-        "cyrun": "./node_modules/.bin/cypress run"
+        "cyrun": "./node_modules/.bin/cypress run",
+        "schema": "graphql-codegen --config src/api/schema.yml",
+        "start": "fusion-framework-cli app dev",
+        "test": "jest"
     },
-    "author": "Software Innovation Bergen",
-    "license": "MIT",
-    "manifest": {
-        "name": "Barrier Management Tool",
-        "shortName": "bmt",
-        "description": "Barrier Management Tool",
-        "owners": [
-            "eriei@equinor.com",
-            "toaus@equinor.com",
-            "dboh@equinor.com"
-        ],
-        "admins": [
-            "eriei@equinor.com",
-            "toaus@equinor.com",
-            "dboh@equinor.com"
-        ]
-    },
-    "icon": "../docs/app-icon.svg",
     "dependencies": {
         "@apollo/client": "^3.5.8",
         "@emotion/styled": "^11.11.5",
@@ -93,5 +77,21 @@
         "styled-components": "^6.1.8",
         "tslib": "^2.3.1",
         "typescript": "^5.1.3"
+    },
+    "icon": "../docs/app-icon.svg",
+    "manifest": {
+        "name": "Barrier Management Tool",
+        "shortName": "bmt",
+        "description": "Barrier Management Tool",
+        "owners": [
+            "eriei@equinor.com",
+            "toaus@equinor.com",
+            "dboh@equinor.com"
+        ],
+        "admins": [
+            "eriei@equinor.com",
+            "toaus@equinor.com",
+            "dboh@equinor.com"
+        ]
     }
 }
