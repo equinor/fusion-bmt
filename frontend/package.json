@@ -44,6 +44,7 @@
         "@equinor/fusion-observable": "^7.0.3",
         "@equinor/fusion-query": "^2.0.7",
         "@equinor/fusion-react-markdown": "^0.3.1",
+        "@equinor/fusion-react-person": "^0.8.5",
         "@equinor/fusion-react-searchable-dropdown": "^0.4.4",
         "@equinor/fusion-react-side-sheet": "^1.2.5",
         "@equinor/fusion-react-stepper": "^1.0.0",

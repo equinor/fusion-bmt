@@ -1,7 +1,7 @@
 import React from 'react'
 import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard } from '@equinor/fusion-components'
-import { Button } from '@equinor/eds-core-react'
+import { PersonAvatar, PersonCard } from '@equinor/fusion-react-person'
+import { Button, Typography } from '@equinor/eds-core-react'
 import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../../utils/EnumToString'
@@ -121,8 +121,8 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
     }
 
     return (
-        <SideSheet 
-            isOpen={open} 
+        <SideSheet
+            isOpen={open}
             minWidth={550}
             onClose={onCloseClick}
         >
@@ -138,7 +138,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                             const selectedOption = (option as any).nativeEvent.detail.selected[0]
                             updateOrgOptions(selectedOption)
                             setSelectedOrg(Organization[selectedOption.id as keyof typeof Organization])
-                        }} 
+                        }}
                         searchQuery={ async (query: string) => {
                             return orgOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
                         }}
@@ -181,7 +181,8 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                                 console.log('p', p)
                                 return (
                                     <PersonInfo style={{ marginBottom: 10 }} key={p.azureUniqueId}>
-                                        <PersonCard person={p} />
+                                        <PersonAvatar azureId={p.azureUniqueId} />
+                                        <Typography>{p.name}</Typography>
                                         <Button
                                             onClick={() => {
                                                 onNomineeSelected(p.azureUniqueId, selectedRole, selectedOrg)

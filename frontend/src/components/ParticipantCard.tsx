@@ -1,6 +1,6 @@
 import { PersonDetails, useApiClients } from '@equinor/fusion'
-import { PersonCard } from '@equinor/fusion-components'
-import { Box } from '@material-ui/core'
+import { PersonAvatar, PersonResolver } from '@equinor/fusion-react-person'
+import { Box, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import { Participant } from '../api/models'
 
@@ -33,7 +33,8 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     return (
         <>
             <Box p="4px">
-                <PersonCard isFetchingPerson={isFetchingPerson} person={personDetails} />
+                <PersonAvatar azureId={personDetails?.azureUniqueId} />
+                <Typography variant="body1">{personDetails?.name}</Typography>
             </Box>
         </>
     )
