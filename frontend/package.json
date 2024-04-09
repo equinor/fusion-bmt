@@ -8,7 +8,7 @@
     "type": "module",
     "main": "src/index.tsx",
     "scripts": {
-        "build": "fusion build-app",
+        "build": "fusion-framework-cli app build",
         "cyopen": "./node_modules/.bin/cypress open",
         "cyrun": "./node_modules/.bin/cypress run",
         "schema": "graphql-codegen --config src/api/schema.yml",
