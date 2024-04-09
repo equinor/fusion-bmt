@@ -107,8 +107,6 @@ const DashboardView = ({ project }: Props) => {
 
     const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
 
-    console.log("Project: ", project)
-
     useEffect(() => {
         if (projectEvaluations && projectEvaluations?.length > 0 === true) {
             const score = generateBMTScore(projectEvaluations[0].id)

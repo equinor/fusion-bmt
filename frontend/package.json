@@ -16,7 +16,7 @@
         "test": "jest"
     },
     "dependencies": {
-        "@apollo/client": "^3.5.8",
+        "@apollo/client": "^3.9.10",
         "@emotion/styled": "^11.11.5",
         "@equinor/eds-core-react": "^0.36.1",
         "@equinor/eds-icons": "^0.21.0",

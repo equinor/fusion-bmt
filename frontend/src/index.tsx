@@ -2,7 +2,7 @@ import React, { createElement, useEffect } from 'react'
 import { createRoot } from "react-dom/client"
 import { ComponentRenderArgs, createComponent, createLegacyApp, makeComponent } from "@equinor/fusion-framework-react-app"
 import { ApolloProvider } from '@apollo/client'
-import { ApplicationInsights } from '@microsoft/applicationinsights-web'
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev"
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
 import { createBrowserHistory } from 'history'
 import { configure } from "./config"
@@ -66,6 +66,9 @@ const Start = () => {
         return <>Missing API url</>
     }
 
+    loadDevMessages();
+    loadErrorMessages();
+
     const apolloClient = createClient(apiUrl)
 
     return (
@@ -89,16 +92,3 @@ export const renderApp = (el: HTMLElement, args: ComponentRenderArgs) => {
 }
 
 export default renderApp
-
-// const render = createComponent(Start, configurator)
-
-// registerApp("bmt", {
-//     AppComponent: Start,
-//     render,
-// })
-
-// if (module.hot) {
-//     module.hot.accept()
-// }
-
-// export default render

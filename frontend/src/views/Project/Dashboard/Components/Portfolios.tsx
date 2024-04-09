@@ -14,8 +14,6 @@ const Portfolios = ({ evaluationsWithProjectMasterAndPortfolio }: Props) => {
                 {Object.entries(evaluationsWithProjectMasterAndPortfolio)
                     .reverse()
                     .map(([portfolio, evaluationsWithProjectMasterTitle], index) => {
-                        console.log("portfolio", portfolio)
-                        console.log("evaluationsWithProjectMasterTitle", evaluationsWithProjectMasterTitle)
                         return (
                             <Accordion.Item key={index}>
                                 <Accordion.Header>{portfolio}</Accordion.Header>

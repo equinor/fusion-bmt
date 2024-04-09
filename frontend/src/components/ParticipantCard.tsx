@@ -34,9 +34,6 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     useEffect(() => {
         let isMounted = true
 
-        console.log("ParticipantCard: useEffect: participant: ", participant)
-
-
         apiClients.getById(participant.azureUniqueId).then(response => {
 
             const personDetails = apiResponseToPersonDetails(response)

@@ -195,7 +195,6 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                         searchResults
                             .filter(p => p.azureId !== null)
                             .map(p => {
-                                console.log('p', p)
                                 return (
                                     <PersonInfo style={{ marginBottom: 10 }} key={p.azureId}>
                                         <PersonAvatar azureId={p.azureId} />
