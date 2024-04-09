@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
-import { Box } from '@material-ui/core'
-import { useApiClients, Context } from '@equinor/fusion'
+import { Box } from '@mui/material'
+import { Context } from '@equinor/fusion'
 import ErrorMessage from '../../../components/ErrorMessage'
 
 import { useAllPersonDetailsAsync } from '../../../utils/hooks'
@@ -18,13 +18,14 @@ import {
 import { CircularProgress } from '@equinor/eds-core-react'
 import { centered } from '../../../utils/styles'
 import { genericErrorMessage } from '../../../utils/Variables'
+import { useProjectsApi } from '../../../api/useProjectsApi'
 
 interface Props {
     azureUniqueId: string
 }
 
 const ActionsView = ({ azureUniqueId }: Props) => {
-    const apiClients = useApiClients()
+    const apiClients = useProjectsApi()
 
     const { loading: loadingActions, actions, error: errorLoadingActions } = useActionsQuery(azureUniqueId)
     const nonCancelledActions = actions.filter(a => !a.isVoided)
@@ -41,15 +42,15 @@ const ActionsView = ({ azureUniqueId }: Props) => {
 
     const isFetchingData = loadingActions || isFetchingProjects
 
-    useEffect(() => {
-        if (projects.length === 0) {
-            setIsFetchingProjects(true)
-            apiClients.context.getContextsAsync().then(projects => {
-                setProjects(projects.data)
-                setIsFetchingProjects(false)
-            })
-        }
-    }, [])
+    // useEffect(() => {
+    //     if (projects.length === 0) {
+    //         setIsFetchingProjects(true)
+    //         apiClients.context.getContextsAsync().then(projects => {
+    //             setProjects(projects.data)
+    //             setIsFetchingProjects(false)
+    //         })
+    //     }
+    // }, [])
 
     const onClose = () => {
         setIsEditSidebarOpen(false)

@@ -1,7 +1,7 @@
 overwrite: true
 
 schema:
-  - http://localhost:5000/graphql?sdl:
+  - http://localhost:5000/graphql?sdl
 generates:
   ./src/api/models.ts:
     plugins:

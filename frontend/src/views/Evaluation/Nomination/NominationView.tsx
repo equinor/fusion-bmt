@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import ErrorMessage from '../../../components/ErrorMessage'
 import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
-import { ContextTypes, useCurrentUser } from '@equinor/fusion'
+import { ContextTypes } from '@equinor/fusion'
 import SearchableDropdown from '../../../components/SearchableDropDown'
 import AddNomineeDialog from './components/AddNomineeDialog'
 import { Evaluation, Organization, Participant, Progression, Role, Status } from '../../../api/models'
@@ -14,7 +14,7 @@ import {
     participantCanHideEvaluation,
     participantCanProgressEvaluation,
 } from '../../../utils/RoleBasedAccess'
-import { useApiClients, Context } from '@equinor/fusion'
+import { Context } from '@equinor/fusion'
 import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useParticipant } from '../../../globals/contexts'
 import { disableProgression } from '../../../utils/disableComponents'
@@ -24,6 +24,8 @@ import { useEffectNotOnMount, useShowErrorHook } from '../../../utils/hooks'
 import { centered } from '../../../utils/styles'
 import ErrorBanner from '../../../components/ErrorBanner'
 import { getCachedRoles } from '../../../utils/helpers'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
+import { useProjectsApi } from '../../../api/useProjectsApi'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -101,7 +103,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
     const [currentProject, setCurrentProject] = useState<Context>()
     const projectOptions = createDropdownOptionsFromProjects(projects, "1", true)
-    const apiClients = useApiClients()
+    const apiClients = useProjectsApi()
 
     const { createParticipant, loading: createParticipantLoading, error: errorCreateParticipant } = useCreateParticipantMutation()
     const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
@@ -136,13 +138,13 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         if (projects.length === 0) {
             setIsFetchingProjects(true)
 
-            apiClients.context.queryContextsAsync("", ContextTypes.ProjectMaster).then(projects => {
-                setProjects(projects.data)
+            apiClients.getById(evaluation.project.fusionProjectId).then(projects => {
+                setProjects(projects)
                 setIsFetchingProjects(false)
             })
 
-            apiClients.context.getContextAsync(evaluation.project.fusionProjectId).then(project => {
-                setCurrentProject(project.data)
+            apiClients.getById(evaluation.project.fusionProjectId).then(project => {
+                setCurrentProject(project)
             })
         }
     }, [])
@@ -225,7 +227,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                                                 return option.title.toLowerCase().includes(searchTerm.toLowerCase())
                                             })
                                             return filteredOptions
-                                        }} 
+                                        }}
                                     />
 
                                 </div>

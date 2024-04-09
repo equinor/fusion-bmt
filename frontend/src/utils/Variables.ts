@@ -1,9 +1,9 @@
-import { useCurrentUser } from '@equinor/fusion'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import { Answer, Barrier } from '../api/models'
 
 export const useAzureUniqueId = (): string => {
     const user = useCurrentUser()
-    const azureUniqueId: string = user?.id as string
+    const azureUniqueId: string = user?.localAccountId as string
     return azureUniqueId
 }
 

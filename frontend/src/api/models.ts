@@ -1,85 +1,88 @@
 export type Maybe<T> = T;
+export type InputMaybe<T> = T;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  /** The `DateTime` scalar represents an ISO-8601 compliant date time type. */
-  DateTime: any;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  DateTime: { input: any; output: any; }
 };
 
 export type Action = {
   __typename?: 'Action';
-  id: Scalars['String'];
   assignedTo?: Maybe<Participant>;
-  title: Scalars['String'];
-  description: Scalars['String'];
-  priority: Priority;
-  onHold: Scalars['Boolean'];
-  completed: Scalars['Boolean'];
-  dueDate: Scalars['DateTime'];
-  createDate: Scalars['DateTime'];
-  createdBy?: Maybe<Participant>;
-  notes: Array<Maybe<Note>>;
   closingRemarks: Array<Maybe<ClosingRemark>>;
+  completed: Scalars['Boolean']['output'];
+  createDate: Scalars['DateTime']['output'];
+  createdBy?: Maybe<Participant>;
+  description: Scalars['String']['output'];
+  dueDate: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  isVoided: Scalars['Boolean']['output'];
+  notes: Array<Maybe<Note>>;
+  onHold: Scalars['Boolean']['output'];
+  priority: Priority;
   question: Question;
-  isVoided: Scalars['Boolean'];
+  title: Scalars['String']['output'];
 };
 
 export type ActionFilterInput = {
-  and?: Maybe<Array<ActionFilterInput>>;
-  or?: Maybe<Array<ActionFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  assignedTo?: Maybe<ParticipantFilterInput>;
-  title?: Maybe<StringOperationFilterInput>;
-  description?: Maybe<StringOperationFilterInput>;
-  priority?: Maybe<PriorityOperationFilterInput>;
-  onHold?: Maybe<BooleanOperationFilterInput>;
-  completed?: Maybe<BooleanOperationFilterInput>;
-  dueDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  createdBy?: Maybe<ParticipantFilterInput>;
-  notes?: Maybe<ListFilterInputTypeOfNoteFilterInput>;
-  closingRemarks?: Maybe<ListFilterInputTypeOfClosingRemarkFilterInput>;
-  question?: Maybe<QuestionFilterInput>;
-  isVoided?: Maybe<BooleanOperationFilterInput>;
+  and?: InputMaybe<Array<ActionFilterInput>>;
+  assignedTo?: InputMaybe<ParticipantFilterInput>;
+  closingRemarks?: InputMaybe<ListFilterInputTypeOfClosingRemarkFilterInput>;
+  completed?: InputMaybe<BooleanOperationFilterInput>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  createdBy?: InputMaybe<ParticipantFilterInput>;
+  description?: InputMaybe<StringOperationFilterInput>;
+  dueDate?: InputMaybe<DateTimeOperationFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  isVoided?: InputMaybe<BooleanOperationFilterInput>;
+  notes?: InputMaybe<ListFilterInputTypeOfNoteFilterInput>;
+  onHold?: InputMaybe<BooleanOperationFilterInput>;
+  or?: InputMaybe<Array<ActionFilterInput>>;
+  priority?: InputMaybe<PriorityOperationFilterInput>;
+  question?: InputMaybe<QuestionFilterInput>;
+  title?: InputMaybe<StringOperationFilterInput>;
 };
 
 export type Answer = {
   __typename?: 'Answer';
-  id: Scalars['String'];
-  progression: Progression;
-  severity: Severity;
-  text: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  answeredById?: Maybe<Scalars['String']>;
   answeredBy?: Maybe<Participant>;
-  questionId: Scalars['String'];
+  answeredById?: Maybe<Scalars['String']['output']>;
+  createDate: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  progression: Progression;
   question: Question;
+  questionId: Scalars['String']['output'];
+  severity: Severity;
+  text: Scalars['String']['output'];
 };
 
 export type AnswerFilterInput = {
-  and?: Maybe<Array<AnswerFilterInput>>;
-  or?: Maybe<Array<AnswerFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  progression?: Maybe<ProgressionOperationFilterInput>;
-  severity?: Maybe<SeverityOperationFilterInput>;
-  text?: Maybe<StringOperationFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  answeredById?: Maybe<StringOperationFilterInput>;
-  answeredBy?: Maybe<ParticipantFilterInput>;
-  questionId?: Maybe<StringOperationFilterInput>;
-  question?: Maybe<QuestionFilterInput>;
+  and?: InputMaybe<Array<AnswerFilterInput>>;
+  answeredBy?: InputMaybe<ParticipantFilterInput>;
+  answeredById?: InputMaybe<StringOperationFilterInput>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<AnswerFilterInput>>;
+  progression?: InputMaybe<ProgressionOperationFilterInput>;
+  question?: InputMaybe<QuestionFilterInput>;
+  questionId?: InputMaybe<StringOperationFilterInput>;
+  severity?: InputMaybe<SeverityOperationFilterInput>;
+  text?: InputMaybe<StringOperationFilterInput>;
 };
 
 export enum ApplyPolicy {
+  AfterResolver = 'AFTER_RESOLVER',
   BeforeResolver = 'BEFORE_RESOLVER',
-  AfterResolver = 'AFTER_RESOLVER'
+  Validation = 'VALIDATION'
 }
 
 export enum Barrier {
@@ -96,631 +99,649 @@ export enum Barrier {
 }
 
 export type BarrierOperationFilterInput = {
-  eq?: Maybe<Barrier>;
-  neq?: Maybe<Barrier>;
-  in?: Maybe<Array<Barrier>>;
-  nin?: Maybe<Array<Barrier>>;
+  eq?: InputMaybe<Barrier>;
+  in?: InputMaybe<Array<Barrier>>;
+  neq?: InputMaybe<Barrier>;
+  nin?: InputMaybe<Array<Barrier>>;
 };
 
 export type BooleanOperationFilterInput = {
-  eq?: Maybe<Scalars['Boolean']>;
-  neq?: Maybe<Scalars['Boolean']>;
+  eq?: InputMaybe<Scalars['Boolean']['input']>;
+  neq?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type ClosingRemark = {
   __typename?: 'ClosingRemark';
-  id: Scalars['String'];
-  text: Scalars['String'];
-  createdBy?: Maybe<Participant>;
-  createDate: Scalars['DateTime'];
   action: Action;
+  createDate: Scalars['DateTime']['output'];
+  createdBy?: Maybe<Participant>;
+  id: Scalars['String']['output'];
+  text: Scalars['String']['output'];
 };
 
 export type ClosingRemarkFilterInput = {
-  and?: Maybe<Array<ClosingRemarkFilterInput>>;
-  or?: Maybe<Array<ClosingRemarkFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  text?: Maybe<StringOperationFilterInput>;
-  createdBy?: Maybe<ParticipantFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  action?: Maybe<ActionFilterInput>;
+  action?: InputMaybe<ActionFilterInput>;
+  and?: InputMaybe<Array<ClosingRemarkFilterInput>>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  createdBy?: InputMaybe<ParticipantFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<ClosingRemarkFilterInput>>;
+  text?: InputMaybe<StringOperationFilterInput>;
 };
 
-export type ComparableDateTimeOffsetOperationFilterInput = {
-  eq?: Maybe<Scalars['DateTime']>;
-  neq?: Maybe<Scalars['DateTime']>;
-  in?: Maybe<Array<Scalars['DateTime']>>;
-  nin?: Maybe<Array<Scalars['DateTime']>>;
-  gt?: Maybe<Scalars['DateTime']>;
-  ngt?: Maybe<Scalars['DateTime']>;
-  gte?: Maybe<Scalars['DateTime']>;
-  ngte?: Maybe<Scalars['DateTime']>;
-  lt?: Maybe<Scalars['DateTime']>;
-  nlt?: Maybe<Scalars['DateTime']>;
-  lte?: Maybe<Scalars['DateTime']>;
-  nlte?: Maybe<Scalars['DateTime']>;
-};
-
-export type ComparableInt32OperationFilterInput = {
-  eq?: Maybe<Scalars['Int']>;
-  neq?: Maybe<Scalars['Int']>;
-  in?: Maybe<Array<Scalars['Int']>>;
-  nin?: Maybe<Array<Scalars['Int']>>;
-  gt?: Maybe<Scalars['Int']>;
-  ngt?: Maybe<Scalars['Int']>;
-  gte?: Maybe<Scalars['Int']>;
-  ngte?: Maybe<Scalars['Int']>;
-  lt?: Maybe<Scalars['Int']>;
-  nlt?: Maybe<Scalars['Int']>;
-  lte?: Maybe<Scalars['Int']>;
-  nlte?: Maybe<Scalars['Int']>;
-};
-
-export type ComparableNullableOfDateTimeOffsetOperationFilterInput = {
-  eq?: Maybe<Scalars['DateTime']>;
-  neq?: Maybe<Scalars['DateTime']>;
-  in?: Maybe<Array<Maybe<Scalars['DateTime']>>>;
-  nin?: Maybe<Array<Maybe<Scalars['DateTime']>>>;
-  gt?: Maybe<Scalars['DateTime']>;
-  ngt?: Maybe<Scalars['DateTime']>;
-  gte?: Maybe<Scalars['DateTime']>;
-  ngte?: Maybe<Scalars['DateTime']>;
-  lt?: Maybe<Scalars['DateTime']>;
-  nlt?: Maybe<Scalars['DateTime']>;
-  lte?: Maybe<Scalars['DateTime']>;
-  nlte?: Maybe<Scalars['DateTime']>;
+export type DateTimeOperationFilterInput = {
+  eq?: InputMaybe<Scalars['DateTime']['input']>;
+  gt?: InputMaybe<Scalars['DateTime']['input']>;
+  gte?: InputMaybe<Scalars['DateTime']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  lt?: InputMaybe<Scalars['DateTime']['input']>;
+  lte?: InputMaybe<Scalars['DateTime']['input']>;
+  neq?: InputMaybe<Scalars['DateTime']['input']>;
+  ngt?: InputMaybe<Scalars['DateTime']['input']>;
+  ngte?: InputMaybe<Scalars['DateTime']['input']>;
+  nin?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
+  nlt?: InputMaybe<Scalars['DateTime']['input']>;
+  nlte?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type Evaluation = {
   __typename?: 'Evaluation';
-  id: Scalars['String'];
-  name: Scalars['String'];
-  createDate: Scalars['DateTime'];
-  progression: Progression;
-  status: Status;
+  createDate: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
   participants: Array<Maybe<Participant>>;
-  questions: Array<Maybe<Question>>;
+  previousEvaluationId?: Maybe<Scalars['String']['output']>;
+  progression: Progression;
   project: Project;
-  summary?: Maybe<Scalars['String']>;
-  previousEvaluationId?: Maybe<Scalars['String']>;
-  workshopCompleteDate?: Maybe<Scalars['DateTime']>;
+  projectId: Scalars['String']['output'];
+  questions: Array<Maybe<Question>>;
+  status: Status;
+  summary?: Maybe<Scalars['String']['output']>;
+  workshopCompleteDate?: Maybe<Scalars['DateTime']['output']>;
 };
 
 export type EvaluationFilterInput = {
-  and?: Maybe<Array<EvaluationFilterInput>>;
-  or?: Maybe<Array<EvaluationFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  name?: Maybe<StringOperationFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  progression?: Maybe<ProgressionOperationFilterInput>;
-  status?: Maybe<StatusOperationFilterInput>;
-  participants?: Maybe<ListFilterInputTypeOfParticipantFilterInput>;
-  questions?: Maybe<ListFilterInputTypeOfQuestionFilterInput>;
-  project?: Maybe<ProjectFilterInput>;
-  summary?: Maybe<StringOperationFilterInput>;
-  previousEvaluationId?: Maybe<StringOperationFilterInput>;
-  workshopCompleteDate?: Maybe<ComparableNullableOfDateTimeOffsetOperationFilterInput>;
+  and?: InputMaybe<Array<EvaluationFilterInput>>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  name?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<EvaluationFilterInput>>;
+  participants?: InputMaybe<ListFilterInputTypeOfParticipantFilterInput>;
+  previousEvaluationId?: InputMaybe<StringOperationFilterInput>;
+  progression?: InputMaybe<ProgressionOperationFilterInput>;
+  project?: InputMaybe<ProjectFilterInput>;
+  projectId?: InputMaybe<StringOperationFilterInput>;
+  questions?: InputMaybe<ListFilterInputTypeOfQuestionFilterInput>;
+  status?: InputMaybe<StatusOperationFilterInput>;
+  summary?: InputMaybe<StringOperationFilterInput>;
+  workshopCompleteDate?: InputMaybe<DateTimeOperationFilterInput>;
 };
 
 export type GraphQuery = {
   __typename?: 'GraphQuery';
-  projects?: Maybe<Array<Maybe<Project>>>;
-  project?: Maybe<Project>;
-  evaluations?: Maybe<Array<Maybe<Evaluation>>>;
-  participants?: Maybe<Array<Maybe<Participant>>>;
-  questions?: Maybe<Array<Maybe<Question>>>;
-  questionTemplates?: Maybe<Array<Maybe<QuestionTemplate>>>;
-  answers?: Maybe<Array<Maybe<Answer>>>;
   actions?: Maybe<Array<Maybe<Action>>>;
-  notes?: Maybe<Array<Maybe<Note>>>;
+  answers?: Maybe<Array<Maybe<Answer>>>;
   closingRemarks?: Maybe<Array<Maybe<ClosingRemark>>>;
+  evaluations?: Maybe<Array<Maybe<Evaluation>>>;
+  notes?: Maybe<Array<Maybe<Note>>>;
+  participants?: Maybe<Array<Maybe<Participant>>>;
+  project?: Maybe<Project>;
   projectCategory?: Maybe<Array<Maybe<ProjectCategory>>>;
-};
-
-
-export type GraphQueryProjectsArgs = {
-  where?: Maybe<ProjectFilterInput>;
-};
-
-
-export type GraphQueryProjectArgs = {
-  fusionProjectID?: Maybe<Scalars['String']>;
-};
-
-
-export type GraphQueryEvaluationsArgs = {
-  where?: Maybe<EvaluationFilterInput>;
-};
-
-
-export type GraphQueryParticipantsArgs = {
-  where?: Maybe<ParticipantFilterInput>;
-};
-
-
-export type GraphQueryQuestionsArgs = {
-  where?: Maybe<QuestionFilterInput>;
-};
-
-
-export type GraphQueryQuestionTemplatesArgs = {
-  where?: Maybe<QuestionTemplateFilterInput>;
-};
-
-
-export type GraphQueryAnswersArgs = {
-  where?: Maybe<AnswerFilterInput>;
+  projects?: Maybe<Array<Maybe<Project>>>;
+  questionTemplates?: Maybe<Array<Maybe<QuestionTemplate>>>;
+  questions?: Maybe<Array<Maybe<Question>>>;
 };
 
 
 export type GraphQueryActionsArgs = {
-  where?: Maybe<ActionFilterInput>;
+  where?: InputMaybe<ActionFilterInput>;
 };
 
 
-export type GraphQueryNotesArgs = {
-  where?: Maybe<NoteFilterInput>;
+export type GraphQueryAnswersArgs = {
+  where?: InputMaybe<AnswerFilterInput>;
 };
 
 
 export type GraphQueryClosingRemarksArgs = {
-  where?: Maybe<ClosingRemarkFilterInput>;
+  where?: InputMaybe<ClosingRemarkFilterInput>;
+};
+
+
+export type GraphQueryEvaluationsArgs = {
+  where?: InputMaybe<EvaluationFilterInput>;
+};
+
+
+export type GraphQueryNotesArgs = {
+  where?: InputMaybe<NoteFilterInput>;
+};
+
+
+export type GraphQueryParticipantsArgs = {
+  where?: InputMaybe<ParticipantFilterInput>;
+};
+
+
+export type GraphQueryProjectArgs = {
+  externalID?: InputMaybe<Scalars['String']['input']>;
+  fusionProjectID?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type GraphQueryProjectCategoryArgs = {
-  where?: Maybe<ProjectCategoryFilterInput>;
+  where?: InputMaybe<ProjectCategoryFilterInput>;
+};
+
+
+export type GraphQueryProjectsArgs = {
+  where?: InputMaybe<ProjectFilterInput>;
+};
+
+
+export type GraphQueryQuestionTemplatesArgs = {
+  where?: InputMaybe<QuestionTemplateFilterInput>;
+};
+
+
+export type GraphQueryQuestionsArgs = {
+  where?: InputMaybe<QuestionFilterInput>;
+};
+
+export type IntOperationFilterInput = {
+  eq?: InputMaybe<Scalars['Int']['input']>;
+  gt?: InputMaybe<Scalars['Int']['input']>;
+  gte?: InputMaybe<Scalars['Int']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  lt?: InputMaybe<Scalars['Int']['input']>;
+  lte?: InputMaybe<Scalars['Int']['input']>;
+  neq?: InputMaybe<Scalars['Int']['input']>;
+  ngt?: InputMaybe<Scalars['Int']['input']>;
+  ngte?: InputMaybe<Scalars['Int']['input']>;
+  nin?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  nlt?: InputMaybe<Scalars['Int']['input']>;
+  nlte?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type ListFilterInputTypeOfActionFilterInput = {
-  all?: Maybe<ActionFilterInput>;
-  none?: Maybe<ActionFilterInput>;
-  some?: Maybe<ActionFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<ActionFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<ActionFilterInput>;
+  some?: InputMaybe<ActionFilterInput>;
 };
 
 export type ListFilterInputTypeOfAnswerFilterInput = {
-  all?: Maybe<AnswerFilterInput>;
-  none?: Maybe<AnswerFilterInput>;
-  some?: Maybe<AnswerFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<AnswerFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<AnswerFilterInput>;
+  some?: InputMaybe<AnswerFilterInput>;
 };
 
 export type ListFilterInputTypeOfClosingRemarkFilterInput = {
-  all?: Maybe<ClosingRemarkFilterInput>;
-  none?: Maybe<ClosingRemarkFilterInput>;
-  some?: Maybe<ClosingRemarkFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<ClosingRemarkFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<ClosingRemarkFilterInput>;
+  some?: InputMaybe<ClosingRemarkFilterInput>;
 };
 
 export type ListFilterInputTypeOfEvaluationFilterInput = {
-  all?: Maybe<EvaluationFilterInput>;
-  none?: Maybe<EvaluationFilterInput>;
-  some?: Maybe<EvaluationFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<EvaluationFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<EvaluationFilterInput>;
+  some?: InputMaybe<EvaluationFilterInput>;
 };
 
 export type ListFilterInputTypeOfNoteFilterInput = {
-  all?: Maybe<NoteFilterInput>;
-  none?: Maybe<NoteFilterInput>;
-  some?: Maybe<NoteFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<NoteFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<NoteFilterInput>;
+  some?: InputMaybe<NoteFilterInput>;
 };
 
 export type ListFilterInputTypeOfParticipantFilterInput = {
-  all?: Maybe<ParticipantFilterInput>;
-  none?: Maybe<ParticipantFilterInput>;
-  some?: Maybe<ParticipantFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<ParticipantFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<ParticipantFilterInput>;
+  some?: InputMaybe<ParticipantFilterInput>;
 };
 
 export type ListFilterInputTypeOfProjectCategoryFilterInput = {
-  all?: Maybe<ProjectCategoryFilterInput>;
-  none?: Maybe<ProjectCategoryFilterInput>;
-  some?: Maybe<ProjectCategoryFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<ProjectCategoryFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<ProjectCategoryFilterInput>;
+  some?: InputMaybe<ProjectCategoryFilterInput>;
 };
 
 export type ListFilterInputTypeOfQuestionFilterInput = {
-  all?: Maybe<QuestionFilterInput>;
-  none?: Maybe<QuestionFilterInput>;
-  some?: Maybe<QuestionFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<QuestionFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<QuestionFilterInput>;
+  some?: InputMaybe<QuestionFilterInput>;
 };
 
 export type ListFilterInputTypeOfQuestionTemplateFilterInput = {
-  all?: Maybe<QuestionTemplateFilterInput>;
-  none?: Maybe<QuestionTemplateFilterInput>;
-  some?: Maybe<QuestionTemplateFilterInput>;
-  any?: Maybe<Scalars['Boolean']>;
+  all?: InputMaybe<QuestionTemplateFilterInput>;
+  any?: InputMaybe<Scalars['Boolean']['input']>;
+  none?: InputMaybe<QuestionTemplateFilterInput>;
+  some?: InputMaybe<QuestionTemplateFilterInput>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createEvaluation?: Maybe<Evaluation>;
-  progressEvaluation?: Maybe<Evaluation>;
-  setSummary?: Maybe<Evaluation>;
-  setEvaluationStatus?: Maybe<Evaluation>;
-  progressParticipant?: Maybe<Participant>;
-  createParticipant?: Maybe<Participant>;
-  deleteParticipant?: Maybe<Participant>;
-  setAnswer?: Maybe<Answer>;
-  createAction?: Maybe<Action>;
-  editAction?: Maybe<Action>;
-  voidAction?: Maybe<Action>;
-  createNote?: Maybe<Note>;
-  createClosingRemark?: Maybe<ClosingRemark>;
-  createProjectCategory?: Maybe<ProjectCategory>;
-  deleteProjectCategory?: Maybe<ProjectCategory>;
-  copyProjectCategory?: Maybe<ProjectCategory>;
-  createQuestionTemplate?: Maybe<QuestionTemplate>;
-  editQuestionTemplate?: Maybe<QuestionTemplate>;
-  deleteQuestionTemplate?: Maybe<QuestionTemplate>;
-  reorderQuestionTemplate?: Maybe<QuestionTemplate>;
   addToProjectCategory?: Maybe<QuestionTemplate>;
+  copyProjectCategory?: Maybe<ProjectCategory>;
+  createAction?: Maybe<Action>;
+  createClosingRemark?: Maybe<ClosingRemark>;
+  createEvaluation?: Maybe<Evaluation>;
+  createNote?: Maybe<Note>;
+  createParticipant?: Maybe<Participant>;
+  createProjectCategory?: Maybe<ProjectCategory>;
+  createQuestionTemplate?: Maybe<QuestionTemplate>;
+  deleteParticipant?: Maybe<Participant>;
+  deleteProjectCategory?: Maybe<ProjectCategory>;
+  deleteQuestionTemplate?: Maybe<QuestionTemplate>;
+  editAction?: Maybe<Action>;
+  editQuestionTemplate?: Maybe<QuestionTemplate>;
+  generateBMTScore?: Maybe<Score>;
+  progressEvaluation?: Maybe<Evaluation>;
+  progressParticipant?: Maybe<Participant>;
   removeFromProjectCategories?: Maybe<QuestionTemplate>;
+  reorderQuestionTemplate?: Maybe<QuestionTemplate>;
+  setAnswer?: Maybe<Answer>;
+  setEvaluationStatus?: Maybe<Evaluation>;
+  setEvaluationToAnotherProject?: Maybe<Evaluation>;
+  setIndicatorEvaluation?: Maybe<Project>;
+  setSummary?: Maybe<Evaluation>;
+  voidAction?: Maybe<Action>;
+};
+
+
+export type MutationAddToProjectCategoryArgs = {
+  projectCategoryId?: InputMaybe<Scalars['String']['input']>;
+  questionTemplateId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationCopyProjectCategoryArgs = {
+  newName?: InputMaybe<Scalars['String']['input']>;
+  projectCategoryId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationCreateActionArgs = {
+  assignedToId?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  dueDate: Scalars['DateTime']['input'];
+  priority: Priority;
+  questionId?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationCreateClosingRemarkArgs = {
+  actionId?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type MutationCreateEvaluationArgs = {
-  name?: Maybe<Scalars['String']>;
-  projectId?: Maybe<Scalars['String']>;
-  previousEvaluationId?: Maybe<Scalars['String']>;
-  projectCategoryId?: Maybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  previousEvaluationId?: InputMaybe<Scalars['String']['input']>;
+  projectCategoryId?: InputMaybe<Scalars['String']['input']>;
+  projectId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type MutationProgressEvaluationArgs = {
-  evaluationId?: Maybe<Scalars['String']>;
-  newProgression: Progression;
-};
-
-
-export type MutationSetSummaryArgs = {
-  evaluationId?: Maybe<Scalars['String']>;
-  summary?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationSetEvaluationStatusArgs = {
-  evaluationId?: Maybe<Scalars['String']>;
-  newStatus: Status;
-};
-
-
-export type MutationProgressParticipantArgs = {
-  evaluationId?: Maybe<Scalars['String']>;
-  newProgression: Progression;
+export type MutationCreateNoteArgs = {
+  actionId?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type MutationCreateParticipantArgs = {
-  azureUniqueId?: Maybe<Scalars['String']>;
-  evaluationId?: Maybe<Scalars['String']>;
+  azureUniqueId?: InputMaybe<Scalars['String']['input']>;
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
   organization: Organization;
   role: Role;
 };
 
 
-export type MutationDeleteParticipantArgs = {
-  participantId?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationSetAnswerArgs = {
-  questionId?: Maybe<Scalars['String']>;
-  severity: Severity;
-  text?: Maybe<Scalars['String']>;
-  progression: Progression;
-};
-
-
-export type MutationCreateActionArgs = {
-  questionId?: Maybe<Scalars['String']>;
-  assignedToId?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  dueDate: Scalars['DateTime'];
-  priority: Priority;
-  title?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationEditActionArgs = {
-  actionId?: Maybe<Scalars['String']>;
-  assignedToId?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  dueDate: Scalars['DateTime'];
-  title?: Maybe<Scalars['String']>;
-  onHold: Scalars['Boolean'];
-  completed: Scalars['Boolean'];
-  priority: Priority;
-};
-
-
-export type MutationVoidActionArgs = {
-  actionId?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationCreateNoteArgs = {
-  actionId?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationCreateClosingRemarkArgs = {
-  actionId?: Maybe<Scalars['String']>;
-  text?: Maybe<Scalars['String']>;
-};
-
-
 export type MutationCreateProjectCategoryArgs = {
-  name?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationDeleteProjectCategoryArgs = {
-  projectCategoryId?: Maybe<Scalars['String']>;
-};
-
-
-export type MutationCopyProjectCategoryArgs = {
-  newName?: Maybe<Scalars['String']>;
-  projectCategoryId?: Maybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type MutationCreateQuestionTemplateArgs = {
   barrier: Barrier;
+  newOrder?: Scalars['Int']['input'];
   organization: Organization;
-  text?: Maybe<Scalars['String']>;
-  supportNotes?: Maybe<Scalars['String']>;
-  projectCategoryIds?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newOrder?: Scalars['Int'];
+  projectCategoryIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  supportNotes?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type MutationEditQuestionTemplateArgs = {
-  questionTemplateId?: Maybe<Scalars['String']>;
-  barrier: Barrier;
-  organization: Organization;
-  text?: Maybe<Scalars['String']>;
-  supportNotes?: Maybe<Scalars['String']>;
-  status: Status;
+export type MutationDeleteParticipantArgs = {
+  participantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationDeleteProjectCategoryArgs = {
+  projectCategoryId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type MutationDeleteQuestionTemplateArgs = {
-  questionTemplateId?: Maybe<Scalars['String']>;
+  questionTemplateId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type MutationReorderQuestionTemplateArgs = {
-  questionTemplateId?: Maybe<Scalars['String']>;
-  newNextQuestionTemplateId?: Maybe<Scalars['String']>;
+export type MutationEditActionArgs = {
+  actionId?: InputMaybe<Scalars['String']['input']>;
+  assignedToId?: InputMaybe<Scalars['String']['input']>;
+  completed: Scalars['Boolean']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  dueDate: Scalars['DateTime']['input'];
+  onHold: Scalars['Boolean']['input'];
+  priority: Priority;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type MutationAddToProjectCategoryArgs = {
-  questionTemplateId?: Maybe<Scalars['String']>;
-  projectCategoryId?: Maybe<Scalars['String']>;
+export type MutationEditQuestionTemplateArgs = {
+  barrier: Barrier;
+  organization: Organization;
+  questionTemplateId?: InputMaybe<Scalars['String']['input']>;
+  status: Status;
+  supportNotes?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationGenerateBmtScoreArgs = {
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationProgressEvaluationArgs = {
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
+  newProgression: Progression;
+};
+
+
+export type MutationProgressParticipantArgs = {
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
+  newProgression: Progression;
 };
 
 
 export type MutationRemoveFromProjectCategoriesArgs = {
-  questionTemplateId?: Maybe<Scalars['String']>;
-  projectCategoryIds?: Maybe<Array<Maybe<Scalars['String']>>>;
+  projectCategoryIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  questionTemplateId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationReorderQuestionTemplateArgs = {
+  newNextQuestionTemplateId?: InputMaybe<Scalars['String']['input']>;
+  questionTemplateId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetAnswerArgs = {
+  progression: Progression;
+  questionId?: InputMaybe<Scalars['String']['input']>;
+  severity: Severity;
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetEvaluationStatusArgs = {
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
+  newStatus: Status;
+};
+
+
+export type MutationSetEvaluationToAnotherProjectArgs = {
+  destinationProjectExternalId?: InputMaybe<Scalars['String']['input']>;
+  destinationProjectFusionId?: InputMaybe<Scalars['String']['input']>;
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetIndicatorEvaluationArgs = {
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
+  projectId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSetSummaryArgs = {
+  evaluationId?: InputMaybe<Scalars['String']['input']>;
+  summary?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationVoidActionArgs = {
+  actionId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Note = {
   __typename?: 'Note';
-  id: Scalars['String'];
-  text: Scalars['String'];
-  createdBy?: Maybe<Participant>;
-  createDate: Scalars['DateTime'];
   action: Action;
+  createDate: Scalars['DateTime']['output'];
+  createdBy?: Maybe<Participant>;
+  id: Scalars['String']['output'];
+  text: Scalars['String']['output'];
 };
 
 export type NoteFilterInput = {
-  and?: Maybe<Array<NoteFilterInput>>;
-  or?: Maybe<Array<NoteFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  text?: Maybe<StringOperationFilterInput>;
-  createdBy?: Maybe<ParticipantFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  action?: Maybe<ActionFilterInput>;
+  action?: InputMaybe<ActionFilterInput>;
+  and?: InputMaybe<Array<NoteFilterInput>>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  createdBy?: InputMaybe<ParticipantFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<NoteFilterInput>>;
+  text?: InputMaybe<StringOperationFilterInput>;
 };
 
 export enum Organization {
+  All = 'ALL',
   Commissioning = 'COMMISSIONING',
   Construction = 'CONSTRUCTION',
   Engineering = 'ENGINEERING',
-  PreOps = 'PRE_OPS',
-  All = 'ALL'
+  PreOps = 'PRE_OPS'
 }
 
 export type OrganizationOperationFilterInput = {
-  eq?: Maybe<Organization>;
-  neq?: Maybe<Organization>;
-  in?: Maybe<Array<Organization>>;
-  nin?: Maybe<Array<Organization>>;
+  eq?: InputMaybe<Organization>;
+  in?: InputMaybe<Array<Organization>>;
+  neq?: InputMaybe<Organization>;
+  nin?: InputMaybe<Array<Organization>>;
 };
 
 export type Participant = {
   __typename?: 'Participant';
-  id: Scalars['String'];
-  azureUniqueId: Scalars['String'];
-  organization: Organization;
-  role: Role;
-  progression: Progression;
-  createDate: Scalars['DateTime'];
-  evaluationId: Scalars['String'];
+  azureUniqueId: Scalars['String']['output'];
+  createDate: Scalars['DateTime']['output'];
   evaluation: Evaluation;
+  evaluationId: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  organization: Organization;
+  progression: Progression;
+  role: Role;
 };
 
 export type ParticipantFilterInput = {
-  and?: Maybe<Array<ParticipantFilterInput>>;
-  or?: Maybe<Array<ParticipantFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  azureUniqueId?: Maybe<StringOperationFilterInput>;
-  organization?: Maybe<OrganizationOperationFilterInput>;
-  role?: Maybe<RoleOperationFilterInput>;
-  progression?: Maybe<ProgressionOperationFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  evaluationId?: Maybe<StringOperationFilterInput>;
-  evaluation?: Maybe<EvaluationFilterInput>;
+  and?: InputMaybe<Array<ParticipantFilterInput>>;
+  azureUniqueId?: InputMaybe<StringOperationFilterInput>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  evaluation?: InputMaybe<EvaluationFilterInput>;
+  evaluationId?: InputMaybe<StringOperationFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<ParticipantFilterInput>>;
+  organization?: InputMaybe<OrganizationOperationFilterInput>;
+  progression?: InputMaybe<ProgressionOperationFilterInput>;
+  role?: InputMaybe<RoleOperationFilterInput>;
 };
 
 export enum Priority {
+  High = 'HIGH',
   Low = 'LOW',
-  Medium = 'MEDIUM',
-  High = 'HIGH'
+  Medium = 'MEDIUM'
 }
 
 export type PriorityOperationFilterInput = {
-  eq?: Maybe<Priority>;
-  neq?: Maybe<Priority>;
-  in?: Maybe<Array<Priority>>;
-  nin?: Maybe<Array<Priority>>;
+  eq?: InputMaybe<Priority>;
+  in?: InputMaybe<Array<Priority>>;
+  neq?: InputMaybe<Priority>;
+  nin?: InputMaybe<Array<Priority>>;
 };
 
 export enum Progression {
-  Nomination = 'NOMINATION',
-  Individual = 'INDIVIDUAL',
-  Preparation = 'PREPARATION',
-  Workshop = 'WORKSHOP',
+  Finished = 'FINISHED',
   FollowUp = 'FOLLOW_UP',
-  Finished = 'FINISHED'
+  Individual = 'INDIVIDUAL',
+  Nomination = 'NOMINATION',
+  Preparation = 'PREPARATION',
+  Workshop = 'WORKSHOP'
 }
 
 export type ProgressionOperationFilterInput = {
-  eq?: Maybe<Progression>;
-  neq?: Maybe<Progression>;
-  in?: Maybe<Array<Progression>>;
-  nin?: Maybe<Array<Progression>>;
+  eq?: InputMaybe<Progression>;
+  in?: InputMaybe<Array<Progression>>;
+  neq?: InputMaybe<Progression>;
+  nin?: InputMaybe<Array<Progression>>;
 };
 
 export type Project = {
   __typename?: 'Project';
-  id: Scalars['String'];
-  fusionProjectId: Scalars['String'];
-  createDate: Scalars['DateTime'];
+  createDate: Scalars['DateTime']['output'];
   evaluations: Array<Maybe<Evaluation>>;
+  externalId: Scalars['String']['output'];
+  fusionProjectId: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  indicatorEvaluationId?: Maybe<Scalars['String']['output']>;
 };
 
 export type ProjectCategory = {
   __typename?: 'ProjectCategory';
-  id: Scalars['String'];
-  name: Scalars['String'];
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
   questionTemplates: Array<Maybe<QuestionTemplate>>;
 };
 
 export type ProjectCategoryFilterInput = {
-  and?: Maybe<Array<ProjectCategoryFilterInput>>;
-  or?: Maybe<Array<ProjectCategoryFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  name?: Maybe<StringOperationFilterInput>;
-  questionTemplates?: Maybe<ListFilterInputTypeOfQuestionTemplateFilterInput>;
+  and?: InputMaybe<Array<ProjectCategoryFilterInput>>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  name?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<ProjectCategoryFilterInput>>;
+  questionTemplates?: InputMaybe<ListFilterInputTypeOfQuestionTemplateFilterInput>;
 };
 
 export type ProjectFilterInput = {
-  and?: Maybe<Array<ProjectFilterInput>>;
-  or?: Maybe<Array<ProjectFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  fusionProjectId?: Maybe<StringOperationFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  evaluations?: Maybe<ListFilterInputTypeOfEvaluationFilterInput>;
+  and?: InputMaybe<Array<ProjectFilterInput>>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  evaluations?: InputMaybe<ListFilterInputTypeOfEvaluationFilterInput>;
+  externalId?: InputMaybe<StringOperationFilterInput>;
+  fusionProjectId?: InputMaybe<StringOperationFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  indicatorEvaluationId?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<ProjectFilterInput>>;
 };
 
 export type Question = {
   __typename?: 'Question';
-  id: Scalars['String'];
-  organization: Organization;
-  text: Scalars['String'];
-  order: Scalars['Int'];
-  supportNotes: Scalars['String'];
-  barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  answers: Array<Maybe<Answer>>;
   actions: Array<Maybe<Action>>;
+  answers: Array<Maybe<Answer>>;
+  barrier: Barrier;
+  createDate: Scalars['DateTime']['output'];
   evaluation: Evaluation;
+  id: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  organization: Organization;
   questionTemplate: QuestionTemplate;
+  supportNotes: Scalars['String']['output'];
+  text: Scalars['String']['output'];
 };
 
 export type QuestionFilterInput = {
-  and?: Maybe<Array<QuestionFilterInput>>;
-  or?: Maybe<Array<QuestionFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  organization?: Maybe<OrganizationOperationFilterInput>;
-  text?: Maybe<StringOperationFilterInput>;
-  order?: Maybe<ComparableInt32OperationFilterInput>;
-  supportNotes?: Maybe<StringOperationFilterInput>;
-  barrier?: Maybe<BarrierOperationFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  answers?: Maybe<ListFilterInputTypeOfAnswerFilterInput>;
-  actions?: Maybe<ListFilterInputTypeOfActionFilterInput>;
-  evaluation?: Maybe<EvaluationFilterInput>;
-  questionTemplate?: Maybe<QuestionTemplateFilterInput>;
+  actions?: InputMaybe<ListFilterInputTypeOfActionFilterInput>;
+  and?: InputMaybe<Array<QuestionFilterInput>>;
+  answers?: InputMaybe<ListFilterInputTypeOfAnswerFilterInput>;
+  barrier?: InputMaybe<BarrierOperationFilterInput>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  evaluation?: InputMaybe<EvaluationFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<QuestionFilterInput>>;
+  order?: InputMaybe<IntOperationFilterInput>;
+  organization?: InputMaybe<OrganizationOperationFilterInput>;
+  questionTemplate?: InputMaybe<QuestionTemplateFilterInput>;
+  supportNotes?: InputMaybe<StringOperationFilterInput>;
+  text?: InputMaybe<StringOperationFilterInput>;
 };
 
 export type QuestionTemplate = {
   __typename?: 'QuestionTemplate';
-  id: Scalars['String'];
-  status: Status;
-  organization: Organization;
-  text: Scalars['String'];
-  order: Scalars['Int'];
-  adminOrder: Scalars['Int'];
-  supportNotes: Scalars['String'];
+  adminOrder: Scalars['Int']['output'];
   barrier: Barrier;
-  createDate: Scalars['DateTime'];
-  questions: Array<Maybe<Question>>;
+  createDate: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  organization: Organization;
   previous?: Maybe<QuestionTemplate>;
   projectCategories: Array<Maybe<ProjectCategory>>;
+  questions: Array<Maybe<Question>>;
+  status: Status;
+  supportNotes: Scalars['String']['output'];
+  text: Scalars['String']['output'];
 };
 
 export type QuestionTemplateFilterInput = {
-  and?: Maybe<Array<QuestionTemplateFilterInput>>;
-  or?: Maybe<Array<QuestionTemplateFilterInput>>;
-  id?: Maybe<StringOperationFilterInput>;
-  status?: Maybe<StatusOperationFilterInput>;
-  organization?: Maybe<OrganizationOperationFilterInput>;
-  text?: Maybe<StringOperationFilterInput>;
-  order?: Maybe<ComparableInt32OperationFilterInput>;
-  adminOrder?: Maybe<ComparableInt32OperationFilterInput>;
-  supportNotes?: Maybe<StringOperationFilterInput>;
-  barrier?: Maybe<BarrierOperationFilterInput>;
-  createDate?: Maybe<ComparableDateTimeOffsetOperationFilterInput>;
-  questions?: Maybe<ListFilterInputTypeOfQuestionFilterInput>;
-  previous?: Maybe<QuestionTemplateFilterInput>;
-  projectCategories?: Maybe<ListFilterInputTypeOfProjectCategoryFilterInput>;
+  adminOrder?: InputMaybe<IntOperationFilterInput>;
+  and?: InputMaybe<Array<QuestionTemplateFilterInput>>;
+  barrier?: InputMaybe<BarrierOperationFilterInput>;
+  createDate?: InputMaybe<DateTimeOperationFilterInput>;
+  id?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<QuestionTemplateFilterInput>>;
+  order?: InputMaybe<IntOperationFilterInput>;
+  organization?: InputMaybe<OrganizationOperationFilterInput>;
+  previous?: InputMaybe<QuestionTemplateFilterInput>;
+  projectCategories?: InputMaybe<ListFilterInputTypeOfProjectCategoryFilterInput>;
+  questions?: InputMaybe<ListFilterInputTypeOfQuestionFilterInput>;
+  status?: InputMaybe<StatusOperationFilterInput>;
+  supportNotes?: InputMaybe<StringOperationFilterInput>;
+  text?: InputMaybe<StringOperationFilterInput>;
 };
 
 export enum Role {
-  Participant = 'PARTICIPANT',
   Facilitator = 'FACILITATOR',
-  OrganizationLead = 'ORGANIZATION_LEAD'
+  OrganizationLead = 'ORGANIZATION_LEAD',
+  Participant = 'PARTICIPANT'
 }
 
 export type RoleOperationFilterInput = {
-  eq?: Maybe<Role>;
-  neq?: Maybe<Role>;
-  in?: Maybe<Array<Role>>;
-  nin?: Maybe<Array<Role>>;
+  eq?: InputMaybe<Role>;
+  in?: InputMaybe<Array<Role>>;
+  neq?: InputMaybe<Role>;
+  nin?: InputMaybe<Array<Role>>;
+};
+
+export type Score = {
+  __typename?: 'Score';
+  value: Scalars['Float']['output'];
 };
 
 export enum Severity {
   MajorIssues = 'MAJOR_ISSUES',
-  SomeConcerns = 'SOME_CONCERNS',
+  Na = 'NA',
   OnTrack = 'ON_TRACK',
-  Na = 'NA'
+  SomeConcerns = 'SOME_CONCERNS'
 }
 
 export type SeverityOperationFilterInput = {
-  eq?: Maybe<Severity>;
-  neq?: Maybe<Severity>;
-  in?: Maybe<Array<Severity>>;
-  nin?: Maybe<Array<Severity>>;
+  eq?: InputMaybe<Severity>;
+  in?: InputMaybe<Array<Severity>>;
+  neq?: InputMaybe<Severity>;
+  nin?: InputMaybe<Array<Severity>>;
 };
 
 export enum Status {
@@ -730,23 +751,23 @@ export enum Status {
 }
 
 export type StatusOperationFilterInput = {
-  eq?: Maybe<Status>;
-  neq?: Maybe<Status>;
-  in?: Maybe<Array<Status>>;
-  nin?: Maybe<Array<Status>>;
+  eq?: InputMaybe<Status>;
+  in?: InputMaybe<Array<Status>>;
+  neq?: InputMaybe<Status>;
+  nin?: InputMaybe<Array<Status>>;
 };
 
 export type StringOperationFilterInput = {
-  and?: Maybe<Array<StringOperationFilterInput>>;
-  or?: Maybe<Array<StringOperationFilterInput>>;
-  eq?: Maybe<Scalars['String']>;
-  neq?: Maybe<Scalars['String']>;
-  contains?: Maybe<Scalars['String']>;
-  ncontains?: Maybe<Scalars['String']>;
-  in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  nin?: Maybe<Array<Maybe<Scalars['String']>>>;
-  startsWith?: Maybe<Scalars['String']>;
-  nstartsWith?: Maybe<Scalars['String']>;
-  endsWith?: Maybe<Scalars['String']>;
-  nendsWith?: Maybe<Scalars['String']>;
+  and?: InputMaybe<Array<StringOperationFilterInput>>;
+  contains?: InputMaybe<Scalars['String']['input']>;
+  endsWith?: InputMaybe<Scalars['String']['input']>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  ncontains?: InputMaybe<Scalars['String']['input']>;
+  nendsWith?: InputMaybe<Scalars['String']['input']>;
+  neq?: InputMaybe<Scalars['String']['input']>;
+  nin?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  nstartsWith?: InputMaybe<Scalars['String']['input']>;
+  or?: InputMaybe<Array<StringOperationFilterInput>>;
+  startsWith?: InputMaybe<Scalars['String']['input']>;
 };

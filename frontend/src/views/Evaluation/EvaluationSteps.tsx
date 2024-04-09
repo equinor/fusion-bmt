@@ -10,11 +10,11 @@ import { progressionToString } from '../../utils/EnumToString'
 import FollowUpTabs from './FollowUp/FollowUpTabs'
 import WorkshopTabs from './Workshop/WorkshopTabs'
 import { Link } from "react-router-dom";
-import { useCurrentContext } from '@equinor/fusion'
 import styled from 'styled-components'
 import { Icon } from '@equinor/eds-core-react'
 import { arrow_back_ios } from '@equinor/eds-icons'
 import { Stepper, Step } from '@equinor/fusion-react-stepper';
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 const Wrapper = styled.div`
     padding: 20px 10px 0 10px;
@@ -39,7 +39,7 @@ interface EvaluationViewProps {
 }
 
 const EvaluationSteps = ({ evaluation, onProgressEvaluationClick, onProgressParticipant }: EvaluationViewProps) => {
-    const currentProject = useCurrentContext()
+    const currentProject = useModuleCurrentContext()
 
     if (currentProject === null || currentProject === undefined) {
         return <p>No project selected</p>
@@ -57,7 +57,7 @@ const EvaluationSteps = ({ evaluation, onProgressEvaluationClick, onProgressPart
     return (
         <>
             <Wrapper>
-            <ProjectButton to={location => getProjectTabsLink(location)}>
+            <ProjectButton to={(location: any) => getProjectTabsLink(location)}>
                 <Icon size={16} data={arrow_back_ios} />
                 Project dashboard
             </ProjectButton>

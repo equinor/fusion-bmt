@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { Button, Icon, Tooltip } from '@equinor/eds-core-react'

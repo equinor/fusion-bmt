@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react'
-import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser, useFusionEnvironment } from '@equinor/fusion'
-import { createComponent, createLegacyApp } from "@equinor/fusion-framework-react-app"
+import React, { createElement, useEffect } from 'react'
+import { createRoot } from "react-dom/client"
+import { ComponentRenderArgs, createComponent, createLegacyApp, makeComponent } from "@equinor/fusion-framework-react-app"
 import { ApolloProvider } from '@apollo/client'
-import { ApplicationInsights } from '@microsoft/applicationinsights-web'
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev"
 import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
 import { createBrowserHistory } from 'history'
+import { configure } from "./config"
 
 import { createClient, getToken } from './api/graphql'
 import App from './App'
-import { config } from './config'
+// import { config } from './config'
 
 import './styles.css'
 import { ResolveConfiguration } from './utils/config'
@@ -16,34 +17,35 @@ import { configurator } from './configurator'
 
 const browserHistory = createBrowserHistory()
 const reactPlugin = new ReactPlugin()
-const appInsights = new ApplicationInsights({
-    config: {
-        instrumentationKey: config.APP_INSIGHTS,
-        extensions: [reactPlugin],
-        extensionConfig: {
-            [reactPlugin.identifier]: { history: browserHistory },
-        },
-    },
-})
+// const appInsights = new ApplicationInsights({
+//     config: {
+//         instrumentationKey: config.APP_INSIGHTS,
+//         extensions: [reactPlugin],
+//         extensionConfig: {
+//             [reactPlugin.identifier]: { history: browserHistory },
+//         },
+//     },
+// })
 
-appInsights.loadAppInsights()
-appInsights.trackPageView()
+// appInsights.loadAppInsights()
+// appInsights.trackPageView()
 
 const Start = () => {
-    const runtimeConfig = useAppConfig()
+    // const runtimeConfig = useAppConfig()
     const [apiUrl, setApiUrl] = React.useState('')
 
-    const fusionEnvironment = useFusionEnvironment()
+    // const fusionEnvironment = useFusionEnvironment()
 
     React.useLayoutEffect(() => {
-        if (runtimeConfig.value) {
-            config.API_URL ? setApiUrl(config.API_URL) : setApiUrl(runtimeConfig.value.endpoints['API_URL'])
-        }
-        else {
-            const config = ResolveConfiguration(fusionEnvironment.env)
-            setApiUrl(config.API_URL)
-        }
-    }, [runtimeConfig])
+        // if (runtimeConfig.value) {
+        //     // config.API_URL ? setApiUrl(config.API_URL) : setApiUrl(runtimeConfig.value.endpoints['API_URL'])
+        // }
+        // else {
+            // const config = ResolveConfiguration(fusionEnvironment.env)
+            // setApiUrl(config.API_URL)
+            setApiUrl("http://localhost:5000")
+        // }
+    }, [])
 
     useEffect(() => {
         (async () => {
@@ -64,6 +66,9 @@ const Start = () => {
         return <>Missing API url</>
     }
 
+    loadDevMessages();
+    loadErrorMessages();
+
     const apolloClient = createClient(apiUrl)
 
     return (
@@ -75,15 +80,15 @@ const Start = () => {
     )
 }
 
-const render = createComponent(Start, configurator)
+const appComponent = createElement(Start)
 
-registerApp("bmt", {
-    AppComponent: Start,
-    render,
-})
+const createApp = (args: ComponentRenderArgs) => makeComponent(appComponent, args, configure)
 
-if (module.hot) {
-    module.hot.accept()
+export const renderApp = (el: HTMLElement, args: ComponentRenderArgs) => {
+    const app = createApp(args)
+    const root = createRoot(el)
+    root.render(createElement(app))
+    return () => root.unmount()
 }
 
-export default render
+export default renderApp

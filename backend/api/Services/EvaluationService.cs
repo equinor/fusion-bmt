@@ -31,6 +31,7 @@ namespace api.Services
                 Name = name,
                 Progression = Progression.Nomination,
                 Project = project,
+                ProjectId = project.Id,
                 Status = Status.Active,
                 Summary = "",
                 PreviousEvaluationId = previousEvaluationId

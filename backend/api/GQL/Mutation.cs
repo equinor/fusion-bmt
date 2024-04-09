@@ -8,6 +8,7 @@ using api.Models;
 using Action = api.Models.Action;
 using api.Authorization;
 using HotChocolate.Authorization;
+using System.Threading.Tasks;
 
 namespace api.GQL
 {
@@ -22,6 +23,7 @@ namespace api.GQL
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
         private readonly ClosingRemarkService _closingRemarkService;
+        private readonly IndicatorService _indicatorService;
 
         /* Admin Services */
         private readonly QuestionTemplateService _questionTemplateService;
@@ -43,6 +45,7 @@ namespace api.GQL
             QuestionTemplateService questionTemplateService,
             ProjectCategoryService projectCategoryService,
             IAuthService authService,
+            IndicatorService indicatorService,
             ILogger<Mutation> logger
         )
         {
@@ -57,6 +60,7 @@ namespace api.GQL
             _questionTemplateService = questionTemplateService;
             _projectCategoryService = projectCategoryService;
             _authService = authService;
+            _indicatorService = indicatorService;
             _logger = logger;
         }
 
@@ -109,6 +113,8 @@ namespace api.GQL
             {
                 _evaluationService.SetWorkshopCompleteDate(evaluation);
                 _answerService.CreateFollowUpAnswers(evaluation);
+                // TODO Set project.IndicatorEvaluationId to evaluation.Id
+                _projectService.SetIndicatorEvaluation(evaluation.ProjectId, evaluation);
             }
 
             return evaluation;
@@ -138,6 +144,21 @@ namespace api.GQL
 
             _evaluationService.SetStatus(evaluation, newStatus);
             return evaluation;
+        }
+
+        public Project SetIndicatorEvaluation(string projectId, string evaluationId)
+        {
+            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            var roles = _authService.GetRoles();
+
+            if (!roles.Contains("Role.Admin"))
+            {
+                Role[] canBePerformedBy = { Role.Facilitator };
+                AssertCanPerformMutation(evaluation, canBePerformedBy);
+            }
+
+            return _projectService.SetIndicatorEvaluation(projectId, evaluation);
         }
 
         public Participant ProgressParticipant(string evaluationId, Progression newProgression)
@@ -431,6 +452,16 @@ namespace api.GQL
         )
         {
             return _questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
+        }
+
+        public class Score {
+            public double Value { get; set; }
+        }
+
+        public async Task<Score> GenerateBMTScore(string evaluationId)
+        {
+            var score = await _indicatorService.GenerateBMTScore(evaluationId);
+            return new Score { Value = score };
         }
 
         /* Helpers */

@@ -1,7 +1,6 @@
 import React from 'react'
-import { useApiClients, PersonDetails } from '@equinor/fusion'
-import { PersonCard } from '@equinor/fusion-components'
-import { Button } from '@equinor/eds-core-react'
+import { PersonAvatar, PersonCard, PersonDetails } from '@equinor/fusion-react-person'
+import { Button, Typography } from '@equinor/eds-core-react'
 import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../../utils/EnumToString'
@@ -11,6 +10,7 @@ import SearchableDropdown from '../../../../components/SearchableDropDown'
 import SideSheet from '@equinor/fusion-react-side-sheet'
 import styled from 'styled-components'
 import { CircularProgress } from '@equinor/eds-core-react'
+import { usePeopleApi } from '../../../../api/usePeopleApi'
 
 const Wrapper = styled.div`
     display: flex;
@@ -42,7 +42,7 @@ interface AddNomineeDialogProps {
 const WRITE_DELAY_MS = 1000
 
 const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelected, createParticipantLoading }: AddNomineeDialogProps) => {
-    const apiClients = useApiClients()
+    const apiClients = usePeopleApi()
 
     const [searchQuery, setSearchQuery] = React.useState<string>('')
     const [searchResults, setSearchResults] = React.useState<PersonDetails[]>([])
@@ -101,13 +101,30 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             })
         )
 
+        const apiResponseToPersonDetails = (response: any[]): PersonDetails[] => {
+            return response.map((person: any) => {
+                return {
+                    azureId: person.azureUniquePersonId,
+                    name: person.name,
+                    jobTitle: person.jobTitle,
+                    department: person.department,
+                    mail: person.mail,
+                    upn: person.upn,
+                    mobilePhone: person.mobilePhone,
+                    accountType: person.accountType,
+                    officeLocation: person.officeLocation,
+                    managerAzureUniqueId: person.managerAzureUniqueId,
+                }
+            })
+        }
+
     const searchPersons = () => {
         if (searchQuery) {
             setIsSearching(true)
-            apiClients.people
-                .searchPersons(searchQuery)
+            apiClients.search(searchQuery)
                 .then(res => {
-                    setSearchResults(res.data)
+                    const result = apiResponseToPersonDetails(res)
+                    setSearchResults(result)
                 })
                 .finally(() => {
                     setIsSearching(false)
@@ -121,8 +138,8 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
     }
 
     return (
-        <SideSheet 
-            isOpen={open} 
+        <SideSheet
+            isOpen={open}
             minWidth={550}
             onClose={onCloseClick}
         >
@@ -138,7 +155,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                             const selectedOption = (option as any).nativeEvent.detail.selected[0]
                             updateOrgOptions(selectedOption)
                             setSelectedOrg(Organization[selectedOption.id as keyof typeof Organization])
-                        }} 
+                        }}
                         searchQuery={ async (query: string) => {
                             return orgOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
                         }}
@@ -176,17 +193,17 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                     )}
                     {!isSearching &&
                         searchResults
-                            .filter(p => p.azureUniqueId !== null)
+                            .filter(p => p.azureId !== null)
                             .map(p => {
-                                console.log('p', p)
                                 return (
-                                    <PersonInfo style={{ marginBottom: 10 }} key={p.azureUniqueId}>
-                                        <PersonCard person={p} />
+                                    <PersonInfo style={{ marginBottom: 10 }} key={p.azureId}>
+                                        <PersonAvatar azureId={p.azureId} />
+                                        <Typography>{p.name}</Typography>
                                         <Button
                                             onClick={() => {
-                                                onNomineeSelected(p.azureUniqueId, selectedRole, selectedOrg)
+                                                onNomineeSelected(p.azureId, selectedRole, selectedOrg)
                                             }}
-                                            disabled={isParticipantNominated(p.azureUniqueId)}
+                                            disabled={isParticipantNominated(p.azureId)}
                                         >
                                             Add
                                         </Button>

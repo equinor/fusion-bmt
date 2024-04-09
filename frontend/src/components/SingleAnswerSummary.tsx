@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react'
 
-import { Grid, Box } from '@material-ui/core'
+import { Grid, Box } from '@mui/material'
 import { Typography } from '@equinor/eds-core-react'
-import { useApiClients } from '@equinor/fusion'
 import { MarkdownViewer } from '@equinor/fusion-react-markdown';
 
 import { Answer, Role } from '../api/models'
 import { organizationToString } from '../utils/EnumToString'
 import SeverityIndicator from './SeverityIndicator'
 import { useSharedFacilitatorAnswer } from '../utils/helpers'
+import { usePeopleApi } from '../api/usePeopleApi';
 
 interface SingleAnswerSummaryProps {
     answer: Answer
 }
 
 const SingleAnswerSummary = ({ answer }: SingleAnswerSummaryProps) => {
-    const apiClients = useApiClients()
+    const apiClients = usePeopleApi()
     const [username, setUsername] = useState<string>('')
     const useShared = answer.answeredBy!.role === Role.Facilitator && useSharedFacilitatorAnswer(answer.progression)
     const organization = organizationToString(answer.answeredBy?.organization!)
@@ -24,7 +24,7 @@ const SingleAnswerSummary = ({ answer }: SingleAnswerSummaryProps) => {
         if (useShared) {
             setUsername('Facilitators')
         } else {
-            apiClients.people.getPersonDetailsAsync(answer.answeredBy!.azureUniqueId).then(details => {
+            apiClients.getById(answer.answeredBy!.azureUniqueId).then(details => {
                 setUsername(details.data.name)
             })
         }

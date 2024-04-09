@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { PersonDetails } from '@equinor/fusion'
 import { Button, Icon, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
-import { Grid } from '@material-ui/core'
+import { Grid } from '@mui/material'
 import styled from 'styled-components'
 import { Action, Participant, Priority, Question } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
@@ -15,6 +14,7 @@ import ErrorBanner from '../../ErrorBanner'
 import { genericErrorMessage } from '../../../utils/Variables'
 import { toCapitalizedCase } from '../../../utils/helpers'
 import SearchableDropdown from '../../../components/SearchableDropDown'
+import { PersonDetails } from '@equinor/fusion-react-person'
 
 
 const StyledDate = styled(Typography)`
@@ -79,7 +79,7 @@ const ActionEditForm = ({
         useShowErrorHook(apiErrorClosingRemark)
 
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails.azureUniqueId,
+        id: personDetails.azureId,
         title: personDetails.name,
     }))
 
@@ -193,7 +193,7 @@ const ActionEditForm = ({
                     />
                 </Grid>
                 <Grid item xs={5}>
-                    <SearchableDropdown 
+                    <SearchableDropdown
                         label="Assignee"
                         options={assigneesOptions}
                         value={assigneesOptions.find(option => option.id === assignedToId)?.title}
@@ -202,7 +202,7 @@ const ActionEditForm = ({
                             setAssignedToId(selectedOption.id)
                         }}
                         searchQuery={async (searchTerm: string) => {
-                            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                            return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
                         } }
                     />
                 </Grid>
@@ -218,8 +218,8 @@ const ActionEditForm = ({
                     />
                 </Grid>
                 <Grid item xs={3}>
-                 <NativeSelect 
-                        label="Priority" 
+                 <NativeSelect
+                        label="Priority"
                         id="priority-select"
                         disabled={disableEditAction}
                         defaultValue={toCapitalizedCase(priority)}
@@ -231,7 +231,7 @@ const ActionEditForm = ({
                         <option>High</option>
                         <option>Medium</option>
                         <option>Low</option>
-                    </NativeSelect>             
+                    </NativeSelect>
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant="h5">Connected to {connectedQuestion.evaluation.name}</Typography>

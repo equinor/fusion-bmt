@@ -1,5 +1,5 @@
 import { Divider } from '@equinor/eds-core-react'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import QuestionAndAnswerFormWithApi from './QuestionAndAnswer/QuestionAndAnswerFormWithApi'
 import QuestionActionsListWithApi from './Action/QuestionActionsListWithApi'
 import AnswerSummaryButton from './AnswerSummaryButton'

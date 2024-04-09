@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Severity } from '../api/models'
 import SeverityIndicator, { getBGColor, getTextColor, SeverityIndicatorWithNumber } from './SeverityIndicator'
 import { Typography } from '@equinor/eds-core-react'

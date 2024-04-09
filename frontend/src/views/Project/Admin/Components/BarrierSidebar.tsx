@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { NavigationDrawer, NavigationStructure } from '@equinor/fusion-components'
+// import { NavigationDrawer, NavigationStructure } from '@equinor/fusion-components'
 
 import { Barrier } from '../../../../api/models'
 import { barrierToString } from '../../../../utils/EnumToString'
@@ -16,19 +16,20 @@ const BarrierSidebar = ({ barrier, onBarrierSelected }: Props) => {
         onBarrierSelected(barrier)
     }
 
-    const structure: NavigationStructure[] = Object.entries(Barrier).map(([_, b]) => {
-        return {
-            id: b,
-            type: 'section',
-            title: b + ' ' + barrierToString(b),
-            icon: <>{b}</>,
-            isActive: barrier === b,
-        }
-    })
+    // const structure: NavigationStructure[] = Object.entries(Barrier).map(([_, b]) => {
+    //     return {
+    //         id: b,
+    //         type: 'section',
+    //         title: b + ' ' + barrierToString(b),
+    //         icon: <>{b}</>,
+    //         isActive: barrier === b,
+    //     }
+    // })
 
     return (
         <Sticky>
-            <NavigationDrawer
+            <p>NavigationDrawer</p>
+            {/* <NavigationDrawer
                 id="navigation-drawer-story"
                 structure={structure}
                 selectedId={barrier}
@@ -36,7 +37,7 @@ const BarrierSidebar = ({ barrier, onBarrierSelected }: Props) => {
                     selectBarrier(selectedBarrierId as Barrier)
                 }}
                 onChangeStructure={() => {}}
-            />
+            /> */}
         </Sticky>
     )
 }

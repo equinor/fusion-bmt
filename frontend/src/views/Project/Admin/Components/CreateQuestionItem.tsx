@@ -1,7 +1,7 @@
 import React from 'react'
 import { MarkdownEditor } from '@equinor/fusion-react-markdown';
 import { TextField, Typography } from '@equinor/eds-core-react'
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { ApolloError } from '@apollo/client'
 import { Barrier, Organization, QuestionTemplate } from '../../../../api/models'
 import { ErrorIcon, TextFieldChangeEvent } from '../../../../components/Action/utils'
@@ -120,7 +120,7 @@ const CreateQuestionItem = ({
                 </Box>
                 <Box display="flex" flexDirection={'column'}>
                     <Box flexGrow={1} data-testid="select-organization-dropdown-box" mt={3}>
-                        <SearchableDropdown 
+                        <SearchableDropdown
                             label="Organization"
                             value={toCapitalizedCase(organization)}
                             options={getOrganizationOptionsForDropdown(organization)}
@@ -130,7 +130,7 @@ const CreateQuestionItem = ({
                             }}
                             searchQuery={async (searchTerm: string) => {
                                 return getOrganizationOptionsForDropdown(organization).filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
-                            }} 
+                            }}
                         />
                     </Box>
                     <CancelAndSaveButton

@@ -1,6 +1,6 @@
 import React, { RefObject, useState } from 'react'
 
-import { Box } from '@material-ui/core'
+import { Box } from '@mui/material'
 import { Button, Icon, Menu, Tooltip, Typography } from '@equinor/eds-core-react'
 import { add, add_circle_outlined, close_circle_outlined, more_vertical, swap_vertical } from '@equinor/eds-icons'
 

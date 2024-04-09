@@ -21,7 +21,11 @@ const serviceResolver: ServiceResolver = {
     getBookmarksBaseUrl: () => 'https://pro-s-bookmarks-ci.azurewebsites.net',
 }
 
-export const FusionTestWrapper: React.FC = ({ children }) => {
+interface FusionTestWrapperProps {
+    children: React.ReactNode;
+  }
+
+export const FusionTestWrapper: React.FC<FusionTestWrapperProps> = ({ children }) => {
     const overlay = React.useRef<HTMLElement | null>(null)
     const root = React.useRef<HTMLElement | null>(null)
     const headerContent = React.useRef<HTMLElement | null>(null)

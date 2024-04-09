@@ -4,7 +4,7 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 import { RouteComponentProps } from 'react-router-dom'
 import ErrorMessage from '../../components/ErrorMessage'
 import { Tabs } from '@equinor/eds-core-react'
-import { useCurrentContext, useCurrentUser } from '@equinor/fusion'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
@@ -14,6 +14,7 @@ import AdminView from './Admin/AdminView'
 import DashboardView from './Dashboard/DashboardView'
 import { genericErrorMessage } from '../../utils/Variables'
 import { getCachedRoles } from '../../utils/helpers'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 const { List, Tab, Panels } = Tabs
 
@@ -23,10 +24,10 @@ interface Params {
 
 const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const currentUser = useCurrentUser()
-    const currentProject = useCurrentContext()
+    const { currentContext } = useModuleCurrentContext()
 
-    const fusionProjectId = currentProject?.id ?? match.params.fusionProjectId
-    const externalId = currentProject?.externalId
+    const fusionProjectId = currentContext?.id ?? match.params.fusionProjectId
+    const externalId = currentContext?.externalId
 
     const [activeTab, setActiveTab] = React.useState(0)
 
@@ -34,7 +35,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
 
-    if (!currentProject) {
+    if (!currentContext) {
         return (
             <>
                 <p>Please select a project.</p>
@@ -63,7 +64,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
                         <DashboardView project={project} />
                     </StyledTabPanel>
                     <StyledTabPanel>
-                        <ActionsView azureUniqueId={currentUser!.id} />
+                        <ActionsView azureUniqueId={currentUser!.localAccountId} />
                     </StyledTabPanel>
                     {isAdmin ? (
                         <StyledTabPanel>

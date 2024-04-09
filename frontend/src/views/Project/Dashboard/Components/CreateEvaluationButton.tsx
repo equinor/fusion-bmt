@@ -9,8 +9,8 @@ import { Evaluation } from '../../../../api/models'
 import { EVALUATION_FIELDS_FRAGMENT } from '../../../../api/fragments'
 import CreateEvaluationDialog from './CreateEvaluationDialog'
 import { useEffectNotOnMount } from '../../../../utils/hooks'
-import { useCurrentUser } from '@equinor/fusion'
 import { getCachedRoles } from "../../../../utils/helpers"
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 
 interface CreateEvaluationButtonProps {
     projectId: string
@@ -48,7 +48,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
                     <div style={{ marginRight: 20 }}>
                         <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
                             Create evaluation
-                        </Button> 
+                        </Button>
                     </div>
                 )}
                 {showDialog && (

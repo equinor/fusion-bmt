@@ -15,6 +15,7 @@ namespace api.Models
         public string ExternalId { get; set; }
         [Required]
         public string FusionProjectId { get; set; }
+        public string IndicatorEvaluationId { get; set; }
         [Required]
         public DateTimeOffset CreateDate { get; set; }
         [Required]
@@ -41,6 +42,8 @@ namespace api.Models
         public virtual ICollection<Question> Questions { get; private set; }
         [Required]
         public virtual Project Project { get; set; }
+        [Required]
+        public string ProjectId { get; set; }
 
         public virtual string Summary { get; set; }
 

@@ -71,11 +71,13 @@ describe('Test getFilledUserAnswersForProgression', () => {
         participants: [],
         progression: Progression.Preparation,
         status: Status.Active,
+        projectId: '',
         project: {
             createDate: new Date(),
             evaluations: [],
             fusionProjectId: '',
             id: '',
+            externalId: '',
         },
         questions: [],
     }
