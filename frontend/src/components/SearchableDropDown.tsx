@@ -1,5 +1,5 @@
 import React from 'react'
-import { 
+import {
     DropdownProvider,
     Dropdown,
     SearchableDropdownResolver,
@@ -8,7 +8,7 @@ import {
 } from '@equinor/fusion-react-searchable-dropdown'
 
 interface Props {
-    options: { id: string; title: string;}[]
+    options: { id: string; title: string | undefined; }[]
     searchQuery: (queryString: string) => SearchableDropdownResult | Promise<SearchableDropdownResult>
     onSelect: (event: any) => void
     label: string

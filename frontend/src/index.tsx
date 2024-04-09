@@ -1,6 +1,5 @@
 import React, { createElement, useEffect } from 'react'
 import { createRoot } from "react-dom/client"
-import { registerApp, ContextTypes, Context, useAppConfig, useFusionContext, useCurrentUser, useFusionEnvironment } from '@equinor/fusion'
 import { ComponentRenderArgs, createComponent, createLegacyApp, makeComponent } from "@equinor/fusion-framework-react-app"
 import { ApolloProvider } from '@apollo/client'
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'

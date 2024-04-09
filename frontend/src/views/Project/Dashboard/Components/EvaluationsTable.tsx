@@ -16,7 +16,7 @@ import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
 import SortableTable, { Column } from '../../../../components/SortableTable'
 import ProgressStatusIcon from './ProgressStatusIcon'
-import { useCurrentContext } from '@equinor/fusion'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 const { Row, Cell } = Table
 
@@ -47,7 +47,7 @@ interface Props {
 }
 
 const EvaluationsTable = ({ evaluations }: Props) => {
-    const currentProject = useCurrentContext()
+    const currentProject = useModuleCurrentContext()
 
     if (currentProject === null || currentProject === undefined) {
         return <p>No project selected</p>
@@ -106,9 +106,9 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                 if (getLastCharacter(location.pathname) === "/") {
                     return ({ ...location, pathname: `evaluation/${evaluation.id}` })
                 }
-                return ({ ...location, pathname: `${currentProject.id}/evaluation/${evaluation.id}` })
+                return ({ ...location, pathname: `${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
             }
-            return ({ ...location, pathname: `/${currentProject.id}/evaluation/${evaluation.id}` })
+            return ({ ...location, pathname: `/${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
         }
 
         return (

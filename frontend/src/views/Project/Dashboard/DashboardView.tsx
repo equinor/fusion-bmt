@@ -83,7 +83,7 @@ const DashboardView = ({ project }: Props) => {
         loading: loadingUserEvaluations,
         evaluations: userEvaluations,
         error: errorUserEvaluations,
-    } = useUserEvaluationsQuery(currentUser.id)
+    } = useUserEvaluationsQuery(currentUser.localAccountId)
 
     const {
         loading: loadingProjectEvaluations,

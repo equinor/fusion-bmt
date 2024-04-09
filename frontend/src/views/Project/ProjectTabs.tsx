@@ -4,7 +4,6 @@ import { ApolloError, gql, useQuery } from '@apollo/client'
 import { RouteComponentProps } from 'react-router-dom'
 import ErrorMessage from '../../components/ErrorMessage'
 import { Tabs } from '@equinor/eds-core-react'
-import { useCurrentContext } from '@equinor/fusion'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 
 import { Project } from '../../api/models'

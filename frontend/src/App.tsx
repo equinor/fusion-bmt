@@ -1,5 +1,4 @@
 import React from 'react'
-import { useCurrentContext } from '@equinor/fusion'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 import ProjectTabs from './views/Project/ProjectTabs'
 import EvaluationView from './views/Evaluation/EvaluationView'

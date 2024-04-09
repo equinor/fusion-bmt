@@ -1,7 +1,6 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { setContext } from '@apollo/client/link/context'
-import { IFusionContext } from '@equinor/fusion'
 import { TokenRefreshLink } from 'apollo-link-token-refresh'
 import jwt_decode from 'jwt-decode'
 
@@ -46,7 +45,6 @@ const refreshLink = new TokenRefreshLink({
     },
     fetchAccessToken: () => {
         const contextStore: { [key: string]: any } = window
-        const context: IFusionContext = contextStore[FUSION_APP_KEY]
         return new Promise(() => getToken())
     },
     handleFetch: (token: string) => {

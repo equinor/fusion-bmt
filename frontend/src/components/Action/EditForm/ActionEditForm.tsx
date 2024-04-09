@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { PersonDetails } from '@equinor/fusion'
 import { Button, Icon, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
 import { Grid } from '@mui/material'
 import styled from 'styled-components'
@@ -15,6 +14,7 @@ import ErrorBanner from '../../ErrorBanner'
 import { genericErrorMessage } from '../../../utils/Variables'
 import { toCapitalizedCase } from '../../../utils/helpers'
 import SearchableDropdown from '../../../components/SearchableDropDown'
+import { PersonDetails } from '@equinor/fusion-react-person'
 
 
 const StyledDate = styled(Typography)`
@@ -79,7 +79,7 @@ const ActionEditForm = ({
         useShowErrorHook(apiErrorClosingRemark)
 
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails.azureUniqueId,
+        id: personDetails.azureId,
         title: personDetails.name,
     }))
 
@@ -202,7 +202,7 @@ const ActionEditForm = ({
                             setAssignedToId(selectedOption.id)
                         }}
                         searchQuery={async (searchTerm: string) => {
-                            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                            return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
                         } }
                     />
                 </Grid>

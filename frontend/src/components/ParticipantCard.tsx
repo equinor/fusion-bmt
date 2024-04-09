@@ -1,15 +1,16 @@
-import { PersonDetails, useApiClients } from '@equinor/fusion'
-import { PersonAvatar, PersonResolver } from '@equinor/fusion-react-person'
+import { PersonAvatar, PersonDetails } from '@equinor/fusion-react-person'
 import { Box, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { Participant } from '../api/models'
+import { usePeopleApi } from '../api/usePeopleApi'
 
 interface ParticipantCardProps {
     participant: Participant
 }
 
 const ParticipantCard = ({ participant }: ParticipantCardProps) => {
-    const apiClients = useApiClients()
+
+    const apiClients = usePeopleApi()
 
     const [isFetchingPerson, setIsFetchingPerson] = useState<boolean>(true)
     const [personDetails, setPersonDetails] = useState<PersonDetails>()
@@ -17,7 +18,7 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     useEffect(() => {
         let isMounted = true
 
-        apiClients.people.getPersonDetailsAsync(participant.azureUniqueId).then(response => {
+        apiClients.getById(participant.azureUniqueId).then(response => {
             const personDetails = response.data
             if (isMounted) {
                 setPersonDetails(personDetails)
@@ -33,7 +34,7 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     return (
         <>
             <Box p="4px">
-                <PersonAvatar azureId={personDetails?.azureUniqueId} />
+                <PersonAvatar azureId={personDetails?.azureId} />
                 <Typography variant="body1">{personDetails?.name}</Typography>
             </Box>
         </>

@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { tokens } from '@equinor/eds-tokens'
-import { PersonDetails, Context } from '@equinor/fusion'
+import { Context } from '@equinor/fusion'
 import { Table, Typography } from '@equinor/eds-core-react'
 
 import { Action, Barrier, Organization } from '../../api/models'
@@ -11,6 +11,7 @@ import { sort, SortDirection, sortPriority } from '../../utils/sort'
 import { barrierToString, organizationToString } from '../../utils/EnumToString'
 import { getFusionProjectName } from '../../utils/helpers'
 import PriorityIndicator from '../Action/PriorityIndicator'
+import { PersonDetails } from '@equinor/fusion-react-person'
 
 const { Row, Cell } = Table
 
@@ -55,7 +56,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
 
     const assignedPersonDetails = (action: Action): PersonDetails | undefined => {
         const assignedToId = action.assignedTo?.azureUniqueId
-        return personDetailsList.find((p: PersonDetails) => p.azureUniqueId === assignedToId)
+        return personDetailsList.find((p: PersonDetails) => p.azureId === assignedToId)
     }
 
     const sortOnAccessor = (a: ActionWithAdditionalInfo, b: ActionWithAdditionalInfo, accessor: string, sortDirection: SortDirection) => {
@@ -64,7 +65,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                 const assignedToA = assignedPersonDetails(a.action)
                 const assignedToB = assignedPersonDetails(b.action)
 
-                return assignedToA && assignedToB ? sort(assignedToA.name, assignedToB.name, sortDirection) : 0
+                return assignedToA && assignedToB ? sort(assignedToA.name!, assignedToB.name!, sortDirection) : 0
             }
             case 'priority':
                 return sortPriority(a.action.priority, b.action.priority, sortDirection)

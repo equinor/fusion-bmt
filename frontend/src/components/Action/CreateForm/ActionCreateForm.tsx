@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { PersonDetails } from '@equinor/fusion'
 import { Button, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
 import { Grid } from '@mui/material'
 import { Participant, Priority, Question } from '../../../api/models'
@@ -9,6 +8,7 @@ import { DataToCreateAction } from './ActionCreateSidebarWithApi'
 import ButtonWithSaveIndicator from '../../ButtonWithSaveIndicator'
 import SearchableDropdown from '../../../components/SearchableDropDown'
 import { toCapitalizedCase } from '../../../utils/helpers'
+import { PersonDetails } from '@equinor/fusion-react-person'
 interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
@@ -40,7 +40,7 @@ const ActionCreateForm = ({
     const [description, setDescription] = useState<string>('')
 
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails.azureUniqueId,
+        id: personDetails.azureId,
         title: personDetails.name,
     }))
 
@@ -125,7 +125,7 @@ const ActionCreateForm = ({
                             setAssignedToId(selectedOption.id)
                         }}
                         searchQuery={async (searchTerm: string) => {
-                            return assigneesOptions.filter(option => option.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                            return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
                         } }
                     />
                 </Grid>

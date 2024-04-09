@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { PersonDetails, useApiClients, ContextTypes } from '@equinor/fusion'
 import { Validity } from '../components/Action/utils'
 import { deriveNewSavingState, updateValidity } from '../views/helpers'
 import { SavingState } from './Variables'
 import { Evaluation } from '../api/models'
 import { ApolloError } from '@apollo/client'
+import { PersonDetails } from '@equinor/fusion-react-person'
+import { usePeopleApi } from '../api/usePeopleApi'
+import { useProjectApi } from '../api/useProjectApi'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -25,11 +27,11 @@ interface PersonDetailsResult {
 export const useAllPersonDetailsAsync = (azureUniqueIds: string[]): PersonDetailsResult => {
     const [personDetailsList, setPersonDetailsList] = useState<PersonDetails[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const apiClients = useApiClients()
+    const apiClients = usePeopleApi()
 
     const getAllPersonDetails = async (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
         const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
-            return apiClients.people.getPersonDetailsAsync(azureUniqueId).then(response => {
+            return apiClients.getById(azureUniqueId).then(response => {
                 return response.data
             })
         })
@@ -77,7 +79,7 @@ export const noPortfolioKey = 'No portfolio'
 export const noProjectMasterTitle = 'No project master title'
 
 export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsByProjectMasterAndPortfolio => {
-    const apiClients = useApiClients()
+    const apiClients = useProjectApi()
     const [allEvaluationsWithProjectMasterAndPortfolio, setAllEvaluationsWithProjectMasterPortfolio] =
         React.useState<EvaluationsByProjectMasterAndPortfolio>({})
 
@@ -94,10 +96,10 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
     }
 
     const lookupPortfolioAndProjectMaster = async (projectId: string) => {
-        let project = await apiClients.context.getContextAsync(projectId)
+        let project = await apiClients.getById(projectId)
         let projectMasterId = project.data.value.projectMasterId
         if (projectMasterId) {
-            const projectMaster = await apiClients.context.queryContextsAsync(projectMasterId, ContextTypes.ProjectMaster)
+            const projectMaster = await apiClients.getById(projectMasterId)
             const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
             const projectMasterTitle = projectMaster.data[0].title
             return [portfolio, projectMasterTitle]
