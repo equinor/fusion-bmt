@@ -15,11 +15,31 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     const [isFetchingPerson, setIsFetchingPerson] = useState<boolean>(true)
     const [personDetails, setPersonDetails] = useState<PersonDetails>()
 
+    const apiResponseToPersonDetails = (response: any): PersonDetails => {
+        return {
+            azureId: response.azureUniqueId,
+            name: response.name,
+            jobTitle: response.jobTitle,
+            department: response.department,
+            mail: response.mail,
+            upn: response.upn,
+            mobilePhone: response.mobilePhone,
+            accountType: response.accountType,
+            officeLocation: response.officeLocation,
+            managerAzureUniqueId: response.managerAzureUniqueId,
+        }
+
+    }
+
     useEffect(() => {
         let isMounted = true
 
+        console.log("ParticipantCard: useEffect: participant: ", participant)
+
+
         apiClients.getById(participant.azureUniqueId).then(response => {
-            const personDetails = response.data
+
+            const personDetails = apiResponseToPersonDetails(response)
             if (isMounted) {
                 setPersonDetails(personDetails)
                 setIsFetchingPerson(false)

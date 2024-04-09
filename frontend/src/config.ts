@@ -9,6 +9,8 @@ export const configure: AppModuleInitiator = (configurator, args) => {
 
     configurator.useFrameworkServiceClient("portal")
     configurator.useFrameworkServiceClient('people')
+    configurator.useFrameworkServiceClient('context')
+    configurator.useFrameworkServiceClient('projects')
     enableServices(configurator)
 
     enableNavigation(configurator, basename)

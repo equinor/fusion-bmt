@@ -101,12 +101,30 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             })
         )
 
+        const apiResponseToPersonDetails = (response: any[]): PersonDetails[] => {
+            return response.map((person: any) => {
+                return {
+                    azureId: person.azureUniquePersonId,
+                    name: person.name,
+                    jobTitle: person.jobTitle,
+                    department: person.department,
+                    mail: person.mail,
+                    upn: person.upn,
+                    mobilePhone: person.mobilePhone,
+                    accountType: person.accountType,
+                    officeLocation: person.officeLocation,
+                    managerAzureUniqueId: person.managerAzureUniqueId,
+                }
+            })
+        }
+
     const searchPersons = () => {
         if (searchQuery) {
             setIsSearching(true)
             apiClients.search(searchQuery)
                 .then(res => {
-                    setSearchResults(res.data)
+                    const result = apiResponseToPersonDetails(res)
+                    setSearchResults(result)
                 })
                 .finally(() => {
                     setIsSearching(false)

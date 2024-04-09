@@ -1,13 +1,13 @@
 import { useCurrentUser } from '@equinor/fusion-framework-react-app/framework';
 import { useCallback } from 'react';
-import { useProjectClient, projectClientHeaders } from './useProjectClient';
+import { useProjectsClient, projectClientHeaders } from './useProjectsClient';
 
-export const useProjectApi = () => {
-    const httpClient = useProjectClient();
+export const useProjectsApi = () => {
+    const httpClient = useProjectsClient();
     const user = useCurrentUser();
 
     const getById = useCallback(async (id: string): Promise<any> => {
-        return await httpClient.json(`/projects/${id}`, {
+        return await httpClient.json(`/projects/${id}?api-version=1.0`, {
             headers: projectClientHeaders,
         })
     }, [httpClient]);

@@ -18,14 +18,14 @@ import {
 import { CircularProgress } from '@equinor/eds-core-react'
 import { centered } from '../../../utils/styles'
 import { genericErrorMessage } from '../../../utils/Variables'
-import { useProjectApi } from '../../../api/useProjectApi'
+import { useProjectsApi } from '../../../api/useProjectsApi'
 
 interface Props {
     azureUniqueId: string
 }
 
 const ActionsView = ({ azureUniqueId }: Props) => {
-    const apiClients = useProjectApi()
+    const apiClients = useProjectsApi()
 
     const { loading: loadingActions, actions, error: errorLoadingActions } = useActionsQuery(azureUniqueId)
     const nonCancelledActions = actions.filter(a => !a.isVoided)

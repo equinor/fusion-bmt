@@ -6,7 +6,7 @@ import { Evaluation } from '../api/models'
 import { ApolloError } from '@apollo/client'
 import { PersonDetails } from '@equinor/fusion-react-person'
 import { usePeopleApi } from '../api/usePeopleApi'
-import { useProjectApi } from '../api/useProjectApi'
+import { useProjectsApi } from '../api/useProjectsApi'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -79,7 +79,7 @@ export const noPortfolioKey = 'No portfolio'
 export const noProjectMasterTitle = 'No project master title'
 
 export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsByProjectMasterAndPortfolio => {
-    const apiClients = useProjectApi()
+    const apiClients = useProjectsApi()
     const [allEvaluationsWithProjectMasterAndPortfolio, setAllEvaluationsWithProjectMasterPortfolio] =
         React.useState<EvaluationsByProjectMasterAndPortfolio>({})
 

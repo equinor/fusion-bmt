@@ -13,7 +13,7 @@ export const usePeopleApi = () => {
     }, [httpClient]);
 
     const search = useCallback(async (query: string): Promise<any> => {
-        return await httpClient.json(`/persons?$search=${query}`, {
+        return await httpClient.json(`/persons?query=${query}&api-version=1.0`, {
             headers: peopleClientHeaders,
         });
     }, [httpClient])
