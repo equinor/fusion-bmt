@@ -485,6 +485,11 @@ namespace api.GQL
             return _questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
         }
 
+        public class BMTScore
+        {
+            public double Value { get; set; }
+        }
+
         public async Task<BMTScore> GenerateBMTScore(string evaluationId)
         {
             var score = await _indicatorService.GenerateBMTScore(evaluationId);
