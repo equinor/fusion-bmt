@@ -150,6 +150,12 @@ namespace api.GQL
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
+            if (evaluation.Progression != Progression.FollowUp)
+            {
+                string msg = "Evaluation must be in FollowUp progression to set as active indicator for project";
+                throw new InvalidOperationException(msg);
+            }
+
             var roles = _authService.GetRoles();
 
             if (!roles.Contains("Role.Admin"))
@@ -454,14 +460,10 @@ namespace api.GQL
             return _questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
         }
 
-        public class Score {
-            public double Value { get; set; }
-        }
-
-        public async Task<Score> GenerateBMTScore(string evaluationId)
+        public async Task<BMTScore> GenerateBMTScore(string evaluationId)
         {
             var score = await _indicatorService.GenerateBMTScore(evaluationId);
-            return new Score { Value = score };
+            return new BMTScore { Value = score };
         }
 
         /* Helpers */

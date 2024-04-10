@@ -232,6 +232,12 @@ namespace api.Models
         public virtual Action Action { get; set; }
     }
 
+    public class BMTScore
+    {
+        [Required]
+        public double Value { get; set; }
+    }
+
     public enum Status
     {
         Active, Inactive, Voided
