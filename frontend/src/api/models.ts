@@ -85,6 +85,11 @@ export enum ApplyPolicy {
   Validation = 'VALIDATION'
 }
 
+export type BmtScore = {
+  __typename?: 'BMTScore';
+  value: Scalars['Float']['output'];
+};
+
 export enum Barrier {
   Gm = 'GM',
   Ps1 = 'PS1',
@@ -342,7 +347,7 @@ export type Mutation = {
   deleteQuestionTemplate?: Maybe<QuestionTemplate>;
   editAction?: Maybe<Action>;
   editQuestionTemplate?: Maybe<QuestionTemplate>;
-  generateBMTScore?: Maybe<Score>;
+  generateBMTScore?: Maybe<BmtScore>;
   progressEvaluation?: Maybe<Evaluation>;
   progressParticipant?: Maybe<Participant>;
   removeFromProjectCategories?: Maybe<QuestionTemplate>;
@@ -723,11 +728,6 @@ export type RoleOperationFilterInput = {
   in?: InputMaybe<Array<Role>>;
   neq?: InputMaybe<Role>;
   nin?: InputMaybe<Array<Role>>;
-};
-
-export type Score = {
-  __typename?: 'Score';
-  value: Scalars['Float']['output'];
 };
 
 export enum Severity {

@@ -40,6 +40,7 @@ export const EVALUATION_DASHBOARD_FIELDS_FRAGMENT = gql`
         progression
         createDate
         status
+        projectId
         project {
             fusionProjectId
             indicatorEvaluationId
