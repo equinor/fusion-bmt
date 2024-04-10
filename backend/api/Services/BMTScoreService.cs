@@ -22,55 +22,56 @@ namespace api.Services
         public async Task<List<BMTScore>> GenerateBMTScores()
         {
             var projectsWithIndicator = await _context.Projects.Where(p => p.IndicatorEvaluationId != null).ToListAsync();
-            var bmtScores = new List<BMTScore>();
 
-            foreach (var project in projectsWithIndicator)
-            {
-                var scores = await GenerateBMTScore(project.IndicatorEvaluationId);
+            var scoreTasks = projectsWithIndicator.Select(p => GenerateBMTScore(p.IndicatorEvaluationId, p.Id));
 
-                bmtScores.Add(new BMTScore
-                {
-                    ProjectId = project.Id,
-                    EvaluationId = project.IndicatorEvaluationId,
-                    WorkshopScore = scores.Item1,
-                    FollowUpScore = scores.Item2,
-                });
-            }
+            var bmtScores = await Task.WhenAll(scoreTasks);
 
-            return bmtScores;
+            return bmtScores.ToList();
         }
 
-
-        public async Task<(double, double)> GenerateBMTScore(string evaluationId)
+        public async Task<BMTScore> GenerateBMTScore(string evaluationId, string projectId)
         {
-            Evaluation evaluation = await _context.Evaluations
-                .Include(e => e.Questions)
-                .ThenInclude(q => q.Answers)
-                .FirstOrDefaultAsync(e => e.Id == evaluationId) ?? throw new ArgumentException("Evaluation not found");
-
-            var answers = evaluation.Questions.SelectMany(q => q.Answers).Where(a => a.Progression == Progression.FollowUp);
-
-            if (!answers.Any())
+            if (string.IsNullOrEmpty(evaluationId) || string.IsNullOrEmpty(projectId))
             {
-                return (0, 0);
+                throw new ArgumentException("EvaluationId and ProjectId cannot be null or empty.");
             }
 
-            var workshopScore = CalculateScore(evaluation, Progression.Workshop);
-            var followUpScore = CalculateScore(evaluation, Progression.FollowUp);
+            var (WorkshopScore, FollowUpScore) = await CalculateScores(evaluationId);
+
+            return new BMTScore
+            {
+                ProjectId = projectId,
+                EvaluationId = evaluationId,
+                WorkshopScore = WorkshopScore,
+                FollowUpScore = FollowUpScore,
+            };
+        }
+
+        private async Task<(double WorkshopScore, double FollowUpScore)> CalculateScores(string evaluationId)
+        {
+            var answers = await _context.Answers
+                .Include(a => a.Question)
+                .Where(a => a.Question.EvaluationId == evaluationId)
+                .ToListAsync();
+
+            var workshopAnswers = answers.Where(a => a.Progression == Progression.Workshop);
+            var followUpAnswers = answers.Where(a => a.Progression == Progression.FollowUp);
+
+            var workshopScore = CalculateScore(workshopAnswers);
+            var followUpScore = CalculateScore(followUpAnswers);
 
             return (workshopScore, followUpScore);
         }
 
-        private static double CalculateScore(Evaluation evaluation, Progression progression)
+        private static double CalculateScore(IEnumerable<Answer> answers)
         {
-            var answers = evaluation.Questions.SelectMany(q => q.Answers).Where(a => a.Progression == progression);
-
-            if (!answers.Any())
+            var totalAnswers = answers.Count();
+            if (totalAnswers == 0)
             {
                 return 0;
             }
 
-            var totalAnswers = answers.Count();
             var onTrackAnswers = answers.Count(a => a.Severity == Severity.OnTrack);
 
             return (double)onTrackAnswers / totalAnswers;
