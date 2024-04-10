@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@mui/material'
-import { Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
+import { Button, Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
 import ErrorMessage from '../../../components/ErrorMessage'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import { getCachedRoles } from '../../../utils/helpers'
@@ -67,6 +67,7 @@ const DashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
 
     const { generateBMTScore, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoreMutation()
+    const { setEvaluationStatus, loading, error } = useSetProjectIndicatorMutation()
 
     if (!currentUser) {
         return <p>Please log in.</p>
@@ -113,6 +114,10 @@ const DashboardView = ({ project }: Props) => {
             console.log('BMT Score generated: ', score)
         }
     }, [projectEvaluations]);
+
+    const setAsIndicator = (projectId: string, evaluationId: string) => {
+        setEvaluationStatus(projectId, evaluationId)
+    }
 
     return (
         <div style={{ margin: 20 }}>
@@ -174,6 +179,27 @@ const DashboardView = ({ project }: Props) => {
                     )}
                     {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
                     {errorActiveEvaluations !== undefined && errorMessage}
+                </>
+            )}
+            {projectEvaluationsSelected && (
+                <>
+                    {projectEvaluations?.map(evaluation => {
+                        return (
+                            <div key={evaluation.id}>
+                                <Typography variant="h3">{evaluation.name}</Typography>
+                                <Typography variant="h3">{evaluation.id}</Typography>
+                                <Typography variant="body_short">{evaluation.status}</Typography>
+                                <Typography variant="body_short">{evaluation.project.indicatorEvaluationId}</Typography>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setAsIndicator(evaluation.projectId, evaluation.id)}
+                                    // disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
+                                >
+                                    Set as indicator for project
+                                </Button>
+                            </div>
+                        )
+                    })}
                 </>
             )}
         </div>
@@ -296,6 +322,35 @@ const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
         generateBMTScore: generateBMTScore,
         loading,
         score: data?.value,
+        error,
+    }
+}
+
+interface setProjectIndicatorMutationProps {
+    setEvaluationStatus: (projectId: string, evaluationId: string) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
+    const SET_EVALUATION_STATUS_MUTATION = gql`
+        mutation SetIndicatorEvaluation($projectId: String!, $evaluationId: String!) {
+            setIndicatorEvaluation(projectId: $projectId, evaluationId: $evaluationId) {
+                fusionProjectId
+                indicatorEvaluationId
+            }
+        }
+    `
+
+    const [setEvaluationStatusApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
+
+    const setEvaluationStatus = (projectId: string, evaluationId: string) => {
+        setEvaluationStatusApolloFunc({ variables: { projectId, evaluationId } })
+    }
+
+    return {
+        setEvaluationStatus,
+        loading,
         error,
     }
 }
