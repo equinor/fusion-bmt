@@ -71,7 +71,7 @@ namespace api.GQL
             }
             catch (NotFoundInDBException)
             {
-                project = _projectService.Create(externalID);
+                project = _projectService.Create(externalID, fusionProjectID);
                 _logger.LogInformation($"Created new project with fusionProjectId: {fusionProjectID}");
             }
             return project;

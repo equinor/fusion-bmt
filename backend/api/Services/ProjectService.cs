@@ -14,14 +14,14 @@ namespace api.Services
         {
             _context = context;
         }
-        public Project Create(string externalID)
+        public Project Create(string externalID, string fusionProjectID)
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;
 
             Project newProject = new Project
             {
                 ExternalId = externalID,
-                FusionProjectId = "",
+                FusionProjectId = fusionProjectID,
                 CreateDate = createDate
             };
 

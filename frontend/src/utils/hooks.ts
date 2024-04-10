@@ -6,7 +6,7 @@ import { Evaluation } from '../api/models'
 import { ApolloError } from '@apollo/client'
 import { PersonDetails } from '@equinor/fusion-react-person'
 import { usePeopleApi } from '../api/usePeopleApi'
-import { useProjectsApi } from '../api/useProjectsApi'
+import { useContextApi } from '../api/useContextApi'
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -79,7 +79,7 @@ export const noPortfolioKey = 'No portfolio'
 export const noProjectMasterTitle = 'No project master title'
 
 export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsByProjectMasterAndPortfolio => {
-    const apiClients = useProjectsApi()
+    const apiClients = useContextApi()
     const [allEvaluationsWithProjectMasterAndPortfolio, setAllEvaluationsWithProjectMasterPortfolio] =
         React.useState<EvaluationsByProjectMasterAndPortfolio>({})
 
@@ -97,11 +97,10 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
 
     const lookupPortfolioAndProjectMaster = async (projectId: string) => {
         let project = await apiClients.getById(projectId)
-        let projectMasterId = project.data.value.projectMasterId
+        let projectMasterId = project.externalId
         if (projectMasterId) {
-            const projectMaster = await apiClients.getById(projectMasterId)
-            const portfolio = projectMaster.data[0].value.portfolioOrganizationalUnit
-            const projectMasterTitle = projectMaster.data[0].title
+            const portfolio = project.value.portfolioOrganizationalUnit
+            const projectMasterTitle = project.title
             return [portfolio, projectMasterTitle]
         } else if (project.data.type.id === "ProjectMaster") {
             const portfolio = project.data.value.portfolioOrganizationalUnit

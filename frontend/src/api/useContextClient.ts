@@ -2,8 +2,8 @@ import { useHttpClient } from '@equinor/fusion-framework-react-app/http';
 
 import type { IHttpClient } from '@equinor/fusion-framework-react-app/http';
 
-export const useProjectsClient = (): IHttpClient => {
-    const client = useHttpClient('projects');
+export const useContextClient = (): IHttpClient => {
+    const client = useHttpClient('context');
     return client;
 };
 
