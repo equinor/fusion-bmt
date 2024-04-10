@@ -21,16 +21,16 @@ const Wrapper = styled.div`
 `
 const ProjectButton = styled(Link)`
     display: flex;
+    gap: 8px;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 30px;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 500;
-    line-height: 1.5rem;
+    line-height: 10px;
+    color: rgba(0, 112, 121, 1);
     cursor: pointer;
-    svg {
-        margin-right: 0.5rem;
-    }
+    
 `
 interface EvaluationViewProps {
     evaluation: Evaluation
@@ -57,10 +57,10 @@ const EvaluationSteps = ({ evaluation, onProgressEvaluationClick, onProgressPart
     return (
         <>
             <Wrapper>
-            <ProjectButton to={(location: any) => getProjectTabsLink(location)}>
-                <Icon size={16} data={arrow_back_ios} />
-                Project dashboard
-            </ProjectButton>
+                <ProjectButton to={(location: any) => getProjectTabsLink(location)}>
+                    <Icon size={16} data={arrow_back_ios} />
+                    Project dashboard
+                </ProjectButton>
             </Wrapper>
 
             <Stepper forceOrder={false} activeStepKey={activeStepKey} hideNavButtons={true}>
