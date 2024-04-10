@@ -102,6 +102,8 @@ namespace api.Models
         [Required]
         public virtual Evaluation Evaluation { get; set; }
         [Required]
+        public string EvaluationId { get; set; }
+        [Required]
         public virtual QuestionTemplate QuestionTemplate { get; set; }
     }
 
