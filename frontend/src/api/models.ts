@@ -153,6 +153,7 @@ export type Evaluation = {
   __typename?: 'Evaluation';
   createDate: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
+  indicatorActivityDate?: Maybe<Scalars['DateTime']['output']>;
   name: Scalars['String']['output'];
   participants: Array<Maybe<Participant>>;
   previousEvaluationId?: Maybe<Scalars['String']['output']>;
@@ -169,6 +170,7 @@ export type EvaluationFilterInput = {
   and?: InputMaybe<Array<EvaluationFilterInput>>;
   createDate?: InputMaybe<DateTimeOperationFilterInput>;
   id?: InputMaybe<StringOperationFilterInput>;
+  indicatorActivityDate?: InputMaybe<DateTimeOperationFilterInput>;
   name?: InputMaybe<StringOperationFilterInput>;
   or?: InputMaybe<Array<EvaluationFilterInput>>;
   participants?: InputMaybe<ListFilterInputTypeOfParticipantFilterInput>;

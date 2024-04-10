@@ -45,6 +45,8 @@ namespace api.Models
         [Required]
         public string ProjectId { get; set; }
 
+        public DateTimeOffset? IndicatorActivityDate { get; set; }
+
         public virtual string Summary { get; set; }
 
         public virtual string PreviousEvaluationId { get; set; }

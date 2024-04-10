@@ -20,7 +20,8 @@ namespace api.Services
             _context = context;
         }
 
-        public async Task<double> GenerateBMTScore(string evaluationId) {
+        public async Task<double> GenerateBMTScore(string evaluationId)
+        {
             Evaluation evaluation = await _context.Evaluations
                 .Include(e => e.Questions)
                 .ThenInclude(q => q.Answers)
@@ -28,7 +29,8 @@ namespace api.Services
 
             var answers = evaluation.Questions.SelectMany(q => q.Answers).Where(a => a.Progression == Progression.FollowUp);
 
-            if (!answers.Any()) {
+            if (!answers.Any())
+            {
                 return 0;
             }
 

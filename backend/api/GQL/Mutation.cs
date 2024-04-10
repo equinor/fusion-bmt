@@ -113,7 +113,6 @@ namespace api.GQL
             {
                 _evaluationService.SetWorkshopCompleteDate(evaluation);
                 _answerService.CreateFollowUpAnswers(evaluation);
-                // TODO Set project.IndicatorEvaluationId to evaluation.Id
                 _projectService.SetIndicatorEvaluation(evaluation.ProjectId, evaluation);
             }
 
@@ -149,6 +148,12 @@ namespace api.GQL
         public Project SetIndicatorEvaluation(string projectId, string evaluationId)
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+
+            if (evaluation.Progression != Progression.FollowUp)
+            {
+                string msg = "Evaluation must be in FollowUp progression to set as active indicator for project";
+                throw new InvalidOperationException(msg);
+            }
 
             var roles = _authService.GetRoles();
 
@@ -259,7 +264,13 @@ namespace api.GQL
             try
             {
                 answer = _answerService.GetAnswer(question, currentUser, progression);
+                var previousSeverity = answer.Severity;
                 _answerService.UpdateAnswer(answer, severity, text);
+
+                if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, previousSeverity))
+                {
+                    UpdateEvaluationIndicatorActivity(evaluation);
+                }
             }
             catch (NotFoundInDBException)
             {
@@ -267,6 +278,26 @@ namespace api.GQL
             }
 
             return answer;
+        }
+
+        private static bool ShouldUpdateEvaluationIndicatorActivity(
+            Evaluation evaluation,
+            Progression questionProgression,
+            Severity newAnswerSeverity,
+            Severity previousAnswerSeverity
+        )
+        {
+            bool isQuestionInFollowUpProgression = questionProgression == Progression.FollowUp;
+            bool isSeverityChanged = newAnswerSeverity != previousAnswerSeverity;
+            bool isEvaluationInFollowUp = evaluation.Progression == Progression.FollowUp;
+
+            return isQuestionInFollowUpProgression && isSeverityChanged && isEvaluationInFollowUp;
+        }
+
+
+        private void UpdateEvaluationIndicatorActivity(Evaluation evaluation)
+        {
+            _evaluationService.SetIndicatorActivity(evaluation);
         }
 
         public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate, Priority priority, string title)
@@ -454,14 +485,15 @@ namespace api.GQL
             return _questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
         }
 
-        public class Score {
+        public class BMTScore
+        {
             public double Value { get; set; }
         }
 
-        public async Task<Score> GenerateBMTScore(string evaluationId)
+        public async Task<BMTScore> GenerateBMTScore(string evaluationId)
         {
             var score = await _indicatorService.GenerateBMTScore(evaluationId);
-            return new Score { Value = score };
+            return new BMTScore { Value = score };
         }
 
         /* Helpers */
