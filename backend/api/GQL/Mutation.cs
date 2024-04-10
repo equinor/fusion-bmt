@@ -212,7 +212,7 @@ namespace api.GQL
             }
             catch
             {
-                destinationProject = _projectService.Create(destinationProjectExternalId);
+                destinationProject = _projectService.Create(destinationProjectExternalId, destinationProjectFusionId);
                 _logger.LogInformation($"Created new project with externalId: {destinationProjectExternalId}");
             }
             Evaluation updatedEvaluation = _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);

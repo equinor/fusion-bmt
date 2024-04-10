@@ -25,7 +25,7 @@ import { centered } from '../../../utils/styles'
 import ErrorBanner from '../../../components/ErrorBanner'
 import { getCachedRoles } from '../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
-import { useProjectsApi } from '../../../api/useProjectsApi'
+import { useContextApi } from '../../../api/useContextApi'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -103,7 +103,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
     const [currentProject, setCurrentProject] = useState<Context>()
     const projectOptions = createDropdownOptionsFromProjects(projects, "1", true)
-    const apiClients = useProjectsApi()
+    const apiClients = useContextApi()
 
     const { createParticipant, loading: createParticipantLoading, error: errorCreateParticipant } = useCreateParticipantMutation()
     const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
