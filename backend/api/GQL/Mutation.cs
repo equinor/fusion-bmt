@@ -113,7 +113,6 @@ namespace api.GQL
             {
                 _evaluationService.SetWorkshopCompleteDate(evaluation);
                 _answerService.CreateFollowUpAnswers(evaluation);
-                // TODO Set project.IndicatorEvaluationId to evaluation.Id
                 _projectService.SetIndicatorEvaluation(evaluation.ProjectId, evaluation);
             }
 
