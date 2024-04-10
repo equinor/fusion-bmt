@@ -23,7 +23,7 @@ namespace api.GQL
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
         private readonly ClosingRemarkService _closingRemarkService;
-        private readonly IndicatorService _indicatorService;
+        private readonly BMTScoreService _indicatorService;
 
         /* Admin Services */
         private readonly QuestionTemplateService _questionTemplateService;
@@ -45,7 +45,7 @@ namespace api.GQL
             QuestionTemplateService questionTemplateService,
             ProjectCategoryService projectCategoryService,
             IAuthService authService,
-            IndicatorService indicatorService,
+            BMTScoreService indicatorService,
             ILogger<Mutation> logger
         )
         {
@@ -485,15 +485,10 @@ namespace api.GQL
             return _questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
         }
 
-        public class BMTScore
+        public async Task<List<BMTScore>> GenerateBMTScores()
         {
-            public double Value { get; set; }
-        }
-
-        public async Task<BMTScore> GenerateBMTScore(string evaluationId)
-        {
-            var score = await _indicatorService.GenerateBMTScore(evaluationId);
-            return new BMTScore { Value = score };
+            var scores = await _indicatorService.GenerateBMTScores();
+            return scores;
         }
 
         /* Helpers */
