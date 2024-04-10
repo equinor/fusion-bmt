@@ -70,6 +70,7 @@ const NominationTable = ({ participants }: NominationTableProps) => {
                         <Table.Row key={participant.id}>
                             <Table.Cell>
                                 <ParticipantCard participant={participant} />
+                                
                             </Table.Cell>
                             <Table.Cell>{organizationToString(participant.organization)}</Table.Cell>
                             <Table.Cell>{roleToString(participant.role)}</Table.Cell>
