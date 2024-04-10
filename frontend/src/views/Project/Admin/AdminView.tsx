@@ -128,7 +128,6 @@ const AdminView = () => {
             <Divider />
             <Box display="flex" height={1}>
                 <Box>
-                    <p>BarrierSidebar</p>
                     <BarrierSidebar barrier={selectedBarrier} onBarrierSelected={onBarrierSelected} />
                 </Box>
                 <Box p="20px" width="1">

@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { tokens } from '@equinor/eds-tokens'
 
 const MenuItem = styled.div<{ $isActive: boolean }>`
+    border-right: 3px solid ${({ $isActive }) => ($isActive ? tokens.colors.interactive.primary__resting.rgba : '#DCDCDC')};
     display: flex;
     justify-content: space-between;
     gap: 20px;
