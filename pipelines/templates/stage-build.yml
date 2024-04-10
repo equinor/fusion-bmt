@@ -27,7 +27,7 @@ stages:
                       arguments: "install --global --version 6.0 dotnet-ef"
                 - task: NodeTool@0
                   inputs:
-                      versionSpec: "16.x"
+                      versionSpec: "18.x"
                 - task: Npm@1
                   displayName: "Install frontend"
                   inputs:
@@ -39,6 +39,41 @@ stages:
                       command: "custom"
                       workingDir: "frontend"
                       customCommand: "run-script build"
+                - task: Bash@3
+                  displayName: 'Extract manifest data from package.json'
+                  inputs:
+                    workingDir: "frontend"
+                    targetType: 'inline'
+                    script: |
+                      cd frontend
+                      echo "$(jq '{
+                        key: .name,
+                        name: .manifest.name,
+                        shortName: .manifest.shortName,
+                        description: .description,
+                        type: .manifest.type,
+                        entry: .main,
+                        version: {
+                            major: .version | split(".")[0],
+                            minor: .version | split(".")[1],
+                            patch: .version | split(".")[2]
+                        }
+                        }' package.json)" > ./dist/app-manifest.json
+                - task: Bash@3
+                  displayName: 'Print app-manifest.json'
+                  inputs:
+                    workingDir: "frontend"
+                    targetType: 'inline'
+                    script: |
+                      cat frontend/dist/app-manifest.json
+                - task: ArchiveFiles@2
+                  displayName: "Archive files"
+                  inputs:
+                    rootFolderOrFile: "frontend/dist"
+                    includeRootFolder: false
+                    archiveType: "zip"
+                    archiveFile: "${{ parameters.workSpace }}/s/frontend/out/bmt.zip"
+                    replaceExistingArchive: true
                 - task: PublishPipelineArtifact@1
                   inputs:
                       targetPath: "${{ parameters.workSpace }}/s/frontend/out/bmt.zip"
