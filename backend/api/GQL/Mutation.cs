@@ -266,6 +266,11 @@ namespace api.GQL
             {
                 answer = _answerService.GetAnswer(question, currentUser, progression);
                 _answerService.UpdateAnswer(answer, severity, text);
+
+                if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, answer))
+                {
+                    UpdateEvaluationIndicatorActivity(evaluation);
+                }
             }
             catch (NotFoundInDBException)
             {
@@ -273,6 +278,26 @@ namespace api.GQL
             }
 
             return answer;
+        }
+
+        private static bool ShouldUpdateEvaluationIndicatorActivity(
+            Evaluation evaluation,
+            Progression questionProgression,
+            Severity newAnswerSeverity,
+            Answer answer
+        )
+        {
+            bool isQuestionInFollowUpProgression = questionProgression == Progression.FollowUp;
+            bool isSeverityChanged = newAnswerSeverity != answer.Severity;
+            bool isEvaluationInFollowUp = evaluation.Progression == Progression.FollowUp;
+
+            return isQuestionInFollowUpProgression && isSeverityChanged && isEvaluationInFollowUp;
+        }
+
+
+        private void UpdateEvaluationIndicatorActivity(Evaluation evaluation)
+        {
+            // _indicatorService.UpdateIndicatorActivity(evaluation);
         }
 
         public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate, Priority priority, string title)
