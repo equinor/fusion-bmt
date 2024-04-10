@@ -49,12 +49,24 @@ const ParticipantCard = ({ participant }: ParticipantCardProps) => {
     }, [])
 
     return (
-        <>
-            <Box p="4px">
-                <PersonAvatar azureId={personDetails?.azureId} />
+        <Box
+            p="14px"
+            display='flex'
+            alignItems='center'
+            justifyContent='flex-start'
+            flexDirection='row'
+            gap='10px'
+        >
+            <PersonAvatar azureId={personDetails?.azureId} />
+            <Box display='flex' flexDirection='column'>
                 <Typography variant="body1">{personDetails?.name}</Typography>
+                <a
+                    href={`mailto:${personDetails?.mail}`}
+                    style={{ color: 'rgba(0, 112, 121, 1)' }}
+                >{personDetails?.mail}
+                </a>
             </Box>
-        </>
+        </Box>
     )
 }
 
