@@ -354,3 +354,4 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
         error,
     }
 }
+
