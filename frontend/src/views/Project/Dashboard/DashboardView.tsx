@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
+import { ApolloError, FetchResult, gql, useMutation, useQuery } from '@apollo/client'
 import { Box } from '@mui/material'
 import { Button, Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
 import ErrorMessage from '../../../components/ErrorMessage'
@@ -109,11 +109,14 @@ const DashboardView = ({ project }: Props) => {
     const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
 
     useEffect(() => {
+    const generateScore = async () => {
         if (projectEvaluations && projectEvaluations?.length > 0 === true) {
-            const score = generateBMTScore(projectEvaluations[0].id)
-            console.log('BMT Score generated: ', score)
+            const score = await generateBMTScore(projectEvaluations[0].id)
+            console.log('BMT Score generated: ', score.data)
         }
-    }, [projectEvaluations]);
+    }
+    generateScore();
+}, [projectEvaluations]);
 
     const setAsIndicator = (projectId: string, evaluationId: string) => {
         setEvaluationStatus(projectId, evaluationId)
@@ -277,15 +280,13 @@ export const useAllEvaluationsQuery = (status: Status): EvaluationQueryProps => 
 }
 
 interface useGenerateBMTScoreMutationProps {
-    generateBMTScore: (evaluationId: string) => void
+    generateBMTScore: (evaluationId: string) => Promise<FetchResult<string>>
     loading: boolean
     score: string
     error: ApolloError | undefined
 }
 
 const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
-    const apolloClient = useApolloClient()
-
     const GENERATE_BMTSCORE = gql`
         mutation GenerateBMTScore($evaluationId: String!) {
             generateBMTScore(evaluationId: $evaluationId) {
@@ -294,34 +295,16 @@ const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
         }
     `
 
-    const [progressEvaluationApolloFunc, { loading, data, error }] = useMutation(GENERATE_BMTSCORE, {
-        update(cache, { data: { generateBMTScore } }) {
-            cache.modify({
-                fields: {
-                    evaluations(existingEvaluations = []) {
-                        const newScoreRef = cache.writeFragment({
-                            data: generateBMTScore,
-                            fragment: gql`
-                        fragment NewScore on Score {
-                            value
-                        }
-                    `,
-                        });
-                        return [...existingEvaluations, newScoreRef];
-                    },
-                },
-            });
-        },
-    })
+    const [generateBMTScoreApolloFunc, { loading, data, error }] = useMutation(GENERATE_BMTSCORE)
 
     const generateBMTScore = (evaluationId: string) => {
-        progressEvaluationApolloFunc({ variables: { evaluationId } })
+        return generateBMTScoreApolloFunc({ variables: { evaluationId } })
     }
 
     return {
         generateBMTScore: generateBMTScore,
         loading,
-        score: data?.value,
+        score: data?.generateBMTScore.value,
         error,
     }
 }
