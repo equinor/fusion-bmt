@@ -108,6 +108,14 @@ namespace api.Services
             return evaluation;
         }
 
+        public Evaluation SetIndicatorActivity(Evaluation evaluation)
+        {
+            evaluation.IndicatorActivityDate = DateTime.UtcNow;
+            _context.Evaluations.Update(evaluation);
+            _context.SaveChanges();
+            return evaluation;
+        }
+
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             try

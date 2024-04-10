@@ -265,9 +265,10 @@ namespace api.GQL
             try
             {
                 answer = _answerService.GetAnswer(question, currentUser, progression);
+                var previousSeverity = answer.Severity;
                 _answerService.UpdateAnswer(answer, severity, text);
 
-                if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, answer))
+                if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, previousSeverity))
                 {
                     UpdateEvaluationIndicatorActivity(evaluation);
                 }
@@ -284,11 +285,11 @@ namespace api.GQL
             Evaluation evaluation,
             Progression questionProgression,
             Severity newAnswerSeverity,
-            Answer answer
+            Severity previousAnswerSeverity
         )
         {
             bool isQuestionInFollowUpProgression = questionProgression == Progression.FollowUp;
-            bool isSeverityChanged = newAnswerSeverity != answer.Severity;
+            bool isSeverityChanged = newAnswerSeverity != previousAnswerSeverity;
             bool isEvaluationInFollowUp = evaluation.Progression == Progression.FollowUp;
 
             return isQuestionInFollowUpProgression && isSeverityChanged && isEvaluationInFollowUp;
@@ -297,7 +298,7 @@ namespace api.GQL
 
         private void UpdateEvaluationIndicatorActivity(Evaluation evaluation)
         {
-            // _indicatorService.UpdateIndicatorActivity(evaluation);
+            _evaluationService.SetIndicatorActivity(evaluation);
         }
 
         public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate, Priority priority, string title)
