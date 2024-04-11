@@ -19,7 +19,7 @@ const Portfolios = ({
                     .reverse()
                     .map(([portfolio, evaluationsWithProjectMasterTitle], index) => {
                         return (
-                            <Accordion.Item key={index}>
+                            <Accordion.Item key={index} isExpanded>
                                 <Accordion.Header>{portfolio}</Accordion.Header>
                                 <Accordion.Panel>
                                     <TablesAndTitles

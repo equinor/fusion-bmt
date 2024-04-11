@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Icon, Table, Tooltip, Typography } from '@equinor/eds-core-react'
-import { warning_filled } from '@equinor/eds-icons'
+import { warning_filled, check } from '@equinor/eds-icons'
 import { tokens } from '@equinor/eds-tokens'
 
 import { useProject } from '../../../../globals/contexts'
@@ -30,6 +30,7 @@ const columns: Column[] = [
     { name: 'Open actions', accessor: 'open_actions', sortable: true },
     { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
     { name: 'Date created', accessor: 'createDate', sortable: true },
+    { name: 'Active evaluation', accessor: 'indicator', sortable: false },
 ]
 
 const Centered = styled.div`
@@ -176,6 +177,19 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                 <CellWithBorder>
                     <Centered>{new Date(evaluation.createDate).toLocaleDateString()}</Centered>
                 </CellWithBorder>
+                {
+                    evaluation.project.indicatorEvaluationId === evaluation.id ?
+                        <CellWithBorder>
+                            <Centered>
+                                <Icon data={check} color="green" />
+                            </Centered>
+                        </CellWithBorder>
+                        :
+                        <CellWithBorder>
+                            <Centered>
+                            </Centered>
+                        </CellWithBorder>
+                }
             </Row>
         )
     }
