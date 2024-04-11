@@ -56,7 +56,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
 
     const assignedPersonDetails = (action: Action): PersonDetails | undefined => {
         const assignedToId = action.assignedTo?.azureUniqueId
-        return personDetailsList.find((p: PersonDetails) => p.azureId === assignedToId)
+        return personDetailsList.find((p: PersonDetails) => p?.azureId === assignedToId)
     }
 
     const sortOnAccessor = (a: ActionWithAdditionalInfo, b: ActionWithAdditionalInfo, accessor: string, sortDirection: SortDirection) => {
