@@ -36,11 +36,25 @@ spec:
       environmentConfig:
         - environment: dev
           imageTagName: ci-release
+          resources:
+            requests:
+              memory: "700Mi"
+              cpu: "500m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
         - environment: pr
           imageTagName: pr-release
           replicas: 0
         - environment: qa
           imageTagName: qa-release
+          resources:
+            requests:
+              memory: "700Mi"
+              cpu: "500m"
+            limits:
+              memory: "3000Mi"
+              cpu: "1000m"
           variables:
             ASPNETCORE_ENVIRONMENT: "Production"
             AppConfiguration__Environment: qa
