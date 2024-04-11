@@ -32,6 +32,17 @@ namespace api.Services
             return bmtScores;
         }
 
+        public async Task<BMTScore> GenerateBMTScore(string projectId) {
+            var project = await _context.Projects.FindAsync(projectId) ?? throw new ArgumentException("ProjectId does not exist.");
+
+            if (string.IsNullOrEmpty(project.IndicatorEvaluationId))
+            {
+                throw new ArgumentException("Project does not have an IndicatorEvaluationId.");
+            }
+
+            return await GenerateBMTScore(project.IndicatorEvaluationId, projectId);
+        }
+
         public async Task<BMTScore> GenerateBMTScore(string evaluationId, string projectId)
         {
             if (string.IsNullOrEmpty(evaluationId) || string.IsNullOrEmpty(projectId))
