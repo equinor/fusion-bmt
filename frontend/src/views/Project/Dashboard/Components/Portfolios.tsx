@@ -5,7 +5,7 @@ import TablesAndTitles from './TablesAndTitles'
 
 interface Props {
     evaluationsWithProjectMasterAndPortfolio: EvaluationsByProjectMasterAndPortfolio
-    generatedBMTScores: String | undefined
+    generatedBMTScores: any
 }
 
 const Portfolios = ({
