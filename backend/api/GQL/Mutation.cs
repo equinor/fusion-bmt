@@ -288,6 +288,10 @@ namespace api.GQL
             Severity previousAnswerSeverity
         )
         {
+            Console.WriteLine("evaluation.Progression: " + evaluation.Progression);
+            Console.WriteLine("questionProgression: " + questionProgression);
+            Console.WriteLine("newAnswerSeverity: " + newAnswerSeverity);
+            Console.WriteLine("previousAnswerSeverity: " + previousAnswerSeverity);
             bool isQuestionInFollowUpProgression = questionProgression == Progression.FollowUp;
             bool isEvaluationInFollowUp = evaluation.Progression == Progression.FollowUp;
             bool isSeverityChanged = newAnswerSeverity != previousAnswerSeverity;
