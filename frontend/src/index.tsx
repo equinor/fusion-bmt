@@ -1,50 +1,23 @@
 import React, { createElement, useEffect } from 'react'
 import { createRoot } from "react-dom/client"
-import { ComponentRenderArgs, createComponent, createLegacyApp, makeComponent } from "@equinor/fusion-framework-react-app"
+import { ComponentRenderArgs, makeComponent } from "@equinor/fusion-framework-react-app"
 import { ApolloProvider } from '@apollo/client'
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev"
-import { ReactPlugin } from '@microsoft/applicationinsights-react-js'
-import { createBrowserHistory } from 'history'
 import { configure } from "./config"
 
-import { createClient, getToken } from './api/graphql'
+import { createClient } from './api/graphql'
 import App from './App'
-// import { config } from './config'
 
 import './styles.css'
-import { ResolveConfiguration } from './utils/config'
-import { configurator } from './configurator'
-
-const browserHistory = createBrowserHistory()
-const reactPlugin = new ReactPlugin()
-// const appInsights = new ApplicationInsights({
-//     config: {
-//         instrumentationKey: config.APP_INSIGHTS,
-//         extensions: [reactPlugin],
-//         extensionConfig: {
-//             [reactPlugin.identifier]: { history: browserHistory },
-//         },
-//     },
-// })
-
-// appInsights.loadAppInsights()
-// appInsights.trackPageView()
+import { resolveConfiguration } from './environmentConfig'
+import { EnvironmentVariables } from './environmentVariables'
 
 const Start = () => {
-    // const runtimeConfig = useAppConfig()
     const [apiUrl, setApiUrl] = React.useState('')
 
-    // const fusionEnvironment = useFusionEnvironment()
-
     React.useLayoutEffect(() => {
-        // if (runtimeConfig.value) {
-        //     // config.API_URL ? setApiUrl(config.API_URL) : setApiUrl(runtimeConfig.value.endpoints['API_URL'])
-        // }
-        // else {
-            // const config = ResolveConfiguration(fusionEnvironment.env)
-            // setApiUrl(config.API_URL)
-            setApiUrl("http://localhost:5000")
-        // }
+        const config = resolveConfiguration(EnvironmentVariables.ENVIRONMENT)
+        setApiUrl(config.REACT_APP_API_BASE_URL)
     }, [])
 
     useEffect(() => {
