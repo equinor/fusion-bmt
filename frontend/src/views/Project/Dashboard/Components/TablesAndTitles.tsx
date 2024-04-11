@@ -22,12 +22,6 @@ interface Props {
 const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores }: Props) => {
     const project = useProject()
 
-
-
-    useEffect(() => {
-        console.log(generatedBMTScores)
-    }, [generatedBMTScores])
-
     return (
         <>
             <Accordion headerLevel="h2">
