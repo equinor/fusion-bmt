@@ -4,11 +4,19 @@ import EvaluationsTable from './EvaluationsTable'
 import { useProject } from '../../../../globals/contexts'
 import { useEffect } from 'react'
 import EvaluationScoreIndicator from '../../../../components/EvaluationScoreIndicator'
+import FollowUpIndicator from '../../../../components/FollowUpIndicator'
 import { noProjectMasterTitle } from '../../../../utils/hooks'
+import styled from 'styled-components'
 
+const Indicators = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+`
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
-    generatedBMTScores: String | undefined
+    generatedBMTScores: any
 }
 
 const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores }: Props) => {
@@ -28,21 +36,37 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores
                         return null
                     }
                     let activityDate = ""
+                    let projectId = ""
+                    let followUpScore = null
                     Object.entries(evaluations).map((info) => {
+
+                        if (info[1].projectId !== projectId) {
+                            projectId = info[1].projectId
+                        }
+
                         if (info[1].project.indicatorEvaluationId === info[1].id) {
+                            // if one evaluation has the indicatorEvaluationId that matches the info id, it should get a check mark in a colon
                             if (info[1].indicatorActivityDate) {
                                 activityDate = info[1].indicatorActivityDate
                             }
                         }
                     })
+                    if (generatedBMTScores) {
+                        generatedBMTScores.generateBMTScores.forEach((score: any, index: any) => {
+                            if (score.projectId === projectId) {
+                                followUpScore = score.followUpScore
+                            }
+                        })
+                    }
 
                     return (
                         <Accordion.Item key={index}>
                             <Accordion.Header>
-                                {projectMasterTitle}
-
-                                <EvaluationScoreIndicator date={activityDate} />
-
+                                <Indicators>
+                                    {projectMasterTitle}
+                                    <FollowUpIndicator value={followUpScore} />
+                                    <EvaluationScoreIndicator date={activityDate} />
+                                </Indicators>
                             </Accordion.Header>
                             <Accordion.Panel>
                                 <EvaluationsTable evaluations={evaluations} />
