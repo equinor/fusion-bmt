@@ -213,7 +213,7 @@ const DashboardView = ({ project }: Props) => {
                                     onClick={() => setAsIndicator(evaluation.projectId, evaluation.id)}
                                 // disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
                                 >
-                                    Set as indicator for project
+                                    Set as indicator for project 
                                 </Button>
                             </div>
                         )
