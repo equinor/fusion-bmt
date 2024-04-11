@@ -363,7 +363,7 @@ interface setEvaluationStatusMutationProps {
     error: ApolloError | undefined
 }
 
-const useSetEvaluationStatusMutation = (): setEvaluationStatusMutationProps => {
+export const useSetEvaluationStatusMutation = (): setEvaluationStatusMutationProps => {
     const SET_EVALUATION_STATUS_MUTATION = gql`
         mutation SetEvaluationStatus($evaluationId: String!, $newStatus: Status!) {
             setEvaluationStatus(evaluationId: $evaluationId, newStatus: $newStatus) {
