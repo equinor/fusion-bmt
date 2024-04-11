@@ -16,6 +16,10 @@ const Circle = styled.div<{ color: string }>`
 const EvaluationScoreIndicator: React.FC<EvaluationScoreIndicatorProps> = ({ date }) => {
     const [diffInMonths, setDiffInMonths] = React.useState<number>(0)
 
+    if (!date) {
+        return null
+    }
+    
     React.useEffect(() => {
         const currentDate = new Date()
         const evaluationDate = new Date(date)
