@@ -107,7 +107,7 @@ const DashboardView = ({ project }: Props) => {
         error: errorHiddenEvaluations,
     } = useAllEvaluationsQuery(Status.Voided)
 
-    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations)
+    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations) // TODO: re render when status changes
 
     const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
 

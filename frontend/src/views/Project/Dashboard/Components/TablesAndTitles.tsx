@@ -64,7 +64,7 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores
                                 </Indicators>
                             </Accordion.Header>
                             <StyledPanel>
-                                <EvaluationsTable evaluations={evaluations} />
+                                <EvaluationsTable evaluations={evaluations} isInPortfolio={true} />
                             </StyledPanel>
                         </Accordion.Item>
                     )

@@ -12,8 +12,6 @@ import {
     visibility
 } from '@equinor/eds-icons'
 import { tokens } from '@equinor/eds-tokens'
-
-import { useProject } from '../../../../globals/contexts'
 import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
@@ -24,23 +22,12 @@ import Bowtie from '../../../../components/Bowtie/Bowtie'
 import SortableTable, { Column } from '../../../../components/SortableTable'
 import ProgressStatusIcon from './ProgressStatusIcon'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
+import { Status } from '../../../../api/models'
 
 const { Row, Cell } = Table
 
 const WARNING_COLOR = tokens.colors.interactive.danger__resting.rgba
-
-const columns: Column[] = [
-    { name: 'Title', accessor: 'name', sortable: true },
-    { name: 'Workflow', accessor: 'progression', sortable: true },
-    { name: 'Bowtie status', accessor: 'bowtie', sortable: false },
-    { name: 'Overdue actions', accessor: 'overdue_actions', sortable: true },
-    { name: 'Open actions', accessor: 'open_actions', sortable: true },
-    { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
-    { name: 'Date created', accessor: 'createDate', sortable: true },
-    { name: 'Active evaluation', accessor: 'indicator', sortable: false },
-    { name: 'Select active evaluation', accessor: 'select', sortable: false },
-    { name: 'Hide evaluation', accessor: 'hide', sortable: false },
-]
 
 const Centered = styled.div`
     display: flex;
@@ -52,25 +39,50 @@ const CellWithBorder = styled(Cell)`
     border-right: 1px solid lightgrey;
 `
 
+const CellButton = styled(Icon)`
+    cursor: pointer;
+
+    &:hover {
+        color: ${tokens.colors.interactive.primary__resting.rgba};
+    }
+`
+
 interface Props {
     evaluations: Evaluation[]
+    isInPortfolio?: boolean
 }
 
-const EvaluationsTable = ({ evaluations }: Props) => {
+const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const currentProject = useModuleCurrentContext()
+    const { setEvaluationStatus } = useSetEvaluationStatusMutation()
+    
+    const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
     const [selectedEvaluation, setSelectedEvaluation] = React.useState<Evaluation | null>(null)
-    const [hiddenEvaluations, setHiddenEvaluations] = React.useState<Evaluation[]>([])
 
-    useEffect(() => {
-        console.log("list of hidden evaluations changed: ", hiddenEvaluations)
-    }, [hiddenEvaluations])
-
-    useEffect(() => {
-        console.log("selected evaluation changed: ", selectedEvaluation)
-    }, [selectedEvaluation])
+    let columns: Column[] = [
+        { name: 'Title', accessor: 'name', sortable: true },
+        { name: 'Workflow', accessor: 'progression', sortable: true },
+        { name: 'Bowtie status', accessor: 'bowtie', sortable: false },
+        { name: 'Overdue actions', accessor: 'overdue_actions', sortable: true },
+        { name: 'Open actions', accessor: 'open_actions', sortable: true },
+        { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
+        { name: 'Date created', accessor: 'createDate', sortable: true },
+        { name: 'Active evaluation', accessor: 'indicator', sortable: false },
+        ...(isInPortfolio ? [
+            { name: 'Select active evaluation', accessor: 'select', sortable: false },
+            { name: 'Hide evaluation', accessor: 'hide', sortable: false }
+        ] : [])
+    ]
 
     if (currentProject === null || currentProject === undefined) {
         return <p>No project selected</p>
+    }
+
+    const hideEvaluation = (evaluation: Evaluation) => {
+        const newStatus = Status.Voided
+        setEvaluationStatus(evaluation.id, newStatus)
+        setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluation.id))
+        //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
     }
 
     const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
@@ -209,31 +221,37 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                             </Centered>
                         </CellWithBorder>
                 }
-                <CellWithBorder>
-                    <Centered>
-                        <Icon
-                            data={selectedEvaluation && selectedEvaluation.id === evaluation.id ? radio_button_selected : radio_button_unselected}
-                            onClick={() => setSelectedEvaluation(selectedEvaluation && selectedEvaluation.id === evaluation.id ? null : evaluation)}
-                        />
-                    </Centered>
-                </CellWithBorder>
-                <Cell>
-                    <Centered>
-                        <Icon
-                            data={hiddenEvaluations.includes(evaluation) ? visibility_off : visibility}
-                            onClick={() => setHiddenEvaluations(hiddenEvaluations.includes(evaluation) ? hiddenEvaluations.filter(e => e !== evaluation) : [...hiddenEvaluations, evaluation])}
-                        />
-                    </Centered>
-                </Cell>
+                {
+                    isInPortfolio &&
+                    <>
+                        <CellWithBorder>
+                            <Centered>
+                                <CellButton
+                                    data={selectedEvaluation && selectedEvaluation.id === evaluation.id ? radio_button_selected : radio_button_unselected}
+                                    onClick={() => setSelectedEvaluation(selectedEvaluation && selectedEvaluation.id === evaluation.id ? null : evaluation)}
+                                />
+                            </Centered>
+                        </CellWithBorder>
+                        <Cell>
+                            <Centered>
+                                <CellButton
+                                    data={visibility_off}
+                                    onClick={() => hideEvaluation(evaluation)}
+                                />
+                            </Centered>
+                        </Cell>
+                    </>
+                }
             </Row>
         )
     }
+
 
     return (
         <>
             <SortableTable
                 columns={columns}
-                data={evaluations}
+                data={visibleEvaluations}
                 sortOnAccessor={sortOnAccessor}
                 renderRow={renderRow}
                 testId="project-table"
