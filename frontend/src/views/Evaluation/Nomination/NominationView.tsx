@@ -33,7 +33,7 @@ interface NominationViewProps {
 }
 
 export const createDropdownOptionsFromProjects = (
-    list: Context[],
+    list: any, // Context[]
     selectedOption: string,
     hasFetched: boolean
 ) => {
@@ -46,19 +46,25 @@ export const createDropdownOptionsFromProjects = (
             },
         ]
     }
-    if (list.length === 0) {
-        return [
-            {
-                title: 'No projects found',
-                id: 'empty',
-            },
-        ]
-    }
-    return list.map((item, index) => ({
-        title: item.title,
-        id: item.id,
-        externalId: item.externalId,
-    }))
+    // if (list.length === 0) {
+    //     return [
+    //         {
+    //             title: 'No projects found',
+    //             id: 'empty',
+    //         },
+    //     ]
+    // }
+    // console.log("list", list)
+    // return list.map((item, index) => ({
+    //     title: item.title,
+    //     id: item.id,
+    //     externalId: item.externalId,
+    // }))
+    return [{
+        title: list.title,
+        id: list.id,
+        externalId: list.externalId,
+    }]
 }
 
 interface SetEvaluationToAnotherProjectMutationProps {
@@ -219,7 +225,8 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                                         value={currentProject?.title}
                                         onSelect={(option: any) => {
                                             const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                                            updateEvaluationToNewProject(selectedOption)}
+                                            updateEvaluationToNewProject(selectedOption)
+                                        }
                                         }
                                         options={projectOptions}
                                         searchQuery={async (searchTerm: string) => {

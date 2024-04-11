@@ -267,10 +267,10 @@ namespace api.GQL
                 var previousSeverity = answer.Severity;
                 _answerService.UpdateAnswer(answer, severity, text);
 
-                if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, previousSeverity))
-                {
-                    UpdateEvaluationIndicatorActivity(evaluation);
-                }
+                // if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, previousSeverity))
+                // {
+                UpdateEvaluationIndicatorActivity(evaluation);
+                // }
             }
             catch (NotFoundInDBException)
             {
