@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Icon, Table, Tooltip, Typography } from '@equinor/eds-core-react'
+import { Icon, Table, Tooltip, Typography, Radio } from '@equinor/eds-core-react'
 import {
     warning_filled,
     check,
@@ -24,6 +24,7 @@ import ProgressStatusIcon from './ProgressStatusIcon'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
+import { ApolloError, useMutation, gql } from '@apollo/client'
 
 const { Row, Cell } = Table
 
@@ -47,6 +48,35 @@ const CellButton = styled(Icon)`
     }
 `
 
+interface setProjectIndicatorMutationProps {
+    setIndicatorStatus: (projectId: string, evaluationId: string) => void
+    loading: boolean
+    error: ApolloError | undefined
+}
+
+const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
+    const SET_EVALUATION_STATUS_MUTATION = gql`
+        mutation SetIndicatorEvaluation($projectId: String!, $evaluationId: String!) {
+            setIndicatorEvaluation(projectId: $projectId, evaluationId: $evaluationId) {
+                fusionProjectId
+                indicatorEvaluationId
+            }
+        }
+    `
+
+    const [setIndicatorApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
+
+    const setIndicatorStatus = (projectId: string, evaluationId: string) => {
+        setIndicatorApolloFunc({ variables: { projectId, evaluationId } })
+    }
+
+    return {
+        setIndicatorStatus,
+        loading,
+        error,
+    }
+}
+
 interface Props {
     evaluations: Evaluation[]
     isInPortfolio?: boolean
@@ -55,9 +85,15 @@ interface Props {
 const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const currentProject = useModuleCurrentContext()
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
-    
+    const { setIndicatorStatus } = useSetProjectIndicatorMutation()
+
     const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
-    const [selectedEvaluation, setSelectedEvaluation] = React.useState<Evaluation | null>(null)
+    console.log(visibleEvaluations)
+
+
+    const setAsIndicator = (projectId: string, evaluationId: string) => {
+        setIndicatorStatus(projectId, evaluationId)
+    }
 
     let columns: Column[] = [
         { name: 'Title', accessor: 'name', sortable: true },
@@ -67,11 +103,12 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         { name: 'Open actions', accessor: 'open_actions', sortable: true },
         { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
         { name: 'Date created', accessor: 'createDate', sortable: true },
-        { name: 'Active evaluation', accessor: 'indicator', sortable: false },
         ...(isInPortfolio ? [
             { name: 'Select active evaluation', accessor: 'select', sortable: false },
             { name: 'Hide evaluation', accessor: 'hide', sortable: false }
-        ] : [])
+        ] : [
+            { name: 'Active evaluation', accessor: 'indicator', sortable: false },
+        ])
     ]
 
     if (currentProject === null || currentProject === undefined) {
@@ -209,38 +246,41 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                     <Centered>{new Date(evaluation.createDate).toLocaleDateString()}</Centered>
                 </CellWithBorder>
                 {
-                    evaluation.project.indicatorEvaluationId === evaluation.id ?
-                        <CellWithBorder>
-                            <Centered>
-                                <Icon data={check} color="green" />
-                            </Centered>
-                        </CellWithBorder>
-                        :
-                        <CellWithBorder>
-                            <Centered>
-                            </Centered>
-                        </CellWithBorder>
-                }
-                {
-                    isInPortfolio &&
-                    <>
-                        <CellWithBorder>
-                            <Centered>
-                                <CellButton
-                                    data={selectedEvaluation && selectedEvaluation.id === evaluation.id ? radio_button_selected : radio_button_unselected}
-                                    onClick={() => setSelectedEvaluation(selectedEvaluation && selectedEvaluation.id === evaluation.id ? null : evaluation)}
-                                />
-                            </Centered>
-                        </CellWithBorder>
-                        <Cell>
-                            <Centered>
-                                <CellButton
-                                    data={visibility_off}
-                                    onClick={() => hideEvaluation(evaluation)}
-                                />
-                            </Centered>
-                        </Cell>
-                    </>
+                    isInPortfolio ? (
+                        <>
+                            <CellWithBorder>
+                                <Centered>
+                                    <Tooltip title={evaluation.progression !== "FOLLOW_UP" ? "Evaluation status must be in 'follow-up'" : "Select as active evaluation"}>
+                                        <Radio
+                                            checked={evaluation.project.indicatorEvaluationId === evaluation.id}
+                                            disabled={evaluation.progression !== "FOLLOW_UP"}
+                                            onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
+                                        />
+                                    </Tooltip>
+                                </Centered>
+                            </CellWithBorder>
+                            <Cell>
+                                <Centered>
+                                    <CellButton
+                                        data={visibility_off}
+                                        onClick={() => hideEvaluation(evaluation)}
+                                    />
+                                </Centered>
+                            </Cell>
+                        </>
+                    ) : (
+                        evaluation.project.indicatorEvaluationId === evaluation.id ?
+                            <CellWithBorder>
+                                <Centered>
+                                    <Icon data={check} color="green" />
+                                </Centered>
+                            </CellWithBorder>
+                            :
+                            <CellWithBorder>
+                                <Centered>
+                                </Centered>
+                            </CellWithBorder>
+                    )
                 }
             </Row>
         )
