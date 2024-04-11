@@ -5,9 +5,13 @@ import TablesAndTitles from './TablesAndTitles'
 
 interface Props {
     evaluationsWithProjectMasterAndPortfolio: EvaluationsByProjectMasterAndPortfolio
+    generatedBMTScores: String | undefined
 }
 
-const Portfolios = ({ evaluationsWithProjectMasterAndPortfolio }: Props) => {
+const Portfolios = ({
+    evaluationsWithProjectMasterAndPortfolio,
+    generatedBMTScores,
+}: Props) => {
     return (
         <>
             <Accordion headerLevel="h3">
@@ -18,7 +22,10 @@ const Portfolios = ({ evaluationsWithProjectMasterAndPortfolio }: Props) => {
                             <Accordion.Item key={index}>
                                 <Accordion.Header>{portfolio}</Accordion.Header>
                                 <Accordion.Panel>
-                                    <TablesAndTitles evaluationsWithProjectMasterTitle={evaluationsWithProjectMasterTitle} />
+                                    <TablesAndTitles
+                                        evaluationsWithProjectMasterTitle={evaluationsWithProjectMasterTitle}
+                                        generatedBMTScores={generatedBMTScores}
+                                    />
                                 </Accordion.Panel>
                             </Accordion.Item>
                         )

@@ -65,6 +65,8 @@ interface Props {
 
 const DashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
+    //generatedBMTScores is an object
+    const [generatedBMTScores, setGeneratedBMTScores] = React.useState<string | undefined>(undefined)
 
     const { generateBMTScores, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoresMutation()
     const { setEvaluationStatus, loading, error } = useSetProjectIndicatorMutation()
@@ -109,14 +111,17 @@ const DashboardView = ({ project }: Props) => {
     const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
 
     useEffect(() => {
-    const generateScore = async () => {
-        if (projectEvaluations && projectEvaluations?.length > 0 === true) {
-            const score = await generateBMTScores()
-            console.log('BMT Score generated: ', score.data)
+        const generateScore = async () => {
+            if (projectEvaluations && projectEvaluations?.length > 0 === true) {
+                const score = await generateBMTScores()
+                if (score.data) {
+                    console.log("bmt score:", score.data)
+                    setGeneratedBMTScores(score.data)
+                }
+            }
         }
-    }
-    generateScore();
-}, [projectEvaluations]);
+        generateScore();
+    }, [projectEvaluations]);
 
     const setAsIndicator = (projectId: string, evaluationId: string) => {
         setEvaluationStatus(projectId, evaluationId)
@@ -178,7 +183,10 @@ const DashboardView = ({ project }: Props) => {
             {portfoliosSelected && (
                 <>
                     {allActiveEvaluationsWithProjectMasterAndPortfolio && (
-                        <Portfolios evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio} />
+                        <Portfolios
+                            evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio}
+                            generatedBMTScores={generatedBMTScores}
+                        />
                     )}
                     {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
                     {errorActiveEvaluations !== undefined && errorMessage}
@@ -196,7 +204,7 @@ const DashboardView = ({ project }: Props) => {
                                 <Button
                                     variant="ghost"
                                     onClick={() => setAsIndicator(evaluation.projectId, evaluation.id)}
-                                    // disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
+                                // disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
                                 >
                                     Set as indicator for project
                                 </Button>
