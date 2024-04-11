@@ -112,16 +112,13 @@ const DashboardView = ({ project }: Props) => {
 
     useEffect(() => {
         const generateScore = async () => {
-            if (projectEvaluations && projectEvaluations?.length > 0 === true) {
-                const score = await generateBMTScores()
-                if (score.data) {
-                    console.log("bmt score:", score.data)
-                    setGeneratedBMTScores(score.data)
-                }
+            const score = await generateBMTScores()
+            if (score.data) {
+                setGeneratedBMTScores(score.data)
             }
         }
         generateScore();
-    }, [projectEvaluations]);
+    }, [])
 
     const setAsIndicator = (projectId: string, evaluationId: string) => {
         setEvaluationStatus(projectId, evaluationId)
