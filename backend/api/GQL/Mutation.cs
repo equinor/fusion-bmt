@@ -492,6 +492,12 @@ namespace api.GQL
             return scores;
         }
 
+        public async Task<BMTScore> GenerateBMTScore(string projectId)
+        {
+            var score = await _indicatorService.GenerateBMTScore(projectId);
+            return score;
+        }
+
         /* Helpers */
         private Participant CurrentUser(Evaluation evaluation)
         {
