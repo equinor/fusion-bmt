@@ -22,12 +22,6 @@ interface Props {
 const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores }: Props) => {
     const project = useProject()
 
-
-
-    useEffect(() => {
-        console.log(generatedBMTScores)
-    }, [generatedBMTScores])
-
     return (
         <>
             <Accordion headerLevel="h2">
@@ -45,7 +39,6 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores
                         }
 
                         if (info[1].project.indicatorEvaluationId === info[1].id) {
-                            // if one evaluation has the indicatorEvaluationId that matches the info id, it should get a check mark in a colon
                             if (info[1].indicatorActivityDate) {
                                 activityDate = info[1].indicatorActivityDate
                             }
