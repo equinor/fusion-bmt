@@ -14,14 +14,16 @@ const Indicators = styled.div`
     align-items: center;
     gap: 10px;
 `
+
+const StyledPanel = styled(Accordion.Panel)`
+    overflow-y: auto;
+`
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
     generatedBMTScores: any
 }
 
 const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores }: Props) => {
-    const project = useProject()
-
     return (
         <>
             <Accordion headerLevel="h2">
@@ -61,9 +63,9 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores
                                     <EvaluationScoreIndicator date={activityDate} />
                                 </Indicators>
                             </Accordion.Header>
-                            <Accordion.Panel>
+                            <StyledPanel>
                                 <EvaluationsTable evaluations={evaluations} />
-                            </Accordion.Panel>
+                            </StyledPanel>
                         </Accordion.Item>
                     )
                 })}

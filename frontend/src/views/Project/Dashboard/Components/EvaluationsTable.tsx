@@ -1,9 +1,16 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Icon, Table, Tooltip, Typography } from '@equinor/eds-core-react'
-import { warning_filled, check } from '@equinor/eds-icons'
+import {
+    warning_filled,
+    check,
+    radio_button_unselected,
+    radio_button_selected,
+    visibility_off,
+    visibility
+} from '@equinor/eds-icons'
 import { tokens } from '@equinor/eds-tokens'
 
 import { useProject } from '../../../../globals/contexts'
@@ -31,6 +38,8 @@ const columns: Column[] = [
     { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
     { name: 'Date created', accessor: 'createDate', sortable: true },
     { name: 'Active evaluation', accessor: 'indicator', sortable: false },
+    { name: 'Select active evaluation', accessor: 'select', sortable: false },
+    { name: 'Hide evaluation', accessor: 'hide', sortable: false },
 ]
 
 const Centered = styled.div`
@@ -49,6 +58,16 @@ interface Props {
 
 const EvaluationsTable = ({ evaluations }: Props) => {
     const currentProject = useModuleCurrentContext()
+    const [selectedEvaluation, setSelectedEvaluation] = React.useState<Evaluation | null>(null)
+    const [hiddenEvaluations, setHiddenEvaluations] = React.useState<Evaluation[]>([])
+
+    useEffect(() => {
+        console.log("list of hidden evaluations changed: ", hiddenEvaluations)
+    }, [hiddenEvaluations])
+
+    useEffect(() => {
+        console.log("selected evaluation changed: ", selectedEvaluation)
+    }, [selectedEvaluation])
 
     if (currentProject === null || currentProject === undefined) {
         return <p>No project selected</p>
@@ -190,6 +209,22 @@ const EvaluationsTable = ({ evaluations }: Props) => {
                             </Centered>
                         </CellWithBorder>
                 }
+                <CellWithBorder>
+                    <Centered>
+                        <Icon
+                            data={selectedEvaluation && selectedEvaluation.id === evaluation.id ? radio_button_selected : radio_button_unselected}
+                            onClick={() => setSelectedEvaluation(selectedEvaluation && selectedEvaluation.id === evaluation.id ? null : evaluation)}
+                        />
+                    </Centered>
+                </CellWithBorder>
+                <Cell>
+                    <Centered>
+                        <Icon
+                            data={hiddenEvaluations.includes(evaluation) ? visibility_off : visibility}
+                            onClick={() => setHiddenEvaluations(hiddenEvaluations.includes(evaluation) ? hiddenEvaluations.filter(e => e !== evaluation) : [...hiddenEvaluations, evaluation])}
+                        />
+                    </Centered>
+                </Cell>
             </Row>
         )
     }
