@@ -18,16 +18,18 @@ namespace api.Services
         {
             _context = context;
         }
-
         public async Task<List<BMTScore>> GenerateBMTScores()
         {
             var projectsWithIndicator = await _context.Projects.Where(p => p.IndicatorEvaluationId != null).ToListAsync();
 
-            var scoreTasks = projectsWithIndicator.Select(p => GenerateBMTScore(p.IndicatorEvaluationId, p.Id));
+            var bmtScores = new List<BMTScore>();
+            foreach (var project in projectsWithIndicator)
+            {
+                var score = await GenerateBMTScore(project.IndicatorEvaluationId, project.Id);
+                bmtScores.Add(score);
+            }
 
-            var bmtScores = await Task.WhenAll(scoreTasks);
-
-            return bmtScores.ToList();
+            return bmtScores;
         }
 
         public async Task<BMTScore> GenerateBMTScore(string evaluationId, string projectId)
