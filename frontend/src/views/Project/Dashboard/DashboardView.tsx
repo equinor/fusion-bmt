@@ -199,27 +199,6 @@ const DashboardView = ({ project }: Props) => {
                     {errorActiveEvaluations !== undefined && errorMessage}
                 </>
             )}
-            {projectEvaluationsSelected && (
-                <>
-                    {projectEvaluations?.map(evaluation => {
-                        return (
-                            <div key={evaluation.id}>
-                                <Typography variant="h3">{evaluation.name}</Typography>
-                                <Typography variant="h3">{evaluation.id}</Typography>
-                                <Typography variant="body_short">{evaluation.status}</Typography>
-                                <Typography variant="body_short">{evaluation.project.indicatorEvaluationId}</Typography>
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => setAsIndicator(evaluation.projectId, evaluation.id)}
-                                // disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
-                                >
-                                    Set as indicator for project 
-                                </Button>
-                            </div>
-                        )
-                    })}
-                </>
-            )}
         </div>
     )
 }
