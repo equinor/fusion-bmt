@@ -604,12 +604,12 @@ export type PriorityOperationFilterInput = {
 };
 
 export enum Progression {
-  Finished = 'FINISHED',
-  FollowUp = 'FOLLOW_UP',
-  Individual = 'INDIVIDUAL',
-  Nomination = 'NOMINATION',
-  Preparation = 'PREPARATION',
-  Workshop = 'WORKSHOP'
+    Nomination = 'NOMINATION',
+    Individual = 'INDIVIDUAL',
+    Preparation = 'PREPARATION',
+    Workshop = 'WORKSHOP',
+    FollowUp = 'FOLLOW_UP',
+    Finished = 'FINISHED'
 }
 
 export type ProgressionOperationFilterInput = {
