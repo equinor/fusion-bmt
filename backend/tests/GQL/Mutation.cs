@@ -25,6 +25,7 @@ namespace tests
         protected readonly ActionService _actionService;
         protected readonly NoteService _noteService;
         protected readonly ClosingRemarkService _closingRemarkService;
+        private readonly BMTScoreService _BMTScoreService;
 
         /* Admin Services */
         protected readonly QuestionTemplateService _questionTemplateService;
@@ -51,6 +52,7 @@ namespace tests
             _closingRemarkService = new ClosingRemarkService(fixture.context);
             _questionTemplateService = new QuestionTemplateService(fixture.context);
             _projectCategoryService = new ProjectCategoryService(fixture.context);
+            _BMTScoreService = new BMTScoreService(fixture.context);
             _authService = new MockAuthService();
             _mutation = new Mutation(
                 _projectService,
@@ -64,10 +66,11 @@ namespace tests
                 _questionTemplateService,
                 _projectCategoryService,
                 _authService,
+                _BMTScoreService,
                 new Logger<Mutation>(factory)
             );
 
-            _project = _projectService.Create("Project");
+            _project = _projectService.Create("Project", "FusionProjectId");
         }
 
         /* Mutation wrappers with default values */
@@ -98,11 +101,11 @@ namespace tests
                 projectCategoryId = _projectCategoryService.GetAll().First().Id;
             }
 
-            Evaluation evaluation =  _mutation.CreateEvaluation(
-                name:                 name,
-                projectId:            projectId,
+            Evaluation evaluation = _mutation.CreateEvaluation(
+                name: name,
+                projectId: projectId,
                 previousEvaluationId: previousEvaluationId,
-                projectCategoryId:    projectCategoryId
+                projectCategoryId: projectCategoryId
             );
 
             return evaluation;
@@ -141,7 +144,7 @@ namespace tests
                 text = Randomize.String();
             }
 
-            Answer answer= _mutation.SetAnswer(
+            Answer answer = _mutation.SetAnswer(
                     questionId: questionId,
                     severity: severity.GetValueOrDefault(Randomize.Severity()),
                     text: text,

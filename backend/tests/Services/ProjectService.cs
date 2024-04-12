@@ -29,7 +29,7 @@ namespace tests
         {
             ProjectService projectService = new ProjectService(fixture.context);
             int nProjectsBefore = projectService.GetAll().Count();
-            projectService.Create("some_id_that_does_not_exist");
+            projectService.Create("some_id_that_does_not_exist", "FusionProjectId");
             int nProjectsAfter = projectService.GetAll().Count();
 
             Assert.Equal(nProjectsBefore + 1, nProjectsAfter);
@@ -68,7 +68,7 @@ namespace tests
         {
             ProjectService projectService = new ProjectService(fixture.context);
 
-            Project projectCreate = projectService.Create("some_fusion_project_id");
+            Project projectCreate = projectService.Create("some_fusion_project_id", "FusionProjectId");
 
             Project projectGet = projectService.GetProject(projectCreate.Id);
 

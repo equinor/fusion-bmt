@@ -123,32 +123,6 @@ try
         );
     }
 
-    builder.Services.AddFusionIntegration(options =>
-{
-    var fusionEnvironment = environment switch
-    {
-        "dev" => "CI",
-        "qa" => "FQA",
-        "prod" => "FPRD",
-        "radix-prod" => "FPRD",
-        "radix-qa" => "FQA",
-        "radix-dev" => "CI",
-        _ => "CI",
-    };
-
-    Console.WriteLine("Fusion environment: " + fusionEnvironment);
-    options.UseServiceInformation("BMT", fusionEnvironment);
-    options.UseDefaultEndpointResolver(fusionEnvironment);
-    options.UseDefaultTokenProvider(opts =>
-    {
-        opts.ClientId = builder.Configuration.GetSection("AzureAd").GetValue<string>("ClientId");
-        opts.ClientSecret = builder.Configuration.GetSection("AzureAd").GetValue<string>("ClientSecret");
-    });
-    options.AddFusionRoles();
-    options.ApplicationMode = true;
-});
-
-
     builder.Services.AddErrorFilter<ErrorFilter>();
 
     builder.Services.AddScoped<GraphQuery>();
@@ -165,9 +139,6 @@ try
     builder.Services.AddScoped<ProjectCategoryService>();
     builder.Services.AddScoped<BMTScoreService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
-    builder.Services.AddScoped<IFusionService, FusionService>();
-
-    builder.Services.AddScoped<IProjectExternalIdService, ProjectExternalIdService>();
 
     builder.Services.AddGraphQLServer()
                     .AddProjections()

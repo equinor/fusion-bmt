@@ -33,7 +33,7 @@ namespace tests
             QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
             ProjectService projectService = new ProjectService(fixture.context);
-            Project project = projectService.Create("QuestionService_Create");
+            Project project = projectService.Create("QuestionService_Create", "FusionProjectId");
             EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.Create("QuestionService_Create", project, "");
 
@@ -53,7 +53,7 @@ namespace tests
             List<QuestionTemplate> questionTemplates = questionTemplateService.GetAll().ToList();
 
             ProjectService projectService = new ProjectService(fixture.context);
-            Project project = projectService.Create("QuestionService_CreateBulk");
+            Project project = projectService.Create("QuestionService_CreateBulk", "FusionProjectId");
             EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.Create("QuestionService_CreateBulk", project, "");
 
@@ -81,7 +81,7 @@ namespace tests
             QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
             ProjectService projectService = new ProjectService(fixture.context);
-            Project project = projectService.Create("QuestionService_GetExists");
+            Project project = projectService.Create("QuestionService_GetExists", "FusionProjectId");
             EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.Create("QuestionService_GetExists", project, "");
 
