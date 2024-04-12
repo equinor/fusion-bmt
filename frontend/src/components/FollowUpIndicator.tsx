@@ -11,53 +11,39 @@ const ColoredChip = styled(Chip) <{ chipColor: string, textColor: string }>`
     color: ${props => props.textColor};
 `
 
+const toPercentage = (value: number | null): string => {
+    if (value === null) {
+        return 'N/A'
+    }
+    if (value < 0 || value > 1) {
+        throw new Error('Value must be between 0 and 1.')
+    }
+    return `${(value * 100).toFixed(0)}%`
+}
+
+const getColorsForValue = (value: number | null): { chipColor: string, textColor: string } => {
+    if (value === null) {
+        return { chipColor: '#ccc', textColor: '#ccc' }
+    }
+    const percentage = value * 100
+    if (percentage < 75) {
+        return { chipColor: '#FFC1C1', textColor: '#B30D2F' }
+    } else if (percentage < 90) {
+        return { chipColor: '#FFE7D6', textColor: '#AD6200' }
+    } else {
+        return { chipColor: '#E6FAEC', textColor: '#007079' }
+    }
+}
+
 const FollowUpIndicator: React.FC<FollowUpIndicatorProps> = ({ value }) => {
-
-    const toPercentage = (value: number | null) => {
-        if (value === null) {
-            return 'N/A'
-        }
-        if (value < 0 || value > 1) {
-            throw new Error('Value must be between 0 and 1.')
-        }
-        return `${(value * 100).toFixed(0)}%`
-    }
-
-    const getColorForValue = (value: number | null) => {
-        if (value === null) {
-            return '#ccc'
-        }
-        const percentage = value * 100
-        if (percentage < 75) {
-            return '#FFC1C1'
-        } else if (percentage < 90) {
-            return '#FFE7D6'
-        } else {
-            return '#E6FAEC'
-        }
-    }
-
-    const getTextColorForValue = (value: number | null) => {
-        if (value === null) {
-            return '#ccc'
-        }
-        const percentage = value * 100
-        if (percentage < 75) {
-            return '#B30D2F'
-        } else if (percentage < 90) {
-            return '#AD6200'
-        } else {
-            return '#007079'
-        }
-    }
-
     if (typeof value === 'number') {
-        const chipColor = getColorForValue(value);
-        const textColor = getTextColorForValue(value);
+        const percentage = toPercentage(value);
+        const { chipColor, textColor } = getColorsForValue(value);
+
         return (
-            <Tooltip placement='right' title={`Evaluation contains ${toPercentage(value)} "on track" / green questions`}>
+            <Tooltip placement='right' title={`Evaluation contains ${percentage} "on track" / green questions`}>
                 <ColoredChip chipColor={chipColor} textColor={textColor}>
-                    {toPercentage(value)}
+                    {percentage}
                 </ColoredChip>
             </Tooltip>
         )
