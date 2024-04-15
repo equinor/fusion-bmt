@@ -85,11 +85,6 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
     const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
 
-    useEffect(() => {
-        console.log('cached roles')
-        console.log(getCachedRoles())
-    }, [])
-
     const canSetAsIndicator = (evaluation: Evaluation) => {
         const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
 
