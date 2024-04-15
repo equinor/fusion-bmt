@@ -6,10 +6,7 @@ import { Icon, Table, Tooltip, Typography, Radio } from '@equinor/eds-core-react
 import {
     warning_filled,
     check,
-    radio_button_unselected,
-    radio_button_selected,
-    visibility_off,
-    visibility
+    visibility,
 } from '@equinor/eds-icons'
 import { tokens } from '@equinor/eds-tokens'
 import { progressionToString } from '../../../../utils/EnumToString'
@@ -262,7 +259,7 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                             <Cell>
                                 <Centered>
                                     <CellButton
-                                        data={visibility_off}
+                                        data={visibility}
                                         onClick={() => hideEvaluation(evaluation)}
                                     />
                                 </Centered>
