@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Icon, Table, Tooltip, Typography, Radio } from '@equinor/eds-core-react'
+import { Icon, Table, Tooltip, Typography, Radio, Button } from '@equinor/eds-core-react'
 import {
     warning_filled,
     check,
@@ -12,7 +12,7 @@ import { tokens } from '@equinor/eds-tokens'
 import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
-import { Evaluation, Progression } from '../../../../api/models'
+import { Evaluation, Progression, Role } from '../../../../api/models'
 import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/util/helpers'
 import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
@@ -22,6 +22,9 @@ import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
 import { ApolloError, useMutation, gql } from '@apollo/client'
+import { getCachedRoles } from '../../../../utils/helpers'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
+import ConfirmationDialog from '../../../../components/ConfirmationDialog'
 
 const { Row, Cell } = Table
 
@@ -36,15 +39,6 @@ const Centered = styled.div`
 const CellWithBorder = styled(Cell)`
     border-right: 1px solid lightgrey;
 `
-
-const CellButton = styled(Icon)`
-    cursor: pointer;
-
-    &:hover {
-        color: ${tokens.colors.interactive.primary__resting.rgba};
-    }
-`
-
 interface setProjectIndicatorMutationProps {
     setIndicatorStatus: (projectId: string, evaluationId: string) => void
     loading: boolean
@@ -81,16 +75,68 @@ interface Props {
 
 const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const currentProject = useModuleCurrentContext()
+    const currentUser = useCurrentUser()
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
 
+    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
     const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
-    console.log(visibleEvaluations)
+    const [userRoles, setUserRoles] = React.useState<{ evaluationId: string, role: Role }[]>([])
+    const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
+    const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
 
+    useEffect(() => {
+        console.log('cached roles')
+        console.log(getCachedRoles())
+    }, [])
+
+    const canSetAsIndicator = (evaluation: Evaluation) => {
+        const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
+
+        const isFacilitator = userRole === Role.Facilitator
+        const evaluationIsActive = evaluation.project.indicatorEvaluationId === evaluation.id
+        const evaluationIsNotInFollowUp = evaluation.progression !== Progression.FollowUp
+
+        return (isFacilitator && evaluationIsNotInFollowUp && !evaluationIsActive) || userIsAdmin
+    }
+
+    const canHide = (evaluation: Evaluation) => {
+        const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
+
+        const isFacilitator = userRole === Role.Facilitator
+        const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
+
+        return evaluationIsNotActive && (isFacilitator || userIsAdmin)
+    }
+
+    const canViewActiveEvaluations = () => {
+        const acceptableRoles = ["Role.OrganizationLead", "Role.Participant"]
+        const usersRoles = getCachedRoles()
+        // TODO: remove when someone with an accepted role has tested this
+        console.error("user has these roles: ", usersRoles)
+        console.error("acceptable roles: ", acceptableRoles)
+        console.error("user has acceptable role to view active evaluations?: ", acceptableRoles.some(role => usersRoles?.includes(role)))
+        return acceptableRoles.some(role => usersRoles?.includes(role))
+    }
 
     const setAsIndicator = (projectId: string, evaluationId: string) => {
         setIndicatorStatus(projectId, evaluationId)
     }
+
+    useEffect(() => {
+        evaluations.forEach(evaluation => {
+
+            evaluation.participants?.forEach(participant => {
+                const userIsParticipant = participant.azureUniqueId === currentUser?.localAccountId
+
+                if (userIsParticipant) {
+                    const userRole = participant.role as Role
+                    const roleEntry = { evaluationId: evaluation.id, role: userRole }
+                    setUserRoles([...userRoles, roleEntry])
+                }
+            })
+        })
+    }, [evaluations])
 
     let columns: Column[] = [
         { name: 'Title', accessor: 'name', sortable: true },
@@ -100,23 +146,38 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         { name: 'Open actions', accessor: 'open_actions', sortable: true },
         { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
         { name: 'Date created', accessor: 'createDate', sortable: true },
-        ...(isInPortfolio ? [
+        ...(isInPortfolio && userIsAdmin ? [
             { name: 'Select active evaluation', accessor: 'select', sortable: false },
             { name: 'Hide evaluation', accessor: 'hide', sortable: false }
-        ] : [
+        ] : []),
+        ...(canViewActiveEvaluations() && !isInPortfolio ? [
             { name: 'Active evaluation', accessor: 'indicator', sortable: false },
-        ])
+        ] : [])
     ]
 
     if (currentProject === null || currentProject === undefined) {
         return <p>No project selected</p>
     }
 
-    const hideEvaluation = (evaluation: Evaluation) => {
-        const newStatus = Status.Voided
-        setEvaluationStatus(evaluation.id, newStatus)
-        setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluation.id))
-        //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
+    const promptConfirmation = (evaluation: Evaluation) => {
+        setConfirmationIsOpen(true)
+        setEvaluationStagedToHide(evaluation)
+    }
+
+    const cancelConfirmation = () => {
+        setConfirmationIsOpen(false)
+        setEvaluationStagedToHide(null)
+    }
+
+    const hideEvaluation = () => {
+        if (evaluationStagedToHide) {
+            const newStatus = Status.Voided
+            setEvaluationStatus(evaluationStagedToHide.id, newStatus)
+            setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluationStagedToHide.id))
+            setConfirmationIsOpen(false)
+            setEvaluationStagedToHide(null)
+            //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
+        }
     }
 
     const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
@@ -243,29 +304,42 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                     <Centered>{new Date(evaluation.createDate).toLocaleDateString()}</Centered>
                 </CellWithBorder>
                 {
-                    isInPortfolio ? (
+                    isInPortfolio && (
                         <>
                             <CellWithBorder>
                                 <Centered>
-                                    <Tooltip title={evaluation.progression !== "FOLLOW_UP" ? "Evaluation status must be in 'follow-up'" : "Select as active evaluation"}>
-                                        <Radio
-                                            checked={evaluation.project.indicatorEvaluationId === evaluation.id}
-                                            disabled={evaluation.progression !== "FOLLOW_UP"}
-                                            onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
-                                        />
-                                    </Tooltip>
+                                    <Radio
+                                        checked={evaluation.project.indicatorEvaluationId === evaluation.id}
+                                        disabled={canSetAsIndicator(evaluation) ? false : true}
+                                        onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
+                                    />
                                 </Centered>
                             </CellWithBorder>
                             <Cell>
                                 <Centered>
-                                    <CellButton
-                                        data={visibility}
-                                        onClick={() => hideEvaluation(evaluation)}
-                                    />
+                                    <Tooltip
+                                        title={
+                                            evaluation.project.indicatorEvaluationId === evaluation.id
+                                                ? "Active evaluation can not be hidden"
+                                                : "Set as active evaluation"
+                                        }
+                                        placement="top">
+                                        <Button
+                                            variant="ghost_icon"
+                                            onClick={() => promptConfirmation(evaluation)}
+                                            disabled={canHide(evaluation) ? false : true}
+
+                                        >
+                                            <Icon data={visibility} />
+                                        </Button>
+                                    </Tooltip>
                                 </Centered>
                             </Cell>
                         </>
-                    ) : (
+                    )}
+                {
+                    canViewActiveEvaluations() && !isInPortfolio &&
+                    (
                         evaluation.project.indicatorEvaluationId === evaluation.id ?
                             <CellWithBorder>
                                 <Centered>
@@ -286,6 +360,17 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
 
     return (
         <>
+            <ConfirmationDialog
+                isOpen={confirmationIsOpen}
+                title="Hide evaluation"
+                description="Are you sure you want to hide this evaluation?"
+                onConfirmClick={() => {
+                    hideEvaluation()
+                }}
+                onCancelClick={() => {
+                    cancelConfirmation()
+                }}
+            />
             <SortableTable
                 columns={columns}
                 data={visibleEvaluations}

@@ -9,7 +9,7 @@ import { getCachedRoles } from '../../../utils/helpers'
 
 import { genericErrorMessage } from '../../../utils/Variables'
 import { BmtScore, Evaluation, Project, Status } from '../../../api/models'
-import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT } from '../../../api/fragments'
+import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT, PARTICIPANTS_ARRAY_FRAGMENT } from '../../../api/fragments'
 import { useEvaluationsWithPortfolio } from '../../../utils/hooks'
 import Portfolios from './Components/Portfolios'
 import EvaluationsTable from './Components/EvaluationsTable'
@@ -259,9 +259,11 @@ export const useAllEvaluationsQuery = (status: Status): EvaluationQueryProps => 
         query ($status: Status!) {
             evaluations(where: { status: { eq: $status } }) {
                 ...EvaluationDashboardFields
+                ...ParticipantsArray
             }
         }
         ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
+        ${PARTICIPANTS_ARRAY_FRAGMENT}
     `
 
     const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { status } })

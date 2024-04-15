@@ -199,6 +199,7 @@ export const participantCanInputFollowUp = (participant: Participant | undefined
     }
 }
 
+/* Role-based rule for hiding the evaluation */ 
 export const participantCanHideEvaluation = (participant: Participant | undefined) => {
     if (!participant) {
         return false
