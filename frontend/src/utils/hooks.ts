@@ -79,6 +79,7 @@ export const noPortfolioKey = 'No portfolio'
 export const noProjectMasterTitle = 'No project master title'
 
 export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefined): EvaluationsByProjectMasterAndPortfolio => {
+    // console.log('useEvaluationsWithPortfolio evaluations:', evaluations)
     const apiClients = useContextApi()
     const [allEvaluationsWithProjectMasterAndPortfolio, setAllEvaluationsWithProjectMasterPortfolio] =
         React.useState<EvaluationsByProjectMasterAndPortfolio>({})
@@ -128,6 +129,8 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
     }
 
     useEffect(() => {
+        // console.log('useEvaluationsWithPortfolio useEffect evaluations:', evaluations)
+
         if (evaluations) {
             const evaluationsByProjectMasterAndPortfolio: EvaluationsByProjectMasterAndPortfolio = {
                 [noPortfolioKey]: {
@@ -180,6 +183,8 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
             })
         }
     }, [evaluations])
+
+    // console.log('useEvaluationsWithPortfolio allEvaluationsWithProjectMasterAndPortfolio:', allEvaluationsWithProjectMasterAndPortfolio)
 
     return allEvaluationsWithProjectMasterAndPortfolio
 }

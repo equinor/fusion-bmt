@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
-import { ApolloError, FetchResult, gql, useMutation, useQuery } from '@apollo/client'
+import { ApolloError, FetchResult, gql, useMutation, useQuery, RefetchQueriesFunction, ApolloQueryResult } from '@apollo/client'
 import { Box } from '@mui/material'
 import { Button, Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
 import ErrorMessage from '../../../components/ErrorMessage'
@@ -72,11 +72,18 @@ const DashboardView = ({ project }: Props) => {
     const { generateBMTScore, loading: loadingProgressEvaluation1, error: errorProgressEvaluation1 } = useGenerateBMTScoreMutation()
     const { setEvaluationStatus, loading, error } = useSetProjectIndicatorMutation()
 
+    const renderCount = useRef(0);
+
+    useEffect(() => {
+        renderCount.current = renderCount.current + 1;
+        console.log(`DashboardView.tsx has rendered ${renderCount.current} times`);
+    })
+
     if (!currentUser) {
         return <p>Please log in.</p>
     }
 
-    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Project)
+    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Portfolio)
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
@@ -99,6 +106,7 @@ const DashboardView = ({ project }: Props) => {
         loading: loadingActiveEvaluations,
         evaluations: activeEvaluations,
         error: errorActiveEvaluations,
+        refetch: refetchActiveEvaluations,
     } = useAllEvaluationsQuery(Status.Active)
 
     const {
@@ -120,19 +128,6 @@ const DashboardView = ({ project }: Props) => {
         }
         generateScore();
     }, [])
-
-    useEffect(() => {
-        const generateScore = async () => {
-            if (projectEvaluations && projectEvaluations?.length > 0 === true) {
-                const score = await generateBMTScore(projectEvaluations[0].projectId)
-            }
-        }
-        generateScore();
-    }, [projectEvaluations]);
-
-    const setAsIndicator = (projectId: string, evaluationId: string) => {
-        setEvaluationStatus(projectId, evaluationId)
-    }
 
     return (
         <div style={{ margin: 20 }}>
@@ -193,6 +188,7 @@ const DashboardView = ({ project }: Props) => {
                         <Portfolios
                             evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio}
                             generatedBMTScores={generatedBMTScores}
+                            refetchActiveEvaluations={refetchActiveEvaluations}
                         />
                     )}
                     {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
@@ -209,6 +205,7 @@ interface EvaluationQueryProps {
     loading: boolean
     evaluations: Evaluation[] | undefined
     error: ApolloError | undefined
+    refetch?: () => Promise<ApolloQueryResult<{evaluations: Evaluation[]}>>
 }
 
 export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {
@@ -264,12 +261,13 @@ export const useAllEvaluationsQuery = (status: Status): EvaluationQueryProps => 
         ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
     `
 
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { status } })
+    const { loading, data, error, refetch } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { status } })
 
     return {
         loading,
         evaluations: data?.evaluations,
         error,
+        refetch
     }
 }
 

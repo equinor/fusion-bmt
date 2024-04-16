@@ -7,6 +7,8 @@ import EvaluationScoreIndicator from '../../../../components/EvaluationScoreIndi
 import FollowUpIndicator from '../../../../components/FollowUpIndicator'
 import { noProjectMasterTitle } from '../../../../utils/hooks'
 import styled from 'styled-components'
+import { ApolloQueryResult } from '@apollo/client'
+import { Evaluation } from '../../../../api/models'
 
 const Indicators = styled.div`
     display: flex;
@@ -21,9 +23,15 @@ const StyledPanel = styled(Accordion.Panel)`
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
     generatedBMTScores: any
+    refetchActiveEvaluations: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
 }
 
-const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores }: Props) => {
+const TablesAndTitles = ({
+    evaluationsWithProjectMasterTitle,
+    generatedBMTScores,
+    refetchActiveEvaluations,
+}: Props) => {
+    // console.log("TablesAndTitles.tsx: evaluationsWithProjectMasterTitle: ", evaluationsWithProjectMasterTitle)
     return (
         <>
             <Accordion headerLevel="h2">
@@ -64,7 +72,11 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores
                                 </Indicators>
                             </Accordion.Header>
                             <StyledPanel>
-                                <EvaluationsTable evaluations={evaluations} isInPortfolio={true} />
+                                <EvaluationsTable
+                                    evaluations={evaluations}
+                                    isInPortfolio={true}
+                                    refetchActiveEvaluations={refetchActiveEvaluations}
+                                />
                             </StyledPanel>
                         </Accordion.Item>
                     )

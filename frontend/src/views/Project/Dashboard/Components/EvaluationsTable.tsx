@@ -24,7 +24,7 @@ import ProgressStatusIcon from './ProgressStatusIcon'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
-import { ApolloError, useMutation, gql } from '@apollo/client'
+import { ApolloError, useMutation, gql, ApolloQueryResult } from '@apollo/client'
 
 const { Row, Cell } = Table
 
@@ -49,7 +49,7 @@ const CellButton = styled(Icon)`
 `
 
 interface setProjectIndicatorMutationProps {
-    setIndicatorStatus: (projectId: string, evaluationId: string) => void
+    setIndicatorStatus: (projectId: string, evaluationId: string) => Promise<void>
     loading: boolean
     error: ApolloError | undefined
 }
@@ -66,8 +66,8 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
 
     const [setIndicatorApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
 
-    const setIndicatorStatus = (projectId: string, evaluationId: string) => {
-        setIndicatorApolloFunc({ variables: { projectId, evaluationId } })
+    const setIndicatorStatus = async (projectId: string, evaluationId: string) => {
+        await setIndicatorApolloFunc({ variables: { projectId, evaluationId } })
     }
 
     return {
@@ -80,19 +80,32 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
 interface Props {
     evaluations: Evaluation[]
     isInPortfolio?: boolean
+    refetchActiveEvaluations?: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
 }
 
-const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
+const EvaluationsTable = ({
+    evaluations,
+    isInPortfolio,
+    refetchActiveEvaluations,
+}: Props) => {
     const currentProject = useModuleCurrentContext()
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
 
-    const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
-    console.log(visibleEvaluations)
+    const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>([])
 
 
-    const setAsIndicator = (projectId: string, evaluationId: string) => {
-        setIndicatorStatus(projectId, evaluationId)
+    useEffect(() => {
+        setVisibleEvaluations(evaluations)
+
+    }, [evaluations])
+
+
+    const setAsIndicator = async (projectId: string, evaluationId: string) => {
+        await setIndicatorStatus(projectId, evaluationId)
+        if (refetchActiveEvaluations) {
+            refetchActiveEvaluations()
+        }
     }
 
     let columns: Column[] = [
@@ -120,6 +133,9 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         setEvaluationStatus(evaluation.id, newStatus)
         setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluation.id))
         //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
+        if (refetchActiveEvaluations) {
+            refetchActiveEvaluations()
+        }
     }
 
     const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
@@ -156,6 +172,9 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     }
 
     const renderRow = (evaluation: Evaluation, index: number) => {
+        if (evaluation.project.fusionProjectId === "a58880a6-7ac7-471e-a4e6-139fa403f230") {
+            console.log("EvaluationTable.tsx: evaluation: ", evaluation)
+        }
         const isWorkshopOrLater =
             evaluation.progression === Progression.Workshop ||
             evaluation.progression === Progression.FollowUp ||
