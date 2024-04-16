@@ -358,7 +358,7 @@ const useParticipantsQuery = (evaluationId: string): ParticipantQueryProps => {
 }
 
 interface setEvaluationStatusMutationProps {
-    setEvaluationStatus: (evaluationId: string, newStatus: Status) => void
+    setEvaluationStatus: (evaluationId: string, newStatus: Status) => Promise<void>
     loading: boolean
     error: ApolloError | undefined
 }
@@ -375,8 +375,8 @@ export const useSetEvaluationStatusMutation = (): setEvaluationStatusMutationPro
 
     const [setEvaluationStatusApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
 
-    const setEvaluationStatus = (evaluationId: string, newStatus: Status) => {
-        setEvaluationStatusApolloFunc({ variables: { evaluationId, newStatus } })
+    const setEvaluationStatus = async (evaluationId: string, newStatus: Status) => {
+        await setEvaluationStatusApolloFunc({ variables: { evaluationId, newStatus } })
     }
 
     return {

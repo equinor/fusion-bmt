@@ -93,12 +93,15 @@ const EvaluationsTable = ({
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
 
     const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>([])
+    const [hiddenEvaluationIds, setHiddenEvaluationIds] = React.useState<string[]>([])
 
 
     useEffect(() => {
-        setVisibleEvaluations(evaluations)
+        console.log("changing visible evaluations")
+        const filteredEvaluations = evaluations.filter(evaluation => !hiddenEvaluationIds.includes(evaluation.id))
+        setVisibleEvaluations(filteredEvaluations)
 
-    }, [evaluations])
+    }, [evaluations, hiddenEvaluationIds])
 
 
     const setAsIndicator = async (projectId: string, evaluationId: string) => {
@@ -128,10 +131,10 @@ const EvaluationsTable = ({
         return <p>No project selected</p>
     }
 
-    const hideEvaluation = (evaluation: Evaluation) => {
+    const hideEvaluation = async (evaluation: Evaluation) => {
+        setHiddenEvaluationIds([...hiddenEvaluationIds, evaluation.id])
         const newStatus = Status.Voided
-        setEvaluationStatus(evaluation.id, newStatus)
-        setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluation.id))
+        await setEvaluationStatus(evaluation.id, newStatus)
         //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
         if (refetchActiveEvaluations) {
             refetchActiveEvaluations()
