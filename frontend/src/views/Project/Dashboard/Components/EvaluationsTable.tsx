@@ -115,34 +115,38 @@ const EvaluationsTable = ({
     }, [evaluations, hiddenEvaluationIds])
 
 
-const setAsIndicator = async (projectId: string, evaluationId: string) => {
-    if (!setProjectIndicators || !projectIndicators || !refetchActiveEvaluations || !projectBMTScores || !setProjectBmtScores) {
-        return;
-    }
-
-    const updateOrAddItem = (items: any[], item: any, newItem: any) => {
-        const itemIndex = items.findIndex(i => i.projectId === projectId);
-        if (itemIndex > -1) {
-            const updatedItems = [...items];
-            updatedItems[itemIndex] = { ...item, ...newItem };
-            return updatedItems;
-        } else {
-            return [...items, newItem];
+    const setAsIndicator = async (projectId: string, evaluationId: string) => {
+        if (!setProjectIndicators || !projectIndicators || !refetchActiveEvaluations || !projectBMTScores || !setProjectBmtScores) {
+            return;
         }
+
+        const updateOrAddItem = (items: any[], newItem: any) => {
+            const itemIndex = items.findIndex(i => i.projectId === projectId);
+            if (itemIndex > -1) {
+                const updatedItems = [...items];
+                updatedItems[itemIndex] = { ...updatedItems[itemIndex], ...newItem };
+                return updatedItems;
+            } else {
+                return [...items, newItem];
+            }
+        }
+
+        const updatedProjectIndicators = updateOrAddItem(projectIndicators, { projectId, evaluationId });
+        setProjectIndicators(updatedProjectIndicators);
+
+        await setIndicatorStatus(projectId, evaluationId)
+
+        const [_, generateBMTScoreResponse] = await Promise.all([
+            refetchActiveEvaluations(),
+            generateBMTScore(projectId)
+        ]);
+
+        // @ts-ignore
+        const newBmtScore = generateBMTScoreResponse.data?.generateBMTScore?.followUpScore;
+
+        const updatedProjectBMTScores = updateOrAddItem(projectBMTScores, { projectId, bmtScore: newBmtScore });
+        setProjectBmtScores(updatedProjectBMTScores);
     }
-
-    const updatedProjectIndicators = updateOrAddItem(projectIndicators, { projectId, evaluationId }, { projectId, evaluationId });
-    setProjectIndicators(updatedProjectIndicators);
-
-    await setIndicatorStatus(projectId, evaluationId);
-    await refetchActiveEvaluations();
-
-    // @ts-ignore
-    const newBmtScore = (await generateBMTScore(projectId)).data?.generateBMTScore?.followUpScore;
-
-    const updatedProjectBMTScores = updateOrAddItem(projectBMTScores, { projectId, bmtScore: newBmtScore }, { projectId, bmtScore: newBmtScore });
-    setProjectBmtScores(updatedProjectBMTScores);
-}
 
     let columns: Column[] = [
         { name: 'Title', accessor: 'name', sortable: true },
@@ -232,7 +236,7 @@ const setAsIndicator = async (projectId: string, evaluationId: string) => {
         }
 
         const isChecked = (): boolean => {
-            if (projectIndicators) {
+            if (projectIndicators && projectIndicators.some(pi => pi.projectId === evaluation.projectId)) {
                 return projectIndicators.some(pi => pi.evaluationId === evaluation.id)
             }
             return evaluation.project.indicatorEvaluationId === evaluation.id

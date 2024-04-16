@@ -62,12 +62,12 @@ const TablesAndTitles = ({
                             projectId = info[1].projectId
                         }
 
-                        if (info[1].project.indicatorEvaluationId === info[1].id) {
+                        if (projectIndicators.findIndex(pi => pi.evaluationId === info[1].project.indicatorEvaluationId) > -1) {
                             if (info[1].indicatorActivityDate) {
                                 activityDate = info[1].indicatorActivityDate
                             }
                         }
-                        else if (projectIndicators.findIndex(pi => pi.evaluationId === info[1].project.indicatorEvaluationId) > -1) {
+                        else if (info[1].project.indicatorEvaluationId === info[1].id) {
                             if (info[1].indicatorActivityDate) {
                                 activityDate = info[1].indicatorActivityDate
                             }

@@ -69,21 +69,12 @@ const DashboardView = ({ project }: Props) => {
     const [generatedBMTScores, setGeneratedBMTScores] = React.useState<BmtScore[] | undefined>(undefined)
 
     const { generateBMTScores, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoresMutation()
-    const { generateBMTScore, loading: loadingProgressEvaluation1, error: errorProgressEvaluation1 } = useGenerateBMTScoreMutation()
-    const { setEvaluationStatus, loading, error } = useSetProjectIndicatorMutation()
-
-    const renderCount = useRef(0);
-
-    useEffect(() => {
-        renderCount.current = renderCount.current + 1;
-        console.log(`DashboardView.tsx has rendered ${renderCount.current} times`);
-    })
 
     if (!currentUser) {
         return <p>Please log in.</p>
     }
 
-    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Portfolio)
+    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Project)
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
@@ -303,66 +294,3 @@ const useGenerateBMTScoresMutation = (): useGenerateBMTScoresMutationProps => {
         error,
     }
 }
-
-interface useGenerateBMTScoreMutationProps {
-    generateBMTScore: (evaluationId: string) => Promise<FetchResult<BmtScore>>
-    loading: boolean
-    score: string
-    error: ApolloError | undefined
-}
-
-const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
-    const GENERATE_BMTSCORE = gql`
-    mutation GenerateBMTScore($projectId: String!) {
-        generateBMTScore(projectId: $projectId) {
-                evaluationId
-                projectId
-                workshopScore
-                followUpScore
-            }
-        }
-    `
-
-    const [generateBMTScoreApolloFunc, { loading, data, error }] = useMutation(GENERATE_BMTSCORE)
-
-    const generateBMTScore = (projectId: string) => {
-        return generateBMTScoreApolloFunc({ variables: { projectId } })
-    }
-
-    return {
-        generateBMTScore: generateBMTScore,
-        loading,
-        score: data,
-        error,
-    }
-}
-
-interface setProjectIndicatorMutationProps {
-    setEvaluationStatus: (projectId: string, evaluationId: string) => void
-    loading: boolean
-    error: ApolloError | undefined
-}
-
-const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
-    const SET_EVALUATION_STATUS_MUTATION = gql`
-        mutation SetIndicatorEvaluation($projectId: String!, $evaluationId: String!) {
-            setIndicatorEvaluation(projectId: $projectId, evaluationId: $evaluationId) {
-                fusionProjectId
-                indicatorEvaluationId
-            }
-        }
-    `
-
-    const [setEvaluationStatusApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
-
-    const setEvaluationStatus = (projectId: string, evaluationId: string) => {
-        setEvaluationStatusApolloFunc({ variables: { projectId, evaluationId } })
-    }
-
-    return {
-        setEvaluationStatus,
-        loading,
-        error,
-    }
-}
-
