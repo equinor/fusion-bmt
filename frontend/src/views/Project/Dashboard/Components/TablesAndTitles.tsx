@@ -9,6 +9,7 @@ import { noProjectMasterTitle } from '../../../../utils/hooks'
 import styled from 'styled-components'
 import { ApolloQueryResult } from '@apollo/client'
 import { Evaluation } from '../../../../api/models'
+import React from 'react'
 
 const Indicators = styled.div`
     display: flex;
@@ -20,6 +21,17 @@ const Indicators = styled.div`
 const StyledPanel = styled(Accordion.Panel)`
     overflow-y: auto;
 `
+
+export interface ProjectIndicator {
+    projectId: string
+    evaluationId: string
+}
+
+export interface ProjectBMTScore {
+    projectId: string
+    bmtScore: number
+}
+
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
     generatedBMTScores: any
@@ -31,7 +43,9 @@ const TablesAndTitles = ({
     generatedBMTScores,
     refetchActiveEvaluations,
 }: Props) => {
-    // console.log("TablesAndTitles.tsx: evaluationsWithProjectMasterTitle: ", evaluationsWithProjectMasterTitle)
+    const [projectIndicators, setProjectIndicators] = React.useState<ProjectIndicator[]>([])
+    const [projectBMTScores, setProjectBMTScores] = React.useState<ProjectBMTScore[]>([])
+
     return (
         <>
             <Accordion headerLevel="h2">
@@ -53,8 +67,20 @@ const TablesAndTitles = ({
                                 activityDate = info[1].indicatorActivityDate
                             }
                         }
+                        else if (projectIndicators.findIndex(pi => pi.evaluationId === info[1].project.indicatorEvaluationId) > -1) {
+                            if (info[1].indicatorActivityDate) {
+                                activityDate = info[1].indicatorActivityDate
+                            }
+                        }
                     })
-                    if (generatedBMTScores) {
+                    if (projectBMTScores.length > 0) {
+                        projectBMTScores.forEach((score: any, index: any) => {
+                            if (score.projectId === projectId) {
+                                followUpScore = score.bmtScore
+                            }
+                        })
+                    }
+                    else if (generatedBMTScores) {
                         generatedBMTScores.generateBMTScores.forEach((score: any, index: any) => {
                             if (score.projectId === projectId) {
                                 followUpScore = score.followUpScore
@@ -76,6 +102,10 @@ const TablesAndTitles = ({
                                     evaluations={evaluations}
                                     isInPortfolio={true}
                                     refetchActiveEvaluations={refetchActiveEvaluations}
+                                    projectIndicators={projectIndicators}
+                                    setProjectIndicators={setProjectIndicators}
+                                    projectBMTScores={projectBMTScores}
+                                    setProjectBmtScores={setProjectBMTScores}
                                 />
                             </StyledPanel>
                         </Accordion.Item>

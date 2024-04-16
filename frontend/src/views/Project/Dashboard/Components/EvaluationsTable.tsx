@@ -15,7 +15,7 @@ import { tokens } from '@equinor/eds-tokens'
 import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
-import { Evaluation, Progression } from '../../../../api/models'
+import { BmtScore, Evaluation, Progression } from '../../../../api/models'
 import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/util/helpers'
 import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
@@ -24,7 +24,8 @@ import ProgressStatusIcon from './ProgressStatusIcon'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
-import { ApolloError, useMutation, gql, ApolloQueryResult } from '@apollo/client'
+import { ApolloError, useMutation, gql, ApolloQueryResult, FetchResult } from '@apollo/client'
+import { ProjectBMTScore, ProjectIndicator } from './TablesAndTitles'
 
 const { Row, Cell } = Table
 
@@ -81,12 +82,20 @@ interface Props {
     evaluations: Evaluation[]
     isInPortfolio?: boolean
     refetchActiveEvaluations?: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
+    setProjectIndicators?: (projectIndicators: ProjectIndicator[]) => void
+    projectIndicators?: ProjectIndicator[]
+    setProjectBmtScores?: (projectBMTScores: ProjectBMTScore[]) => void
+    projectBMTScores?: ProjectBMTScore[]
 }
 
 const EvaluationsTable = ({
     evaluations,
     isInPortfolio,
     refetchActiveEvaluations,
+    setProjectIndicators,
+    projectIndicators,
+    setProjectBmtScores,
+    projectBMTScores
 }: Props) => {
     const currentProject = useModuleCurrentContext()
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
@@ -94,6 +103,8 @@ const EvaluationsTable = ({
 
     const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>([])
     const [hiddenEvaluationIds, setHiddenEvaluationIds] = React.useState<string[]>([])
+
+    const { generateBMTScore, loading: loadingProgressEvaluation1, error: errorProgressEvaluation1 } = useGenerateBMTScoreMutation()
 
 
     useEffect(() => {
@@ -104,12 +115,34 @@ const EvaluationsTable = ({
     }, [evaluations, hiddenEvaluationIds])
 
 
-    const setAsIndicator = async (projectId: string, evaluationId: string) => {
-        await setIndicatorStatus(projectId, evaluationId)
-        if (refetchActiveEvaluations) {
-            refetchActiveEvaluations()
+const setAsIndicator = async (projectId: string, evaluationId: string) => {
+    if (!setProjectIndicators || !projectIndicators || !refetchActiveEvaluations || !projectBMTScores || !setProjectBmtScores) {
+        return;
+    }
+
+    const updateOrAddItem = (items: any[], item: any, newItem: any) => {
+        const itemIndex = items.findIndex(i => i.projectId === projectId);
+        if (itemIndex > -1) {
+            const updatedItems = [...items];
+            updatedItems[itemIndex] = { ...item, ...newItem };
+            return updatedItems;
+        } else {
+            return [...items, newItem];
         }
     }
+
+    const updatedProjectIndicators = updateOrAddItem(projectIndicators, { projectId, evaluationId }, { projectId, evaluationId });
+    setProjectIndicators(updatedProjectIndicators);
+
+    await setIndicatorStatus(projectId, evaluationId);
+    await refetchActiveEvaluations();
+
+    // @ts-ignore
+    const newBmtScore = (await generateBMTScore(projectId)).data?.generateBMTScore?.followUpScore;
+
+    const updatedProjectBMTScores = updateOrAddItem(projectBMTScores, { projectId, bmtScore: newBmtScore }, { projectId, bmtScore: newBmtScore });
+    setProjectBmtScores(updatedProjectBMTScores);
+}
 
     let columns: Column[] = [
         { name: 'Title', accessor: 'name', sortable: true },
@@ -135,7 +168,6 @@ const EvaluationsTable = ({
         setHiddenEvaluationIds([...hiddenEvaluationIds, evaluation.id])
         const newStatus = Status.Voided
         await setEvaluationStatus(evaluation.id, newStatus)
-        //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
         if (refetchActiveEvaluations) {
             refetchActiveEvaluations()
         }
@@ -175,9 +207,6 @@ const EvaluationsTable = ({
     }
 
     const renderRow = (evaluation: Evaluation, index: number) => {
-        if (evaluation.project.fusionProjectId === "a58880a6-7ac7-471e-a4e6-139fa403f230") {
-            console.log("EvaluationTable.tsx: evaluation: ", evaluation)
-        }
         const isWorkshopOrLater =
             evaluation.progression === Progression.Workshop ||
             evaluation.progression === Progression.FollowUp ||
@@ -200,6 +229,13 @@ const EvaluationsTable = ({
                 return ({ ...location, pathname: `${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
             }
             return ({ ...location, pathname: `/${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
+        }
+
+        const isChecked = (): boolean => {
+            if (projectIndicators) {
+                return projectIndicators.some(pi => pi.evaluationId === evaluation.id)
+            }
+            return evaluation.project.indicatorEvaluationId === evaluation.id
         }
 
         return (
@@ -274,7 +310,7 @@ const EvaluationsTable = ({
                                 <Centered>
                                     <Tooltip title={evaluation.progression !== "FOLLOW_UP" ? "Evaluation status must be in 'follow-up'" : "Select as active evaluation"}>
                                         <Radio
-                                            checked={evaluation.project.indicatorEvaluationId === evaluation.id}
+                                            checked={isChecked()}
                                             disabled={evaluation.progression !== "FOLLOW_UP"}
                                             onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
                                         />
@@ -323,3 +359,37 @@ const EvaluationsTable = ({
 }
 
 export default EvaluationsTable
+
+
+interface useGenerateBMTScoreMutationProps {
+    generateBMTScore: (evaluationId: string) => Promise<FetchResult<BmtScore>>
+    loading: boolean
+    score: string
+    error: ApolloError | undefined
+}
+
+const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
+    const GENERATE_BMTSCORE = gql`
+    mutation GenerateBMTScore($projectId: String!) {
+        generateBMTScore(projectId: $projectId) {
+                evaluationId
+                projectId
+                workshopScore
+                followUpScore
+            }
+        }
+    `
+
+    const [generateBMTScoreApolloFunc, { loading, data, error }] = useMutation(GENERATE_BMTSCORE)
+
+    const generateBMTScore = (projectId: string) => {
+        return generateBMTScoreApolloFunc({ variables: { projectId } })
+    }
+
+    return {
+        generateBMTScore: generateBMTScore,
+        loading,
+        score: data,
+        error,
+    }
+}
