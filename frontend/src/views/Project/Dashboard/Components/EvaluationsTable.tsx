@@ -85,14 +85,33 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
     const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
 
+    const userIsFacilitatorInAtLeastOneEvaluation = userRoles.some(role => role.role === Role.Facilitator)
+
     const canSetAsIndicator = (evaluation: Evaluation) => {
         const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
 
         const isFacilitator = userRole === Role.Facilitator
-        const evaluationIsActive = evaluation.project.indicatorEvaluationId === evaluation.id
-        const evaluationIsNotInFollowUp = evaluation.progression !== Progression.FollowUp
+        const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
+        const evaluationIsNotInFollowUp = evaluation.progression === Progression.FollowUp
 
-        return (isFacilitator && evaluationIsNotInFollowUp && !evaluationIsActive) || userIsAdmin
+        let reasonsForNotBeingAbleToHide = []
+
+        if (!isFacilitator && !userIsAdmin) {
+            reasonsForNotBeingAbleToHide.push("only facilitators and admins can set an evaluation as active")
+        }
+        if (!evaluationIsNotActive) {
+            reasonsForNotBeingAbleToHide.push("this evaluation is already active")
+        }
+        if (!evaluationIsNotInFollowUp) {
+            reasonsForNotBeingAbleToHide.push("this evaluation is not in follow-up")
+        }
+
+        let toolTipMessage = reasonsForNotBeingAbleToHide.length > 0
+            ? reasonsForNotBeingAbleToHide.join(" & ")
+            : "Set as active evaluation"
+
+        const canUserSetAsIndicator = (isFacilitator || userIsAdmin) && evaluationIsNotInFollowUp && evaluationIsNotActive
+        return { "canSetAsIndicator": canUserSetAsIndicator, "toolTipMessage": toolTipMessage }
     }
 
     const canHide = (evaluation: Evaluation) => {
@@ -101,23 +120,31 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         const isFacilitator = userRole === Role.Facilitator
         const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
 
-        return evaluationIsNotActive && (isFacilitator || userIsAdmin)
-    }
+        let reasonsForNotBeingAbleToHide = []
 
-    const canViewActiveEvaluations = () => {
-        const acceptableRoles = ["Role.OrganizationLead", "Role.Participant"]
-        const usersRoles = getCachedRoles()
-        // TODO: remove when someone with an accepted role has tested this
-        console.error("user has these roles: ", usersRoles)
-        console.error("acceptable roles: ", acceptableRoles)
-        console.error("user has acceptable role to view active evaluations?: ", acceptableRoles.some(role => usersRoles?.includes(role)))
-        return acceptableRoles.some(role => usersRoles?.includes(role))
+        if (!isFacilitator && !userIsAdmin) {
+            reasonsForNotBeingAbleToHide.push("only facilitators and admins can hide evaluations")
+        }
+        if (!evaluationIsNotActive) {
+            reasonsForNotBeingAbleToHide.push("active evaluations cannot be hidden")
+        }
+
+        let toolTipMessage = reasonsForNotBeingAbleToHide.length > 0
+            ? reasonsForNotBeingAbleToHide.join(" & ")
+            : "Hide evaluation"
+
+        const canUserHide = (isFacilitator && evaluationIsNotActive) || (userIsAdmin && evaluationIsNotActive)
+        
+        return { "canHide": canUserHide, "toolTipMessage": toolTipMessage }
+
+
     }
 
     const setAsIndicator = (projectId: string, evaluationId: string) => {
         setIndicatorStatus(projectId, evaluationId)
     }
 
+    // finds all roles for the current user in the evaluations
     useEffect(() => {
         evaluations.forEach(evaluation => {
 
@@ -141,11 +168,10 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         { name: 'Open actions', accessor: 'open_actions', sortable: true },
         { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
         { name: 'Date created', accessor: 'createDate', sortable: true },
-        ...(isInPortfolio && userIsAdmin ? [
+        ...(isInPortfolio ? (userIsAdmin || userIsFacilitatorInAtLeastOneEvaluation) ? [
             { name: 'Select active evaluation', accessor: 'select', sortable: false },
             { name: 'Hide evaluation', accessor: 'hide', sortable: false }
-        ] : []),
-        ...(canViewActiveEvaluations() && !isInPortfolio ? [
+        ] : [
             { name: 'Active evaluation', accessor: 'indicator', sortable: false },
         ] : [])
     ]
@@ -171,7 +197,6 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
             setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluationStagedToHide.id))
             setConfirmationIsOpen(false)
             setEvaluationStagedToHide(null)
-            //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
         }
     }
 
@@ -300,52 +325,46 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                 </CellWithBorder>
                 {
                     isInPortfolio && (
-                        <>
-                            <CellWithBorder>
-                                <Centered>
-                                    <Radio
-                                        checked={evaluation.project.indicatorEvaluationId === evaluation.id}
-                                        disabled={canSetAsIndicator(evaluation) ? false : true}
-                                        onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
-                                    />
-                                </Centered>
-                            </CellWithBorder>
-                            <Cell>
-                                <Centered>
-                                    <Tooltip
-                                        title={
-                                            evaluation.project.indicatorEvaluationId === evaluation.id
-                                                ? "Active evaluation can not be hidden"
-                                                : "Set as active evaluation"
-                                        }
-                                        placement="top">
-                                        <Button
-                                            variant="ghost_icon"
-                                            onClick={() => promptConfirmation(evaluation)}
-                                            disabled={canHide(evaluation) ? false : true}
-
+                        (userIsAdmin || userIsFacilitatorInAtLeastOneEvaluation) ? (
+                            <>
+                                <CellWithBorder>
+                                    <Centered>
+                                        <Tooltip
+                                            title={canSetAsIndicator(evaluation).toolTipMessage}
+                                            placement="top"
                                         >
-                                            <Icon data={visibility} />
-                                        </Button>
-                                    </Tooltip>
-                                </Centered>
-                            </Cell>
-                        </>
-                    )}
-                {
-                    canViewActiveEvaluations() && !isInPortfolio &&
-                    (
-                        evaluation.project.indicatorEvaluationId === evaluation.id ?
+                                            <Radio
+                                                checked={evaluation.project.indicatorEvaluationId === evaluation.id}
+                                                disabled={!canSetAsIndicator(evaluation).canSetAsIndicator}
+                                                onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
+                                            />
+                                        </Tooltip>
+                                    </Centered>
+                                </CellWithBorder>
+                                <Cell>
+                                    <Centered>
+                                        <Tooltip
+                                            title={canHide(evaluation).toolTipMessage}
+                                            placement="top"
+                                        >
+                                            <Button
+                                                variant="ghost_icon"
+                                                onClick={() => promptConfirmation(evaluation)}
+                                                disabled={!canHide(evaluation).canHide}
+                                            >
+                                                <Icon data={visibility} />
+                                            </Button>
+                                        </Tooltip>
+                                    </Centered>
+                                </Cell>
+                            </>
+                        ) : (
                             <CellWithBorder>
                                 <Centered>
                                     <Icon data={check} color="green" />
                                 </Centered>
                             </CellWithBorder>
-                            :
-                            <CellWithBorder>
-                                <Centered>
-                                </Centered>
-                            </CellWithBorder>
+                        )
                     )
                 }
             </Row>
