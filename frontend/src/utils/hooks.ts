@@ -95,18 +95,27 @@ export const useEvaluationsWithPortfolio = (evaluations: Evaluation[] | undefine
         return projectIds
     }
 
+    const cacheRef = useRef<Record<string, [string, string]>>({});
+
     const lookupPortfolioAndProjectMaster = async (projectId: string) => {
+        if (cacheRef.current[projectId]) {
+            return cacheRef.current[projectId];
+        }
+
         let project = await apiClients.getById(projectId)
         let projectMasterId = project.externalId
         if (projectMasterId) {
             const portfolio = project.value.portfolioOrganizationalUnit
             const projectMasterTitle = project.title
+            cacheRef.current[projectId] = [portfolio, projectMasterTitle];
             return [portfolio, projectMasterTitle]
         } else if (project.data.type.id === "ProjectMaster") {
             const portfolio = project.data.value.portfolioOrganizationalUnit
             const projectMasterTitle = project.data.title
+            cacheRef.current[projectId] = [portfolio, projectMasterTitle];
             return [portfolio, projectMasterTitle]
         }
+        cacheRef.current[projectId] = ['', ''];
         return ['', '']
     }
 
