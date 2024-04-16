@@ -108,7 +108,6 @@ const EvaluationsTable = ({
 
 
     useEffect(() => {
-        console.log("changing visible evaluations")
         const filteredEvaluations = evaluations.filter(evaluation => !hiddenEvaluationIds.includes(evaluation.id))
         setVisibleEvaluations(filteredEvaluations)
 

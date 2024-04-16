@@ -1,4 +1,3 @@
-import React, { useEffect, useRef } from 'react'
 import { EvaluationsByProjectMasterAndPortfolio } from '../../../../utils/hooks'
 import { Accordion } from '@equinor/eds-core-react'
 import TablesAndTitles from './TablesAndTitles'
@@ -16,13 +15,6 @@ const Portfolios = ({
     generatedBMTScores,
     refetchActiveEvaluations,
 }: Props) => {
-    const renderCount = useRef(0);
-
-    useEffect(() => {
-        renderCount.current = renderCount.current + 1;
-        console.log(`Portfolios.tsx has rendered ${renderCount.current} times`);
-    })
-
     return (
         <>
             <Accordion headerLevel="h3">

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
@@ -34,13 +34,6 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     const { loading, project, error } = useProjectQuery(fusionProjectId, externalId ?? '')
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
-
-    const renderCount = useRef(0);
-
-    useEffect(() => {
-        renderCount.current = renderCount.current + 1;
-        console.log(`ProjectTabs.tsx has rendered ${renderCount.current} times`);
-    })
 
     if (!currentContext) {
         return (
