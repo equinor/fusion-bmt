@@ -79,7 +79,8 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
 
-    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
+    //const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
+    const userIsAdmin = false
     const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
     const [userRoles, setUserRoles] = React.useState<{ evaluationId: string, role: Role }[]>([])
     const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
@@ -89,28 +90,37 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
 
     const canSetAsIndicator = (evaluation: Evaluation) => {
         const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
-
         const isFacilitator = userRole === Role.Facilitator
         const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
         const evaluationIsNotInFollowUp = evaluation.progression === Progression.FollowUp
 
-        let reasonsForNotBeingAbleToHide = []
+        let reasonsForNotBeingAbleToSelect = []
 
         if (!isFacilitator && !userIsAdmin) {
-            reasonsForNotBeingAbleToHide.push("only facilitators and admins can set an evaluation as active")
+            reasonsForNotBeingAbleToSelect.push("only facilitators and admins can set an evaluation as active")
         }
         if (!evaluationIsNotActive) {
-            reasonsForNotBeingAbleToHide.push("this evaluation is already active")
+            reasonsForNotBeingAbleToSelect.push("this evaluation is already active")
         }
         if (!evaluationIsNotInFollowUp) {
-            reasonsForNotBeingAbleToHide.push("this evaluation is not in follow-up")
+            reasonsForNotBeingAbleToSelect.push("this evaluation is not in follow-up")
         }
 
-        let toolTipMessage = reasonsForNotBeingAbleToHide.length > 0
-            ? reasonsForNotBeingAbleToHide.join(" & ")
+        let toolTipMessage = reasonsForNotBeingAbleToSelect.length > 0
+            ? reasonsForNotBeingAbleToSelect.join(" & ")
             : "Set as active evaluation"
 
         const canUserSetAsIndicator = (isFacilitator || userIsAdmin) && evaluationIsNotInFollowUp && evaluationIsNotActive
+        console.log("________________")
+        console.log("evaluation: ", evaluation.name)
+        console.log("isFacilitator: ", isFacilitator)
+        console.log("userIsAdmin: ", userIsAdmin)
+        console.log("evaluationIsNotInFollowUp: ", evaluationIsNotInFollowUp)
+        console.log("evaluationIsNotActive: ", evaluationIsNotActive)
+        console.log("canSetAsIndicator: ", canUserSetAsIndicator)
+        console.log("reasonsForNotBeingAbleToHide: ", reasonsForNotBeingAbleToSelect)
+
+
         return { "canSetAsIndicator": canUserSetAsIndicator, "toolTipMessage": toolTipMessage }
     }
 
@@ -134,7 +144,7 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
             : "Hide evaluation"
 
         const canUserHide = (isFacilitator && evaluationIsNotActive) || (userIsAdmin && evaluationIsNotActive)
-        
+
         return { "canHide": canUserHide, "toolTipMessage": toolTipMessage }
 
 
@@ -146,19 +156,16 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
 
     // finds all roles for the current user in the evaluations
     useEffect(() => {
-        evaluations.forEach(evaluation => {
+        const newUserRoles = evaluations.flatMap(evaluation => {
+            return evaluation.participants?.filter(participant =>
+                participant.azureUniqueId === currentUser?.localAccountId
+            ).map(participant => {
+                return { evaluationId: evaluation.id, role: participant.role };
+            }) || [];
+        });
 
-            evaluation.participants?.forEach(participant => {
-                const userIsParticipant = participant.azureUniqueId === currentUser?.localAccountId
-
-                if (userIsParticipant) {
-                    const userRole = participant.role as Role
-                    const roleEntry = { evaluationId: evaluation.id, role: userRole }
-                    setUserRoles([...userRoles, roleEntry])
-                }
-            })
-        })
-    }, [evaluations])
+        setUserRoles(userRoles => [...userRoles, ...newUserRoles]);
+    }, [evaluations, currentUser?.localAccountId]);
 
     let columns: Column[] = [
         { name: 'Title', accessor: 'name', sortable: true },
@@ -256,6 +263,10 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                 return ({ ...location, pathname: `${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
             }
             return ({ ...location, pathname: `/${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
+        }
+
+        if (!userRoles) {
+            return <div>Loading user roles...</div>;
         }
 
         return (
