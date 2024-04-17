@@ -118,7 +118,7 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         console.log("evaluationIsNotInFollowUp: ", evaluationIsNotInFollowUp)
         console.log("evaluationIsNotActive: ", evaluationIsNotActive)
         console.log("canSetAsIndicator: ", canUserSetAsIndicator)
-        console.log("reasonsForNotBeingAbleToHide: ", reasonsForNotBeingAbleToSelect)
+        console.log("reasonsForNotBeingAbleToSelect: ", reasonsForNotBeingAbleToSelect)
 
 
         return { "canSetAsIndicator": canUserSetAsIndicator, "toolTipMessage": toolTipMessage }
