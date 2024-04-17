@@ -124,7 +124,7 @@ namespace tests
             ProjectService projectService = new ProjectService(fixture.context);
             ParticipantService participantService = new ParticipantService(fixture.context);
             EvaluationService evaluationService = new EvaluationService(fixture.context);
-            Project project = projectService.Create("ProgressAllParticipants");
+            Project project = projectService.Create("ProgressAllParticipants", "FusionProjectId");
             Evaluation evaluation = evaluationService.Create("ProgressAllParticipants", project, "");
             Participant participant1 = participantService.Create("ProgressAllParticipants1", evaluation, Organization.All, Role.Facilitator);
             Participant participant2 = participantService.Create("ProgressAllParticipants2", evaluation, Organization.Commissioning, Role.OrganizationLead);
@@ -145,7 +145,7 @@ namespace tests
             ProjectService projectService = new ProjectService(fixture.context);
             ParticipantService participantService = new ParticipantService(fixture.context);
             EvaluationService evaluationService = new EvaluationService(fixture.context);
-            Project project = projectService.Create("ProgressParticipant");
+            Project project = projectService.Create("ProgressParticipant", "FusionProjectId");
             Evaluation evaluation = evaluationService.Create("ProgressParticipant", project, "");
             Participant participant = participantService.Create("ProgressParticipant", evaluation, Organization.All, Role.Facilitator);
 

@@ -75,7 +75,7 @@ namespace tests
             QuestionTemplate questionTemplate = questionTemplateService.GetAll().First();
 
             ProjectService projectService = new ProjectService(fixture.context);
-            Project project = projectService.Create("AnswerService_GetFromQuestionExists");
+            Project project = projectService.Create("AnswerService_GetFromQuestionExists", "FusionProjectId");
             EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project, "");
 
@@ -147,7 +147,7 @@ namespace tests
             AnswerService answerService = new AnswerService(fixture.context);
 
             ProjectService projectService = new ProjectService(fixture.context);
-            Project project = projectService.Create("AnswerService_GetFromQuestionExists");
+            Project project = projectService.Create("AnswerService_GetFromQuestionExists", "FusionProjectId");
             EvaluationService evaluationService = new EvaluationService(fixture.context);
             Evaluation evaluation = evaluationService.Create("AnswerService_GetFromQuestionExists", project, "");
 
@@ -158,10 +158,10 @@ namespace tests
             answerService.Create(participant, questions[1], Severity.OnTrack, "test_answer_1", Progression.Workshop);
             answerService.Create(participant, questions[2], Severity.OnTrack, "test_answer_2", Progression.Workshop);
 
-            int nAnswersFollowupBefore = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation))).Count();
-            int nAnswersWorkshop = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation))).Count();
+            int nAnswersFollowupBefore = answerService.GetAll().Where(a => a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation)).Count();
+            int nAnswersWorkshop = answerService.GetAll().Where(a => a.Progression.Equals(Progression.Workshop) && a.Question.Evaluation.Equals(evaluation)).Count();
             answerService.CreateFollowUpAnswers(evaluation);
-            int nAnswersFollowup = answerService.GetAll().Where(a => (a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation))).Count();
+            int nAnswersFollowup = answerService.GetAll().Where(a => a.Progression.Equals(Progression.FollowUp) && a.Question.Evaluation.Equals(evaluation)).Count();
 
             Assert.Equal(nAnswersFollowupBefore + nAnswersWorkshop, nAnswersFollowup);
         }
