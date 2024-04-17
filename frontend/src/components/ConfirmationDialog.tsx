@@ -24,7 +24,11 @@ const ConfirmationDialog = ({ isOpen, isLoading = false, title, description, onC
                     data-testid="confirmation_dialog"
                     open={isOpen}
                 >
-                    <Dialog.Title>{title}</Dialog.Title>
+                    <Dialog.Header>
+                        <Dialog.Title>
+                            {title}
+                        </Dialog.Title>
+                    </Dialog.Header>
                     {description && (
                         <Dialog.CustomContent>
                             <Typography>{description}</Typography>
@@ -36,8 +40,8 @@ const ConfirmationDialog = ({ isOpen, isLoading = false, title, description, onC
                             width: '100%',
                         }}
                     >
-                        <Box display="flex" flexDirection="row">
-                            <Box flexGrow={1}>
+                        <Box display="flex" flexDirection="row" justifyContent="flex-end">
+                            <Box>
                                 <Button data-testid="no_button" onClick={onCancelClick} disabled={isLoading}>
                                     No
                                 </Button>
