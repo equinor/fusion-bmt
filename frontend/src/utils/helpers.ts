@@ -1,5 +1,5 @@
 import { Context } from '@equinor/fusion'
-import { Question, Progression, Role, Severity, Participant } from '../api/models'
+import { Question, Progression, Role, Severity, Participant, Evaluation, UserRolesInEvaluation } from '../api/models'
 import { SeverityCount } from './Severity'
 import jwtDecode from 'jwt-decode'
 
@@ -67,4 +67,54 @@ export const getFusionProjectName = (projects: Context[] | undefined, fusionProj
 
 export const toCapitalizedCase = (input: string): string => {
     return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase()
+}
+
+export const evaluationCanBeHidden = (evaluation: Evaluation, userRoles: UserRolesInEvaluation[], userIsAdmin: boolean) => {
+    const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
+    const isFacilitator = userRole === Role.Facilitator
+    const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
+
+    let reasonsForNotBeingAbleToHide = []
+
+    if (!isFacilitator && !userIsAdmin) {
+        reasonsForNotBeingAbleToHide.push("only facilitators and admins can hide evaluations")
+    }
+    if (!evaluationIsNotActive) {
+        reasonsForNotBeingAbleToHide.push("active evaluations cannot be hidden")
+    }
+
+    let toolTipMessage = reasonsForNotBeingAbleToHide.length > 0
+        ? reasonsForNotBeingAbleToHide.join(" & ")
+        : "Hide evaluation"
+
+    const canUserHide = (isFacilitator && evaluationIsNotActive) || (userIsAdmin && evaluationIsNotActive)
+
+    return { "canHide": canUserHide, "toolTipMessage": toolTipMessage }
+}
+
+export const canSetEvaluationAsIndicator = (evaluation: Evaluation, userRoles: UserRolesInEvaluation[], userIsAdmin: boolean) => {
+    const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
+    const isFacilitator = userRole === Role.Facilitator
+    const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
+    const evaluationIsNotInFollowUp = evaluation.progression === Progression.FollowUp
+
+    let reasonsForNotBeingAbleToSelect = []
+
+    if (!isFacilitator && !userIsAdmin) {
+            reasonsForNotBeingAbleToSelect.push("only facilitators and admins can set an evaluation as active")
+    }
+    if (!evaluationIsNotActive) {
+        reasonsForNotBeingAbleToSelect.push("this evaluation is already active")
+    }
+    if (!evaluationIsNotInFollowUp) {
+        reasonsForNotBeingAbleToSelect.push("this evaluation is not in follow-up")
+    }
+
+    let toolTipMessage = reasonsForNotBeingAbleToSelect.length > 0
+        ? reasonsForNotBeingAbleToSelect.join(" & ")
+        : "Set as active evaluation"
+
+    const canUserSetAsIndicator = (isFacilitator || userIsAdmin) && evaluationIsNotInFollowUp && evaluationIsNotActive
+
+    return { "canSetAsIndicator": canUserSetAsIndicator, "toolTipMessage": toolTipMessage }
 }

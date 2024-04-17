@@ -1,18 +1,13 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-
 import { Icon, Table, Tooltip, Typography, Radio, Button } from '@equinor/eds-core-react'
-import {
-    warning_filled,
-    check,
-    visibility,
-} from '@equinor/eds-icons'
+import { warning_filled, check, visibility } from '@equinor/eds-icons'
 import { tokens } from '@equinor/eds-tokens'
 import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
-import { Evaluation, Progression, Role } from '../../../../api/models'
+import { Evaluation, Progression, Role, UserRolesInEvaluation } from '../../../../api/models'
 import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/util/helpers'
 import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
@@ -22,7 +17,7 @@ import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
 import { ApolloError, useMutation, gql } from '@apollo/client'
-import { getCachedRoles } from '../../../../utils/helpers'
+import { getCachedRoles, evaluationCanBeHidden, canSetEvaluationAsIndicator } from '../../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
 
@@ -76,96 +71,16 @@ interface Props {
 const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const currentProject = useModuleCurrentContext()
     const currentUser = useCurrentUser()
+    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
+
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
 
-    //const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
-    const userIsAdmin = false
     const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
-    const [userRoles, setUserRoles] = React.useState<{ evaluationId: string, role: Role }[]>([])
+    const [userRoles, setUserRoles] = React.useState<UserRolesInEvaluation[]>([])
     const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
     const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
-
-    const userIsFacilitatorInAtLeastOneEvaluation = userRoles.some(role => role.role === Role.Facilitator)
-
-    const canSetAsIndicator = (evaluation: Evaluation) => {
-        const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
-        const isFacilitator = userRole === Role.Facilitator
-        const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
-        const evaluationIsNotInFollowUp = evaluation.progression === Progression.FollowUp
-
-        let reasonsForNotBeingAbleToSelect = []
-
-        if (!isFacilitator && !userIsAdmin) {
-            reasonsForNotBeingAbleToSelect.push("only facilitators and admins can set an evaluation as active")
-        }
-        if (!evaluationIsNotActive) {
-            reasonsForNotBeingAbleToSelect.push("this evaluation is already active")
-        }
-        if (!evaluationIsNotInFollowUp) {
-            reasonsForNotBeingAbleToSelect.push("this evaluation is not in follow-up")
-        }
-
-        let toolTipMessage = reasonsForNotBeingAbleToSelect.length > 0
-            ? reasonsForNotBeingAbleToSelect.join(" & ")
-            : "Set as active evaluation"
-
-        const canUserSetAsIndicator = (isFacilitator || userIsAdmin) && evaluationIsNotInFollowUp && evaluationIsNotActive
-        console.log("________________")
-        console.log("evaluation: ", evaluation.name)
-        console.log("isFacilitator: ", isFacilitator)
-        console.log("userIsAdmin: ", userIsAdmin)
-        console.log("evaluationIsNotInFollowUp: ", evaluationIsNotInFollowUp)
-        console.log("evaluationIsNotActive: ", evaluationIsNotActive)
-        console.log("canSetAsIndicator: ", canUserSetAsIndicator)
-        console.log("reasonsForNotBeingAbleToSelect: ", reasonsForNotBeingAbleToSelect)
-
-
-        return { "canSetAsIndicator": canUserSetAsIndicator, "toolTipMessage": toolTipMessage }
-    }
-
-    const canHide = (evaluation: Evaluation) => {
-        const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
-
-        const isFacilitator = userRole === Role.Facilitator
-        const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
-
-        let reasonsForNotBeingAbleToHide = []
-
-        if (!isFacilitator && !userIsAdmin) {
-            reasonsForNotBeingAbleToHide.push("only facilitators and admins can hide evaluations")
-        }
-        if (!evaluationIsNotActive) {
-            reasonsForNotBeingAbleToHide.push("active evaluations cannot be hidden")
-        }
-
-        let toolTipMessage = reasonsForNotBeingAbleToHide.length > 0
-            ? reasonsForNotBeingAbleToHide.join(" & ")
-            : "Hide evaluation"
-
-        const canUserHide = (isFacilitator && evaluationIsNotActive) || (userIsAdmin && evaluationIsNotActive)
-
-        return { "canHide": canUserHide, "toolTipMessage": toolTipMessage }
-
-
-    }
-
-    const setAsIndicator = (projectId: string, evaluationId: string) => {
-        setIndicatorStatus(projectId, evaluationId)
-    }
-
-    // finds all roles for the current user in the evaluations
-    useEffect(() => {
-        const newUserRoles = evaluations.flatMap(evaluation => {
-            return evaluation.participants?.filter(participant =>
-                participant.azureUniqueId === currentUser?.localAccountId
-            ).map(participant => {
-                return { evaluationId: evaluation.id, role: participant.role };
-            }) || [];
-        });
-
-        setUserRoles(userRoles => [...userRoles, ...newUserRoles]);
-    }, [evaluations, currentUser?.localAccountId]);
+    const [userIsFacilitatorInAtLeastOneEvaluation, setUserIsFacilitatorInAtLeastOneEvaluation] = React.useState(false)
 
     let columns: Column[] = [
         { name: 'Title', accessor: 'name', sortable: true },
@@ -183,8 +98,25 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         ] : [])
     ]
 
-    if (currentProject === null || currentProject === undefined) {
-        return <p>No project selected</p>
+    // finds all roles for the current user in the evaluations
+    useEffect(() => {
+        const newUserRoles = evaluations.flatMap(evaluation => {
+            return evaluation.participants?.filter(participant =>
+                participant.azureUniqueId === currentUser?.localAccountId
+            ).map(participant => {
+                return { evaluationId: evaluation.id, role: participant.role }
+            }) || []
+        })
+
+        setUserRoles(userRoles => [...userRoles, ...newUserRoles])
+    }, [evaluations, currentUser?.localAccountId])
+
+    useEffect(() => {
+        setUserIsFacilitatorInAtLeastOneEvaluation(userRoles.some(role => role.role === Role.Facilitator))
+    }, [evaluations])
+
+    const setAsIndicator = (projectId: string, evaluationId: string) => {
+        setIndicatorStatus(projectId, evaluationId)
     }
 
     const promptConfirmation = (evaluation: Evaluation) => {
@@ -265,10 +197,6 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
             return ({ ...location, pathname: `/${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
         }
 
-        if (!userRoles) {
-            return <div>Loading user roles...</div>;
-        }
-
         return (
             <Row key={index}>
                 <CellWithBorder>
@@ -341,12 +269,12 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                                 <CellWithBorder>
                                     <Centered>
                                         <Tooltip
-                                            title={canSetAsIndicator(evaluation).toolTipMessage}
+                                            title={canSetEvaluationAsIndicator(evaluation, userRoles, userIsAdmin).toolTipMessage}
                                             placement="top"
                                         >
                                             <Radio
                                                 checked={evaluation.project.indicatorEvaluationId === evaluation.id}
-                                                disabled={!canSetAsIndicator(evaluation).canSetAsIndicator}
+                                                disabled={!canSetEvaluationAsIndicator(evaluation, userRoles, userIsAdmin).canSetAsIndicator}
                                                 onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
                                             />
                                         </Tooltip>
@@ -355,13 +283,13 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                                 <Cell>
                                     <Centered>
                                         <Tooltip
-                                            title={canHide(evaluation).toolTipMessage}
+                                            title={evaluationCanBeHidden(evaluation, userRoles, userIsAdmin).toolTipMessage}
                                             placement="top"
                                         >
                                             <Button
                                                 variant="ghost_icon"
                                                 onClick={() => promptConfirmation(evaluation)}
-                                                disabled={!canHide(evaluation).canHide}
+                                                disabled={!evaluationCanBeHidden(evaluation, userRoles, userIsAdmin).canHide}
                                             >
                                                 <Icon data={visibility} />
                                             </Button>
@@ -370,11 +298,17 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                                 </Cell>
                             </>
                         ) : (
-                            <CellWithBorder>
-                                <Centered>
-                                    <Icon data={check} color="green" />
-                                </Centered>
-                            </CellWithBorder>
+                            evaluation.project.indicatorEvaluationId === evaluation.id ?
+                                <CellWithBorder>
+                                    <Centered>
+                                        <Icon data={check} color="green" />
+                                    </Centered>
+                                </CellWithBorder>
+                                :
+                                <CellWithBorder>
+                                    <Centered>
+                                    </Centered>
+                                </CellWithBorder>
                         )
                     )
                 }
@@ -382,6 +316,13 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         )
     }
 
+    if (!userRoles) {
+        return <div>Loading user roles...</div>;
+    }
+
+    if (currentProject === null || currentProject === undefined) {
+        return <p>No project selected</p>
+    }
 
     return (
         <>
