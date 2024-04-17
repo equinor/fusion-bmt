@@ -84,7 +84,7 @@ export const evaluationCanBeHidden = (evaluation: Evaluation, userRoles: UserRol
         reasonsForNotBeingAbleToHide.push("active evaluations cannot be hidden")
     }
 
-    let toolTipMessage = reasonsForNotBeingAbleToHide.length > 0
+    const toolTipMessage = reasonsForNotBeingAbleToHide.length > 0
         ? reasonsForNotBeingAbleToHide.join(" & ")
         : "Hide evaluation"
 
@@ -111,7 +111,7 @@ export const canSetEvaluationAsIndicator = (evaluation: Evaluation, userRoles: U
         reasonsForNotBeingAbleToSelect.push("this evaluation is not in follow-up")
     }
 
-    let toolTipMessage = reasonsForNotBeingAbleToSelect.length > 0
+    const toolTipMessage = reasonsForNotBeingAbleToSelect.length > 0
         ? reasonsForNotBeingAbleToSelect.join(" & ")
         : "Set as active evaluation"
 
