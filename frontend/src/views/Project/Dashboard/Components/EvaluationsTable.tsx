@@ -317,7 +317,7 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     }
 
     if (!userRoles) {
-        return <div>Loading user roles...</div>;
+        return <p>Loading user roles...</p>;
     }
 
     if (currentProject === null || currentProject === undefined) {
