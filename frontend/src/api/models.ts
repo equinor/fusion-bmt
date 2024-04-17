@@ -773,8 +773,3 @@ export type StringOperationFilterInput = {
   or?: InputMaybe<Array<StringOperationFilterInput>>;
   startsWith?: InputMaybe<Scalars['String']['input']>;
 };
-
-export type UserRolesInEvaluation = {
-    evaluationId: string
-    role: Role
-}

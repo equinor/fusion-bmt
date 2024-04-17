@@ -1,5 +1,6 @@
 import { Context } from '@equinor/fusion'
-import { Question, Progression, Role, Severity, Participant, Evaluation, UserRolesInEvaluation } from '../api/models'
+import { Question, Progression, Role, Severity, Participant, Evaluation } from '../api/models'
+import { UserRolesInEvaluation } from './helperModels'
 import { SeverityCount } from './Severity'
 import jwtDecode from 'jwt-decode'
 
