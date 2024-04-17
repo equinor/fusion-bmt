@@ -1,8 +1,6 @@
 import { Accordion } from '@equinor/eds-core-react'
 import { EvaluationsByProjectMaster } from '../../../../utils/hooks'
 import EvaluationsTable from './EvaluationsTable'
-import { useProject } from '../../../../globals/contexts'
-import { useEffect } from 'react'
 import EvaluationScoreIndicator from '../../../../components/EvaluationScoreIndicator'
 import FollowUpIndicator from '../../../../components/FollowUpIndicator'
 import { noProjectMasterTitle } from '../../../../utils/hooks'
@@ -10,6 +8,7 @@ import styled from 'styled-components'
 import { ApolloQueryResult } from '@apollo/client'
 import { Evaluation } from '../../../../api/models'
 import React from 'react'
+import { ProjectBMTScore, ProjectIndicator } from '../../../../utils/helperModels'
 
 const Indicators = styled.div`
     display: flex;
@@ -21,16 +20,6 @@ const Indicators = styled.div`
 const StyledPanel = styled(Accordion.Panel)`
     overflow-y: auto;
 `
-
-export interface ProjectIndicator {
-    projectId: string
-    evaluationId: string
-}
-
-export interface ProjectBMTScore {
-    projectId: string
-    bmtScore: number
-}
 
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster

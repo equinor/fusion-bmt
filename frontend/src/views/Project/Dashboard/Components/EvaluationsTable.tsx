@@ -8,7 +8,7 @@ import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
 import { BmtScore, Evaluation, Progression, Role } from '../../../../api/models'
-import { UserRolesInEvaluation } from '../../../../utils/helperModels'
+import { ProjectBMTScore, ProjectIndicator, UserRolesInEvaluation } from '../../../../utils/helperModels'
 import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/util/helpers'
 import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
@@ -18,7 +18,6 @@ import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
 import { ApolloError, useMutation, gql, ApolloQueryResult, FetchResult } from '@apollo/client'
-import { ProjectBMTScore, ProjectIndicator } from './TablesAndTitles'
 import { getCachedRoles, evaluationCanBeHidden, canSetEvaluationAsIndicator } from '../../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
@@ -90,11 +89,10 @@ const EvaluationsTable = ({
 
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
+    const { generateBMTScore, loading: loadingProgressEvaluation1, error: errorProgressEvaluation1 } = useGenerateBMTScoreMutation()
 
     const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>([])
     const [hiddenEvaluationIds, setHiddenEvaluationIds] = React.useState<string[]>([])
-
-    const { generateBMTScore, loading: loadingProgressEvaluation1, error: errorProgressEvaluation1 } = useGenerateBMTScoreMutation()
 
     const [userRoles, setUserRoles] = React.useState<UserRolesInEvaluation[]>([])
     const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
