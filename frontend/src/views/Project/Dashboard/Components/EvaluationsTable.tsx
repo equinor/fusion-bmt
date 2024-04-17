@@ -7,8 +7,8 @@ import { tokens } from '@equinor/eds-tokens'
 import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
-import { Evaluation, Progression, Role } from '../../../../api/models'
-import { UserRolesInEvaluation } from '../../../../utils/helperModels'
+import { BmtScore, Evaluation, Progression, Role } from '../../../../api/models'
+import { ProjectBMTScore, ProjectIndicator, UserRolesInEvaluation } from '../../../../utils/helperModels'
 import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/util/helpers'
 import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
@@ -17,7 +17,7 @@ import ProgressStatusIcon from './ProgressStatusIcon'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
-import { ApolloError, useMutation, gql } from '@apollo/client'
+import { ApolloError, useMutation, gql, ApolloQueryResult, FetchResult } from '@apollo/client'
 import { getCachedRoles, evaluationCanBeHidden, canSetEvaluationAsIndicator } from '../../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
@@ -36,7 +36,7 @@ const CellWithBorder = styled(Cell)`
     border-right: 1px solid lightgrey;
 `
 interface setProjectIndicatorMutationProps {
-    setIndicatorStatus: (projectId: string, evaluationId: string) => void
+    setIndicatorStatus: (projectId: string, evaluationId: string) => Promise<void>
     loading: boolean
     error: ApolloError | undefined
 }
@@ -53,8 +53,8 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
 
     const [setIndicatorApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
 
-    const setIndicatorStatus = (projectId: string, evaluationId: string) => {
-        setIndicatorApolloFunc({ variables: { projectId, evaluationId } })
+    const setIndicatorStatus = async (projectId: string, evaluationId: string) => {
+        await setIndicatorApolloFunc({ variables: { projectId, evaluationId } })
     }
 
     return {
@@ -67,21 +67,77 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
 interface Props {
     evaluations: Evaluation[]
     isInPortfolio?: boolean
+    refetchActiveEvaluations?: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
+    setProjectIndicators?: (projectIndicators: ProjectIndicator[]) => void
+    projectIndicators?: ProjectIndicator[]
+    setProjectBmtScores?: (projectBMTScores: ProjectBMTScore[]) => void
+    projectBMTScores?: ProjectBMTScore[]
 }
 
-const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
+const EvaluationsTable = ({
+    evaluations,
+    isInPortfolio,
+    refetchActiveEvaluations,
+    setProjectIndicators,
+    projectIndicators,
+    setProjectBmtScores,
+    projectBMTScores
+}: Props) => {
     const currentProject = useModuleCurrentContext()
     const currentUser = useCurrentUser()
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
 
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
+    const { generateBMTScore, loading: loadingProgressEvaluation1, error: errorProgressEvaluation1 } = useGenerateBMTScoreMutation()
 
-    const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
+    const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>([])
+    const [hiddenEvaluationIds, setHiddenEvaluationIds] = React.useState<string[]>([])
+
     const [userRoles, setUserRoles] = React.useState<UserRolesInEvaluation[]>([])
     const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
     const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
     const [userIsFacilitatorInAtLeastOneEvaluation, setUserIsFacilitatorInAtLeastOneEvaluation] = React.useState(false)
+
+    useEffect(() => {
+        const filteredEvaluations = evaluations.filter(evaluation => !hiddenEvaluationIds.includes(evaluation.id))
+        setVisibleEvaluations(filteredEvaluations)
+
+    }, [evaluations, hiddenEvaluationIds])
+
+
+    const setAsIndicator = async (projectId: string, evaluationId: string) => {
+        if (!setProjectIndicators || !projectIndicators || !refetchActiveEvaluations || !projectBMTScores || !setProjectBmtScores) {
+            return;
+        }
+
+        const updateOrAddItem = (items: any[], newItem: any) => {
+            const itemIndex = items.findIndex(i => i.projectId === projectId);
+            if (itemIndex > -1) {
+                const updatedItems = [...items];
+                updatedItems[itemIndex] = { ...updatedItems[itemIndex], ...newItem };
+                return updatedItems;
+            } else {
+                return [...items, newItem];
+            }
+        }
+
+        const updatedProjectIndicators = updateOrAddItem(projectIndicators, { projectId, evaluationId });
+        setProjectIndicators(updatedProjectIndicators);
+
+        await setIndicatorStatus(projectId, evaluationId)
+
+        const [_, generateBMTScoreResponse] = await Promise.all([
+            refetchActiveEvaluations(),
+            generateBMTScore(projectId)
+        ]);
+
+        // @ts-ignore
+        const newBmtScore = generateBMTScoreResponse.data?.generateBMTScore?.followUpScore;
+
+        const updatedProjectBMTScores = updateOrAddItem(projectBMTScores, { projectId, bmtScore: newBmtScore });
+        setProjectBmtScores(updatedProjectBMTScores);
+    }
 
     let columns: Column[] = [
         { name: 'Title', accessor: 'name', sortable: true },
@@ -116,10 +172,21 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         setUserIsFacilitatorInAtLeastOneEvaluation(userRoles.some(role => role.role === Role.Facilitator))
     }, [evaluations])
 
-    const setAsIndicator = (projectId: string, evaluationId: string) => {
-        setIndicatorStatus(projectId, evaluationId)
-    }
+    const hideEvaluation = async () => {
+        if (evaluationStagedToHide) {
+            const newStatus = Status.Voided
+            setEvaluationStatus(evaluationStagedToHide.id, newStatus)
+            setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluationStagedToHide.id))
+            setConfirmationIsOpen(false)
+            setEvaluationStagedToHide(null)
+            setHiddenEvaluationIds([...hiddenEvaluationIds, evaluationStagedToHide.id])
+            await setEvaluationStatus(evaluationStagedToHide.id, newStatus)
+            if (refetchActiveEvaluations) {
+                refetchActiveEvaluations()
+            }
+        }
 
+    }
     const promptConfirmation = (evaluation: Evaluation) => {
         setConfirmationIsOpen(true)
         setEvaluationStagedToHide(evaluation)
@@ -128,16 +195,6 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
     const cancelConfirmation = () => {
         setConfirmationIsOpen(false)
         setEvaluationStagedToHide(null)
-    }
-
-    const hideEvaluation = () => {
-        if (evaluationStagedToHide) {
-            const newStatus = Status.Voided
-            setEvaluationStatus(evaluationStagedToHide.id, newStatus)
-            setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluationStagedToHide.id))
-            setConfirmationIsOpen(false)
-            setEvaluationStagedToHide(null)
-        }
     }
 
     const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
@@ -196,6 +253,13 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                 return ({ ...location, pathname: `${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
             }
             return ({ ...location, pathname: `/${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
+        }
+
+        const isChecked = (): boolean => {
+            if (projectIndicators && projectIndicators.some(pi => pi.projectId === evaluation.projectId)) {
+                return projectIndicators.some(pi => pi.evaluationId === evaluation.id)
+            }
+            return evaluation.project.indicatorEvaluationId === evaluation.id
         }
 
         return (
@@ -274,7 +338,7 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                                             placement="top"
                                         >
                                             <Radio
-                                                checked={evaluation.project.indicatorEvaluationId === evaluation.id}
+                                                checked={isChecked()}
                                                 disabled={!canSetEvaluationAsIndicator(evaluation, userRoles, userIsAdmin).canSetAsIndicator}
                                                 onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
                                             />
@@ -350,3 +414,37 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
 }
 
 export default EvaluationsTable
+
+
+interface useGenerateBMTScoreMutationProps {
+    generateBMTScore: (evaluationId: string) => Promise<FetchResult<BmtScore>>
+    loading: boolean
+    score: string
+    error: ApolloError | undefined
+}
+
+const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
+    const GENERATE_BMTSCORE = gql`
+    mutation GenerateBMTScore($projectId: String!) {
+        generateBMTScore(projectId: $projectId) {
+                evaluationId
+                projectId
+                workshopScore
+                followUpScore
+            }
+        }
+    `
+
+    const [generateBMTScoreApolloFunc, { loading, data, error }] = useMutation(GENERATE_BMTSCORE)
+
+    const generateBMTScore = (projectId: string) => {
+        return generateBMTScoreApolloFunc({ variables: { projectId } })
+    }
+
+    return {
+        generateBMTScore: generateBMTScore,
+        loading,
+        score: data,
+        error,
+    }
+}
