@@ -1,21 +1,14 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
-
-import { Icon, Table, Tooltip, Typography, Radio } from '@equinor/eds-core-react'
-import {
-    warning_filled,
-    check,
-    radio_button_unselected,
-    radio_button_selected,
-    visibility_off,
-    visibility
-} from '@equinor/eds-icons'
+import { Icon, Table, Tooltip, Typography, Radio, Button } from '@equinor/eds-core-react'
+import { warning_filled, check, visibility } from '@equinor/eds-icons'
 import { tokens } from '@equinor/eds-tokens'
 import { progressionToString } from '../../../../utils/EnumToString'
 import { calcProgressionStatus, countProgressionStatus, ProgressionStatus } from '../../../../utils/ProgressionStatus'
 import { sort, SortDirection } from '../../../../utils/sort'
-import { Evaluation, Progression } from '../../../../api/models'
+import { BmtScore, Evaluation, Progression, Role } from '../../../../api/models'
+import { ProjectBMTScore, ProjectIndicator, UserRolesInEvaluation } from '../../../../utils/helperModels'
 import { assignAnswerToBarrierQuestions } from '../../../Evaluation/FollowUp/util/helpers'
 import { getEvaluationActionsByState } from '../../../../utils/actionUtils'
 import Bowtie from '../../../../components/Bowtie/Bowtie'
@@ -24,7 +17,10 @@ import ProgressStatusIcon from './ProgressStatusIcon'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
-import { ApolloError, useMutation, gql } from '@apollo/client'
+import { ApolloError, useMutation, gql, ApolloQueryResult, FetchResult } from '@apollo/client'
+import { getCachedRoles, evaluationCanBeHidden, canSetEvaluationAsIndicator } from '../../../../utils/helpers'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
+import ConfirmationDialog from '../../../../components/ConfirmationDialog'
 
 const { Row, Cell } = Table
 
@@ -39,17 +35,8 @@ const Centered = styled.div`
 const CellWithBorder = styled(Cell)`
     border-right: 1px solid lightgrey;
 `
-
-const CellButton = styled(Icon)`
-    cursor: pointer;
-
-    &:hover {
-        color: ${tokens.colors.interactive.primary__resting.rgba};
-    }
-`
-
 interface setProjectIndicatorMutationProps {
-    setIndicatorStatus: (projectId: string, evaluationId: string) => void
+    setIndicatorStatus: (projectId: string, evaluationId: string) => Promise<void>
     loading: boolean
     error: ApolloError | undefined
 }
@@ -66,8 +53,8 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
 
     const [setIndicatorApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_STATUS_MUTATION)
 
-    const setIndicatorStatus = (projectId: string, evaluationId: string) => {
-        setIndicatorApolloFunc({ variables: { projectId, evaluationId } })
+    const setIndicatorStatus = async (projectId: string, evaluationId: string) => {
+        await setIndicatorApolloFunc({ variables: { projectId, evaluationId } })
     }
 
     return {
@@ -80,19 +67,76 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
 interface Props {
     evaluations: Evaluation[]
     isInPortfolio?: boolean
+    refetchActiveEvaluations?: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
+    setProjectIndicators?: (projectIndicators: ProjectIndicator[]) => void
+    projectIndicators?: ProjectIndicator[]
+    setProjectBmtScores?: (projectBMTScores: ProjectBMTScore[]) => void
+    projectBMTScores?: ProjectBMTScore[]
 }
 
-const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
+const EvaluationsTable = ({
+    evaluations,
+    isInPortfolio,
+    refetchActiveEvaluations,
+    setProjectIndicators,
+    projectIndicators,
+    setProjectBmtScores,
+    projectBMTScores
+}: Props) => {
     const currentProject = useModuleCurrentContext()
+    const currentUser = useCurrentUser()
+    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
+
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
+    const { generateBMTScore, loading: loadingProgressEvaluation1, error: errorProgressEvaluation1 } = useGenerateBMTScoreMutation()
 
-    const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>(evaluations)
-    console.log(visibleEvaluations)
+    const [visibleEvaluations, setVisibleEvaluations] = React.useState<Evaluation[]>([])
+    const [hiddenEvaluationIds, setHiddenEvaluationIds] = React.useState<string[]>([])
+
+    const [userRoles, setUserRoles] = React.useState<UserRolesInEvaluation[]>([])
+    const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
+    const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
+    const [userIsFacilitatorInAtLeastOneEvaluation, setUserIsFacilitatorInAtLeastOneEvaluation] = React.useState(false)
+
+    useEffect(() => {
+        const filteredEvaluations = evaluations.filter(evaluation => !hiddenEvaluationIds.includes(evaluation.id))
+        setVisibleEvaluations(filteredEvaluations)
+
+    }, [evaluations, hiddenEvaluationIds])
 
 
-    const setAsIndicator = (projectId: string, evaluationId: string) => {
-        setIndicatorStatus(projectId, evaluationId)
+    const setAsIndicator = async (projectId: string, evaluationId: string) => {
+        if (!setProjectIndicators || !projectIndicators || !refetchActiveEvaluations || !projectBMTScores || !setProjectBmtScores) {
+            return;
+        }
+
+        const updateOrAddItem = (items: any[], newItem: any) => {
+            const itemIndex = items.findIndex(i => i.projectId === projectId);
+            if (itemIndex > -1) {
+                const updatedItems = [...items];
+                updatedItems[itemIndex] = { ...updatedItems[itemIndex], ...newItem };
+                return updatedItems;
+            } else {
+                return [...items, newItem];
+            }
+        }
+
+        const updatedProjectIndicators = updateOrAddItem(projectIndicators, { projectId, evaluationId });
+        setProjectIndicators(updatedProjectIndicators);
+
+        await setIndicatorStatus(projectId, evaluationId)
+
+        const [_, generateBMTScoreResponse] = await Promise.all([
+            refetchActiveEvaluations(),
+            generateBMTScore(projectId)
+        ]);
+
+        // @ts-ignore
+        const newBmtScore = generateBMTScoreResponse.data?.generateBMTScore?.followUpScore;
+
+        const updatedProjectBMTScores = updateOrAddItem(projectBMTScores, { projectId, bmtScore: newBmtScore });
+        setProjectBmtScores(updatedProjectBMTScores);
     }
 
     let columns: Column[] = [
@@ -103,23 +147,54 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
         { name: 'Open actions', accessor: 'open_actions', sortable: true },
         { name: 'Closed actions', accessor: 'closed_actions', sortable: true },
         { name: 'Date created', accessor: 'createDate', sortable: true },
-        ...(isInPortfolio ? [
+        ...(isInPortfolio ? (userIsAdmin || userIsFacilitatorInAtLeastOneEvaluation) ? [
             { name: 'Select active evaluation', accessor: 'select', sortable: false },
             { name: 'Hide evaluation', accessor: 'hide', sortable: false }
         ] : [
             { name: 'Active evaluation', accessor: 'indicator', sortable: false },
-        ])
+        ] : [])
     ]
 
-    if (currentProject === null || currentProject === undefined) {
-        return <p>No project selected</p>
+    // finds all roles for the current user in the evaluations
+    useEffect(() => {
+        const newUserRoles = evaluations.flatMap(evaluation => {
+            return evaluation.participants?.filter(participant =>
+                participant.azureUniqueId === currentUser?.localAccountId
+            ).map(participant => {
+                return { evaluationId: evaluation.id, role: participant.role }
+            }) || []
+        })
+
+        setUserRoles(userRoles => [...userRoles, ...newUserRoles])
+    }, [evaluations, currentUser?.localAccountId])
+
+    useEffect(() => {
+        setUserIsFacilitatorInAtLeastOneEvaluation(userRoles.some(role => role.role === Role.Facilitator))
+    }, [evaluations])
+
+    const hideEvaluation = async () => {
+        if (evaluationStagedToHide) {
+            const newStatus = Status.Voided
+            setEvaluationStatus(evaluationStagedToHide.id, newStatus)
+            setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluationStagedToHide.id))
+            setConfirmationIsOpen(false)
+            setEvaluationStagedToHide(null)
+            setHiddenEvaluationIds([...hiddenEvaluationIds, evaluationStagedToHide.id])
+            await setEvaluationStatus(evaluationStagedToHide.id, newStatus)
+            if (refetchActiveEvaluations) {
+                refetchActiveEvaluations()
+            }
+        }
+
+    }
+    const promptConfirmation = (evaluation: Evaluation) => {
+        setConfirmationIsOpen(true)
+        setEvaluationStagedToHide(evaluation)
     }
 
-    const hideEvaluation = (evaluation: Evaluation) => {
-        const newStatus = Status.Voided
-        setEvaluationStatus(evaluation.id, newStatus)
-        setVisibleEvaluations(visibleEvaluations.filter(e => e.id !== evaluation.id))
-        //TODO: trigger a refresh of evaluations here. the visibleEvaluations does not correctly keep the evaluation hidden when the user navigates to a different view and back
+    const cancelConfirmation = () => {
+        setConfirmationIsOpen(false)
+        setEvaluationStagedToHide(null)
     }
 
     const sortOnAccessor = (a: Evaluation, b: Evaluation, accessor: string, sortDirection: SortDirection) => {
@@ -178,6 +253,13 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                 return ({ ...location, pathname: `${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
             }
             return ({ ...location, pathname: `/${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
+        }
+
+        const isChecked = (): boolean => {
+            if (projectIndicators && projectIndicators.some(pi => pi.projectId === evaluation.projectId)) {
+                return projectIndicators.some(pi => pi.evaluationId === evaluation.id)
+            }
+            return evaluation.project.indicatorEvaluationId === evaluation.id
         }
 
         return (
@@ -246,49 +328,80 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
                     <Centered>{new Date(evaluation.createDate).toLocaleDateString()}</Centered>
                 </CellWithBorder>
                 {
-                    isInPortfolio ? (
-                        <>
-                            <CellWithBorder>
-                                <Centered>
-                                    <Tooltip title={evaluation.progression !== "FOLLOW_UP" ? "Evaluation status must be in 'follow-up'" : "Select as active evaluation"}>
-                                        <Radio
-                                            checked={evaluation.project.indicatorEvaluationId === evaluation.id}
-                                            disabled={evaluation.progression !== "FOLLOW_UP"}
-                                            onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
-                                        />
-                                    </Tooltip>
-                                </Centered>
-                            </CellWithBorder>
-                            <Cell>
-                                <Centered>
-                                    <CellButton
-                                        data={visibility_off}
-                                        onClick={() => hideEvaluation(evaluation)}
-                                    />
-                                </Centered>
-                            </Cell>
-                        </>
-                    ) : (
-                        evaluation.project.indicatorEvaluationId === evaluation.id ?
-                            <CellWithBorder>
-                                <Centered>
-                                    <Icon data={check} color="green" />
-                                </Centered>
-                            </CellWithBorder>
-                            :
-                            <CellWithBorder>
-                                <Centered>
-                                </Centered>
-                            </CellWithBorder>
+                    isInPortfolio && (
+                        (userIsAdmin || userIsFacilitatorInAtLeastOneEvaluation) ? (
+                            <>
+                                <CellWithBorder>
+                                    <Centered>
+                                        <Tooltip
+                                            title={canSetEvaluationAsIndicator(evaluation, userRoles, userIsAdmin).toolTipMessage}
+                                            placement="top"
+                                        >
+                                            <Radio
+                                                checked={isChecked()}
+                                                disabled={!canSetEvaluationAsIndicator(evaluation, userRoles, userIsAdmin).canSetAsIndicator}
+                                                onChange={() => setAsIndicator(evaluation.projectId, evaluation.id)}
+                                            />
+                                        </Tooltip>
+                                    </Centered>
+                                </CellWithBorder>
+                                <Cell>
+                                    <Centered>
+                                        <Tooltip
+                                            title={evaluationCanBeHidden(evaluation, userRoles, userIsAdmin).toolTipMessage}
+                                            placement="top"
+                                        >
+                                            <Button
+                                                variant="ghost_icon"
+                                                onClick={() => promptConfirmation(evaluation)}
+                                                disabled={!evaluationCanBeHidden(evaluation, userRoles, userIsAdmin).canHide}
+                                            >
+                                                <Icon data={visibility} />
+                                            </Button>
+                                        </Tooltip>
+                                    </Centered>
+                                </Cell>
+                            </>
+                        ) : (
+                            evaluation.project.indicatorEvaluationId === evaluation.id ?
+                                <CellWithBorder>
+                                    <Centered>
+                                        <Icon data={check} color="green" />
+                                    </Centered>
+                                </CellWithBorder>
+                                :
+                                <CellWithBorder>
+                                    <Centered>
+                                    </Centered>
+                                </CellWithBorder>
+                        )
                     )
                 }
             </Row>
         )
     }
 
+    if (!userRoles) {
+        return <p>Loading user roles...</p>;
+    }
+
+    if (currentProject === null || currentProject === undefined) {
+        return <p>No project selected</p>
+    }
 
     return (
         <>
+            <ConfirmationDialog
+                isOpen={confirmationIsOpen}
+                title="Hide evaluation"
+                description="Are you sure you want to hide this evaluation?"
+                onConfirmClick={() => {
+                    hideEvaluation()
+                }}
+                onCancelClick={() => {
+                    cancelConfirmation()
+                }}
+            />
             <SortableTable
                 columns={columns}
                 data={visibleEvaluations}
@@ -301,3 +414,37 @@ const EvaluationsTable = ({ evaluations, isInPortfolio }: Props) => {
 }
 
 export default EvaluationsTable
+
+
+interface useGenerateBMTScoreMutationProps {
+    generateBMTScore: (evaluationId: string) => Promise<FetchResult<BmtScore>>
+    loading: boolean
+    score: string
+    error: ApolloError | undefined
+}
+
+const useGenerateBMTScoreMutation = (): useGenerateBMTScoreMutationProps => {
+    const GENERATE_BMTSCORE = gql`
+    mutation GenerateBMTScore($projectId: String!) {
+        generateBMTScore(projectId: $projectId) {
+                evaluationId
+                projectId
+                workshopScore
+                followUpScore
+            }
+        }
+    `
+
+    const [generateBMTScoreApolloFunc, { loading, data, error }] = useMutation(GENERATE_BMTSCORE)
+
+    const generateBMTScore = (projectId: string) => {
+        return generateBMTScoreApolloFunc({ variables: { projectId } })
+    }
+
+    return {
+        generateBMTScore: generateBMTScore,
+        loading,
+        score: data,
+        error,
+    }
+}

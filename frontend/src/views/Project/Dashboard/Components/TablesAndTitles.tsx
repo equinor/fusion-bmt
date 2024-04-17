@@ -1,12 +1,14 @@
 import { Accordion } from '@equinor/eds-core-react'
 import { EvaluationsByProjectMaster } from '../../../../utils/hooks'
 import EvaluationsTable from './EvaluationsTable'
-import { useProject } from '../../../../globals/contexts'
-import { useEffect } from 'react'
 import EvaluationScoreIndicator from '../../../../components/EvaluationScoreIndicator'
 import FollowUpIndicator from '../../../../components/FollowUpIndicator'
 import { noProjectMasterTitle } from '../../../../utils/hooks'
 import styled from 'styled-components'
+import { ApolloQueryResult } from '@apollo/client'
+import { Evaluation } from '../../../../api/models'
+import React from 'react'
+import { ProjectBMTScore, ProjectIndicator } from '../../../../utils/helperModels'
 
 const Indicators = styled.div`
     display: flex;
@@ -18,12 +20,21 @@ const Indicators = styled.div`
 const StyledPanel = styled(Accordion.Panel)`
     overflow-y: auto;
 `
+
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
     generatedBMTScores: any
+    refetchActiveEvaluations: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
 }
 
-const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores }: Props) => {
+const TablesAndTitles = ({
+    evaluationsWithProjectMasterTitle,
+    generatedBMTScores,
+    refetchActiveEvaluations,
+}: Props) => {
+    const [projectIndicators, setProjectIndicators] = React.useState<ProjectIndicator[]>([])
+    const [projectBMTScores, setProjectBMTScores] = React.useState<ProjectBMTScore[]>([])
+
     return (
         <>
             <Accordion headerLevel="h2">
@@ -40,13 +51,25 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores
                             projectId = info[1].projectId
                         }
 
-                        if (info[1].project.indicatorEvaluationId === info[1].id) {
+                        if (projectIndicators.findIndex(pi => pi.evaluationId === info[1].project.indicatorEvaluationId) > -1) {
+                            if (info[1].indicatorActivityDate) {
+                                activityDate = info[1].indicatorActivityDate
+                            }
+                        }
+                        else if (info[1].project.indicatorEvaluationId === info[1].id) {
                             if (info[1].indicatorActivityDate) {
                                 activityDate = info[1].indicatorActivityDate
                             }
                         }
                     })
-                    if (generatedBMTScores) {
+                    if (projectBMTScores.length > 0) {
+                        projectBMTScores.forEach((score: any, index: any) => {
+                            if (score.projectId === projectId) {
+                                followUpScore = score.bmtScore
+                            }
+                        })
+                    }
+                    else if (generatedBMTScores) {
                         generatedBMTScores.generateBMTScores.forEach((score: any, index: any) => {
                             if (score.projectId === projectId) {
                                 followUpScore = score.followUpScore
@@ -64,7 +87,15 @@ const TablesAndTitles = ({ evaluationsWithProjectMasterTitle, generatedBMTScores
                                 </Indicators>
                             </Accordion.Header>
                             <StyledPanel>
-                                <EvaluationsTable evaluations={evaluations} isInPortfolio={true} />
+                                <EvaluationsTable
+                                    evaluations={evaluations}
+                                    isInPortfolio={true}
+                                    refetchActiveEvaluations={refetchActiveEvaluations}
+                                    projectIndicators={projectIndicators}
+                                    setProjectIndicators={setProjectIndicators}
+                                    projectBMTScores={projectBMTScores}
+                                    setProjectBmtScores={setProjectBMTScores}
+                                />
                             </StyledPanel>
                         </Accordion.Item>
                     )
