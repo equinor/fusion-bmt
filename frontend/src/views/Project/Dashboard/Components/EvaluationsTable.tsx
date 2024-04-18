@@ -170,7 +170,7 @@ const EvaluationsTable = ({
 
     useEffect(() => {
         setUserIsFacilitatorInAtLeastOneEvaluation(userRoles.some(role => role.role === Role.Facilitator))
-    }, [evaluations])
+    }, [userRoles])
 
     const hideEvaluation = async () => {
         if (evaluationStagedToHide) {
