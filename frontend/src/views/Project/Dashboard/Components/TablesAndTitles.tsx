@@ -6,7 +6,7 @@ import FollowUpIndicator from '../../../../components/FollowUpIndicator'
 import { noProjectMasterTitle } from '../../../../utils/hooks'
 import styled from 'styled-components'
 import { ApolloQueryResult } from '@apollo/client'
-import { Evaluation } from '../../../../api/models'
+import { Evaluation, Progression } from '../../../../api/models'
 import React from 'react'
 import { ProjectBMTScore, ProjectIndicator } from '../../../../utils/helperModels'
 
@@ -45,20 +45,20 @@ const TablesAndTitles = ({
                     let activityDate = ""
                     let projectId = ""
                     let followUpScore = null
-                    Object.entries(evaluations).map((info) => {
 
-                        if (info[1].projectId !== projectId) {
-                            projectId = info[1].projectId
+                    Object.entries(evaluations).forEach((evaluation) => {
+                        if (evaluation[1].projectId !== projectId) {
+                            projectId = evaluation[1].projectId
                         }
 
-                        if (projectIndicators.findIndex(pi => pi.evaluationId === info[1].project.indicatorEvaluationId) > -1) {
-                            if (info[1].indicatorActivityDate) {
-                                activityDate = info[1].indicatorActivityDate
+                        if (projectIndicators.findIndex(pi => pi.evaluationId === evaluation[1].id) > -1 && evaluation[1].project.indicatorEvaluationId === evaluation[1].id) {
+                            if (evaluation[1].indicatorActivityDate && evaluation[1].progression === Progression.FollowUp) {
+                                activityDate = evaluation[1].indicatorActivityDate
                             }
                         }
-                        else if (info[1].project.indicatorEvaluationId === info[1].id) {
-                            if (info[1].indicatorActivityDate) {
-                                activityDate = info[1].indicatorActivityDate
+                        else if (evaluation[1].project.indicatorEvaluationId === evaluation[1].id) {
+                            if (evaluation[1].indicatorActivityDate && evaluation[1].progression === Progression.FollowUp) {
+                                activityDate = evaluation[1].indicatorActivityDate
                             }
                         }
                     })
