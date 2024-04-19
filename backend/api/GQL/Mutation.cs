@@ -149,9 +149,9 @@ namespace api.GQL
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
-            if (evaluation.Progression != Progression.FollowUp)
+            if (evaluation.Progression != Progression.FollowUp && evaluation.Progression != Progression.Finished)
             {
-                string msg = "Evaluation must be in FollowUp progression to set as active indicator for project";
+                string msg = "Evaluation must be in FollowUp or Finished progression to set as active indicator for project";
                 throw new InvalidOperationException(msg);
             }
 

@@ -97,7 +97,7 @@ export const canSetEvaluationAsIndicator = (evaluation: Evaluation, userRoles: U
     const userRole = userRoles.find(role => role.evaluationId === evaluation.id)?.role
     const isFacilitator = userRole === Role.Facilitator
     const evaluationIsNotActive = evaluation.project.indicatorEvaluationId !== evaluation.id
-    const evaluationIsNotInFollowUp = evaluation.progression === Progression.FollowUp
+    const evaluationIsNotInFollowUpOrFinished = evaluation.progression === Progression.FollowUp || evaluation.progression === Progression.Finished
 
     let reasonsForNotBeingAbleToSelect = []
 
@@ -107,15 +107,15 @@ export const canSetEvaluationAsIndicator = (evaluation: Evaluation, userRoles: U
     if (!evaluationIsNotActive) {
         reasonsForNotBeingAbleToSelect.push("this evaluation is already active")
     }
-    if (!evaluationIsNotInFollowUp) {
-        reasonsForNotBeingAbleToSelect.push("this evaluation is not in follow-up")
+    if (!evaluationIsNotInFollowUpOrFinished) {
+        reasonsForNotBeingAbleToSelect.push("this evaluation is not in follow-up or finished stage")
     }
 
     const toolTipMessage = reasonsForNotBeingAbleToSelect.length > 0
         ? reasonsForNotBeingAbleToSelect.join(" & ")
         : "Set as active evaluation"
 
-    const canUserSetAsIndicator = (isFacilitator || userIsAdmin) && evaluationIsNotInFollowUp && evaluationIsNotActive
+    const canUserSetAsIndicator = (isFacilitator || userIsAdmin) && evaluationIsNotInFollowUpOrFinished && evaluationIsNotActive
 
     return { "canSetAsIndicator": canUserSetAsIndicator, "toolTipMessage": toolTipMessage }
 }
