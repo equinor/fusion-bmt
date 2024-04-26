@@ -32,7 +32,10 @@ export const useAllPersonDetailsAsync = (azureUniqueIds: string[]): PersonDetail
     const getAllPersonDetails = async (azureUniqueIds: string[]): Promise<PersonDetails[]> => {
         const manyPromises: Promise<PersonDetails>[] = azureUniqueIds.map(azureUniqueId => {
             return apiClients.getById(azureUniqueId).then(response => {
-                return response
+                return {
+                    azureId: response.azureUniqueId,
+                    name: response.name,
+                }
             })
         })
 
