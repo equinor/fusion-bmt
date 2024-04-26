@@ -9,10 +9,11 @@ import ButtonWithSaveIndicator from '../../ButtonWithSaveIndicator'
 import SearchableDropdown from '../../../components/SearchableDropDown'
 import { toCapitalizedCase } from '../../../utils/helpers'
 import { PersonDetails } from '@equinor/fusion-react-person'
+
 interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    possibleAssigneesDetails: PersonDetails[]
+    possibleAssigneesDetails: any[]
     onActionCreate: (action: DataToCreateAction) => void
     onCancelClick: () => void
     disableCreate: boolean
@@ -40,8 +41,8 @@ const ActionCreateForm = ({
     const [description, setDescription] = useState<string>('')
 
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails.azureId,
-        title: personDetails.name,
+        id: personDetails?.azureUniqueId,
+        title: personDetails?.name,
     }))
 
     useEffect(() => {
@@ -126,7 +127,7 @@ const ActionCreateForm = ({
                         }}
                         searchQuery={async (searchTerm: string) => {
                             return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
-                        } }
+                        }}
                     />
                 </Grid>
                 <Grid item xs={4}>
