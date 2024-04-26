@@ -13,7 +13,7 @@ import { PersonDetails } from '@equinor/fusion-react-person'
 interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    possibleAssigneesDetails: any[]
+    possibleAssigneesDetails: any[] // PersonDetails[]
     onActionCreate: (action: DataToCreateAction) => void
     onCancelClick: () => void
     disableCreate: boolean
