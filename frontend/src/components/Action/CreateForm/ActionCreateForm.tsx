@@ -13,7 +13,7 @@ import { PersonDetails } from '@equinor/fusion-react-person'
 interface Props {
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    possibleAssigneesDetails: any[] // PersonDetails[]
+    possibleAssigneesDetails: PersonDetails[]
     onActionCreate: (action: DataToCreateAction) => void
     onCancelClick: () => void
     disableCreate: boolean
@@ -41,7 +41,7 @@ const ActionCreateForm = ({
     const [description, setDescription] = useState<string>('')
 
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails?.azureUniqueId,
+        id: personDetails?.azureId,
         title: personDetails?.name,
     }))
 

@@ -38,7 +38,7 @@ interface Props {
     action: Action
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    possibleAssigneesDetails: any[] // PersonDetails[]
+    possibleAssigneesDetails: PersonDetails[]
     onEditShouldDelay: (action: Action, isValid: boolean) => void
     onEditShouldNotDelay: (action: Action, isValid: boolean) => void
     createClosingRemark: (text: string) => void
@@ -79,7 +79,7 @@ const ActionEditForm = ({
         useShowErrorHook(apiErrorClosingRemark)
 
     const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails.azureUniqueId,
+        id: personDetails.azureId,
         title: personDetails.name,
     }))
 
