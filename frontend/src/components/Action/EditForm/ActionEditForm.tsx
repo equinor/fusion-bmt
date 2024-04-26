@@ -38,7 +38,7 @@ interface Props {
     action: Action
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    possibleAssigneesDetails: any[]
+    possibleAssigneesDetails: any[] // PersonDetails[]
     onEditShouldDelay: (action: Action, isValid: boolean) => void
     onEditShouldNotDelay: (action: Action, isValid: boolean) => void
     createClosingRemark: (text: string) => void
