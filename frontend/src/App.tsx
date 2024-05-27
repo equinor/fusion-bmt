@@ -7,14 +7,6 @@ import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-
 const App = () => {
     const { currentContext } = useModuleCurrentContext()
 
-    if (!currentContext?.externalId) {
-        return (
-            <>
-                <p>Please select a project.</p>
-            </>
-        )
-    }
-
     return (
         <BrowserRouter>
             <Switch>
