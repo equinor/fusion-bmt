@@ -24,9 +24,9 @@ const EvaluationScoreIndicator: React.FC<EvaluationScoreIndicatorProps> = ({ dat
     }, [date])
 
     const getColor = () => {
-        if (diffInMonths < 1) {
+        if (diffInMonths < 2) {
             return '#31d325'
-        } else if (diffInMonths < 2) {
+        } else if (diffInMonths < 3) {
             return '#ffab1b'
         } else {
             return '#ff1b1b'
@@ -34,12 +34,12 @@ const EvaluationScoreIndicator: React.FC<EvaluationScoreIndicatorProps> = ({ dat
     };
 
     const getTooltipText = () => {
-        if (diffInMonths < 1) {
-            return 'Evaluation has been updated this past month'
-        } else if (diffInMonths < 2) {
+        if (diffInMonths < 2) {
             return 'Evaluation has been updated during the past two months'
+        } else if (diffInMonths < 3) {
+            return 'Evaluation has been updated during the past three months'
         } else {
-            return 'Evaluation has not been updated in the past 2 months'
+            return 'Evaluation has not been updated in the past three months'
         }
     }
 
