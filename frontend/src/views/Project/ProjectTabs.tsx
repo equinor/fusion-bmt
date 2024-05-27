@@ -1,20 +1,22 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
 import ErrorMessage from '../../components/ErrorMessage'
-import { Tabs } from '@equinor/eds-core-react'
+import { Tabs, Typography } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 
-import { Project } from '../../api/models'
+import { BmtScore, Project, Status } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
 import { StyledTabPanel } from '../../components/StyledTabs'
 import ActionsView from './Actions/ActionsView'
 import AdminView from './Admin/AdminView'
-import DashboardView from './Dashboard/DashboardView'
+import DashboardView, { useAllEvaluationsQuery, useGenerateBMTScoresMutation } from './Dashboard/DashboardView'
 import { genericErrorMessage } from '../../utils/Variables'
 import { getCachedRoles } from '../../utils/helpers'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import Portfolios from './Dashboard/Components/Portfolios'
+import { useEvaluationsWithPortfolio } from '../../utils/hooks'
 
 const { List, Tab, Panels } = Tabs
 
@@ -35,10 +37,41 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
 
+    const [generatedBMTScores, setGeneratedBMTScores] = React.useState<BmtScore[] | undefined>(undefined)
+
+    const { generateBMTScores, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoresMutation()
+
+    const {
+        loading: loadingActiveEvaluations,
+        evaluations: activeEvaluations,
+        error: errorActiveEvaluations,
+        refetch: refetchActiveEvaluations,
+    } = useAllEvaluationsQuery(Status.Active)
+
+    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations) // TODO: re render when status changes
+
+    useEffect(() => {
+        const generateScore = async () => {
+            const score = await generateBMTScores()
+            if (score.data) {
+                setGeneratedBMTScores(score.data)
+            }
+        }
+        generateScore();
+    }, [])
+
+
     if (!currentContext) {
         return (
             <>
-                <p>Please select a project.</p>
+                <Typography variant="h4">Please select a project above.</Typography>
+                <br />
+                <Typography variant="h6">Portfolios</Typography>
+                <Portfolios
+                    evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio}
+                    generatedBMTScores={generatedBMTScores}
+                    refetchActiveEvaluations={refetchActiveEvaluations}
+                />
             </>
         )
     }

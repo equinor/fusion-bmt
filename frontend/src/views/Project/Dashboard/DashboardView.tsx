@@ -269,7 +269,7 @@ interface useGenerateBMTScoresMutationProps {
     error: ApolloError | undefined
 }
 
-const useGenerateBMTScoresMutation = (): useGenerateBMTScoresMutationProps => {
+export const useGenerateBMTScoresMutation = (): useGenerateBMTScoresMutationProps => {
     const GENERATE_BMTSCORE = gql`
         mutation GenerateBMTScores {
             generateBMTScores {
