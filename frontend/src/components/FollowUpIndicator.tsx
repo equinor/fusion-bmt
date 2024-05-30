@@ -26,9 +26,9 @@ const getColorsForValue = (value: number | null): { chipColor: string, textColor
         return { chipColor: '#ccc', textColor: '#ccc' }
     }
     const percentage = value * 100
-    if (percentage < 75) {
+    if (percentage < 60) {
         return { chipColor: '#FFC1C1', textColor: '#B30D2F' }
-    } else if (percentage < 90) {
+    } else if (percentage < 80) {
         return { chipColor: '#FFE7D6', textColor: '#AD6200' }
     } else {
         return { chipColor: '#E6FAEC', textColor: '#007079' }
