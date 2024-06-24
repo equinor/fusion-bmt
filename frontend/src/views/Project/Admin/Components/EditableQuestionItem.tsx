@@ -13,7 +13,7 @@ import ErrorBanner from '../../../../components/ErrorBanner'
 import { genericErrorMessage } from '../../../../utils/Variables'
 import { SearchableDropdownSelectEvent } from '@equinor/fusion-react-searchable-dropdown'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
-import {toCapitalizedCase} from '../../../../utils/helpers'
+import { toCapitalizedCase } from '../../../../utils/helpers'
 
 interface Props {
     question: QuestionTemplate
@@ -92,7 +92,7 @@ const EditableQuestionItem = ({ question, setIsInEditmode, refetchQuestionTempla
                     <Box ml={3} mt={3} mr={1} mb={10}>
                         <MarkdownEditor
                             data-testid="markdown-editor"
-                            onChange={markdown => {
+                            onInput={markdown => {
                                 const value = (markdown as any).target._value
                                 setSupportNotes(value)
                             }}
