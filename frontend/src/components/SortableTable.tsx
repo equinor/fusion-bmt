@@ -9,9 +9,9 @@ const { Body, Row, Cell, Head } = Table
 Icon.add({ chevron_down, chevron_up })
 const SortIcon = styled(Icon)<{
     name: string
-    isSelected: boolean
+    $isselected: boolean
 }>`
-    visibility: ${({ isSelected }) => (isSelected ? 'visible' : 'hidden')};
+    visibility: ${({ $isselected }) => ($isselected ? 'visible' : 'hidden')};
 `
 
 export type Column = {
@@ -75,7 +75,7 @@ const SortableTable = <DataType,>({ columns, data, sortOnAccessor, renderRow, te
                                     {column.sortable && (
                                         <SortIcon
                                             name={sortDirection === 'descending' ? 'chevron_up' : 'chevron_down'}
-                                            isSelected={isSelected}
+                                            $isselected={isSelected}
                                         />
                                     )}
                                 </Cell>

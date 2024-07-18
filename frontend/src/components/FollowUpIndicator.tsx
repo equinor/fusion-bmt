@@ -6,9 +6,9 @@ type FollowUpIndicatorProps = {
     value: number | null
 }
 
-const ColoredChip = styled(Chip) <{ chipColor: string, textColor: string }>`
-    background-color: ${props => props.chipColor};
-    color: ${props => props.textColor};
+const ColoredChip = styled(Chip)<{ $chipcolor: string; $textcolor: string }>`
+    background-color: ${props => props.$chipcolor};
+    color: ${props => props.$textcolor};
 `
 
 const toPercentage = (value: number | null): string => {
@@ -21,28 +21,28 @@ const toPercentage = (value: number | null): string => {
     return `${(value * 100).toFixed(0)}%`
 }
 
-const getColorsForValue = (value: number | null): { chipColor: string, textColor: string } => {
+const getColorsForValue = (value: number | null): { chipcolor: string; textcolor: string } => {
     if (value === null) {
-        return { chipColor: '#ccc', textColor: '#ccc' }
+        return { chipcolor: '#ccc', textcolor: '#ccc' }
     }
     const percentage = value * 100
     if (percentage < 60) {
-        return { chipColor: '#FFC1C1', textColor: '#B30D2F' }
+        return { chipcolor: '#FFC1C1', textcolor: '#B30D2F' }
     } else if (percentage < 80) {
-        return { chipColor: '#FFE7D6', textColor: '#AD6200' }
+        return { chipcolor: '#FFE7D6', textcolor: '#AD6200' }
     } else {
-        return { chipColor: '#E6FAEC', textColor: '#007079' }
+        return { chipcolor: '#E6FAEC', textcolor: '#007079' }
     }
 }
 
 const FollowUpIndicator: React.FC<FollowUpIndicatorProps> = ({ value }) => {
     if (typeof value === 'number') {
-        const percentage = toPercentage(value);
-        const { chipColor, textColor } = getColorsForValue(value);
+        const percentage = toPercentage(value)
+        const { chipcolor, textcolor } = getColorsForValue(value)
 
         return (
-            <Tooltip placement='right' title={`Evaluation contains ${percentage} "on track" / green questions`}>
-                <ColoredChip chipColor={chipColor} textColor={textColor}>
+            <Tooltip placement="right" title={`Evaluation contains ${percentage} "on track" / green questions`}>
+                <ColoredChip $chipcolor={chipcolor} $textcolor={textcolor}>
                     {percentage}
                 </ColoredChip>
             </Tooltip>

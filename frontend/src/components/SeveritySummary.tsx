@@ -48,9 +48,9 @@ const SeveritySummaryField = ({ num, severity, compact = false }: CompactableSev
     }
 }
 
-const ClickableBox = styled(Box)<{ hasClickHandler: boolean; selected?: boolean }>`
-    cursor: ${props => (props.hasClickHandler ? 'pointer' : 'default')};
-    border: ${props => (props.selected ? '1px solid ' + props.color : '1px solid transparent')};
+const ClickableBox = styled(Box)<{ $hasclickhandler: boolean; $selected?: boolean; $color: string }>`
+    cursor: ${props => (props.$hasclickhandler ? 'pointer' : 'default')};
+    border: ${props => (props.$selected ? '1px solid ' + props.$color : '1px solid transparent')};
     border-radius: 4px;
 `
 
@@ -82,9 +82,9 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                     flexGrow={1}
                     mx={spacing / 2}
                     onClick={() => onClickedSeverity(Severity.OnTrack)}
-                    hasClickHandler={onClick !== undefined}
-                    selected={isSelected(Severity.OnTrack)}
-                    color={getTextColor(Severity.OnTrack)}
+                    $hasclickhandler={onClick !== undefined}
+                    $selected={isSelected(Severity.OnTrack)}
+                    $color={getTextColor(Severity.OnTrack)}
                 >
                     <SeveritySummaryField num={nOnTrack} severity={Severity.OnTrack} compact={compact} />
                 </ClickableBox>
@@ -92,9 +92,9 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                     flexGrow={1}
                     mx={spacing / 2}
                     onClick={() => onClickedSeverity(Severity.SomeConcerns)}
-                    hasClickHandler={onClick !== undefined}
-                    selected={isSelected(Severity.SomeConcerns)}
-                    color={getTextColor(Severity.SomeConcerns)}
+                    $hasclickhandler={onClick !== undefined}
+                    $selected={isSelected(Severity.SomeConcerns)}
+                    $color={getTextColor(Severity.SomeConcerns)}
                 >
                     <SeveritySummaryField num={nSomeConcerns} severity={Severity.SomeConcerns} compact={compact} />
                 </ClickableBox>
@@ -102,9 +102,9 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                     flexGrow={1}
                     mx={spacing / 2}
                     onClick={() => onClickedSeverity(Severity.MajorIssues)}
-                    hasClickHandler={onClick !== undefined}
-                    selected={isSelected(Severity.MajorIssues)}
-                    color={getTextColor(Severity.MajorIssues)}
+                    $hasclickhandler={onClick !== undefined}
+                    $selected={isSelected(Severity.MajorIssues)}
+                    $color={getTextColor(Severity.MajorIssues)}
                 >
                     <SeveritySummaryField num={nMajorIssues} severity={Severity.MajorIssues} compact={compact} />
                 </ClickableBox>
@@ -112,9 +112,9 @@ const SeveritySummary = ({ severityCount, compact = false, onClick, severityFilt
                     flexGrow={1}
                     mx={spacing / 2}
                     onClick={() => onClickedSeverity(Severity.Na)}
-                    hasClickHandler={onClick !== undefined}
-                    selected={isSelected(Severity.Na)}
-                    color={getTextColor(Severity.Na)}
+                    $hasclickhandler={onClick !== undefined}
+                    $selected={isSelected(Severity.Na)}
+                    $color={getTextColor(Severity.Na)}
                 >
                     <SeveritySummaryField num={nNA} severity={Severity.Na} compact={compact} />
                 </ClickableBox>

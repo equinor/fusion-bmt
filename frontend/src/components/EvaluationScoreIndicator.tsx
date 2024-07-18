@@ -6,11 +6,11 @@ interface EvaluationScoreIndicatorProps {
     date: string;
 }
 
-const Circle = styled.div<{ color: string }>`
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        background-color: ${(props) => props.color};
+const Circle = styled.div<{ $color: string }>`
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: ${props => props.$color};
 `
 
 const EvaluationScoreIndicator: React.FC<EvaluationScoreIndicatorProps> = ({ date }) => {
@@ -48,8 +48,8 @@ const EvaluationScoreIndicator: React.FC<EvaluationScoreIndicatorProps> = ({ dat
     }
 
     return (
-        <Tooltip placement='right' title={getTooltipText()}>
-            <Circle color={getColor()} />
+        <Tooltip placement="right" title={getTooltipText()}>
+            <Circle $color={getColor()} />
         </Tooltip>
     )
 

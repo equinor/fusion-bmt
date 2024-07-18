@@ -34,9 +34,9 @@ const DenseBarrierCard = ({ index, items, isRight = false, extraWidth = 0, headl
     return (
         <Tooltip title={headline} placement="bottom">
             <Box
-                height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
-                width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
-                isRight={isRight}
+                $height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
+                $width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
+                $isright={isRight}
             >
                 <SeverityList items={items} isDense />
             </Box>
