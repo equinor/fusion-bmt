@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Icon, Table, Tooltip, Typography, Radio, Button } from '@equinor/eds-core-react'
 import { warning_filled, check, visibility } from '@equinor/eds-icons'
@@ -241,20 +240,6 @@ const EvaluationsTable = ({
             : []
         const actionsByState = getEvaluationActionsByState(evaluation)
 
-        const getLastCharacter = (str: string) => {
-            return str.charAt(str.length - 1)
-        }
-
-        const getEvaluationLink = (location: any) => {
-            if (location.pathname.includes('bmt/')) {
-                if (getLastCharacter(location.pathname) === "/") {
-                    return ({ ...location, pathname: `evaluation/${evaluation.id}` })
-                }
-                return ({ ...location, pathname: `${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
-            }
-            return ({ ...location, pathname: `/${currentProject.currentContext?.id}/evaluation/${evaluation.id}` })
-        }
-
         const isChecked = (): boolean => {
             if (projectIndicators && projectIndicators.some(pi => pi.projectId === evaluation.projectId)) {
                 return projectIndicators.some(pi => pi.evaluationId === evaluation.id)
@@ -265,17 +250,17 @@ const EvaluationsTable = ({
         return (
             <Row key={index}>
                 <CellWithBorder>
-                    <Link to={(location: any) => getEvaluationLink(location)} style={{ textDecoration: 'none' }}>
-                        <Typography
-                            color="primary"
-                            variant="body_short"
-                            token={{
-                                fontSize: '1.2rem',
-                            }}
-                        >
-                            {evaluation.name}
-                        </Typography>
-                    </Link>
+                    <Typography
+                        color="primary"
+                        variant="body_short"
+                        token={{
+                            fontSize: '1.2rem',
+                        }}
+                        link
+                        href={`/apps/bmt/${evaluation.project.fusionProjectId}/evaluation/${evaluation.id}`}
+                    >
+                        {evaluation.name}
+                    </Typography>
                 </CellWithBorder>
                 <CellWithBorder>
                     <Centered>
