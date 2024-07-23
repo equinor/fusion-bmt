@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 import ErrorMessage from '../../components/ErrorMessage'
@@ -20,6 +20,7 @@ import {
     CLOSING_REMARK_FIELDS_FRAGMENT,
 } from '../../api/fragments'
 import { centered } from '../../utils/styles'
+import { useAppContext } from '../../context/AppContext'
 
 interface Params {
     fusionProjectId: string
@@ -27,6 +28,7 @@ interface Params {
 }
 
 const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
+    const { setEvaluation } = useAppContext()
     const evaluationId: string = match.params.evaluationId
     const azureUniqueId = useAzureUniqueId()
 
@@ -47,6 +49,11 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
     const onProgressEvaluationClick = () => {
         setIsProgressDialogOpen(true)
     }
+    useEffect(() => {
+        if (evaluation) {
+            setEvaluation(evaluation)
+        }
+    }, [evaluation])
 
     if (errorLoadingEvaluation !== undefined || (!loading && evaluation === undefined)) {
         return <ErrorMessage title="Could not load evaluation" message={genericErrorMessage} />
