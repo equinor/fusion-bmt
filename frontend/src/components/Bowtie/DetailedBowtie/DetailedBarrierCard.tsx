@@ -23,7 +23,7 @@ const Box = styled(BowtieBarrierCard)`
 
     @media (max-width: 1800px) {
         margin-right: 10px;
-        width: ${props => props.width - 25 + 'px'};
+        width: ${props => props.$width - 25 + 'px'};
     }
 `
 
@@ -39,9 +39,9 @@ const DetailedBarrierCard = ({ index, headline, items, isRight, extraWidth = 0 }
     return (
         <div style={{ position: 'relative' }}>
             <Box
-                height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
-                width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
-                isRight={isRight || false}
+                $height={HEIGHT_FIRST_IN_SERIES - index * DECREASE_HEIGHT_BY}
+                $width={WIDTH_FIRST_IN_SERIES - index * DECREASE_WIDTH_BY + extraWidth}
+                $isright={isRight || false}
             >
                 <Typography style={{ marginBottom: '30px', height: '2rem' }}>{headline}</Typography>
                 <SeverityList items={items} />

@@ -12,6 +12,8 @@ import './styles.css'
 import { resolveConfiguration } from './environmentConfig'
 import { EnvironmentVariables } from './environmentVariables'
 
+import { AppContextProvider } from './context/AppContext'
+
 const Start = () => {
     const [apiUrl, setApiUrl] = React.useState('')
 
@@ -47,7 +49,9 @@ const Start = () => {
     return (
         <>
             <ApolloProvider client={apolloClient}>
-                <App />
+                <AppContextProvider>
+                    <App />
+                </AppContextProvider>
             </ApolloProvider>
         </>
     )

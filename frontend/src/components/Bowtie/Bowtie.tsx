@@ -11,16 +11,16 @@ import Arrow from './DetailedBowtie/Arrow'
 const EXTRA_CARD_WIDTH_TO_MAKE_SYMMETRIC = 65
 const EXTRA_CARD_WIDTH_TO_MAKE_SYMMETRIC_SMALL = 15
 
-export const Wrapper = styled.div<{ isDense: boolean }>`
-    margin-bottom: ${props => (props.isDense ? '0' : '30px')};
+export const Wrapper = styled.div<{ $isdense: boolean }>`
+    margin-bottom: ${props => (props.$isdense ? '0' : '30px')};
     display: flex;
     flex-direction: column;
-    width: ${props => (props.isDense ? '360px' : '')};
-    height: ${props => (props.isDense ? '100px' : '')};
+    width: ${props => (props.$isdense ? '360px' : '')};
+    height: ${props => (props.$isdense ? '100px' : '')};
 `
 
-export const BowtieComponent = styled.div<{ isDense: boolean }>`
-    margin: ${props => (props.isDense ? '15px 2px' : '50px 20px')};
+export const BowtieComponent = styled.div<{ $isdense: boolean }>`
+    margin: ${props => (props.$isdense ? '15px 2px' : '50px 20px')};
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -126,8 +126,8 @@ const Bowtie = ({ answersWithBarrier, isDense = false }: Props) => {
     }
 
     return (
-        <Wrapper isDense={isDense}>
-            <BowtieComponent isDense={isDense}>
+        <Wrapper $isdense={isDense}>
+            <BowtieComponent $isdense={isDense}>
                 <BarrierCard index={0} barriers={structureBarriers} headline="Structure" />
                 <BarrierCard index={1} barriers={containmentBarriers} headline="Containment" />
                 <BarrierCard index={2} barriers={safetySystemsBarriers} headline="Instr. Safety Systems" />

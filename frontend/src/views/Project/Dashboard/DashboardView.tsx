@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { ApolloError, FetchResult, gql, useMutation, useQuery, RefetchQueriesFunction, ApolloQueryResult } from '@apollo/client'
-import { Box } from '@mui/material'
-import { Button, Chip, CircularProgress, Typography } from '@equinor/eds-core-react'
+import { Chip, CircularProgress, Icon, Typography } from '@equinor/eds-core-react'
 import ErrorMessage from '../../../components/ErrorMessage'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import { getCachedRoles } from '../../../utils/helpers'
@@ -15,6 +14,9 @@ import Portfolios from './Components/Portfolios'
 import EvaluationsTable from './Components/EvaluationsTable'
 import CreateEvaluationButton from './Components/CreateEvaluationButton'
 import { centered } from '../../../utils/styles'
+import { Grid } from '@mui/material'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import { visibility, account_circle } from '@equinor/eds-icons'
 
 const Chips = styled.div`
     display: flex;
@@ -28,25 +30,39 @@ const StyledChip = styled(Chip)`
 `
 
 enum TableSelection {
+    Portfolio = 'PORTFOLIO',
     Project = 'PROJECT',
     User = 'USER',
     Hidden = 'HIDDEN',
-    Portfolio = 'PORTFOLIO',
 }
-
-const mapTableSelectionToText = (tableSelection: string) => {
+interface MapTableSelectionToTextProps {
+    tableSelection: React.ReactNode
+    projectId: string | undefined
+}
+const MapTableSelectionToText: React.FC<MapTableSelectionToTextProps> = ({ tableSelection, projectId }) => {
+    const projectLabel = projectId ? 'project' : ''
     switch (tableSelection) {
         case 'USER': {
-            return 'My evaluations'
+            return (
+                <>
+                    <Icon data={account_circle} size={16} />
+                    {`My ${projectLabel} evaluations`}
+                </>
+            )
         }
         case 'PROJECT': {
             return 'Project evaluations'
         }
         case 'HIDDEN': {
-            return 'Hidden evaluations'
+            return (
+                <>
+                    <Icon data={visibility} size={16} />
+                    {`Hidden ${projectLabel} evaluations`}
+                </>
+            )
         }
         case 'PORTFOLIO': {
-            return 'Portfolios'
+            return 'All evaluations'
         }
     }
 }
@@ -64,6 +80,7 @@ interface Props {
 }
 
 const DashboardView = ({ project }: Props) => {
+    const { currentContext } = useModuleCurrentContext()
     const currentUser = useCurrentUser()
     //generatedBMTScores is an object
     const [generatedBMTScores, setGeneratedBMTScores] = React.useState<BmtScore[] | undefined>(undefined)
@@ -74,7 +91,7 @@ const DashboardView = ({ project }: Props) => {
         return <p>Please log in.</p>
     }
 
-    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Project)
+    const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Portfolio)
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
@@ -120,9 +137,44 @@ const DashboardView = ({ project }: Props) => {
         generateScore();
     }, [])
 
+    useEffect(() => {
+        if (currentContext) {
+            setSelectedProjectTable(TableSelection.Project)
+        }
+    }, [currentContext])
+
     return (
-        <div style={{ margin: 20 }}>
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+        <Grid container justifyContent="space-between">
+            <Grid item>
+                <Chips>
+                    {Object.values(TableSelection).map(value => {
+                        if (
+                            (value === TableSelection.Hidden && !userIsAdmin) ||
+                            (value === TableSelection.Project && !currentContext) ||
+                            (value === TableSelection.Portfolio && currentContext)
+                        ) {
+                            return undefined
+                        } else {
+                            return (
+                                <div key={value}>
+                                    <StyledChip
+                                        variant={selectedProjectTable === value ? 'active' : 'default'}
+                                        onClick={() => setSelectedProjectTable(value)}
+                                    >
+                                        <MapTableSelectionToText
+                                            tableSelection={
+                                                value === TableSelection.Portfolio && !currentContext ? TableSelection.Portfolio : value
+                                            }
+                                            projectId={currentContext?.id}
+                                        />
+                                    </StyledChip>
+                                </div>
+                            )
+                        }
+                    })}
+                </Chips>
+            </Grid>
+            <Grid item>
                 <CreateEvaluationButton projectId={project.id} />
                 <Typography
                     link
@@ -130,63 +182,44 @@ const DashboardView = ({ project }: Props) => {
                 >
                     Order a BMT evaluation through PDC
                 </Typography>
-            </div>
-            <Box marginY={2}>
-                <Typography variant="h2">Evaluations</Typography>
-            </Box>
-            <Chips>
-                {Object.values(TableSelection).map(value => {
-                    if (value === TableSelection.Hidden && !userIsAdmin) {
-                        return undefined
-                    } else {
-                        return (
-                            <div key={value}>
-                                <StyledChip
-                                    variant={selectedProjectTable === value ? 'active' : 'default'}
-                                    onClick={() => setSelectedProjectTable(value)}
-                                >
-                                    {mapTableSelectionToText(value)}
-                                </StyledChip>
-                            </div>
-                        )
-                    }
-                })}
-            </Chips>
-            {myEvaluationsSelected && (
-                <>
-                    {userEvaluations && <EvaluationsTable evaluations={userEvaluations} />}
-                    {loadingUserEvaluations && <CenteredCircularProgress />}
-                    {errorUserEvaluations !== undefined && errorMessage}
-                </>
-            )}
-            {projectEvaluationsSelected && (
-                <>
-                    {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
-                    {loadingProjectEvaluations && <CenteredCircularProgress />}
-                    {errorProjectEvaluations !== undefined && errorMessage}
-                </>
-            )}
-            {hiddenEvaluationsSelected && (
-                <>
-                    {hiddenEvaluations && <EvaluationsTable evaluations={hiddenEvaluations} />}
-                    {loadingHiddenEvaluations && <CenteredCircularProgress />}
-                    {errorHiddenEvaluations !== undefined && errorMessage}
-                </>
-            )}
-            {portfoliosSelected && (
-                <>
-                    {allActiveEvaluationsWithProjectMasterAndPortfolio && (
-                        <Portfolios
-                            evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio}
-                            generatedBMTScores={generatedBMTScores}
-                            refetchActiveEvaluations={refetchActiveEvaluations}
-                        />
-                    )}
-                    {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
-                    {errorActiveEvaluations !== undefined && errorMessage}
-                </>
-            )}
-        </div>
+            </Grid>
+            <Grid item xs={12}>
+                {myEvaluationsSelected && (
+                    <>
+                        {userEvaluations && <EvaluationsTable evaluations={userEvaluations} />}
+                        {loadingUserEvaluations && <CenteredCircularProgress />}
+                        {errorUserEvaluations !== undefined && errorMessage}
+                    </>
+                )}
+                {projectEvaluationsSelected && (
+                    <>
+                        {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
+                        {loadingProjectEvaluations && <CenteredCircularProgress />}
+                        {errorProjectEvaluations !== undefined && errorMessage}
+                    </>
+                )}
+                {hiddenEvaluationsSelected && (
+                    <>
+                        {hiddenEvaluations && <EvaluationsTable evaluations={hiddenEvaluations} />}
+                        {loadingHiddenEvaluations && <CenteredCircularProgress />}
+                        {errorHiddenEvaluations !== undefined && errorMessage}
+                    </>
+                )}
+                {portfoliosSelected && (
+                    <>
+                        {allActiveEvaluationsWithProjectMasterAndPortfolio && (
+                            <Portfolios
+                                evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio}
+                                generatedBMTScores={generatedBMTScores}
+                                refetchActiveEvaluations={refetchActiveEvaluations}
+                            />
+                        )}
+                        {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
+                        {errorActiveEvaluations !== undefined && errorMessage}
+                    </>
+                )}
+            </Grid>
+        </Grid>
     )
 }
 

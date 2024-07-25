@@ -5,13 +5,13 @@ import { tokens } from '@equinor/eds-tokens'
 
 const greyEDS = tokens.colors.ui.background__medium.rgba
 
-const Wrapper = styled.div<{ marginLeft: string }>`
+const Wrapper = styled.div<{ $marginleft: string }>`
     width: 48%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     justify-self: center;
-    margin-left: ${props => props.marginLeft};
+    margin-left: ${props => props.$marginleft};
 `
 
 const ArrowIllustration = styled.div`
@@ -44,7 +44,7 @@ interface Props {
 const Arrow = ({ text, placementRight }: Props) => {
     const marginLeft = placementRight ? '150px' : '10px'
     return (
-        <Wrapper marginLeft={marginLeft}>
+        <Wrapper $marginleft={marginLeft}>
             <Typography>{text}</Typography>
             <ArrowIllustration>
                 <Line />

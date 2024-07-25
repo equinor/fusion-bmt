@@ -8,15 +8,16 @@ import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 
 import { Project } from '../../api/models'
 import { ProjectContext } from '../../globals/contexts'
-import { StyledTabPanel } from '../../components/StyledTabs'
 import ActionsView from './Actions/ActionsView'
 import AdminView from './Admin/AdminView'
 import DashboardView from './Dashboard/DashboardView'
 import { genericErrorMessage } from '../../utils/Variables'
 import { getCachedRoles } from '../../utils/helpers'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import { CircularProgress, Grid } from '@mui/material'
+import { centered } from '../../utils/styles'
 
-const { List, Tab, Panels } = Tabs
+const { List, Tab, Panels, Panel } = Tabs
 
 interface Params {
     fusionProjectId: string
@@ -35,16 +36,12 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
 
-    if (!currentContext) {
-        return (
-            <>
-                <p>Please select a project.</p>
-            </>
-        )
-    }
-
     if (loading) {
-        return <>Loading...</>
+        return (
+            <div style={centered}>
+                <CircularProgress />
+            </div>
+        )
     }
 
     if (error !== undefined || project === undefined) {
@@ -54,22 +51,26 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     return (
         <ProjectContext.Provider value={project}>
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
-                <List>
-                    <Tab>Dashboard</Tab>
-                    <Tab>Actions</Tab>
-                    <Tab>Admin</Tab>
-                </List>
+                <Grid container justifyContent="center">
+                    <Grid item>
+                        <List>
+                            <Tab>Evaluations</Tab>
+                            <Tab>My actions</Tab>
+                            {isAdmin ? <Tab>Questionnaire editor</Tab> : <></>}
+                        </List>
+                    </Grid>
+                </Grid>
                 <Panels>
-                    <StyledTabPanel>
+                    <Panel>
                         <DashboardView project={project} />
-                    </StyledTabPanel>
-                    <StyledTabPanel>
+                    </Panel>
+                    <Panel>
                         <ActionsView azureUniqueId={currentUser!.localAccountId} />
-                    </StyledTabPanel>
+                    </Panel>
                     {isAdmin ? (
-                        <StyledTabPanel>
+                        <Panel>
                             <AdminView />
-                        </StyledTabPanel>
+                        </Panel>
                     ) : (
                         <></>
                     )}
