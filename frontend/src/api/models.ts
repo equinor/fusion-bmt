@@ -629,6 +629,12 @@ export type Project = {
   indicatorEvaluationId?: Maybe<Scalars['String']['output']>;
 };
 
+export type ProjectOption = {
+  __typename?: 'ProjectOption';
+  id: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
 export type ProjectCategory = {
   __typename?: 'ProjectCategory';
   id: Scalars['String']['output'];

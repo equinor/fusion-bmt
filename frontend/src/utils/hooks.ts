@@ -7,6 +7,8 @@ import { ApolloError } from '@apollo/client'
 import { PersonDetails } from '@equinor/fusion-react-person'
 import { usePeopleApi } from '../api/usePeopleApi'
 import { useContextApi } from '../api/useContextApi'
+import { ContextModule } from '@equinor/fusion-framework-module-context';
+import { useFramework } from '@equinor/fusion-framework-react';
 
 export const useEffectNotOnMount = (f: () => void, deps: any[]) => {
     const firstUpdate = useRef(true)
@@ -258,4 +260,8 @@ export const useSavingStateCheck = (isLoading: boolean, hasError: boolean) => {
     }, [hasError])
 
     return { savingState, setSavingState }
+}
+
+export const useFrameworkContext = () => {
+  return useFramework<[ContextModule]>().modules.context;
 }

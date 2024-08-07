@@ -34,6 +34,7 @@
         "@equinor/fusion-observable": "^8.2.0",
         "@equinor/fusion-query": "^4.1.0",
         "@equinor/fusion-react-ag-grid-styles": "30.2.0",
+        "@equinor/fusion-react-context-selector": "^0.6.5",
         "@equinor/fusion-react-markdown": "^0.3.2",
         "@equinor/fusion-react-person": "^0.8.5",
         "@equinor/fusion-react-searchable-dropdown": "^0.5.2",

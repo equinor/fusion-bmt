@@ -26,6 +26,9 @@ import ErrorBanner from '../../../components/ErrorBanner'
 import { getCachedRoles } from '../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import { useContextApi } from '../../../api/useContextApi'
+import SearchableProjectDropdown from '../../../components/SearchableProjectDropdown'
+import { useAppContext } from '../../../context/AppContext'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -100,13 +103,14 @@ const useSetEvaluationToAnotherProjectMutation = (): SetEvaluationToAnotherProje
 
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 
+    const { setCurrentContext } = useModuleCurrentContext()
+
     const currentUser = useCurrentUser()
     const participant = useParticipant()
 
     const { setEvaluationToAnotherProject, loading: setEvaluationToAnotherProjectLoading, error: setEvaluationToAnotherProjectError, } = useSetEvaluationToAnotherProjectMutation()
 
-    const [projects, setProjects] = useState<Context[]>([])
-    const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
+    const { projects, setProjects, isFetchingProjects, setIsFetchingProjects} = useAppContext()
     const [currentProject, setCurrentProject] = useState<Context>()
     const projectOptions = createDropdownOptionsFromProjects(projects, "1", true)
     const apiClients = useContextApi()
@@ -141,6 +145,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     }, [error])
 
     useEffect(() => {
+        setCurrentContext(evaluation.project.fusionProjectId)
         if (projects.length === 0) {
             setIsFetchingProjects(true)
 
@@ -220,22 +225,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                                 <CircularProgress /> :
                                 <div>
                                     Switch evaluation to another project
-                                    <SearchableDropdown
-                                        label='Select project'
-                                        value={currentProject?.title}
-                                        onSelect={(option: any) => {
-                                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                                            updateEvaluationToNewProject(selectedOption)
-                                        }
-                                        }
-                                        options={projectOptions}
-                                        searchQuery={async (searchTerm: string) => {
-                                            const filteredOptions = projectOptions.filter(option => {
-                                                return option.title.toLowerCase().includes(searchTerm.toLowerCase())
-                                            })
-                                            return filteredOptions
-                                        }}
-                                    />
+                                    <SearchableProjectDropdown />
 
                                 </div>
                             }

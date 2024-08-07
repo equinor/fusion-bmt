@@ -175,7 +175,7 @@ const DashboardView = ({ project }: Props) => {
                 </Chips>
             </Grid>
             <Grid item>
-                <CreateEvaluationButton projectId={project.id} />
+                <CreateEvaluationButton />
                 <Typography
                     link
                     href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"

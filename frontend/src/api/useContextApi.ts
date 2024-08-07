@@ -10,5 +10,11 @@ export const useContextApi = () => {
         })
     }, [httpClient]);
 
-    return { getById };
+    const getAllProjects = useCallback(async (): Promise<any> => {
+        return await httpClient.json(`/contexts?api-version=1.0`, {
+            headers: projectClientHeaders,
+        })
+    }, [httpClient]);
+
+    return { getById, getAllProjects };
 };

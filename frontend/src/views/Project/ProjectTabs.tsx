@@ -88,7 +88,7 @@ interface ProjectQueryProps {
     error: ApolloError | undefined
 }
 
-const useProjectQuery = (fusionProjectId: string, externalID: string): ProjectQueryProps => {
+export const useProjectQuery = (fusionProjectId: string, externalID: string): ProjectQueryProps => {
     const GET_PROJECT = gql`
         query {
             project(fusionProjectID: "${fusionProjectId}", externalID: "${externalID}") {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import { ApolloError, gql, useMutation } from '@apollo/client'
@@ -11,17 +11,27 @@ import CreateEvaluationDialog from './CreateEvaluationDialog'
 import { useEffectNotOnMount } from '../../../../utils/hooks'
 import { getCachedRoles } from "../../../../utils/helpers"
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
+import { useAppContext } from '../../../../context/AppContext'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
-interface CreateEvaluationButtonProps {
-    projectId: string
-}
-
-const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
+const CreateEvaluationButton = () => {
     const currentUser = useCurrentUser()
-    const project = useProject()
+    const { currentContext } = useModuleCurrentContext()
+    const { currentProject } = useAppContext()
+    const [fusionProjectId, setFusionProjectId] = useState<string | undefined>(undefined)
     const [showDialog, setShowDialog] = useState<boolean>(false)
     const { createEvaluation, loading: creatingEvaluation, evaluation, error: createEvaluationError } = useCreateEvaluationMutation()
-    const canCreateEvaluation = currentUser && getCachedRoles()?.includes('Role.Facilitator')
+    // const canCreateEvaluation = currentUser && getCachedRoles()?.includes('Role.Facilitator')
+    const canCreateEvaluation = true
+
+    useEffect(() => {
+        if (currentContext && currentContext.externalId) {
+            setFusionProjectId(currentContext.externalId)
+        } else if (currentProject) {
+            setFusionProjectId(currentProject.id)
+        }
+    }, [currentContext, currentProject])
+    
 
     useEffectNotOnMount(() => {
         if (!creatingEvaluation && evaluation !== undefined) {
@@ -30,7 +40,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
     }, [creatingEvaluation])
 
     const onCreateEvaluationClick = (name: string, projectCategoryId: string, previousEvaluationId?: string) => {
-        createEvaluation(name, projectId, projectCategoryId, previousEvaluationId)
+        fusionProjectId && createEvaluation(name, fusionProjectId, projectCategoryId, previousEvaluationId)
     }
 
     const onCreateEvaluationCancelClick = () => {
@@ -45,11 +55,9 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
         return (
             <>
                 {canCreateEvaluation && (
-                    <div style={{ marginRight: 20 }}>
-                        <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
-                            Create evaluation
-                        </Button>
-                    </div>
+                    <Button onClick={onCreateEvaluationButtonClick} disabled={creatingEvaluation}>
+                        Create evaluation
+                    </Button>
                 )}
                 {showDialog && (
                     <CreateEvaluationDialog
@@ -66,7 +74,7 @@ const CreateEvaluationButton = ({ projectId }: CreateEvaluationButtonProps) => {
 
     return (
         <>
-            <Redirect push to={`${project.fusionProjectId}/evaluation/${evaluation.id}`} />
+            <Redirect push to={`${fusionProjectId}/evaluation/${evaluation.id}`} />
         </>
     )
 }

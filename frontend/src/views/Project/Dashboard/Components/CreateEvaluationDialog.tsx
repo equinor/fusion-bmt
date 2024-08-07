@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import ErrorMessage from '../../../../components/ErrorMessage'
@@ -6,15 +6,17 @@ import { CircularProgress, TextField } from '@equinor/eds-core-react'
 import { Grid } from '@mui/material'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { genericErrorMessage } from '../../../../utils/Variables'
-import { useProject } from '../../../../globals/contexts'
 import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
-import { Evaluation, ProjectCategory } from '../../../../api/models'
+import { Evaluation, Project, ProjectCategory } from '../../../../api/models'
 import { ErrorIcon } from '../../../../components/Action/utils'
 import ErrorBanner from '../../../../components/ErrorBanner'
 import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
 import { centered } from '../../../../utils/styles'
 import SideSheet from '@equinor/fusion-react-side-sheet'
 import styled from 'styled-components'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import SearchableProjectDropdown from '../../../../components/SearchableProjectDropdown'
+import { useAppContext } from '../../../../context/AppContext'
 
 const ButtonGrid = styled(Grid)`
     margin: 20px 10px;
@@ -22,9 +24,13 @@ const ButtonGrid = styled(Grid)`
     justify-content: end;
 `
 
+interface InputCheck {
+    valid: boolean
+    value: string
+}
 interface CreateEvaluationDialogProps {
     open: boolean
-    onCreate: (name: string, projectCategoryId: string, previousEvaluationId?: string) => void
+    onCreate: (name: string, projectId: string, projectCategoryId: string, previousEvaluationId?: string) => void
     onCancelClick: () => void
     createEvaluationError: ApolloError | undefined
     creatingEvaluation: boolean
@@ -37,9 +43,11 @@ const CreateEvaluationDialog = ({
     createEvaluationError,
     creatingEvaluation,
 }: CreateEvaluationDialogProps) => {
-    const project = useProject()
+    const { currentContext } = useModuleCurrentContext()
 
-    const { loading: loadingEvaluationQuery, evaluations, error: errorEvaluationQuery } = useGetAllEvaluationsQuery(project.id)
+    const { currentProject } = useAppContext()
+
+    const { loading: loadingEvaluationQuery, evaluations, error: errorEvaluationQuery } = useGetAllEvaluationsQuery(currentContext?.id)
     const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
 
     const [nameInputValue, setNameInputValue] = useState<string>('')
@@ -47,34 +55,45 @@ const CreateEvaluationDialog = ({
     const [selectedEvaluation, setSelectedEvaluation] = useState<string | undefined>(undefined)
     const [showCreateErrorMessage, setShowCreateErrorMessage] = useState<boolean>(false)
 
+
     useEffectNotOnMount(() => {
         if (createEvaluationError !== undefined) {
             setShowCreateErrorMessage(true)
         }
     }, [createEvaluationError])
 
-    const isNameInputValid = () => {
-        return nameInputValue.length > 0
+    const invalidInput: InputCheck = {
+        valid: false,
+        value: ''
+    }
+    const evaluationTitleCheck = ():InputCheck => {
+        if (nameInputValue.length > 0 && typeof nameInputValue === 'string') {
+            return {valid: true, value: nameInputValue}
+        }
+        return invalidInput
     }
 
-    const isCategorySelectionValid = () => {
-        return selectedProjectCategory !== undefined
+    const selectedProjectCheck = ():InputCheck => {
+        if (currentProject !== undefined && currentProject.id !== null && typeof currentProject.id === 'string') {
+            return {valid: true, value: currentProject.id}
+        }
+        return invalidInput
     }
 
-    const { valueValidity: nameInputValidity } = useValidityCheck<string>(nameInputValue, isNameInputValid)
-    const { valueValidity: categorySelectionValidity } = useValidityCheck<string | undefined>(
-        selectedProjectCategory,
-        isCategorySelectionValid
-    )
+    const selectedCategoryCheck = ():InputCheck => {
+        if (selectedProjectCategory !== undefined && typeof selectedProjectCategory === 'string') {
+            return {valid: true, value: selectedProjectCategory}
+        }
+        return invalidInput
+    }
 
     const handleCreateClick = () => {
-        if (selectedProjectCategory !== undefined) {
-            onCreate(nameInputValue, selectedProjectCategory, selectedEvaluation)
+        if (evaluationTitleCheck().valid && selectedProjectCheck().valid && selectedCategoryCheck().valid) {
+            onCreate(evaluationTitleCheck().value, selectedProjectCheck().value, selectedCategoryCheck().value)
         }
     }
 
     const isMissingData =
-        evaluations === undefined ||
         projectCategories === undefined ||
         errorEvaluationQuery !== undefined ||
         errorProjectCategoryQuery !== undefined
@@ -96,15 +115,11 @@ const CreateEvaluationDialog = ({
         : []
 
     return (
-        <SideSheet
-            isOpen={open}
-            minWidth={400}
-            onClose={onCancelClick}
-            >
-            <SideSheet.Title title="Create Evaluation" />
-            <SideSheet.SubTitle subTitle="Create a new evaluation" />
+        <SideSheet isOpen={open} minWidth={400} onClose={onCancelClick}>
+            <SideSheet.Title title="Create new evaluation" />
+            <SideSheet.SubTitle subTitle="" />
             <SideSheet.Content>
-            {isFetchingData && (
+                {isFetchingData && (
                     <div style={centered}>
                         <CircularProgress style={{ width: '25px', height: '25px' }} />
                     </div>
@@ -124,7 +139,7 @@ const CreateEvaluationDialog = ({
                             />
                         )}
                         <Grid container spacing={3}>
-                            <Grid item xs={12} style={{ marginTop: '20px' }}>
+                            <Grid item xs={12}>
                                 <TextField
                                     data-testid="create_evaluation_dialog_name_text_field"
                                     id="" // avoids error
@@ -132,45 +147,48 @@ const CreateEvaluationDialog = ({
                                     onChange={(e: any) => {
                                         setNameInputValue(e.target.value)
                                     }}
-                                    label="Evaluation name (required)"
-                                    onKeyPress={(e: any) => {
+                                    label="Evaluation title"
+                                    onKeyUp={(e: any) => {
                                         if (e.key === 'Enter') {
                                             handleCreateClick()
                                         }
                                     }}
-                                    variant={nameInputValidity}
-                                    helperText={nameInputValidity === 'error' ? 'The evaluation name must be filled out' : ''}
-                                    helperIcon={nameInputValidity === 'error' ? ErrorIcon : <></>}
+                                    variant={evaluationTitleCheck().valid ? "success" : "error"}
+                                    helperText={!evaluationTitleCheck().valid ? 'The evaluation title must be filled out' : ''}
+                                    helperIcon={!evaluationTitleCheck().valid ? ErrorIcon : <></>}
                                 />
                             </Grid>
                             <Grid item xs={12}>
+                                <SearchableProjectDropdown />
+                            </Grid>
+                            <Grid item xs={12}>
                                 <SearchableDropdown
-                                    label="Project Category (required)"
+                                    label="Project Category"
                                     value={projectCategoryOptions.find(option => option.id === selectedProjectCategory)?.title}
                                     onSelect={option => {
                                         const selectedOption = (option as any).nativeEvent.detail.selected[0]
                                         setSelectedProjectCategory(selectedOption.id)
                                     }}
                                     options={projectCategoryOptions}
-                                    searchQuery={ async (searchTerm: string) => {
+                                    searchQuery={async (searchTerm: string) => {
                                         return projectCategoryOptions
                                     }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <SearchableDropdown
-                                    label="Previous evaluation (optional)"
+                                    label="Previous evaluation"
                                     value={evaluationOptions.find(option => option.id === selectedEvaluation)?.title}
                                     onSelect={option => {
                                         const selectedOption = (option as any).nativeEvent.detail.selected[0]
                                         setSelectedEvaluation(selectedOption.id)
                                     }}
                                     options={evaluationOptions}
-                                    searchQuery={ async (searchTerm: string) => {
+                                    searchQuery={async (searchTerm: string) => {
                                         return evaluationOptions
                                     }}
+                                    required={false}
                                 />
-
                             </Grid>
                             <ButtonGrid container>
                                 <CancelAndSaveButton
@@ -178,7 +196,7 @@ const CreateEvaluationDialog = ({
                                     onClickCancel={onCancelClick}
                                     saveButtonTestId="create_evaluation_dialog_create_button"
                                     disableCancelButton={creatingEvaluation}
-                                    disableSaveButton={!isNameInputValid() || !isCategorySelectionValid()}
+                                    disableSaveButton={!evaluationTitleCheck().valid || !selectedCategoryCheck().valid || !selectedProjectCheck().valid || !currentProject}
                                     isSaving={creatingEvaluation}
                                 />
                             </ButtonGrid>
@@ -198,23 +216,31 @@ interface EvaluationsQueryProps {
     error: ApolloError | undefined
 }
 
-const useGetAllEvaluationsQuery = (projectId: string): EvaluationsQueryProps => {
-    const GET_EVALUATIONS = gql`
-        query ($projectId: String!) {
-            evaluations(where: { project: { id: { eq: $projectId } } }) {
-                id
-                name
+const useGetAllEvaluationsQuery = (projectId?: string): EvaluationsQueryProps => {
+    if (projectId) {
+        const GET_EVALUATIONS = gql`
+            query ($projectId: String!) {
+                evaluations(where: { project: { id: { eq: $projectId } } }) {
+                    id
+                    name
+                }
             }
+        `
+    
+        const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId } })
+    
+        return {
+            loading,
+            evaluations: data?.evaluations,
+            error,
         }
-    `
-
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId } })
-
-    return {
-        loading,
-        evaluations: data?.evaluations,
-        error,
     }
+    return {
+        loading: false,
+        evaluations: undefined,
+        error: undefined,
+    }
+
 }
 
 interface ProjectCategoriesQueryProps {
