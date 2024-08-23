@@ -2,7 +2,7 @@ ARG DYNATRACE_PAAS_TOKEN
 ARG DYNATRACE_TENANT
 ARG DYNATRACE_URL
 FROM ${DYNATRACE_URL}/e/${DYNATRACE_TENANT}/linux/oneagent-codemodules:all as dynatrace_repo
-FROM node:20.15.0-slim as build
+FROM node:20.16.0-slim as build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY package.json package-lock.json tsconfig.json ./
 RUN npm install
 COPY . .
 
-FROM node:20.15.0-slim
+FROM node:20.16.0-slim
 WORKDIR /app
 COPY --from=build /app ./
 
