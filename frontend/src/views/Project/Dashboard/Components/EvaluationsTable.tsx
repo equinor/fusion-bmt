@@ -20,6 +20,7 @@ import { ApolloError, useMutation, gql, ApolloQueryResult, FetchResult } from '@
 import { getCachedRoles, evaluationCanBeHidden, canSetEvaluationAsIndicator } from '../../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
+import { useAppContext } from '../../../../context/AppContext'
 
 const { Row, Cell } = Table
 
@@ -44,6 +45,8 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
     const SET_EVALUATION_STATUS_MUTATION = gql`
         mutation SetIndicatorEvaluation($projectId: String!, $evaluationId: String!) {
             setIndicatorEvaluation(projectId: $projectId, evaluationId: $evaluationId) {
+                id
+                externalId
                 fusionProjectId
                 indicatorEvaluationId
             }
@@ -97,6 +100,8 @@ const EvaluationsTable = ({
     const [confirmationIsOpen, setConfirmationIsOpen] = React.useState(false)
     const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
     const [userIsFacilitatorInAtLeastOneEvaluation, setUserIsFacilitatorInAtLeastOneEvaluation] = React.useState(false)
+
+    const { projects } = useAppContext()
 
     useEffect(() => {
         const filteredEvaluations = evaluations.filter(evaluation => !hiddenEvaluationIds.includes(evaluation.id))
@@ -247,6 +252,13 @@ const EvaluationsTable = ({
             return evaluation.project.indicatorEvaluationId === evaluation.id
         }
 
+        const projectPath = () => {
+            let evaluationProject = projects.filter(project => project.externalId === evaluation.project.externalId)[0]
+            if (evaluationProject) {
+                return evaluationProject.fusionProjectId
+            }
+        }
+
         return (
             <Row key={index}>
                 <CellWithBorder>
@@ -257,7 +269,7 @@ const EvaluationsTable = ({
                             fontSize: '1.2rem',
                         }}
                         link
-                        href={`/apps/bmt/${evaluation.project.fusionProjectId}/evaluation/${evaluation.id}`}
+                        href={`/apps/bmt/${projectPath()}/evaluation/${evaluation.id}`}
                     >
                         {evaluation.name}
                     </Typography>

@@ -62,7 +62,7 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                     />
                 </Box>
                 <Box p="20px" width="1">
-                    <Box display="flex" flexDirection="row">
+                    <Box display="flex" flexDirection="row" alignItems="center">
                         <Box flexGrow={1}>
                             <Typography variant="h2" ref={headerRef}>
                                 {barrierToString(selectedBarrier)}

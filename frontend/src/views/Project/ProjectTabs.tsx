@@ -7,7 +7,6 @@ import { Tabs } from '@equinor/eds-core-react'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 
 import { Project } from '../../api/models'
-import { ProjectContext } from '../../globals/contexts'
 import ActionsView from './Actions/ActionsView'
 import AdminView from './Admin/AdminView'
 import DashboardView from './Dashboard/DashboardView'
@@ -49,7 +48,6 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     }
 
     return (
-        <ProjectContext.Provider value={project}>
             <Tabs activeTab={activeTab} onChange={setActiveTab}>
                 <Grid container justifyContent="center">
                     <Grid item>
@@ -76,7 +74,6 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
                     )}
                 </Panels>
             </Tabs>
-        </ProjectContext.Provider>
     )
 }
 

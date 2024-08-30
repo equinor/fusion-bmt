@@ -627,6 +627,7 @@ export type Project = {
   fusionProjectId: Scalars['String']['output'];
   id: Scalars['String']['output'];
   indicatorEvaluationId?: Maybe<Scalars['String']['output']>;
+  title?: Scalars['String']['output'];
 };
 
 export type ProjectCategory = {
