@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { ApolloError, FetchResult, gql, useMutation, useQuery, RefetchQueriesFunction, ApolloQueryResult } from '@apollo/client'
-import { Chip, CircularProgress, Icon, Typography } from '@equinor/eds-core-react'
+import { ApolloError, FetchResult, gql, useMutation, useQuery, ApolloQueryResult } from '@apollo/client'
+import { Accordion, Chip, CircularProgress, Icon, Typography } from '@equinor/eds-core-react'
 import ErrorMessage from '../../../components/ErrorMessage'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import { getCachedRoles } from '../../../utils/helpers'
 
 import { genericErrorMessage } from '../../../utils/Variables'
 import { BmtScore, Evaluation, Project, Status } from '../../../api/models'
-import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT, PARTICIPANTS_ARRAY_FRAGMENT } from '../../../api/fragments'
+import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useEvaluationsWithPortfolio } from '../../../utils/hooks'
 import Portfolios from './Components/Portfolios'
 import EvaluationsTable from './Components/EvaluationsTable'
@@ -17,6 +17,7 @@ import { centered } from '../../../utils/styles'
 import { Grid } from '@mui/material'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { visibility, account_circle } from '@equinor/eds-icons'
+import { useAppContext } from '../../../context/AppContext'
 
 const Chips = styled.div`
     display: flex;
@@ -26,6 +27,7 @@ const Chips = styled.div`
 
 const StyledChip = styled(Chip)`
     cursor: pointer;
+    padding-left: 10px;
     margin-right: 10px;
 `
 
@@ -33,7 +35,9 @@ enum TableSelection {
     Portfolio = 'PORTFOLIO',
     Project = 'PROJECT',
     User = 'USER',
-    Hidden = 'HIDDEN',
+    HiddenProject = 'HIDDEN_PROJECT',
+    HiddenUserProject = 'HIDDEN_USER_PROJECT',
+    HiddenUser = 'HIDDEN_USER',
 }
 interface MapTableSelectionToTextProps {
     tableSelection: React.ReactNode
@@ -53,11 +57,27 @@ const MapTableSelectionToText: React.FC<MapTableSelectionToTextProps> = ({ table
         case 'PROJECT': {
             return 'Project evaluations'
         }
-        case 'HIDDEN': {
+        case 'HIDDEN_PROJECT': {
             return (
                 <>
                     <Icon data={visibility} size={16} />
-                    {`Hidden ${projectLabel} evaluations`}
+                    {`Project hidden evaluations`}
+                </>
+            )
+        }
+        case 'HIDDEN_USER': {
+            return (
+                <>
+                    <Icon data={visibility} size={16} />
+                    {`My hidden evaluations`}
+                </>
+            )
+        }
+        case 'HIDDEN_USER_PROJECT': {
+            return (
+                <>
+                    <Icon data={visibility} size={16} />
+                    {`My project hidden evaluations`}
                 </>
             )
         }
@@ -95,20 +115,10 @@ const DashboardView = ({ project }: Props) => {
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
-    const hiddenEvaluationsSelected = selectedProjectTable === TableSelection.Hidden
+    const hiddenUserEvaluationsSelected = selectedProjectTable === TableSelection.HiddenUser
+    const hiddenProjectEvaluationsSelected = selectedProjectTable === TableSelection.HiddenProject
+    const hiddenUserProjectEvaluationsSelected = selectedProjectTable === TableSelection.HiddenUserProject
     const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
-
-    const {
-        loading: loadingUserEvaluations,
-        evaluations: userEvaluations,
-        error: errorUserEvaluations,
-    } = useUserEvaluationsQuery(currentUser.localAccountId)
-
-    const {
-        loading: loadingProjectEvaluations,
-        evaluations: projectEvaluations,
-        error: errorProjectEvaluations,
-    } = useProjectEvaluationsQuery(project.id, Status.Active)
 
     const {
         loading: loadingActiveEvaluations,
@@ -117,15 +127,11 @@ const DashboardView = ({ project }: Props) => {
         refetch: refetchActiveEvaluations,
     } = useAllEvaluationsQuery(Status.Active)
 
-    const {
-        loading: loadingHiddenEvaluations,
-        evaluations: hiddenEvaluations,
-        error: errorHiddenEvaluations,
-    } = useAllEvaluationsQuery(Status.Voided)
-
     const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations) // TODO: re render when status changes
 
     const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
+
+    const { projectsByUser, projectsByUserHidden, loadingEvaluations, evaluationsByUserProject, evaluationsByUserProjectHidden, evaluationsByUser, evaluationsByUserHidden, evaluationsByProject, evaluationsByProjectHidden } = useAppContext()
 
     useEffect(() => {
         const generateScore = async () => {
@@ -140,6 +146,8 @@ const DashboardView = ({ project }: Props) => {
     useEffect(() => {
         if (currentContext) {
             setSelectedProjectTable(TableSelection.Project)
+        } else {
+            setSelectedProjectTable(TableSelection.Portfolio)
         }
     }, [currentContext])
 
@@ -149,9 +157,14 @@ const DashboardView = ({ project }: Props) => {
                 <Chips>
                     {Object.values(TableSelection).map(value => {
                         if (
-                            (value === TableSelection.Hidden && !userIsAdmin) ||
-                            (value === TableSelection.Project && !currentContext) ||
-                            (value === TableSelection.Portfolio && currentContext)
+                            (!userIsAdmin && value === TableSelection.HiddenProject) ||
+                            (value === TableSelection.HiddenUser && currentContext) ||
+                            (!currentContext && (value === TableSelection.Project || value === TableSelection.HiddenProject || value === TableSelection.HiddenUserProject)) ||
+                            (value === TableSelection.User && currentContext && evaluationsByUserProject.length === 0) ||
+                            (value === TableSelection.User && !currentContext && evaluationsByUser.length === 0) ||
+                            (value === TableSelection.HiddenProject && evaluationsByProjectHidden.length === 0) ||
+                            (value === TableSelection.HiddenUserProject && evaluationsByUserProjectHidden.length === 0) ||
+                            (value === TableSelection.HiddenUser && evaluationsByUserHidden.length === 0)
                         ) {
                             return undefined
                         } else {
@@ -175,7 +188,7 @@ const DashboardView = ({ project }: Props) => {
                 </Chips>
             </Grid>
             <Grid item>
-                <CreateEvaluationButton projectId={project.id} />
+                <CreateEvaluationButton />
                 <Typography
                     link
                     href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"
@@ -184,25 +197,50 @@ const DashboardView = ({ project }: Props) => {
                 </Typography>
             </Grid>
             <Grid item xs={12}>
-                {myEvaluationsSelected && (
+                {(myEvaluationsSelected && currentContext) && (
                     <>
-                        {userEvaluations && <EvaluationsTable evaluations={userEvaluations} />}
-                        {loadingUserEvaluations && <CenteredCircularProgress />}
-                        {errorUserEvaluations !== undefined && errorMessage}
+                        {evaluationsByUserProject && <EvaluationsTable evaluations={evaluationsByUserProject} />}
+                        {loadingEvaluations && <CenteredCircularProgress />}
+                        {evaluationsByUserProject.length === 0 && errorMessage}
                     </>
                 )}
                 {projectEvaluationsSelected && (
                     <>
-                        {projectEvaluations && <EvaluationsTable evaluations={projectEvaluations} />}
-                        {loadingProjectEvaluations && <CenteredCircularProgress />}
-                        {errorProjectEvaluations !== undefined && errorMessage}
+                        {evaluationsByProject && <EvaluationsTable evaluations={evaluationsByProject} />}
+                        {loadingEvaluations && <CenteredCircularProgress />}
+                        {evaluationsByProject.length === 0 && errorMessage}
                     </>
                 )}
-                {hiddenEvaluationsSelected && (
+                {(hiddenProjectEvaluationsSelected) && (
                     <>
-                        {hiddenEvaluations && <EvaluationsTable evaluations={hiddenEvaluations} />}
-                        {loadingHiddenEvaluations && <CenteredCircularProgress />}
-                        {errorHiddenEvaluations !== undefined && errorMessage}
+                        {evaluationsByProjectHidden && <EvaluationsTable evaluations={evaluationsByProjectHidden} />}
+                        {loadingEvaluations && <CenteredCircularProgress />}
+                        {evaluationsByProjectHidden.length === 0 && errorMessage}
+                    </>
+                )}
+                {(hiddenUserEvaluationsSelected) && (
+                    <>
+                        {evaluationsByUserHidden && 
+                            <Accordion headerLevel="h3">
+                                {projectsByUserHidden.map(projectByUserHidden => (
+                                    <Accordion.Item key={projectByUserHidden.id} isExpanded>
+                                        <Accordion.Header>{projectByUserHidden.title}</Accordion.Header>
+                                        <Accordion.Panel>
+                                        <EvaluationsTable evaluations={evaluationsByUserHidden.filter((ebuh: Evaluation) => ebuh.project.externalId === projectByUserHidden.externalId)} />
+                                        </Accordion.Panel>
+                                    </Accordion.Item>
+                                ))}
+                            </Accordion>
+                        }
+                        {loadingEvaluations && <CenteredCircularProgress />}
+                        {evaluationsByUserHidden.length === 0 && errorMessage}
+                    </>
+                )}
+                {(hiddenUserProjectEvaluationsSelected && currentContext) && (
+                    <>
+                        {evaluationsByUserProjectHidden && <EvaluationsTable evaluations={evaluationsByUserProjectHidden} />}
+                        {loadingEvaluations && <CenteredCircularProgress />}
+                        {evaluationsByUserProjectHidden.length === 0 && errorMessage}
                     </>
                 )}
                 {portfoliosSelected && (
@@ -217,6 +255,18 @@ const DashboardView = ({ project }: Props) => {
                         {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
                         {errorActiveEvaluations !== undefined && errorMessage}
                     </>
+                )}
+                {(myEvaluationsSelected && !currentContext && evaluationsByUser) && (
+                    <Accordion headerLevel="h3">
+                        {projectsByUser.map(projectByUser => (
+                            <Accordion.Item key={projectByUser.id} isExpanded>
+                                <Accordion.Header>{projectByUser.title}</Accordion.Header>
+                                <Accordion.Panel>
+                                    <EvaluationsTable evaluations={evaluationsByUser.filter((ebu: Evaluation) => ebu.project.externalId === projectByUser.externalId)} />
+                                </Accordion.Panel>
+                            </Accordion.Item>
+                        ))}
+                    </Accordion>
                 )}
             </Grid>
         </Grid>

@@ -1,20 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { ApolloError, gql, useMutation, useQuery } from '@apollo/client'
-import { Box } from '@mui/material'
+import { Grid } from '@mui/material'
 import ErrorMessage from '../../../components/ErrorMessage'
-import { Button, CircularProgress, Icon, Tooltip, } from '@equinor/eds-core-react'
+import { Button, CircularProgress, Icon, Snackbar, Tooltip } from '@equinor/eds-core-react'
 import { visibility, visibility_off } from '@equinor/eds-icons'
-import { ContextTypes } from '@equinor/fusion'
 import SearchableDropdown from '../../../components/SearchableDropDown'
 import AddNomineeDialog from './components/AddNomineeDialog'
-import { Evaluation, Organization, Participant, Progression, Role, Status } from '../../../api/models'
+import { Evaluation, Organization, Participant, Progression, Project, Role, Status } from '../../../api/models'
 import NominationTable from './components/NominationTable'
 import {
     participantCanAddParticipant,
     participantCanHideEvaluation,
     participantCanProgressEvaluation,
 } from '../../../utils/RoleBasedAccess'
-import { Context } from '@equinor/fusion'
 import { EVALUATION_FIELDS_FRAGMENT, PARTICIPANT_FIELDS_FRAGMENT } from '../../../api/fragments'
 import { useParticipant } from '../../../globals/contexts'
 import { disableProgression } from '../../../utils/disableComponents'
@@ -25,7 +23,7 @@ import { centered } from '../../../utils/styles'
 import ErrorBanner from '../../../components/ErrorBanner'
 import { getCachedRoles } from '../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
-import { useContextApi } from '../../../api/useContextApi'
+import { useAppContext } from '../../../context/AppContext'
 
 interface NominationViewProps {
     evaluation: Evaluation
@@ -42,7 +40,6 @@ export const createDropdownOptionsFromProjects = (
             {
                 title: 'Loading...',
                 id: 'loading',
-
             },
         ]
     }
@@ -60,23 +57,37 @@ export const createDropdownOptionsFromProjects = (
     //     id: item.id,
     //     externalId: item.externalId,
     // }))
-    return [{
-        title: list.title,
-        id: list.id,
-        externalId: list.externalId,
-    }]
+    return [
+        {
+            title: list.title,
+            id: list.id,
+            externalId: list.externalId,
+        },
+    ]
 }
 
 interface SetEvaluationToAnotherProjectMutationProps {
-    setEvaluationToAnotherProject: (evaluationId: string, destinationProjectFusionId: string, destinationProjectExternalId: string | null | undefined) => void
+    setEvaluationToAnotherProject: (
+        evaluationId: string,
+        destinationProjectFusionId: string,
+        destinationProjectExternalId: string | null | undefined
+    ) => void
     loading: boolean
     error: ApolloError | undefined
 }
 
 const useSetEvaluationToAnotherProjectMutation = (): SetEvaluationToAnotherProjectMutationProps => {
     const SET_EVALUATION_TO_ANOTHER_PROJECT = gql`
-        mutation setEvaluationToAnotherProject($evaluationId: String!, $destinationProjectFusionId: String!, $destinationProjectExternalId: String) {
-            setEvaluationToAnotherProject(evaluationId: $evaluationId, destinationProjectFusionId: $destinationProjectFusionId, destinationProjectExternalId: $destinationProjectExternalId) {
+        mutation setEvaluationToAnotherProject(
+            $evaluationId: String!
+            $destinationProjectFusionId: String!
+            $destinationProjectExternalId: String
+        ) {
+            setEvaluationToAnotherProject(
+                evaluationId: $evaluationId
+                destinationProjectFusionId: $destinationProjectFusionId
+                destinationProjectExternalId: $destinationProjectExternalId
+            ) {
                 id
             }
         }
@@ -84,7 +95,11 @@ const useSetEvaluationToAnotherProjectMutation = (): SetEvaluationToAnotherProje
 
     const [setEvaluationToAnotherProjectApolloFunc, { loading, data, error }] = useMutation(SET_EVALUATION_TO_ANOTHER_PROJECT)
 
-    const setEvaluationToAnotherProject = (evaluationId: string, destinationProjectFusionId: string, destinationProjectExternalId: string | null | undefined) => {
+    const setEvaluationToAnotherProject = (
+        evaluationId: string,
+        destinationProjectFusionId: string,
+        destinationProjectExternalId: string | null | undefined
+    ) => {
         setEvaluationToAnotherProjectApolloFunc({
             variables: { evaluationId, destinationProjectFusionId, destinationProjectExternalId },
         })
@@ -97,19 +112,15 @@ const useSetEvaluationToAnotherProjectMutation = (): SetEvaluationToAnotherProje
     }
 }
 
-
 const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
-
     const currentUser = useCurrentUser()
     const participant = useParticipant()
 
-    const { setEvaluationToAnotherProject, loading: setEvaluationToAnotherProjectLoading, error: setEvaluationToAnotherProjectError, } = useSetEvaluationToAnotherProjectMutation()
-
-    const [projects, setProjects] = useState<Context[]>([])
-    const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(false)
-    const [currentProject, setCurrentProject] = useState<Context>()
-    const projectOptions = createDropdownOptionsFromProjects(projects, "1", true)
-    const apiClients = useContextApi()
+    const {
+        setEvaluationToAnotherProject,
+        loading: setEvaluationToAnotherProjectLoading,
+        error: setEvaluationToAnotherProjectError,
+    } = useSetEvaluationToAnotherProjectMutation()
 
     const { createParticipant, loading: createParticipantLoading, error: errorCreateParticipant } = useCreateParticipantMutation()
     const { loading: loadingQuery, participants, error: errorQuery } = useParticipantsQuery(evaluation.id)
@@ -121,6 +132,9 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
 
     const viewProgression = Progression.Nomination
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
+
+    const { isFetchingProjects, projects, currentProject, setCurrentProject, projectOptions } = useAppContext()
+    const [switchProject, setSwitchProject] = useState<boolean>(false)
 
     useEffectNotOnMount(() => {
         if (loading) {
@@ -139,21 +153,6 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
             setStatusSavingState(SavingState.NotSaved)
         }
     }, [error])
-
-    useEffect(() => {
-        if (projects.length === 0) {
-            setIsFetchingProjects(true)
-
-            apiClients.getById(evaluation.project.fusionProjectId).then(projects => {
-                setProjects(projects)
-                setIsFetchingProjects(false)
-            })
-
-            apiClients.getById(evaluation.project.fusionProjectId).then(project => {
-                setCurrentProject(project)
-            })
-        }
-    }, [])
 
     const onNextStepClick = () => {
         onNextStep()
@@ -179,13 +178,13 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
         return <ErrorMessage title="Could not add participant" message={genericErrorMessage} />
     }
 
-    const updateEvaluationToNewProject = (item: any) => {
-        setEvaluationToAnotherProject(evaluation.id, item.id, item.externalId)
+    const updateEvaluationToNewProject = (project: Project) => {
+        setEvaluationToAnotherProject(evaluation.id, project.fusionProjectId, project.externalId)
 
         if (process.env.IS_DEVELOPMENT === 'true') {
-            window.location.pathname = `${item.id}/evaluation/${evaluation.id}`
+            window.location.pathname = `${project.id}/evaluation/${evaluation.id}`
         } else {
-            window.location.pathname = `apps/bmt/${item.id}/evaluation/${evaluation.id}`
+            window.location.pathname = `apps/bmt/${project.fusionProjectId}/evaluation/${evaluation.id}`
         }
     }
 
@@ -197,82 +196,88 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
     const isVisible = evaluation.status !== Status.Voided
 
     return (
-        <div style={{ margin: 20 }}>
-            <Box display="flex" flexDirection="row">
-                <Box flexGrow={1} display="flex" flexDirection={'row'} pb={1} alignItems={'center'}>
-                    <h2 data-testid="evaluation_title" style={{ marginRight: '15px' }}>
-                        {evaluation.name}
-                    </h2>
-                    {(participantCanHideEvaluation(participant) || isAdmin) && (
-                        <>
-                            <Tooltip title={isVisible ? 'Visible in list' : 'Hidden from list'} placement="bottom">
-                                <Icon data={isVisible ? visibility : visibility_off} style={{ marginRight: '10px' }}></Icon>
+        <Grid container gap={2} sx={{ marginTop: '10px' }}>
+            <Grid item xs={0} container gap={1} alignItems="flex-end" justifyContent="space-between">
+                <Grid item xs={0}>
+                    <Button
+                        onClick={() => {
+                            setPanelOpen(true)
+                        }}
+                        disabled={!participantCanAddParticipant(participant)}
+                    >
+                        Add Person
+                    </Button>
+                </Grid>
+                {(participantCanHideEvaluation(participant) || isAdmin) && (
+                    <Grid item xs container gap={1} alignItems="center" justifyContent="flex-end">
+                        <Grid item xs={0}>
+                            <Tooltip title={`This evaluation is currently ${isVisible ? 'visible' : 'hidden'} in the list`}>
+                                <Button
+                                    variant="ghost"
+                                    onClick={toggleStatus}
+                                    disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
+                                >
+                                    <Icon data={isVisible ? visibility : visibility_off}></Icon>
+                                    {isVisible ? 'Hide from list' : 'Make visible'}
+                                </Button>
                             </Tooltip>
-                            <Button
-                                variant="ghost"
-                                onClick={toggleStatus}
-                                disabled={!(participantCanHideEvaluation(participant) || isAdmin)}
-                            >
-                                {isVisible ? 'Hide from list' : 'Make visible'}
-                            </Button>
-
-                            {isFetchingProjects ?
-                                <CircularProgress /> :
-                                <div>
-                                    Switch evaluation to another project
-                                    <SearchableDropdown
-                                        label='Select project'
-                                        value={currentProject?.title}
-                                        onSelect={(option: any) => {
-                                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                                            updateEvaluationToNewProject(selectedOption)
-                                        }
-                                        }
-                                        options={projectOptions}
-                                        searchQuery={async (searchTerm: string) => {
-                                            const filteredOptions = projectOptions.filter(option => {
-                                                return option.title.toLowerCase().includes(searchTerm.toLowerCase())
-                                            })
-                                            return filteredOptions
-                                        }}
-                                    />
-
-                                </div>
-                            }
-                        </>
-                    )}
-                </Box>
-                {participantCanProgressEvaluation(participant) && (
-                    <Box display={'flex'} alignItems={'center'}>
-                        <SaveIndicator savingState={statusSavingState} />
-                        <Box ml={2}>
-                            <Button onClick={onNextStepClick} disabled={disableProgression(evaluation, participant, viewProgression)}>
-                                Finish Nomination
-                            </Button>
-                        </Box>
-                    </Box>
+                        </Grid>
+                        <Grid item xs container gap={1} justifyContent="flex-end" alignItems="flex-end">
+                            {isFetchingProjects ? (
+                                <CircularProgress />
+                            ) : (
+                                <>
+                                    {switchProject && (
+                                        <SearchableDropdown
+                                            label=""
+                                            value={currentProject?.title}
+                                            onSelect={(option: any) => {
+                                                const selectedProject = projects.filter(
+                                                    project => project.externalId === option.nativeEvent.detail.selected[0].id
+                                                )[0]
+                                                setCurrentProject(selectedProject)
+                                                updateEvaluationToNewProject(selectedProject)
+                                                setSwitchProject(false)
+                                            }}
+                                            options={projectOptions}
+                                            searchQuery={async (searchTerm: string) => {
+                                                return projectOptions.filter(projectOption =>
+                                                    projectOption.title!.toLowerCase().includes(searchTerm.toLowerCase())
+                                                )
+                                            }}
+                                            variant="page-dense"
+                                            onReset={() => setSwitchProject(false)}
+                                        />
+                                    )}
+                                    <Button onClick={() => setSwitchProject(!switchProject)} variant="outlined">
+                                        {switchProject ? "Keep project" : "Switch project"}
+                                    </Button>
+                                </>
+                            )}
+                        </Grid>
+                        {participantCanProgressEvaluation(participant) && (
+                            <Grid item xs={0}>
+                                <Button
+                                    onClick={onNextStepClick}
+                                    disabled={
+                                        statusSavingState !== SavingState.None ||
+                                        disableProgression(evaluation, participant, viewProgression)
+                                    }
+                                >
+                                    {statusSavingState === SavingState.None ? (
+                                        'Finish Nomination'
+                                    ) : (
+                                        <SaveIndicator savingState={statusSavingState} />
+                                    )}
+                                </Button>
+                            </Grid>
+                        )}
+                    </Grid>
                 )}
-            </Box>
-            {showErrorMessage && (
-                <Box mb={1}>
-                    <ErrorBanner
-                        message={'Could not change evaluation state. ' + genericErrorMessage}
-                        onClose={() => setShowErrorMessage(false)}
-                    />
-                </Box>
-            )}
-            <Button
-                onClick={() => {
-                    setPanelOpen(true)
-                }}
-                disabled={!participantCanAddParticipant(participant)}
-                style={{ marginBottom: '10px' }}
-            >
-                Add Person
-            </Button>
-
-            <NominationTable participants={participants} />
-
+            </Grid>
+            <Grid item xs={12}>
+                <NominationTable participants={participants} />
+            </Grid>
             <AddNomineeDialog
                 open={panelOpen}
                 onCloseClick={() => setPanelOpen(false)}
@@ -280,7 +285,17 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 currentNominees={participants}
                 createParticipantLoading={createParticipantLoading}
             />
-        </div>
+            <Snackbar 
+                open={showErrorMessage}
+                placement="top"
+                onClose={() => setShowErrorMessage(false)}
+                >
+                <ErrorBanner
+                    message={'Could not change evaluation state. ' + genericErrorMessage}
+                    onClose={() => setShowErrorMessage(false)}
+                />
+            </Snackbar>
+        </Grid>
     )
 }
 

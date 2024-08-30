@@ -44,6 +44,8 @@ export const EVALUATION_DASHBOARD_FIELDS_FRAGMENT = gql`
         indicatorActivityDate
         workshopCompleteDate
         project {
+            id
+            externalId
             fusionProjectId
             indicatorEvaluationId
         }

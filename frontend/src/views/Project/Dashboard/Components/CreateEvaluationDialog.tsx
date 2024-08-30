@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import ErrorMessage from '../../../../components/ErrorMessage'
@@ -6,25 +6,19 @@ import { CircularProgress, TextField } from '@equinor/eds-core-react'
 import { Grid } from '@mui/material'
 import SearchableDropdown from '../../../../components/SearchableDropDown'
 import { genericErrorMessage } from '../../../../utils/Variables'
-import { useProject } from '../../../../globals/contexts'
 import { useEffectNotOnMount, useValidityCheck } from '../../../../utils/hooks'
-import { Evaluation, ProjectCategory } from '../../../../api/models'
+import { Evaluation, Project, ProjectCategory } from '../../../../api/models'
 import { ErrorIcon } from '../../../../components/Action/utils'
 import ErrorBanner from '../../../../components/ErrorBanner'
 import CancelAndSaveButton from '../../../../components/CancelAndSaveButton'
 import { centered } from '../../../../utils/styles'
 import SideSheet from '@equinor/fusion-react-side-sheet'
-import styled from 'styled-components'
-
-const ButtonGrid = styled(Grid)`
-    margin: 20px 10px;
-    display: flex;
-    justify-content: end;
-`
+import { useAppContext } from '../../../../context/AppContext'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 interface CreateEvaluationDialogProps {
     open: boolean
-    onCreate: (name: string, projectCategoryId: string, previousEvaluationId?: string) => void
+    onCreate: (name: string, projectId: string, projectCategoryId: string, previousEvaluationId?: string) => void
     onCancelClick: () => void
     createEvaluationError: ApolloError | undefined
     creatingEvaluation: boolean
@@ -37,15 +31,17 @@ const CreateEvaluationDialog = ({
     createEvaluationError,
     creatingEvaluation,
 }: CreateEvaluationDialogProps) => {
-    const project = useProject()
 
-    const { loading: loadingEvaluationQuery, evaluations, error: errorEvaluationQuery } = useGetAllEvaluationsQuery(project.id)
+    const { currentContext } = useModuleCurrentContext()
+    const { projects, evaluations, evaluationsByProject, currentProject, setCurrentProject, projectOptions } = useAppContext()
     const { loading: loadingProjectCategoryQuery, projectCategories, error: errorProjectCategoryQuery } = useGetAllProjectCategoriesQuery()
 
     const [nameInputValue, setNameInputValue] = useState<string>('')
     const [selectedProjectCategory, setSelectedProjectCategory] = useState<string | undefined>(undefined)
     const [selectedEvaluation, setSelectedEvaluation] = useState<string | undefined>(undefined)
     const [showCreateErrorMessage, setShowCreateErrorMessage] = useState<boolean>(false)
+    const [evaluationOptions, setEvaluationOptions] = useState<any[]>([])
+    const [selectedProject, setSelectedProject] = useState<Project | undefined>(undefined)
 
     useEffectNotOnMount(() => {
         if (createEvaluationError !== undefined) {
@@ -55,6 +51,10 @@ const CreateEvaluationDialog = ({
 
     const isNameInputValid = () => {
         return nameInputValue.length > 0
+    }
+
+    const isProjectSelectionValid = () => {
+        return selectedProject !== undefined
     }
 
     const isCategorySelectionValid = () => {
@@ -68,18 +68,19 @@ const CreateEvaluationDialog = ({
     )
 
     const handleCreateClick = () => {
-        if (selectedProjectCategory !== undefined) {
-            onCreate(nameInputValue, selectedProjectCategory, selectedEvaluation)
+        if (selectedProjectCategory !== undefined && selectedProject !== undefined) {
+            onCreate(nameInputValue, selectedProject.id, selectedProjectCategory, selectedEvaluation)
         }
     }
 
     const isMissingData =
         evaluations === undefined ||
+        (currentContext === undefined && (!projects || projects.length === 0)) ||
         projectCategories === undefined ||
-        errorEvaluationQuery !== undefined ||
+        (evaluations === undefined && evaluationsByProject === undefined) ||
         errorProjectCategoryQuery !== undefined
 
-    const isFetchingData = loadingEvaluationQuery || loadingProjectCategoryQuery
+    const isFetchingData = (evaluations === undefined && evaluationsByProject === undefined) || loadingProjectCategoryQuery
 
     const projectCategoryOptions = projectCategories
         ? projectCategories.map((projectCategory: ProjectCategory) => ({
@@ -88,12 +89,24 @@ const CreateEvaluationDialog = ({
           }))
         : []
 
-    const evaluationOptions = evaluations
-        ? evaluations.map((evaluation: Evaluation) => ({
-              title: evaluation.name,
-              id: evaluation.id,
-          }))
-        : []
+    useEffect(() => {
+        if (evaluations && evaluations.length !== evaluationOptions.length ) {
+            setEvaluationOptions(evaluations.map((evaluation: Evaluation) => ({
+                title: evaluation.name,
+                id: evaluation.id,
+            })))
+        }
+    }, [evaluations, evaluationOptions])
+
+    useEffect(() => {
+        if (currentContext && !selectedProject) {
+            setSelectedProject(projects.filter(project => project.fusionProjectId === currentContext.id)[0])
+        }
+        if (!currentContext && selectedProject) {
+            setCurrentProject(projects.filter(project => project.externalId === selectedProject.externalId)[0])
+        }
+    }, [selectedProject, currentContext])
+    
 
     return (
         <SideSheet
@@ -101,8 +114,8 @@ const CreateEvaluationDialog = ({
             minWidth={400}
             onClose={onCancelClick}
             >
-            <SideSheet.Title title="Create Evaluation" />
-            <SideSheet.SubTitle subTitle="Create a new evaluation" />
+            <SideSheet.Title title="Create new evaluation" />
+            <SideSheet.SubTitle subTitle="" />
             <SideSheet.Content>
             {isFetchingData && (
                     <div style={centered}>
@@ -132,20 +145,32 @@ const CreateEvaluationDialog = ({
                                     onChange={(e: any) => {
                                         setNameInputValue(e.target.value)
                                     }}
-                                    label="Evaluation name (required)"
-                                    onKeyPress={(e: any) => {
-                                        if (e.key === 'Enter') {
-                                            handleCreateClick()
-                                        }
-                                    }}
+                                    label="Evaluation title"
                                     variant={nameInputValidity}
-                                    helperText={nameInputValidity === 'error' ? 'The evaluation name must be filled out' : ''}
+                                    helperText={nameInputValidity === 'error' ? 'The evaluation title must be filled out' : ''}
                                     helperIcon={nameInputValidity === 'error' ? ErrorIcon : <></>}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <SearchableDropdown
-                                    label="Project Category (required)"
+                                    label="Project"
+                                    value={selectedProject?.title || currentProject?.title}
+                                    onSelect={(option: Project) => {
+                                        if (projects) {
+                                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
+                                            setSelectedProject(projects.filter(project => project.externalId === selectedOption.id)[0])
+                                        }
+                                    }}
+                                    options={projectOptions}
+                                    searchQuery={ async (searchTerm: string) => {
+                                        return projectOptions.filter(projectOption => projectOption.title!.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    }}
+                                    disabled={currentContext !== undefined}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <SearchableDropdown
+                                    label="Questionare template"
                                     value={projectCategoryOptions.find(option => option.id === selectedProjectCategory)?.title}
                                     onSelect={option => {
                                         const selectedOption = (option as any).nativeEvent.detail.selected[0]
@@ -153,13 +178,13 @@ const CreateEvaluationDialog = ({
                                     }}
                                     options={projectCategoryOptions}
                                     searchQuery={ async (searchTerm: string) => {
-                                        return projectCategoryOptions
+                                        return projectCategoryOptions.filter(projectCategoryOption => projectCategoryOption.title!.toLowerCase().includes(searchTerm.toLowerCase()))
                                     }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <SearchableDropdown
-                                    label="Previous evaluation (optional)"
+                                    label="Previous evaluation"
                                     value={evaluationOptions.find(option => option.id === selectedEvaluation)?.title}
                                     onSelect={option => {
                                         const selectedOption = (option as any).nativeEvent.detail.selected[0]
@@ -167,21 +192,23 @@ const CreateEvaluationDialog = ({
                                     }}
                                     options={evaluationOptions}
                                     searchQuery={ async (searchTerm: string) => {
-                                        return evaluationOptions
+                                        return evaluationOptions.filter(evaluationOption => evaluationOption.title!.toLowerCase().includes(searchTerm.toLowerCase()))
                                     }}
+                                    required={false}
                                 />
 
                             </Grid>
-                            <ButtonGrid container>
+                            <Grid item xs={12}>
                                 <CancelAndSaveButton
                                     onClickSave={handleCreateClick}
                                     onClickCancel={onCancelClick}
                                     saveButtonTestId="create_evaluation_dialog_create_button"
                                     disableCancelButton={creatingEvaluation}
-                                    disableSaveButton={!isNameInputValid() || !isCategorySelectionValid()}
+                                    disableSaveButton={!isNameInputValid() || !isProjectSelectionValid() || !isCategorySelectionValid()}
                                     isSaving={creatingEvaluation}
+                                    isCreate
                                 />
-                            </ButtonGrid>
+                            </Grid>
                         </Grid>
                     </div>
                 )}
@@ -191,31 +218,6 @@ const CreateEvaluationDialog = ({
 }
 
 export default CreateEvaluationDialog
-
-interface EvaluationsQueryProps {
-    loading: boolean
-    evaluations: Evaluation[] | undefined
-    error: ApolloError | undefined
-}
-
-const useGetAllEvaluationsQuery = (projectId: string): EvaluationsQueryProps => {
-    const GET_EVALUATIONS = gql`
-        query ($projectId: String!) {
-            evaluations(where: { project: { id: { eq: $projectId } } }) {
-                id
-                name
-            }
-        }
-    `
-
-    const { loading, data, error } = useQuery<{ evaluations: Evaluation[] }>(GET_EVALUATIONS, { variables: { projectId } })
-
-    return {
-        loading,
-        evaluations: data?.evaluations,
-        error,
-    }
-}
 
 interface ProjectCategoriesQueryProps {
     loading: boolean

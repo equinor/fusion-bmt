@@ -1,13 +1,7 @@
-import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Breadcrumbs } from '@equinor/eds-core-react'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useAppContext } from '../../context/AppContext'
-
-interface BreadCrumb {
-    title: string
-    href: string
-}
 
 const { Breadcrumb } = Breadcrumbs
 
@@ -25,47 +19,37 @@ const StyledBreadcrumbs = styled(Breadcrumbs)`
 `
 
 const BreadCrumbs = () => {
-    const { currentContext, setCurrentContext } = useModuleCurrentContext()
-    const basepath = '/apps/bmt'
-    const [breadcrumbs, setBreadcrumbs] = useState<BreadCrumb[]>([{ title: 'All projects', href: basepath }])
-    const { evaluation } = useAppContext()
-
-    useEffect(() => {
-        if (currentContext && currentContext.title) {
-            setBreadcrumbs(currentBreadcrumbs => [
-                ...currentBreadcrumbs,
-                { title: String(currentContext.title), href: `${basepath}/${String(currentContext.id)}` },
-            ])
-        }
-    }, [currentContext])
-
-    useEffect(() => {
-        if (evaluation) {
-            setBreadcrumbs(currentBreadcrumbs => [
-                ...currentBreadcrumbs,
-                { title: String(evaluation?.name), href: String(`evaluation/${evaluation?.id}`) },
-            ])
-        }
-    }, [evaluation])
-
-    function handleBreadcrumb(e: any) {
-        if (currentContext && !e.target.href.includes(currentContext.id)) {
-            setCurrentContext(null)
-        }
-    }
+    const { setCurrentContext } = useModuleCurrentContext()
+    const { currentProject, setCurrentProject, currentEvaluation } = useAppContext()
+    const basepath = "/apps/bmt/"
 
     return (
         <StyledBreadcrumbs>
-            {breadcrumbs.map((breadcrumb, index) => (
+            <Breadcrumb
+                href={basepath}
+                as={!currentProject && !currentEvaluation ? 'span' : 'a'}
+                onClick={() => {
+                    setCurrentContext(undefined)
+                    setCurrentProject(undefined)
+                }}
+            >
+                All projects
+            </Breadcrumb>
+            {currentProject && 
                 <Breadcrumb
-                    key={breadcrumb.href}
-                    href={breadcrumbs.length === index + 1 ? undefined : breadcrumb.href}
-                    onClick={breadcrumbs.length === index + 1 ? undefined : handleBreadcrumb}
-                    as={breadcrumbs.length === index + 1 ? 'span' : 'a'}
+                    href={basepath + currentProject.fusionProjectId}
+                    as={!currentEvaluation ? 'span' : 'a'}
                 >
-                    {breadcrumb.title}
+                    {String(currentProject.title)}
                 </Breadcrumb>
-            ))}
+            }
+            {currentEvaluation && 
+                <Breadcrumb
+                    as="span"
+                >
+                    {currentEvaluation.name}
+                </Breadcrumb>
+            }
         </StyledBreadcrumbs>
     )
 }

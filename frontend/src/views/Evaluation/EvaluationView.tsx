@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 import ErrorMessage from '../../components/ErrorMessage'
@@ -28,7 +28,7 @@ interface Params {
 }
 
 const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
-    const { setEvaluation } = useAppContext()
+    const { setCurrentEvaluation } = useAppContext()
     const evaluationId: string = match.params.evaluationId
     const azureUniqueId = useAzureUniqueId()
 
@@ -51,7 +51,7 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
     }
     useEffect(() => {
         if (evaluation) {
-            setEvaluation(evaluation)
+            setCurrentEvaluation(evaluation)
         }
     }, [evaluation])
 
