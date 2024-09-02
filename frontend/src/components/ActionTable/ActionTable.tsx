@@ -12,6 +12,7 @@ import { barrierToString, organizationToString } from '../../utils/EnumToString'
 import { getFusionProjectName } from '../../utils/helpers'
 import PriorityIndicator from '../Action/PriorityIndicator'
 import { PersonDetails } from '@equinor/fusion-react-person'
+import { useAppContext } from '../../context/AppContext'
 
 const { Row, Cell } = Table
 
@@ -23,7 +24,7 @@ type ActionWithAdditionalInfo = {
 
 const columnOptions: Column[] = [
     { name: 'Title', accessor: 'title', sortable: true },
-    { name: 'Project', accessor: 'project', sortable: true },
+    { name: 'Project', accessor: 'project', sortable: true }, // should not exist when in a project
     { name: 'Evaluation', accessor: 'evaluation', sortable: true },
     { name: 'Barrier', accessor: 'barrier', sortable: true },
     { name: 'Organization', accessor: 'organization', sortable: true },
@@ -47,10 +48,13 @@ interface Props {
 }
 
 const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false, projects }: Props) => {
+    const {currentProject} = useAppContext()
+    console.log(currentProject)
+
     const columns = columnOptions.filter(
         col =>
             (col.name === 'Evaluation' && showEvaluations) ||
-            (col.name === 'Project' && projects) ||
+            (col.name === 'Project' && !currentProject) ||
             (col.name !== 'Evaluation' && col.name !== 'Project')
     )
 
@@ -106,6 +110,9 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
         const priorityFormatted = priority.substring(0, 1) + priority.substring(1).toLowerCase()
         const assignedTo = assignedPersonDetails(action)
 
+        console.log(action.question)
+        console.log(projects)
+
         return (
             <Row key={index} data-testid={`action-${action.id}`}>
                 <Cell
@@ -117,7 +124,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                 >
                     {action.title}
                 </Cell>
-                {projects && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>}
+                {!currentProject && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>}
                 {showEvaluations && <Cell>{action.question.evaluation.name}</Cell>}
                 <Cell>{barrierToString(barrier)}</Cell>
                 <Cell>{organizationToString(organization)}</Cell>
