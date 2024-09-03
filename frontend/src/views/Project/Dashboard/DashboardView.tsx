@@ -144,7 +144,6 @@ const DashboardView = ({ project }: Props) => {
     }, [])
 
     useEffect(() => {
-        console.log(currentContext)
         if (currentContext) {
             setSelectedProjectTable(TableSelection.Project)
         } else {

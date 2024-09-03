@@ -24,7 +24,7 @@ type ActionWithAdditionalInfo = {
 
 const columnOptions: Column[] = [
     { name: 'Title', accessor: 'title', sortable: true },
-    { name: 'Project', accessor: 'project', sortable: true }, // should not exist when in a project
+    { name: 'Project', accessor: 'project', sortable: true },
     { name: 'Evaluation', accessor: 'evaluation', sortable: true },
     { name: 'Barrier', accessor: 'barrier', sortable: true },
     { name: 'Organization', accessor: 'organization', sortable: true },
@@ -49,7 +49,6 @@ interface Props {
 
 const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false, projects }: Props) => {
     const {currentProject} = useAppContext()
-    console.log(currentProject)
 
     const columns = columnOptions.filter(
         col =>
@@ -109,9 +108,6 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
         const priority = action.priority
         const priorityFormatted = priority.substring(0, 1) + priority.substring(1).toLowerCase()
         const assignedTo = assignedPersonDetails(action)
-
-        console.log(action.question)
-        console.log(projects)
 
         return (
             <Row key={index} data-testid={`action-${action.id}`}>
