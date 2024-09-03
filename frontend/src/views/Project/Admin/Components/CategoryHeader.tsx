@@ -49,7 +49,7 @@ const CategoryHeader = ({
 
     const projectCategoryOptions = [
         {
-            title: 'All project categories',
+            title: 'All questionnaire templates',
             id: 'all',
         },
     ]
@@ -87,7 +87,7 @@ const CategoryHeader = ({
                     <Box flexGrow={1}>
                         <Box ml={4} width={'250px'}>
                             <SearchableDropdown
-                                label="Project Category"
+                                label="Questionnaire Template"
                                 value={projectCategoryOptions.find(option => option.id === selectedProjectCategory)?.title}
                                 onSelect={option => {
                                     const selectedOption = (option as any).nativeEvent.detail.selected[0]
@@ -105,11 +105,11 @@ const CategoryHeader = ({
                     <Box alignSelf={'center'}>
                         <Button variant="outlined" onClick={() => setIsInCreateProjectCategoryMode(true)} data-testid="addProjectCategory">
                             <Icon data={add}></Icon>
-                            Add project category
+                            Add questionnaire template
                         </Button>
                     </Box>
                     <Box mr={4} ml={1} alignSelf={'center'}>
-                        <Tooltip placement="bottom" title={'Delete selected project category'}>
+                        <Tooltip placement="bottom" title={'Delete selected questionnaire template'}>
                             <Button
                                 data-testid="deleteProjectCategory"
                                 variant="ghost"

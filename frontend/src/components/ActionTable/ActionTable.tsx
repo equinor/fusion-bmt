@@ -12,6 +12,7 @@ import { barrierToString, organizationToString } from '../../utils/EnumToString'
 import { getFusionProjectName } from '../../utils/helpers'
 import PriorityIndicator from '../Action/PriorityIndicator'
 import { PersonDetails } from '@equinor/fusion-react-person'
+import { useAppContext } from '../../context/AppContext'
 
 const { Row, Cell } = Table
 
@@ -47,10 +48,12 @@ interface Props {
 }
 
 const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false, projects }: Props) => {
+    const {currentProject} = useAppContext()
+
     const columns = columnOptions.filter(
         col =>
             (col.name === 'Evaluation' && showEvaluations) ||
-            (col.name === 'Project' && projects) ||
+            (col.name === 'Project' && !currentProject) ||
             (col.name !== 'Evaluation' && col.name !== 'Project')
     )
 
@@ -117,7 +120,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                 >
                     {action.title}
                 </Cell>
-                {projects && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>}
+                {!currentProject && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>}
                 {showEvaluations && <Cell>{action.question.evaluation.name}</Cell>}
                 <Cell>{barrierToString(barrier)}</Cell>
                 <Cell>{organizationToString(organization)}</Cell>

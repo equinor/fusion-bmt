@@ -61,7 +61,7 @@ const MapTableSelectionToText: React.FC<MapTableSelectionToTextProps> = ({ table
             return (
                 <>
                     <Icon data={visibility} size={16} />
-                    {`Project hidden evaluations`}
+                    {`Hidden project evaluations`}
                 </>
             )
         }
@@ -69,7 +69,7 @@ const MapTableSelectionToText: React.FC<MapTableSelectionToTextProps> = ({ table
             return (
                 <>
                     <Icon data={visibility} size={16} />
-                    {`My hidden evaluations`}
+                    {`Hidden evaluations`}
                 </>
             )
         }
@@ -159,6 +159,7 @@ const DashboardView = ({ project }: Props) => {
                         if (
                             (!userIsAdmin && value === TableSelection.HiddenProject) ||
                             (value === TableSelection.HiddenUser && currentContext) ||
+                            (currentContext && value === TableSelection.Portfolio) ||
                             (!currentContext && (value === TableSelection.Project || value === TableSelection.HiddenProject || value === TableSelection.HiddenUserProject)) ||
                             (value === TableSelection.User && currentContext && evaluationsByUserProject.length === 0) ||
                             (value === TableSelection.User && !currentContext && evaluationsByUser.length === 0) ||
