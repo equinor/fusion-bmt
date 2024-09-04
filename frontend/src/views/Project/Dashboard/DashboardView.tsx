@@ -208,21 +208,21 @@ const DashboardView = ({ project }: Props) => {
                     <>
                         {evaluationsByUserProject && <EvaluationsTable evaluations={evaluationsByUserProject} />}
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByUserProject.length === 0 && errorMessage}
+                        {/* {evaluationsByUserProject.length === 0 && errorMessage} */}
                     </>
                 )}
                 {projectEvaluationsSelected && (
                     <>
                         {evaluationsByProject && <EvaluationsTable evaluations={evaluationsByProject} />}
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByProject.length === 0 && errorMessage}
+                        {/* {evaluationsByProject.length === 0 && errorMessage} */}
                     </>
                 )}
                 {(hiddenProjectEvaluationsSelected) && (
                     <>
                         {evaluationsByProjectHidden && <EvaluationsTable evaluations={evaluationsByProjectHidden} />}
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByProjectHidden.length === 0 && errorMessage}
+                        {/* {evaluationsByProjectHidden.length === 0 && errorMessage} */}
                     </>
                 )}
                 {(hiddenUserEvaluationsSelected) && (
@@ -240,14 +240,14 @@ const DashboardView = ({ project }: Props) => {
                             </Accordion>
                         }
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByUserHidden.length === 0 && errorMessage}
+                        {/* {evaluationsByUserHidden.length === 0 && errorMessage} */}
                     </>
                 )}
                 {(hiddenUserProjectEvaluationsSelected && currentContext) && (
                     <>
                         {evaluationsByUserProjectHidden && <EvaluationsTable evaluations={evaluationsByUserProjectHidden} />}
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByUserProjectHidden.length === 0 && errorMessage}
+                        {/* {evaluationsByUserProjectHidden.length === 0 && errorMessage} */}
                     </>
                 )}
                 {portfoliosSelected && (
@@ -260,7 +260,7 @@ const DashboardView = ({ project }: Props) => {
                             />
                         )}
                         {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
-                        {errorActiveEvaluations !== undefined && errorMessage}
+                        {/* {errorActiveEvaluations !== undefined && errorMessage} */}
                     </>
                 )}
                 {(myEvaluationsSelected && !currentContext && evaluationsByUser) && (
