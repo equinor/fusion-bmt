@@ -24,7 +24,7 @@ const QuestionnaireStatusTabs = ({
     return (
         <Tabs activeTab={activeTab} onChange={setActiveTab}>
             <List id="fixed-tablist">
-                <Tab>Questionaire</Tab>
+                <Tab>Questionnaire</Tab>
                 <Tab>Progress</Tab>
             </List>
             <Panels>
