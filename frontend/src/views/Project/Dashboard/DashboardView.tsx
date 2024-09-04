@@ -36,7 +36,6 @@ enum TableSelection {
     Project = 'PROJECT',
     User = 'USER',
     HiddenProject = 'HIDDEN_PROJECT',
-    HiddenUserProject = 'HIDDEN_USER_PROJECT',
     HiddenUser = 'HIDDEN_USER',
 }
 interface MapTableSelectionToTextProps {
@@ -73,14 +72,6 @@ const MapTableSelectionToText: React.FC<MapTableSelectionToTextProps> = ({ table
                 </>
             )
         }
-        case 'HIDDEN_USER_PROJECT': {
-            return (
-                <>
-                    <Icon data={visibility} size={16} />
-                    {`My project hidden evaluations`}
-                </>
-            )
-        }
         case 'PORTFOLIO': {
             return 'All evaluations'
         }
@@ -107,17 +98,12 @@ const DashboardView = ({ project }: Props) => {
 
     const { generateBMTScores, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoresMutation()
 
-    if (!currentUser) {
-        return <p>Please log in.</p>
-    }
-
     const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Portfolio)
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
     const projectEvaluationsSelected = selectedProjectTable === TableSelection.Project
     const hiddenUserEvaluationsSelected = selectedProjectTable === TableSelection.HiddenUser
     const hiddenProjectEvaluationsSelected = selectedProjectTable === TableSelection.HiddenProject
-    const hiddenUserProjectEvaluationsSelected = selectedProjectTable === TableSelection.HiddenUserProject
     const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
 
     const {
@@ -131,7 +117,16 @@ const DashboardView = ({ project }: Props) => {
 
     const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
 
-    const { projectsByUser, projectsByUserHidden, loadingEvaluations, evaluationsByUserProject, evaluationsByUserProjectHidden, evaluationsByUser, evaluationsByUserHidden, evaluationsByProject, evaluationsByProjectHidden } = useAppContext()
+    const {
+        projectsByUser,
+        projectsByUserHidden,
+        loadingEvaluations,
+        evaluationsByUserProject,
+        evaluationsByUser,
+        evaluationsByUserHidden,
+        evaluationsByProject,
+        evaluationsByProjectHidden,
+    } = useAppContext()
 
     useEffect(() => {
         const generateScore = async () => {
@@ -160,12 +155,7 @@ const DashboardView = ({ project }: Props) => {
                             (!userIsAdmin && value === TableSelection.HiddenProject) ||
                             (value === TableSelection.HiddenUser && currentContext) ||
                             (currentContext && value === TableSelection.Portfolio) ||
-                            (!currentContext && (value === TableSelection.Project || value === TableSelection.HiddenProject || value === TableSelection.HiddenUserProject)) ||
-                            (value === TableSelection.User && currentContext && evaluationsByUserProject.length === 0) ||
-                            (value === TableSelection.User && !currentContext && evaluationsByUser.length === 0) ||
-                            (value === TableSelection.HiddenProject && evaluationsByProjectHidden.length === 0) ||
-                            (value === TableSelection.HiddenUserProject && evaluationsByUserProjectHidden.length === 0) ||
-                            (value === TableSelection.HiddenUser && evaluationsByUserHidden.length === 0)
+                            (!currentContext && (value === TableSelection.Project || value === TableSelection.HiddenProject))
                         ) {
                             return undefined
                         } else {
@@ -202,46 +192,35 @@ const DashboardView = ({ project }: Props) => {
                     <>
                         {evaluationsByUserProject && <EvaluationsTable evaluations={evaluationsByUserProject} />}
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByUserProject.length === 0 && errorMessage}
                     </>
                 )}
                 {projectEvaluationsSelected && (
                     <>
                         {evaluationsByProject && <EvaluationsTable evaluations={evaluationsByProject} />}
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByProject.length === 0 && errorMessage}
                     </>
                 )}
                 {(hiddenProjectEvaluationsSelected) && (
                     <>
                         {evaluationsByProjectHidden && <EvaluationsTable evaluations={evaluationsByProjectHidden} />}
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByProjectHidden.length === 0 && errorMessage}
                     </>
                 )}
                 {(hiddenUserEvaluationsSelected) && (
                     <>
-                        {evaluationsByUserHidden && 
+                        {evaluationsByUserHidden &&
                             <Accordion headerLevel="h3">
                                 {projectsByUserHidden.map(projectByUserHidden => (
                                     <Accordion.Item key={projectByUserHidden.id} isExpanded>
                                         <Accordion.Header>{projectByUserHidden.title}</Accordion.Header>
                                         <Accordion.Panel>
-                                        <EvaluationsTable evaluations={evaluationsByUserHidden.filter((ebuh: Evaluation) => ebuh.project.externalId === projectByUserHidden.externalId)} />
+                                            <EvaluationsTable evaluations={evaluationsByUserHidden.filter((ebuh: Evaluation) => ebuh.project.externalId === projectByUserHidden.externalId)} />
                                         </Accordion.Panel>
                                     </Accordion.Item>
                                 ))}
                             </Accordion>
                         }
                         {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByUserHidden.length === 0 && errorMessage}
-                    </>
-                )}
-                {(hiddenUserProjectEvaluationsSelected && currentContext) && (
-                    <>
-                        {evaluationsByUserProjectHidden && <EvaluationsTable evaluations={evaluationsByUserProjectHidden} />}
-                        {loadingEvaluations && <CenteredCircularProgress />}
-                        {evaluationsByUserProjectHidden.length === 0 && errorMessage}
                     </>
                 )}
                 {portfoliosSelected && (
@@ -254,7 +233,6 @@ const DashboardView = ({ project }: Props) => {
                             />
                         )}
                         {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
-                        {errorActiveEvaluations !== undefined && errorMessage}
                     </>
                 )}
                 {(myEvaluationsSelected && !currentContext && evaluationsByUser) && (
@@ -280,7 +258,7 @@ interface EvaluationQueryProps {
     loading: boolean
     evaluations: Evaluation[] | undefined
     error: ApolloError | undefined
-    refetch?: () => Promise<ApolloQueryResult<{evaluations: Evaluation[]}>>
+    refetch?: () => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>
 }
 
 export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {

@@ -35,7 +35,7 @@ const BreadCrumbs = () => {
             >
                 All projects
             </Breadcrumb>
-            {currentProject && 
+            {currentProject &&
                 <Breadcrumb
                     href={basepath + currentProject.fusionProjectId}
                     as={!currentEvaluation ? 'span' : 'a'}
@@ -43,7 +43,7 @@ const BreadCrumbs = () => {
                     {String(currentProject.title)}
                 </Breadcrumb>
             }
-            {currentEvaluation && 
+            {currentEvaluation &&
                 <Breadcrumb
                     as="span"
                 >

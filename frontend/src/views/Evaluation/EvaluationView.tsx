@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { RouteComponentProps, useHistory } from 'react-router-dom'
 import { ApolloError, gql, useApolloClient, useMutation, useQuery } from '@apollo/client'
 import ErrorMessage from '../../components/ErrorMessage'
 import { CircularProgress } from '@equinor/eds-core-react'
@@ -21,6 +21,7 @@ import {
 } from '../../api/fragments'
 import { centered } from '../../utils/styles'
 import { useAppContext } from '../../context/AppContext'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 interface Params {
     fusionProjectId: string
@@ -28,7 +29,10 @@ interface Params {
 }
 
 const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
-    const { setCurrentEvaluation } = useAppContext()
+    const { setCurrentEvaluation, setCurrentProject } = useAppContext()
+    const { currentContext } = useModuleCurrentContext()
+    const history = useHistory()
+
     const evaluationId: string = match.params.evaluationId
     const azureUniqueId = useAzureUniqueId()
 
@@ -37,6 +41,19 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
     const { progressParticipant, error: errorProgressingParticipant } = useProgressParticipantMutation()
 
     const [isProgressDialogOpen, setIsProgressDialogOpen] = useState<boolean>(false)
+
+    useEffect(() => {
+        if (!currentContext) {
+            setCurrentProject(undefined)
+            setCurrentEvaluation(undefined)
+            history.push("/apps/bmt/")
+        }
+        else if (!loading && currentContext.externalId !== evaluation?.project.externalId) {
+            setCurrentProject(undefined)
+            setCurrentEvaluation(undefined)
+            history.push(`/apps/bmt/${currentContext.id}`)
+        }
+    }, [currentContext])
 
     const onConfirmProgressEvaluationClick = () => {
         const newProgression = getNextProgression(evaluation!.progression)
