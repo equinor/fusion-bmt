@@ -16,7 +16,7 @@ import CreateEvaluationButton from './Components/CreateEvaluationButton'
 import { centered } from '../../../utils/styles'
 import { Grid } from '@mui/material'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
-import { visibility, account_circle } from '@equinor/eds-icons'
+import { account_circle, visibility_off } from '@equinor/eds-icons'
 import { useAppContext } from '../../../context/AppContext'
 
 const Chips = styled.div`
@@ -59,7 +59,7 @@ const MapTableSelectionToText: React.FC<MapTableSelectionToTextProps> = ({ table
         case 'HIDDEN_PROJECT': {
             return (
                 <>
-                    <Icon data={visibility} size={16} />
+                    <Icon data={visibility_off} size={16} />
                     {`Hidden project evaluations`}
                 </>
             )
@@ -67,7 +67,7 @@ const MapTableSelectionToText: React.FC<MapTableSelectionToTextProps> = ({ table
         case 'HIDDEN_USER': {
             return (
                 <>
-                    <Icon data={visibility} size={16} />
+                    <Icon data={visibility_off} size={16} />
                     {`Hidden evaluations`}
                 </>
             )
