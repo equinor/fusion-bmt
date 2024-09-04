@@ -107,10 +107,6 @@ const DashboardView = ({ project }: Props) => {
 
     const { generateBMTScores, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoresMutation()
 
-    if (!currentUser) {
-        return <p>Please log in.</p>
-    }
-
     const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Portfolio)
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
     const myEvaluationsSelected = selectedProjectTable === TableSelection.User
@@ -131,7 +127,17 @@ const DashboardView = ({ project }: Props) => {
 
     const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
 
-    const { projectsByUser, projectsByUserHidden, loadingEvaluations, evaluationsByUserProject, evaluationsByUserProjectHidden, evaluationsByUser, evaluationsByUserHidden, evaluationsByProject, evaluationsByProjectHidden } = useAppContext()
+    const {
+        projectsByUser,
+        projectsByUserHidden,
+        loadingEvaluations,
+        evaluationsByUserProject,
+        evaluationsByUserProjectHidden,
+        evaluationsByUser,
+        evaluationsByUserHidden,
+        evaluationsByProject,
+        evaluationsByProjectHidden,
+    } = useAppContext()
 
     useEffect(() => {
         const generateScore = async () => {
@@ -221,13 +227,13 @@ const DashboardView = ({ project }: Props) => {
                 )}
                 {(hiddenUserEvaluationsSelected) && (
                     <>
-                        {evaluationsByUserHidden && 
+                        {evaluationsByUserHidden &&
                             <Accordion headerLevel="h3">
                                 {projectsByUserHidden.map(projectByUserHidden => (
                                     <Accordion.Item key={projectByUserHidden.id} isExpanded>
                                         <Accordion.Header>{projectByUserHidden.title}</Accordion.Header>
                                         <Accordion.Panel>
-                                        <EvaluationsTable evaluations={evaluationsByUserHidden.filter((ebuh: Evaluation) => ebuh.project.externalId === projectByUserHidden.externalId)} />
+                                            <EvaluationsTable evaluations={evaluationsByUserHidden.filter((ebuh: Evaluation) => ebuh.project.externalId === projectByUserHidden.externalId)} />
                                         </Accordion.Panel>
                                     </Accordion.Item>
                                 ))}
@@ -280,7 +286,7 @@ interface EvaluationQueryProps {
     loading: boolean
     evaluations: Evaluation[] | undefined
     error: ApolloError | undefined
-    refetch?: () => Promise<ApolloQueryResult<{evaluations: Evaluation[]}>>
+    refetch?: () => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>
 }
 
 export const useUserEvaluationsQuery = (azureUniqueId: string): EvaluationQueryProps => {

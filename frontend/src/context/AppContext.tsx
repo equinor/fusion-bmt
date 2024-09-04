@@ -235,7 +235,9 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     const [pageReload, setPageReload] = useState<boolean>(false)
     const [contexts, setContexts] = useState<any[]>([])
+
     const { currentContext } = useModuleCurrentContext()
+
     const [isFetchingProjects, setIsFetchingProjects] = useState<boolean>(true)
     const { dbProjects } = useGetAllProjects()
     const [projects, setProjects] = useState<Project[]>([])
@@ -262,6 +264,18 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [evaluationsByProjectHidden, setEvaluationsByProjectHidden] = useState<Evaluation[]>([])
     const [evaluationsByProjectHiddenFetched, setEvaluationsByProjectHiddenFetched] = useState<boolean>(false)
     const [currentEvaluation, setCurrentEvaluation] = useState<Evaluation | undefined>(undefined)
+
+    useEffect(() => {
+        setEvaluationsByProjectFetched(false)
+        setEvaluationsByProjectHiddenFetched(false)
+        setEvaluationsByUserProjectHiddenFetched(false)
+        setEvaluationsByUserProjectFetched(false)
+        setEvaluationsByUserHiddenFetched(false)
+        setEvaluationsByUserFetched(false)
+        setEvaluationsFetched(false)
+        setProjectsByUserHiddenFetched(false)
+        setProjectsByUserFetched(false)
+    }, [currentContext])
 
     useEffect(() => {
         setPageReload(currentContext !== undefined && currentContext !== null)
