@@ -53,7 +53,7 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
                     <Grid item>
                         <List>
                             <Tab>Evaluations</Tab>
-                            <Tab>My actions</Tab>
+                            {!currentContext ? <Tab>My actions</Tab> : <></>}
                             {isAdmin && !currentContext ? <Tab>Questionnaire editor</Tab> : <></>}
                         </List>
                     </Grid>
