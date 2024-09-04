@@ -96,18 +96,11 @@ const GET_EVALUATIONS_BY_USER = gql`
     ${PARTICIPANTS_ARRAY_FRAGMENT}
 `
 const GET_EVALUATIONS_BY_USER_HIDDEN = gql`
-    query ($status: Status!, $azureUniqueId: String!) {
+    query ($status: Status!) {
         evaluations(
             where: {
                 status: {
                     eq: $status
-                },
-                participants: {
-                    some: {
-                        azureUniqueId: {
-                            eq: $azureUniqueId
-                        }
-                    }
                 }
             }
         ) {
@@ -356,7 +349,10 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
             let tempProjectsByUserHidden: Project[] = []
             evaluationsByUserHidden.forEach((ebu: Evaluation) => {
                 if (tempProjectsByUserHidden.filter((tpbu: Project) => tpbu.externalId === ebu.project.externalId).length === 0) {
-                    tempProjectsByUserHidden.push(projects.filter((p: Project) => p.externalId === ebu.project.externalId)[0])
+                    const temp = projects.filter((p: Project) => p.externalId === ebu.project.externalId)[0]
+                    if (temp) {
+                        tempProjectsByUserHidden.push(temp)
+                    }
                 }
             })
             setProjectsByUserHidden(tempProjectsByUserHidden)
@@ -393,7 +389,7 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     useEffect(() => {
         if (user && !evaluationsByUserHiddenFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS_BY_USER_HIDDEN, variables: { status: Status.Voided, azureUniqueId: user.localAccountId } }).then(data => {
+            apolloClient.query({ query: GET_EVALUATIONS_BY_USER_HIDDEN, variables: { status: Status.Voided } }).then(data => {
                 setLoadingEvaluations(true)
                 if (data.data.evaluations) {
                     setEvaluationsByUserHidden(data.data.evaluations)
