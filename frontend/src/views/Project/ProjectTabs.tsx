@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 
 import { RouteComponentProps } from 'react-router-dom'
@@ -35,6 +35,10 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
 
     const isAdmin = currentUser && getCachedRoles()?.includes('Role.Admin')
 
+    useEffect(() => {
+        setActiveTab(0)
+    }, [currentContext])
+
     if (loading) {
         return (
             <div style={centered}>
@@ -48,32 +52,32 @@ const ProjectTabs = ({ match }: RouteComponentProps<Params>) => {
     }
 
     return (
-            <Tabs activeTab={activeTab} onChange={setActiveTab}>
-                <Grid container justifyContent="center">
-                    <Grid item>
-                        <List>
-                            <Tab>Evaluations</Tab>
-                            {!currentContext ? <Tab>My actions</Tab> : <></>}
-                            {isAdmin && !currentContext ? <Tab>Questionnaire editor</Tab> : <></>}
-                        </List>
-                    </Grid>
+        <Tabs activeTab={activeTab} onChange={setActiveTab}>
+            <Grid container justifyContent="center">
+                <Grid item>
+                    <List>
+                        <Tab>Evaluations</Tab>
+                        {!currentContext ? <Tab>My actions</Tab> : <></>}
+                        {isAdmin && !currentContext ? <Tab>Questionnaire editor</Tab> : <></>}
+                    </List>
                 </Grid>
-                <Panels>
+            </Grid>
+            <Panels>
+                <Panel>
+                    <DashboardView project={project} />
+                </Panel>
+                <Panel>
+                    <ActionsView azureUniqueId={currentUser!.localAccountId} />
+                </Panel>
+                {isAdmin ? (
                     <Panel>
-                        <DashboardView project={project} />
+                        <AdminView />
                     </Panel>
-                    <Panel>
-                        <ActionsView azureUniqueId={currentUser!.localAccountId} />
-                    </Panel>
-                    {isAdmin ? (
-                        <Panel>
-                            <AdminView />
-                        </Panel>
-                    ) : (
-                        <></>
-                    )}
-                </Panels>
-            </Tabs>
+                ) : (
+                    <></>
+                )}
+            </Panels>
+        </Tabs>
     )
 }
 
