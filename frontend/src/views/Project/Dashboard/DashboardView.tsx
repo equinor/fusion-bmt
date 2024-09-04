@@ -179,7 +179,7 @@ const DashboardView = ({ project }: Props) => {
                 </Chips>
             </Grid>
             <Grid item>
-                <CreateEvaluationButton />
+                {currentContext && <CreateEvaluationButton />}
                 <Typography
                     link
                     href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"
