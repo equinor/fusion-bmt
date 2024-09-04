@@ -87,8 +87,8 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                 return 0
             case 'project':
                 if (projects) {
-                    const projectNameA = getFusionProjectName(projects, a.action.question.evaluation.project.fusionProjectId)
-                    const projectNameB = getFusionProjectName(projects, b.action.question.evaluation.project.fusionProjectId)
+                    const projectNameA = getFusionProjectName(projects, a.action?.question?.evaluation?.project?.fusionProjectId)
+                    const projectNameB = getFusionProjectName(projects, b.action?.question?.evaluation?.project?.fusionProjectId)
                     return projectNameA && projectNameB ? sort(projectNameA.toLowerCase(), projectNameB.toLowerCase(), sortDirection) : 0
                 }
                 return 0
