@@ -322,39 +322,57 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     useEffect(() => {
         if (!currentContext) {
             setCurrentProject(undefined)
+            return
         }
-        if (currentContext && projects && projects.length > 0) {
-            setCurrentProject(projects.filter(project => project.externalId === currentContext?.externalId)[0])
+
+        if (projects?.length > 0) {
+            const project = projects.find(project => project.externalId === currentContext.externalId)
+            setCurrentProject(project)
         }
     }, [currentContext, projects])
 
     useEffect(() => {
         if (projects.length > 0 && evaluationsByUserFetched && evaluationsByUser.length > 0 && !projectsByUserFetched) {
             setLoadingProjects(true)
-            let tempProjectsByUser: Project[] = []
+
+            const uniqueExternalIds = new Set<string>()
+            const tempProjectsByUser: Project[] = []
+
             evaluationsByUser.forEach((ebu: Evaluation) => {
-                if (tempProjectsByUser.filter((tpbu: Project) => tpbu.externalId === ebu.project.externalId).length === 0) {
-                    tempProjectsByUser.push(projects.filter((p: Project) => p.externalId === ebu.project.externalId)[0])
+                const externalId = ebu.project?.externalId
+                if (externalId && !uniqueExternalIds.has(externalId)) {
+                    uniqueExternalIds.add(externalId)
+                    const project = projects.find((p: Project) => p?.externalId === externalId)
+                    if (project) {
+                        tempProjectsByUser.push(project)
+                    }
                 }
             })
+
             setProjectsByUser(tempProjectsByUser)
             setProjectsByUserFetched(true)
             setLoadingProjects(false)
         }
-    }, [projects, evaluationsByUser, evaluationsByUserFetched, projectsByUserFetched])
+    }, [projects, evaluationsByUser, evaluationsByUserFetched, projectsByUserFetched]);
 
     useEffect(() => {
         if (projects.length > 0 && evaluationsByUserHiddenFetched && evaluationsByUserHidden.length > 0 && !projectsByUserHiddenFetched) {
             setLoadingProjects(true)
-            let tempProjectsByUserHidden: Project[] = []
+
+            const uniqueExternalIds = new Set<string>()
+            const tempProjectsByUserHidden: Project[] = []
+
             evaluationsByUserHidden.forEach((ebu: Evaluation) => {
-                if (tempProjectsByUserHidden.filter((tpbu: Project) => tpbu.externalId === ebu.project.externalId).length === 0) {
-                    const temp = projects.filter((p: Project) => p.externalId === ebu.project.externalId)[0]
-                    if (temp) {
-                        tempProjectsByUserHidden.push(temp)
+                const externalId = ebu.project?.externalId
+                if (externalId && !uniqueExternalIds.has(externalId)) {
+                    uniqueExternalIds.add(externalId)
+                    const project = projects.find((p: Project) => p?.externalId === externalId)
+                    if (project) {
+                        tempProjectsByUserHidden.push(project)
                     }
                 }
             })
+
             setProjectsByUserHidden(tempProjectsByUserHidden)
             setProjectsByUserHiddenFetched(true)
             setLoadingProjects(false)
