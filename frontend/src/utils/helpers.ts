@@ -62,6 +62,7 @@ export const selectSeverity = (severityCount: SeverityCount) => {
 }
 
 export const getFusionProjectName = (projects: Context[] | undefined, fusionProjectId: string) => {
+    if (!fusionProjectId || !projects) { return undefined }
     const fusionProject = projects?.find(project => project.id === fusionProjectId)
     return fusionProject?.title
 }
@@ -102,7 +103,7 @@ export const canSetEvaluationAsIndicator = (evaluation: Evaluation, userRoles: U
     let reasonsForNotBeingAbleToSelect = []
 
     if (!isFacilitator && !userIsAdmin) {
-            reasonsForNotBeingAbleToSelect.push("only facilitators and admins can set an evaluation as active")
+        reasonsForNotBeingAbleToSelect.push("only facilitators and admins can set an evaluation as active")
     }
     if (!evaluationIsNotActive) {
         reasonsForNotBeingAbleToSelect.push("this evaluation is already active")
