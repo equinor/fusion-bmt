@@ -32,12 +32,8 @@ const ActionsView = ({ azureUniqueId }: Props) => {
     const { loading: loadingActions, actions, error: errorLoadingActions } = useActionsQuery(azureUniqueId)
     const nonCancelledActions = actions.filter(a => !a.isVoided)
     const actionsWithAdditionalInfo = nonCancelledActions.map(action => {
-        // console.log(action)
         return { action: action, barrier: action.question.barrier, organization: action.question.organization }
     })
-
-    // console.log(currentContext)
-    // console.log(actionsWithAdditionalInfo.map(actionWithInfo => actionWithInfo.action.question.evaluation.project.externalId))
 
     const { personDetailsList } = useAllPersonDetailsAsync([azureUniqueId])
     const [projects, setProjects] = useState<Context[]>([])
@@ -45,42 +41,9 @@ const ActionsView = ({ azureUniqueId }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [actionIdToEdit, setActionIdToEdit] = useState<string>('')
     const actionToEdit = actionsWithAdditionalInfo.find(actionWithInfo => actionWithInfo.action.id === actionIdToEdit)
-    const actionProjectId = actionsWithAdditionalInfo.map(actionWithInfo => actionWithInfo.action.question.evaluation.project.externalId)
-    const actionProject = currentContext && actionProjectId[0] === currentContext?.externalId
     const currentProjectActions = actionsWithAdditionalInfo.filter(actionWithInfo => actionWithInfo.action.question.evaluation.project.externalId === currentContext?.externalId)
 
-    const projectActions: any[] = []
-    actionProjectId.forEach((projectId) => {
-        const actionProject = currentContext && projectId === currentContext.externalId
-        // rest of the code that uses actionProject
-        if (actionProject) {
-            projectActions.push(currentProjectActions)
-        }
-    })
-
-    console.log(actionsWithAdditionalInfo)
-    console.log(currentProjectActions)
-
-    // return projects with matching project id
-
-    // console.log(projectActions)
-    // console.log(actionProject)
-
     const isFetchingData = loadingActions || isFetchingProjects
-
-    // useEffect(() => {
-    //     if (projects.length === 0 && actionProject && actionProjectId !== undefined) {
-    //         setIsFetchingProjects(true)
-    //         // const getProject = apiClients.getById(actionProjectId[0])
-    //         // console.log(getProject)
-    //         apiClients.getById(actionProjectId[0]).then(projects => {
-    //             console.log(projects)
-    //             console.log(actionProject)
-    //             // setProjects(projects.data)
-    //             // setIsFetchingProjects(false)
-    //         })
-    //     }
-    // }, [])
 
     const onClose = () => {
         setIsEditSidebarOpen(false)
