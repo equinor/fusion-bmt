@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { ApolloError, gql, useQuery } from '@apollo/client'
 import { Box } from '@mui/material'
-import { Context } from '@equinor/fusion'
+import { Context, useCurrentContext } from '@equinor/fusion'
 import ErrorMessage from '../../../components/ErrorMessage'
 
 import { useAllPersonDetailsAsync } from '../../../utils/hooks'
@@ -19,6 +19,7 @@ import { CircularProgress } from '@equinor/eds-core-react'
 import { centered } from '../../../utils/styles'
 import { genericErrorMessage } from '../../../utils/Variables'
 import { useContextApi } from '../../../api/useContextApi'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 
 interface Props {
     azureUniqueId: string
@@ -26,12 +27,17 @@ interface Props {
 
 const ActionsView = ({ azureUniqueId }: Props) => {
     const apiClients = useContextApi()
+    const { currentContext } = useModuleCurrentContext()
 
     const { loading: loadingActions, actions, error: errorLoadingActions } = useActionsQuery(azureUniqueId)
     const nonCancelledActions = actions.filter(a => !a.isVoided)
     const actionsWithAdditionalInfo = nonCancelledActions.map(action => {
+        // console.log(action)
         return { action: action, barrier: action.question.barrier, organization: action.question.organization }
     })
+
+    // console.log(currentContext)
+    // console.log(actionsWithAdditionalInfo.map(actionWithInfo => actionWithInfo.action.question.evaluation.project.externalId))
 
     const { personDetailsList } = useAllPersonDetailsAsync([azureUniqueId])
     const [projects, setProjects] = useState<Context[]>([])
@@ -39,15 +45,39 @@ const ActionsView = ({ azureUniqueId }: Props) => {
     const [isEditSidebarOpen, setIsEditSidebarOpen] = useState<boolean>(false)
     const [actionIdToEdit, setActionIdToEdit] = useState<string>('')
     const actionToEdit = actionsWithAdditionalInfo.find(actionWithInfo => actionWithInfo.action.id === actionIdToEdit)
+    const actionProjectId = actionsWithAdditionalInfo.map(actionWithInfo => actionWithInfo.action.question.evaluation.project.externalId)
+    const actionProject = currentContext && actionProjectId[0] === currentContext?.externalId
+    const currentProjectActions = actionsWithAdditionalInfo.filter(actionWithInfo => actionWithInfo.action.question.evaluation.project.externalId === currentContext?.externalId)
+
+    const projectActions: any[] = []
+    actionProjectId.forEach((projectId) => {
+        const actionProject = currentContext && projectId === currentContext.externalId
+        // rest of the code that uses actionProject
+        if (actionProject) {
+            projectActions.push(currentProjectActions)
+        }
+    })
+
+    console.log(actionsWithAdditionalInfo)
+    console.log(currentProjectActions)
+
+    // return projects with matching project id
+
+    // console.log(projectActions)
+    // console.log(actionProject)
 
     const isFetchingData = loadingActions || isFetchingProjects
 
     // useEffect(() => {
-    //     if (projects.length === 0) {
+    //     if (projects.length === 0 && actionProject && actionProjectId !== undefined) {
     //         setIsFetchingProjects(true)
-    //         apiClients.context.getContextsAsync().then(projects => {
-    //             setProjects(projects.data)
-    //             setIsFetchingProjects(false)
+    //         // const getProject = apiClients.getById(actionProjectId[0])
+    //         // console.log(getProject)
+    //         apiClients.getById(actionProjectId[0]).then(projects => {
+    //             console.log(projects)
+    //             console.log(actionProject)
+    //             // setProjects(projects.data)
+    //             // setIsFetchingProjects(false)
     //         })
     //     }
     // }, [])
@@ -74,7 +104,7 @@ const ActionsView = ({ azureUniqueId }: Props) => {
             )}
             {!isFetchingData && errorLoadingActions === undefined && actionsWithAdditionalInfo.length > 0 && (
                 <ActionTable
-                    actionsWithAdditionalInfo={actionsWithAdditionalInfo}
+                    actionsWithAdditionalInfo={currentContext?.externalId ? currentProjectActions : actionsWithAdditionalInfo}
                     personDetailsList={personDetailsList}
                     onClickAction={openEditActionPanel}
                     showEvaluations={true}
@@ -120,7 +150,7 @@ const useActionsQuery = (currentUserId: string): ActionsQueryProps => {
                         name
                         ...ParticipantsArray
                         project {
-                            fusionProjectId
+                            externalId
                         }
                     }
                 }
