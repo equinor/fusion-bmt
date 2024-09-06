@@ -14,7 +14,7 @@ import { useContextApi } from '../api/useContextApi'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useCurrentUser } from '@equinor/fusion-framework-react-app/framework'
 import { gql, useQuery, useApolloClient } from '@apollo/client'
-import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT, PARTICIPANTS_ARRAY_FRAGMENT } from '../api/fragments'
+import { EVALUATION_DASHBOARD_FIELDS_FRAGMENT, EVALUATION_FIELDS_FRAGMENT, PARTICIPANTS_ARRAY_FRAGMENT } from '../api/fragments'
 
 interface ProjectOption {
     title: string
@@ -64,12 +64,10 @@ const GET_PROJECTS = gql`
 const GET_EVALUATIONS = gql`
     query {
         evaluations {
-            ...EvaluationDashboardFields
-            ...ParticipantsArray
+            ...EvaluationFields
         }
     }
-    ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
-    ${PARTICIPANTS_ARRAY_FRAGMENT}
+    ${EVALUATION_FIELDS_FRAGMENT}
 `
 
 const GET_EVALUATIONS_BY_USER = gql`

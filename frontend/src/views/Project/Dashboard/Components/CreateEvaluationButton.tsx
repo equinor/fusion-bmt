@@ -14,7 +14,7 @@ import { useAppContext } from '../../../../context/AppContext'
 
 const CreateEvaluationButton = () => {
     const currentUser = useCurrentUser()
-    const {currentProject} = useAppContext()
+    const { currentProject } = useAppContext()
     const [showDialog, setShowDialog] = useState<boolean>(false)
     const { createEvaluation, loading: creatingEvaluation, evaluation, error: createEvaluationError } = useCreateEvaluationMutation()
     const canCreateEvaluation = currentUser && getCachedRoles()?.includes('Role.Facilitator')
@@ -60,6 +60,7 @@ const CreateEvaluationButton = () => {
 
     return (
         <>
+            {/* {currentProject && <Redirect push to={`${evaluation.id}`} />} */}
             {currentProject && <Redirect push to={`${currentProject.fusionProjectId}/evaluation/${evaluation.id}`} />}
         </>
     )
