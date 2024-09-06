@@ -1,5 +1,4 @@
-import { Context } from '@equinor/fusion'
-import { Question, Progression, Role, Severity, Participant, Evaluation } from '../api/models'
+import { Question, Progression, Role, Severity, Participant, Evaluation, Project } from '../api/models'
 import { UserRolesInEvaluation } from './helperModels'
 import { SeverityCount } from './Severity'
 import jwtDecode from 'jwt-decode'
@@ -61,9 +60,9 @@ export const selectSeverity = (severityCount: SeverityCount) => {
     return Severity.Na
 }
 
-export const getFusionProjectName = (projects: Context[] | undefined, fusionProjectId: string) => {
-    if (!fusionProjectId || !projects) { return undefined }
-    const fusionProject = projects?.find(project => project.id === fusionProjectId)
+export const getFusionProjectName = (projects: Project[] | undefined, externalId: string) => {
+    if (!externalId || !projects) { return undefined }
+    const fusionProject = projects?.find(project => project.externalId === externalId)
     return fusionProject?.title
 }
 
