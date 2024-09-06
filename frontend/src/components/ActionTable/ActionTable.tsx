@@ -44,11 +44,10 @@ interface Props {
     personDetailsList: PersonDetails[]
     onClickAction: (actionId: string) => void
     showEvaluations?: boolean
-    projects?: Context[]
 }
 
-const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false, projects }: Props) => {
-    const {currentProject} = useAppContext()
+const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsList, showEvaluations = false }: Props) => {
+    const {currentProject, projects} = useAppContext()
 
     const columns = columnOptions.filter(
         col =>
@@ -120,7 +119,7 @@ const ActionTable = ({ onClickAction, actionsWithAdditionalInfo, personDetailsLi
                 >
                     {action.title}
                 </Cell>
-                {!currentProject && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.fusionProjectId)}</Cell>}
+                {!currentProject && <Cell>{getFusionProjectName(projects, action.question.evaluation.project.externalId)}</Cell>}
                 {showEvaluations && <Cell>{action.question.evaluation.name}</Cell>}
                 <Cell>{barrierToString(barrier)}</Cell>
                 <Cell>{organizationToString(organization)}</Cell>

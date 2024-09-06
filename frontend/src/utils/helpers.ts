@@ -61,9 +61,9 @@ export const selectSeverity = (severityCount: SeverityCount) => {
     return Severity.Na
 }
 
-export const getFusionProjectName = (projects: Context[] | undefined, fusionProjectId: string) => {
-    if (!fusionProjectId || !projects) { return undefined }
-    const fusionProject = projects?.find(project => project.id === fusionProjectId)
+export const getFusionProjectName = (projects: any[] | undefined, externalId: string) => {
+    if (!externalId || !projects) { return undefined }
+    const fusionProject = projects?.find(project => project.externalId === externalId)
     return fusionProject?.title
 }
 
