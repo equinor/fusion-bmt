@@ -95,7 +95,6 @@ const DashboardView = ({ project }: Props) => {
     const currentUser = useCurrentUser()
     //generatedBMTScores is an object
     const [generatedBMTScores, setGeneratedBMTScores] = React.useState<BmtScore[] | undefined>(undefined)
-
     const { generateBMTScores, loading: loadingProgressEvaluation, error: errorProgressEvaluation } = useGenerateBMTScoresMutation()
 
     const [selectedProjectTable, setSelectedProjectTable] = React.useState<string>(TableSelection.Portfolio)
@@ -179,7 +178,8 @@ const DashboardView = ({ project }: Props) => {
                 </Chips>
             </Grid>
             <Grid item>
-                {currentContext && <CreateEvaluationButton />}
+                {/* {currentContext && <CreateEvaluationButton />} */}
+                <CreateEvaluationButton />
                 <Typography
                     link
                     href="https://statoilsrm.sharepoint.com/sites/ProjectDevelopmentCenter/SitePages/Products-and-Contact-information.aspx"
