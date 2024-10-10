@@ -29,7 +29,7 @@ interface Params {
 }
 
 const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
-    const { setCurrentEvaluation, setCurrentProject } = useAppContext()
+    const { setCurrentEvaluation, setCurrentProject, currentProject } = useAppContext()
     const { currentContext } = useModuleCurrentContext()
     const history = useHistory()
 
@@ -43,15 +43,15 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
     const [isProgressDialogOpen, setIsProgressDialogOpen] = useState<boolean>(false)
 
     useEffect(() => {
-        if (!currentContext) {
+        if (!currentContext && !currentProject) {
             setCurrentProject(undefined)
             setCurrentEvaluation(undefined)
             history.push("/apps/bmt/")
         }
-        else if (!loading && currentContext.externalId !== evaluation?.project.externalId) {
+        else if (!loading && currentContext?.externalId !== evaluation?.project.externalId) {
             setCurrentProject(undefined)
             setCurrentEvaluation(undefined)
-            history.push(`/apps/bmt/${currentContext.id}`)
+            history.push(`/apps/bmt/${currentContext?.id}`)
         }
     }, [currentContext])
 
