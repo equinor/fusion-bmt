@@ -66,6 +66,7 @@ namespace api.Services
             var answers = await _context.Answers
                 .Include(a => a.Question)
                 .Where(a => a.Question.EvaluationId == evaluationId)
+                .Where(a => a.Severity != Severity.NA)
                 .ToListAsync();
 
             var workshopAnswers = answers.Where(a => a.Progression == Progression.Workshop);
