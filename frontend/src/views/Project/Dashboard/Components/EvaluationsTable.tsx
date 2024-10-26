@@ -21,6 +21,7 @@ import { getCachedRoles, evaluationCanBeHidden, canSetEvaluationAsIndicator } fr
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
 import { useAppContext } from '../../../../context/AppContext'
+import { useHistory } from 'react-router-dom'
 
 const { Row, Cell } = Table
 
@@ -85,9 +86,13 @@ const EvaluationsTable = ({
     setProjectBmtScores,
     projectBMTScores
 }: Props) => {
-    const currentProject = useModuleCurrentContext()
+    const currentContext = useModuleCurrentContext()
     const currentUser = useCurrentUser()
     const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
+
+    const history = useHistory()
+    const { setCurrentContext } = useModuleCurrentContext()
+    const { currentProject, setCurrentProject, currentEvaluation, setCurrentEvaluation } = useAppContext()
 
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()
@@ -252,10 +257,17 @@ const EvaluationsTable = ({
             return evaluation.project.indicatorEvaluationId === evaluation.id
         }
 
-        const projectPath = () => {
+        const getContextId = () => {
             let evaluationProject = projects.filter(project => project.externalId === evaluation.project.externalId)[0]
             if (evaluationProject) {
                 return evaluationProject.fusionProjectId
+            }
+        }
+
+        const getProjectId = () => {
+            let evaluationProject = projects.filter(project => project.externalId === evaluation.project.externalId)[0]
+            if (evaluationProject) {
+                return evaluationProject
             }
         }
 
@@ -269,7 +281,12 @@ const EvaluationsTable = ({
                             fontSize: '1.2rem',
                         }}
                         link
-                        href={`/apps/bmt/${projectPath()}/evaluation/${evaluation.id}`}
+                        onClick={() => {
+                            setCurrentContext(getContextId())
+                            setCurrentProject(getProjectId())
+                            setCurrentEvaluation(evaluation)
+                            history.push(`/apps/bmt/${getContextId()}/evaluation/${evaluation.id}`)
+                        }}
                     >
                         {evaluation.name}
                     </Typography>
@@ -382,7 +399,7 @@ const EvaluationsTable = ({
         return <p>Loading user roles...</p>;
     }
 
-    if (currentProject === null || currentProject === undefined) {
+    if (!currentContext) {
         return <p>No project selected</p>
     }
 

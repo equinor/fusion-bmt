@@ -48,11 +48,6 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
             setCurrentEvaluation(undefined)
             history.push("/apps/bmt/")
         }
-        else if (!loading && currentContext?.externalId !== evaluation?.project.externalId) {
-            setCurrentProject(undefined)
-            setCurrentEvaluation(undefined)
-            history.push(`/apps/bmt/${currentContext?.id}`)
-        }
     }, [currentContext])
 
     const onConfirmProgressEvaluationClick = () => {
