@@ -7,7 +7,7 @@ import { noProjectMasterTitle } from '../../../../utils/hooks'
 import styled from 'styled-components'
 import { ApolloQueryResult } from '@apollo/client'
 import { Evaluation, Progression } from '../../../../api/models'
-import React from 'react'
+import React, { useState } from 'react'
 import { ProjectBMTScore, ProjectIndicator } from '../../../../utils/helperModels'
 
 const Indicators = styled.div`
@@ -32,8 +32,9 @@ const TablesAndTitles = ({
     generatedBMTScores,
     refetchActiveEvaluations,
 }: Props) => {
-    const [projectIndicators, setProjectIndicators] = React.useState<ProjectIndicator[]>([])
-    const [projectBMTScores, setProjectBMTScores] = React.useState<ProjectBMTScore[]>([])
+    const [projectIndicators, setProjectIndicators] = useState<ProjectIndicator[]>([])
+    const [projectBMTScores, setProjectBMTScores] = useState<ProjectBMTScore[]>([])
+    const [openPanels, setOpenPanels] = useState<{ [key: string]: boolean }>({})
 
     const preprocessEvaluations = (evaluations: Evaluation[]) => {
         const activityDates: { [projectId: string]: string } = {}
@@ -61,6 +62,13 @@ const TablesAndTitles = ({
 
     const { activityDates, followUpScores } = preprocessEvaluations(Object.values(evaluationsWithProjectMasterTitle).flat())
 
+    const handlePanelToggle = (projectMasterTitle: string) => {
+        setOpenPanels(prevState => ({
+            ...prevState,
+            [projectMasterTitle]: !prevState[projectMasterTitle],
+        }))
+    }
+
     return (
         <Accordion headerLevel="h2">
             {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
@@ -71,9 +79,10 @@ const TablesAndTitles = ({
                 const projectId = evaluations[0]?.projectId || ""
                 const activityDate = activityDates[projectId] || ""
                 const followUpScore = followUpScores[projectId]
+                const isOpen = openPanels[projectMasterTitle] || false
 
                 return (
-                    <Accordion.Item key={index}>
+                    <Accordion.Item key={index} isExpanded={isOpen} onExpandedChange={() => handlePanelToggle(projectMasterTitle)}>
                         <Accordion.Header>
                             <Indicators>
                                 {projectMasterTitle}
@@ -82,15 +91,17 @@ const TablesAndTitles = ({
                             </Indicators>
                         </Accordion.Header>
                         <StyledPanel>
-                            <EvaluationsTable
-                                evaluations={evaluations}
-                                isInPortfolio={true}
-                                refetchActiveEvaluations={refetchActiveEvaluations}
-                                projectIndicators={projectIndicators}
-                                setProjectIndicators={setProjectIndicators}
-                                projectBMTScores={projectBMTScores}
-                                setProjectBmtScores={setProjectBMTScores}
-                            />
+                            {isOpen && (
+                                <EvaluationsTable
+                                    evaluations={evaluations}
+                                    isInPortfolio={true}
+                                    refetchActiveEvaluations={refetchActiveEvaluations}
+                                    projectIndicators={projectIndicators}
+                                    setProjectIndicators={setProjectIndicators}
+                                    projectBMTScores={projectBMTScores}
+                                    setProjectBmtScores={setProjectBMTScores}
+                                />
+                            )}
                         </StyledPanel>
                     </Accordion.Item>
                 )
