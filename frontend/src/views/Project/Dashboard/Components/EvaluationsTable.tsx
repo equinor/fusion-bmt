@@ -92,7 +92,7 @@ const EvaluationsTable = ({
 
     const history = useHistory()
     const { setCurrentContext } = useModuleCurrentContext()
-    const { currentProject, setCurrentProject, currentEvaluation, setCurrentEvaluation } = useAppContext()
+    const { setCurrentProject, setCurrentEvaluation } = useAppContext()
 
     const { setEvaluationStatus } = useSetEvaluationStatusMutation()
     const { setIndicatorStatus } = useSetProjectIndicatorMutation()

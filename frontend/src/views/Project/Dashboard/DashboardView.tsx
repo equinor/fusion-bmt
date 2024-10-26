@@ -122,7 +122,7 @@ const DashboardView = ({ project }: Props) => {
         loadingEvaluations,
         evaluationsByUserProject,
         evaluationsByUser,
-        evaluationsByUserHidden,
+        evaluationsHidden,
         evaluationsByProject,
         evaluationsByProjectHidden,
     } = useAppContext()
@@ -178,7 +178,6 @@ const DashboardView = ({ project }: Props) => {
                 </Chips>
             </Grid>
             <Grid item>
-                {/* {currentContext && <CreateEvaluationButton />} */}
                 <CreateEvaluationButton />
                 <Typography
                     link
@@ -208,13 +207,17 @@ const DashboardView = ({ project }: Props) => {
                 )}
                 {(hiddenUserEvaluationsSelected) && (
                     <>
-                        {evaluationsByUserHidden &&
+                        {evaluationsHidden &&
                             <Accordion headerLevel="h3">
                                 {projectsByUserHidden.map(projectByUserHidden => (
                                     <Accordion.Item key={projectByUserHidden.id} isExpanded>
                                         <Accordion.Header>{projectByUserHidden.title}</Accordion.Header>
                                         <Accordion.Panel>
-                                            <EvaluationsTable evaluations={evaluationsByUserHidden.filter((ebuh: Evaluation) => ebuh.project.externalId === projectByUserHidden.externalId)} />
+                                            <EvaluationsTable evaluations=
+                                                {evaluationsHidden.filter((ebuh: Evaluation) =>
+                                                    ebuh.project.externalId === projectByUserHidden.externalId
+                                                )}
+                                            />
                                         </Accordion.Panel>
                                     </Accordion.Item>
                                 ))}
@@ -241,7 +244,11 @@ const DashboardView = ({ project }: Props) => {
                             <Accordion.Item key={projectByUser.id} isExpanded>
                                 <Accordion.Header>{projectByUser.title}</Accordion.Header>
                                 <Accordion.Panel>
-                                    <EvaluationsTable evaluations={evaluationsByUser.filter((ebu: Evaluation) => ebu.project.externalId === projectByUser.externalId)} />
+                                    <EvaluationsTable
+                                        evaluations={evaluationsByUser.filter((ebu: Evaluation) =>
+                                            ebu.project.externalId === projectByUser.externalId
+                                        )}
+                                    />
                                 </Accordion.Panel>
                             </Accordion.Item>
                         ))}
