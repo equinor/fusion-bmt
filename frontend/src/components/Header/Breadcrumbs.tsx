@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { Breadcrumbs } from '@equinor/eds-core-react'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useAppContext } from '../../context/AppContext'
+import { useHistory } from 'react-router-dom'
 
 const { Breadcrumb } = Breadcrumbs
 
@@ -20,24 +21,29 @@ const StyledBreadcrumbs = styled(Breadcrumbs)`
 
 const BreadCrumbs = () => {
     const { setCurrentContext } = useModuleCurrentContext()
-    const { currentProject, setCurrentProject, currentEvaluation } = useAppContext()
+    const { currentProject, setCurrentProject, currentEvaluation, setCurrentEvaluation } = useAppContext()
     const basepath = "/apps/bmt/"
+    const history = useHistory()
 
     return (
         <StyledBreadcrumbs>
             <Breadcrumb
-                href={basepath}
                 as={!currentProject && !currentEvaluation ? 'span' : 'a'}
                 onClick={() => {
                     setCurrentContext(undefined)
                     setCurrentProject(undefined)
+                    setCurrentEvaluation(undefined)
+                    history.push("/apps/bmt/")
                 }}
             >
                 All projects
             </Breadcrumb>
             {currentProject &&
                 <Breadcrumb
-                    href={basepath + currentProject.fusionProjectId}
+                    onClick={() => {
+                        history.push(basepath + currentProject.fusionProjectId)
+                        setCurrentEvaluation(undefined)
+                    }}
                     as={!currentEvaluation ? 'span' : 'a'}
                 >
                     {String(currentProject.title)}
