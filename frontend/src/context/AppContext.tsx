@@ -31,6 +31,8 @@ interface AppContextType {
     currentProject: Project | undefined
     setCurrentProject: Dispatch<SetStateAction<Project | undefined>>
     evaluations: Evaluation[] | undefined
+    setEvaluationsFetched: Dispatch<SetStateAction<boolean>>
+    activeEvaluations: Evaluation[] | undefined
     loadingEvaluations: boolean
     evaluationsByUser: Evaluation[]
     evaluationsByProject: Evaluation[]
@@ -100,13 +102,19 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [projectsByUserHidden, setProjectsByUserHidden] = useState<Project[]>([])
     const [projectsByUserHiddenFetched, setProjectsByUserHiddenFetched] = useState<boolean>(false)
     const [currentProject, setCurrentProject] = useState<Project | undefined>(undefined)
+
     const [evaluations, setEvaluations] = useState<Evaluation[]>([])
     const [loadingEvaluations, setLoadingEvaluations] = useState<boolean>(false)
     const [evaluationsFetched, setEvaluationsFetched] = useState<boolean>(false)
+
+    const [activeEvaluations, setActiveEvaluations] = useState<Evaluation[]>([])
+
     const [evaluationsByUser, setEvaluationsByUser] = useState<Evaluation[]>([])
     const [evaluationsByUserFetched, setEvaluationsByUserFetched] = useState<boolean>(false)
+
     const [evaluationsHidden, setEvaluationsHidden] = useState<Evaluation[]>([])
     const [evaluationsHiddenFetched, setEvaluationsHiddenFetched] = useState<boolean>(false)
+
     const [evaluationsByUserProject, setEvaluationsByUserProject] = useState<Evaluation[]>([])
     const [evaluationsByProject, setEvaluationsByProject] = useState<Evaluation[]>([])
     const [evaluationsByProjectHidden, setEvaluationsByProjectHidden] = useState<Evaluation[]>([])
@@ -251,12 +259,19 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     useEffect(() => {
         if (evaluationsFetched) {
             const evalByUser: Evaluation[] = evaluations.filter(evaluation =>
-                evaluation.participants.some(participant => participant.azureUniqueId === user?.localAccountId)
+                evaluation.participants.some(
+                    participant => participant.azureUniqueId === user?.localAccountId
+                )
             )
             const hiddenEvals: Evaluation[] = evaluations.filter(evaluation =>
                 evaluation.status === Status.Voided
             )
 
+            const activeEvals = evaluations.filter(
+                evaluation => evaluation.status === Status.Active
+            )
+
+            setActiveEvaluations(activeEvals)
             setEvaluationsByUser(evalByUser)
             setEvaluationsByUserFetched(true)
             setEvaluationsHidden(hiddenEvals)
@@ -300,6 +315,8 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
             currentProject,
             setCurrentProject,
             evaluations,
+            setEvaluationsFetched,
+            activeEvaluations,
             loadingEvaluations,
             evaluationsByUser,
             evaluationsByProject,
@@ -320,6 +337,8 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
             currentProject,
             setCurrentProject,
             evaluations,
+            setEvaluationsFetched,
+            activeEvaluations,
             loadingEvaluations,
             evaluationsByUser,
             evaluationsByProject,

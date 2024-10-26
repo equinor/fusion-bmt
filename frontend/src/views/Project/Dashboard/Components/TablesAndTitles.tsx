@@ -5,9 +5,8 @@ import EvaluationScoreIndicator from '../../../../components/EvaluationScoreIndi
 import FollowUpIndicator from '../../../../components/FollowUpIndicator'
 import { noProjectMasterTitle } from '../../../../utils/hooks'
 import styled from 'styled-components'
-import { ApolloQueryResult } from '@apollo/client'
 import { Evaluation, Progression } from '../../../../api/models'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { ProjectBMTScore, ProjectIndicator } from '../../../../utils/helperModels'
 
 const Indicators = styled.div`
@@ -24,13 +23,11 @@ const StyledPanel = styled(Accordion.Panel)`
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
     generatedBMTScores: any
-    refetchActiveEvaluations: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
 }
 
 const TablesAndTitles = ({
     evaluationsWithProjectMasterTitle,
     generatedBMTScores,
-    refetchActiveEvaluations,
 }: Props) => {
     const [projectIndicators, setProjectIndicators] = useState<ProjectIndicator[]>([])
     const [projectBMTScores, setProjectBMTScores] = useState<ProjectBMTScore[]>([])
@@ -95,7 +92,6 @@ const TablesAndTitles = ({
                                 <EvaluationsTable
                                     evaluations={evaluations}
                                     isInPortfolio={true}
-                                    refetchActiveEvaluations={refetchActiveEvaluations}
                                     projectIndicators={projectIndicators}
                                     setProjectIndicators={setProjectIndicators}
                                     projectBMTScores={projectBMTScores}

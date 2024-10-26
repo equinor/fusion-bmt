@@ -16,7 +16,7 @@ import ProgressStatusIcon from './ProgressStatusIcon'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
 import { useSetEvaluationStatusMutation } from '../../../../views/Evaluation/Nomination/NominationView'
 import { Status } from '../../../../api/models'
-import { ApolloError, useMutation, gql, ApolloQueryResult, FetchResult } from '@apollo/client'
+import { ApolloError, useMutation, gql, FetchResult } from '@apollo/client'
 import { getCachedRoles, evaluationCanBeHidden, canSetEvaluationAsIndicator } from '../../../../utils/helpers'
 import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
@@ -70,7 +70,6 @@ const useSetProjectIndicatorMutation = (): setProjectIndicatorMutationProps => {
 interface Props {
     evaluations: Evaluation[]
     isInPortfolio?: boolean
-    refetchActiveEvaluations?: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
     setProjectIndicators?: (projectIndicators: ProjectIndicator[]) => void
     projectIndicators?: ProjectIndicator[]
     setProjectBmtScores?: (projectBMTScores: ProjectBMTScore[]) => void
@@ -80,7 +79,6 @@ interface Props {
 const EvaluationsTable = ({
     evaluations,
     isInPortfolio,
-    refetchActiveEvaluations,
     setProjectIndicators,
     projectIndicators,
     setProjectBmtScores,
@@ -106,7 +104,7 @@ const EvaluationsTable = ({
     const [evaluationStagedToHide, setEvaluationStagedToHide] = React.useState<Evaluation | null>(null)
     const [userIsFacilitatorInAtLeastOneEvaluation, setUserIsFacilitatorInAtLeastOneEvaluation] = React.useState(false)
 
-    const { projects } = useAppContext()
+    const { projects, setEvaluationsFetched } = useAppContext()
 
     useEffect(() => {
         const filteredEvaluations = evaluations.filter(evaluation => !hiddenEvaluationIds.includes(evaluation.id))
@@ -116,7 +114,7 @@ const EvaluationsTable = ({
 
 
     const setAsIndicator = async (projectId: string, evaluationId: string) => {
-        if (!setProjectIndicators || !projectIndicators || !refetchActiveEvaluations || !projectBMTScores || !setProjectBmtScores) {
+        if (!setProjectIndicators || !projectIndicators || !setEvaluationsFetched || !projectBMTScores || !setProjectBmtScores) {
             return;
         }
 
@@ -137,7 +135,7 @@ const EvaluationsTable = ({
         await setIndicatorStatus(projectId, evaluationId)
 
         const [_, generateBMTScoreResponse] = await Promise.all([
-            refetchActiveEvaluations(),
+            setEvaluationsFetched(false),
             generateBMTScore(projectId)
         ]);
 
@@ -190,8 +188,8 @@ const EvaluationsTable = ({
             setEvaluationStagedToHide(null)
             setHiddenEvaluationIds([...hiddenEvaluationIds, evaluationStagedToHide.id])
             await setEvaluationStatus(evaluationStagedToHide.id, newStatus)
-            if (refetchActiveEvaluations) {
-                refetchActiveEvaluations()
+            if (setEvaluationsFetched) {
+                setEvaluationsFetched(false)
             }
         }
 

@@ -106,17 +106,7 @@ const DashboardView = ({ project }: Props) => {
     const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
 
     const {
-        loading: loadingActiveEvaluations,
-        evaluations: activeEvaluations,
-        error: errorActiveEvaluations,
-        refetch: refetchActiveEvaluations,
-    } = useAllEvaluationsQuery(Status.Active)
-
-    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations) // TODO: re render when status changes
-
-    const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
-
-    const {
+        activeEvaluations,
         projectsByUser,
         projectsByUserHidden,
         loadingEvaluations,
@@ -126,6 +116,8 @@ const DashboardView = ({ project }: Props) => {
         evaluationsByProject,
         evaluationsByProjectHidden,
     } = useAppContext()
+
+    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations) // TODO: re render when status changes
 
     useEffect(() => {
         const generateScore = async () => {
@@ -232,10 +224,9 @@ const DashboardView = ({ project }: Props) => {
                             <Portfolios
                                 evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio}
                                 generatedBMTScores={generatedBMTScores}
-                                refetchActiveEvaluations={refetchActiveEvaluations}
                             />
                         )}
-                        {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
+                        {(loadingEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
                     </>
                 )}
                 {(myEvaluationsSelected && !currentContext && evaluationsByUser) && (
