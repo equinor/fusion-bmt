@@ -31,13 +31,14 @@ interface AppContextType {
     currentProject: Project | undefined
     setCurrentProject: Dispatch<SetStateAction<Project | undefined>>
     evaluations: Evaluation[] | undefined
+    setEvaluationsFetched: Dispatch<SetStateAction<boolean>>
+    activeEvaluations: Evaluation[] | undefined
     loadingEvaluations: boolean
     evaluationsByUser: Evaluation[]
     evaluationsByProject: Evaluation[]
     evaluationsByUserProject: Evaluation[]
-    evaluationsByUserHidden: Evaluation[]
+    evaluationsHidden: Evaluation[]
     evaluationsByProjectHidden: Evaluation[]
-    evaluationsByUserProjectHidden: Evaluation[]
     currentEvaluation: Evaluation | undefined
     setCurrentEvaluation: Dispatch<SetStateAction<Evaluation | undefined>>
 }
@@ -64,146 +65,6 @@ const GET_PROJECTS = gql`
 const GET_EVALUATIONS = gql`
     query {
         evaluations {
-            ...EvaluationDashboardFields
-            ...ParticipantsArray
-        }
-    }
-    ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
-    ${PARTICIPANTS_ARRAY_FRAGMENT}
-`
-
-const GET_EVALUATIONS_BY_USER = gql`
-    query ($status: Status!, $azureUniqueId: String!) {
-        evaluations(
-            where: {
-                status: {
-                    eq: $status
-                },
-                participants: {
-                    some: {
-                        azureUniqueId: {
-                            eq: $azureUniqueId
-                        }
-                    }
-                }
-            }
-        ) {
-            ...EvaluationDashboardFields
-            ...ParticipantsArray
-        }
-    }
-    ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
-    ${PARTICIPANTS_ARRAY_FRAGMENT}
-`
-const GET_EVALUATIONS_BY_USER_HIDDEN = gql`
-    query ($status: Status!) {
-        evaluations(
-            where: {
-                status: {
-                    eq: $status
-                }
-            }
-        ) {
-            ...EvaluationDashboardFields
-            ...ParticipantsArray
-        }
-    }
-    ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
-    ${PARTICIPANTS_ARRAY_FRAGMENT}
-`
-
-const GET_EVALUATIONS_BY_USER_PROJECT = gql`
-    query ($status: Status!, $azureUniqueId: String!, $projectId: String!) {
-        evaluations(
-            where: {
-                status: {
-                    eq: $status
-                },
-                project: {
-                    externalId: {
-                        eq: $projectId
-                    }
-                }
-                participants: {
-                    some: {
-                        azureUniqueId: {
-                            eq: $azureUniqueId
-                        }
-                    }
-                }
-            }
-        ) {
-            ...EvaluationDashboardFields
-            ...ParticipantsArray
-        }
-    }
-    ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
-    ${PARTICIPANTS_ARRAY_FRAGMENT}
-`
-const GET_EVALUATIONS_BY_USER_PROJECT_HIDDEN = gql`
-    query ($status: Status!, $azureUniqueId: String!, $projectId: String!) {
-        evaluations(
-            where: {
-                status: {
-                    eq: $status
-                },
-                project: {
-                    externalId: {
-                        eq: $projectId
-                    }
-                }
-                participants: {
-                    some: {
-                        azureUniqueId: {
-                            eq: $azureUniqueId
-                        }
-                    }
-                }
-            }
-        ) {
-            ...EvaluationDashboardFields
-            ...ParticipantsArray
-        }
-    }
-    ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
-    ${PARTICIPANTS_ARRAY_FRAGMENT}
-`
-
-const GET_EVALUATIONS_BY_PROJECT = gql`
-    query ($status: Status!, $projectId: String!) {
-        evaluations(
-            where: {
-                status: {
-                    eq: $status
-                },
-                project: {
-                    externalId: {
-                        eq: $projectId
-                    }
-                }
-            }
-        ) {
-            ...EvaluationDashboardFields
-            ...ParticipantsArray
-        }
-    }
-    ${EVALUATION_DASHBOARD_FIELDS_FRAGMENT}
-    ${PARTICIPANTS_ARRAY_FRAGMENT}
-`
-const GET_EVALUATIONS_BY_PROJECT_HIDDEN = gql`
-    query ($status: Status!, $projectId: String!) {
-        evaluations(
-            where: {
-                status: {
-                    eq: $status
-                },
-                project: {
-                    externalId: {
-                        eq: $projectId
-                    }
-                }
-            }
-        ) {
             ...EvaluationDashboardFields
             ...ParticipantsArray
         }
@@ -241,29 +102,26 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [projectsByUserHidden, setProjectsByUserHidden] = useState<Project[]>([])
     const [projectsByUserHiddenFetched, setProjectsByUserHiddenFetched] = useState<boolean>(false)
     const [currentProject, setCurrentProject] = useState<Project | undefined>(undefined)
+
     const [evaluations, setEvaluations] = useState<Evaluation[]>([])
     const [loadingEvaluations, setLoadingEvaluations] = useState<boolean>(false)
     const [evaluationsFetched, setEvaluationsFetched] = useState<boolean>(false)
+
+    const [activeEvaluations, setActiveEvaluations] = useState<Evaluation[]>([])
+
     const [evaluationsByUser, setEvaluationsByUser] = useState<Evaluation[]>([])
     const [evaluationsByUserFetched, setEvaluationsByUserFetched] = useState<boolean>(false)
-    const [evaluationsByUserHidden, setEvaluationsByUserHidden] = useState<Evaluation[]>([])
-    const [evaluationsByUserHiddenFetched, setEvaluationsByUserHiddenFetched] = useState<boolean>(false)
+
+    const [evaluationsHidden, setEvaluationsHidden] = useState<Evaluation[]>([])
+    const [evaluationsHiddenFetched, setEvaluationsHiddenFetched] = useState<boolean>(false)
+
     const [evaluationsByUserProject, setEvaluationsByUserProject] = useState<Evaluation[]>([])
-    const [evaluationsByUserProjectFetched, setEvaluationsByUserProjectFetched] = useState<boolean>(false)
-    const [evaluationsByUserProjectHidden, setEvaluationsByUserProjectHidden] = useState<Evaluation[]>([])
-    const [evaluationsByUserProjectHiddenFetched, setEvaluationsByUserProjectHiddenFetched] = useState<boolean>(false)
     const [evaluationsByProject, setEvaluationsByProject] = useState<Evaluation[]>([])
-    const [evaluationsByProjectFetched, setEvaluationsByProjectFetched] = useState<boolean>(false)
     const [evaluationsByProjectHidden, setEvaluationsByProjectHidden] = useState<Evaluation[]>([])
-    const [evaluationsByProjectHiddenFetched, setEvaluationsByProjectHiddenFetched] = useState<boolean>(false)
     const [currentEvaluation, setCurrentEvaluation] = useState<Evaluation | undefined>(undefined)
 
     useEffect(() => {
-        setEvaluationsByProjectFetched(false)
-        setEvaluationsByProjectHiddenFetched(false)
-        setEvaluationsByUserProjectHiddenFetched(false)
-        setEvaluationsByUserProjectFetched(false)
-        setEvaluationsByUserHiddenFetched(false)
+        setEvaluationsHiddenFetched(false)
         setEvaluationsByUserFetched(false)
         setEvaluationsFetched(false)
         setProjectsByUserHiddenFetched(false)
@@ -356,13 +214,13 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }, [projects, evaluationsByUser, evaluationsByUserFetched, projectsByUserFetched]);
 
     useEffect(() => {
-        if (projects.length > 0 && evaluationsByUserHiddenFetched && evaluationsByUserHidden.length > 0 && !projectsByUserHiddenFetched) {
+        if (projects.length > 0 && evaluationsHiddenFetched && evaluationsHidden.length > 0 && !projectsByUserHiddenFetched) {
             setLoadingProjects(true)
 
             const uniqueExternalIds = new Set<string>()
             const tempProjectsByUserHidden: Project[] = []
 
-            evaluationsByUserHidden.forEach((ebu: Evaluation) => {
+            evaluationsHidden.forEach((ebu: Evaluation) => {
                 const externalId = ebu.project?.externalId
                 if (externalId && !uniqueExternalIds.has(externalId)) {
                     uniqueExternalIds.add(externalId)
@@ -377,98 +235,73 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
             setProjectsByUserHiddenFetched(true)
             setLoadingProjects(false)
         }
-    }, [projects, evaluationsByUserHidden, evaluationsByUserHiddenFetched, projectsByUserHiddenFetched])
+    }, [projects, evaluationsHidden, evaluationsHiddenFetched, projectsByUserHiddenFetched])
 
     useEffect(() => {
         if (!evaluationsFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS }).then(data => {
-                setLoadingEvaluations(true)
-                if (data.data.evaluations) {
-                    setEvaluations(data.data.evaluations)
-                    setEvaluationsFetched(true)
+            setLoadingEvaluations(true)
+            apolloClient.query({ query: GET_EVALUATIONS })
+                .then(data => {
+                    if (data.data.evaluations) {
+                        setEvaluations(data.data.evaluations)
+                        setEvaluationsFetched(true)
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching evaluations:", error)
+                })
+                .finally(() => {
                     setLoadingEvaluations(false)
-                }
-            })
+                })
         }
     }, [evaluationsFetched])
 
     useEffect(() => {
-        if (user && !evaluationsByUserFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS_BY_USER, variables: { status: Status.Active, azureUniqueId: user.localAccountId } }).then(data => {
-                setLoadingEvaluations(true)
-                if (data.data.evaluations) {
-                    setEvaluationsByUser(data.data.evaluations)
-                    setEvaluationsByUserFetched(true)
-                    setLoadingEvaluations(false)
-                }
-            })
+        if (evaluationsFetched) {
+            const evalByUser: Evaluation[] = evaluations.filter(evaluation =>
+                evaluation.participants.some(
+                    participant => participant.azureUniqueId === user?.localAccountId
+                )
+            )
+            const hiddenEvals: Evaluation[] = evaluations.filter(evaluation =>
+                evaluation.status === Status.Voided
+            )
+
+            const activeEvals = evaluations.filter(
+                evaluation => evaluation.status === Status.Active
+            )
+
+            setActiveEvaluations(activeEvals)
+            setEvaluationsByUser(evalByUser)
+            setEvaluationsByUserFetched(true)
+            setEvaluationsHidden(hiddenEvals)
+            setEvaluationsHiddenFetched(true)
         }
-    }, [user, evaluationsByUserFetched])
+    }, [evaluations, evaluationsFetched])
+
+    // Project evaluations
+    const evalByProject = useMemo(() => {
+        if (evaluationsFetched && currentProject) {
+            return evaluations.filter(evaluation => evaluation.project?.externalId === currentProject.externalId)
+        }
+        return []
+    }, [currentProject, evaluations, evaluationsFetched])
+
+    const evalByUserProject = useMemo(() => {
+        return evalByProject.filter(evaluation =>
+            evaluation.participants.some(participant => participant.azureUniqueId === user?.localAccountId)
+        )
+    }, [evalByProject])
+
+    const evalByProjectHidden = useMemo(() => {
+        return evalByProject.filter(evaluation => evaluation.status === Status.Voided)
+    }, [evalByProject])
 
     useEffect(() => {
-        if (user && !evaluationsByUserHiddenFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS_BY_USER_HIDDEN, variables: { status: Status.Voided } }).then(data => {
-                setLoadingEvaluations(true)
-                if (data.data.evaluations) {
-                    setEvaluationsByUserHidden(data.data.evaluations)
-                    setEvaluationsByUserHiddenFetched(true)
-                    setLoadingEvaluations(false)
-                }
-            })
-        }
-    }, [user, evaluationsByUserHiddenFetched])
-
-    useEffect(() => {
-        if (user && currentProject && !evaluationsByUserProjectFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS_BY_USER_PROJECT, variables: { status: Status.Active, azureUniqueId: user.localAccountId, projectId: currentProject.externalId } }).then(data => {
-                setLoadingEvaluations(true)
-                if (data.data.evaluations) {
-                    setEvaluationsByUserProject(data.data.evaluations)
-                    setEvaluationsByUserProjectFetched(true)
-                    setLoadingEvaluations(false)
-                }
-            })
-        }
-    }, [user, currentProject, evaluationsByUserProjectFetched])
-
-    useEffect(() => {
-        if (user && currentProject && !evaluationsByUserProjectHiddenFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS_BY_USER_PROJECT_HIDDEN, variables: { status: Status.Voided, azureUniqueId: user.localAccountId, projectId: currentProject.externalId } }).then(data => {
-                setLoadingEvaluations(true)
-                if (data.data.evaluations) {
-                    setEvaluationsByUserProjectHidden(data.data.evaluations)
-                    setEvaluationsByUserProjectHiddenFetched(true)
-                    setLoadingEvaluations(false)
-                }
-            })
-        }
-    }, [user, currentProject, evaluationsByUserProjectHiddenFetched])
-
-    useEffect(() => {
-        if (currentProject && !evaluationsByProjectFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS_BY_PROJECT, variables: { status: Status.Active, projectId: currentProject.externalId } }).then(data => {
-                setLoadingEvaluations(true)
-                if (data.data.evaluations) {
-                    setEvaluationsByProject(data.data.evaluations)
-                    setEvaluationsByProjectFetched(true)
-                    setLoadingEvaluations(false)
-                }
-            })
-        }
-    }, [currentProject, evaluationsByProjectFetched])
-
-    useEffect(() => {
-        if (currentProject && !evaluationsByProjectHiddenFetched) {
-            apolloClient.query({ query: GET_EVALUATIONS_BY_PROJECT_HIDDEN, variables: { status: Status.Voided, projectId: currentProject.externalId } }).then(data => {
-                setLoadingEvaluations(true)
-                if (data.data.evaluations) {
-                    setEvaluationsByProjectHidden(data.data.evaluations)
-                    setEvaluationsByProjectHiddenFetched(true)
-                    setLoadingEvaluations(false)
-                }
-            })
-        }
-    }, [currentProject, evaluationsByProjectHiddenFetched])
+        setEvaluationsByUserProject(evalByUserProject)
+        setEvaluationsByProject(evalByProject)
+        setEvaluationsByProjectHidden(evalByProjectHidden)
+    }, [evalByUserProject, evalByProject, evalByProjectHidden])
 
     const value = useMemo(
         () => ({
@@ -482,13 +315,14 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
             currentProject,
             setCurrentProject,
             evaluations,
+            setEvaluationsFetched,
+            activeEvaluations,
             loadingEvaluations,
             evaluationsByUser,
             evaluationsByProject,
             evaluationsByUserProject,
-            evaluationsByUserHidden,
+            evaluationsHidden,
             evaluationsByProjectHidden,
-            evaluationsByUserProjectHidden,
             currentEvaluation,
             setCurrentEvaluation,
         }),
@@ -503,13 +337,14 @@ const AppContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
             currentProject,
             setCurrentProject,
             evaluations,
+            setEvaluationsFetched,
+            activeEvaluations,
             loadingEvaluations,
             evaluationsByUser,
             evaluationsByProject,
             evaluationsByUserProject,
-            evaluationsByUserHidden,
+            evaluationsHidden,
             evaluationsByProjectHidden,
-            evaluationsByUserProjectHidden,
             currentEvaluation,
             setCurrentEvaluation,
         ]

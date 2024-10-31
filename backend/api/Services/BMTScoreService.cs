@@ -20,7 +20,9 @@ namespace api.Services
         }
         public async Task<List<BMTScore>> GenerateBMTScores()
         {
-            var projectsWithIndicator = await _context.Projects.Where(p => p.IndicatorEvaluationId != null).ToListAsync();
+            var projectsWithIndicator = await _context.Projects
+                .Where(p => p.IndicatorEvaluationId != null)
+                .ToListAsync();
 
             var bmtScores = new List<BMTScore>();
             foreach (var project in projectsWithIndicator)
@@ -33,7 +35,8 @@ namespace api.Services
         }
 
         public async Task<BMTScore> GenerateBMTScore(string projectId) {
-            var project = await _context.Projects.FindAsync(projectId) ?? throw new ArgumentException("ProjectId does not exist.");
+            var project = await _context.Projects.FindAsync(projectId)
+                ?? throw new ArgumentException("ProjectId does not exist.");
 
             if (string.IsNullOrEmpty(project.IndicatorEvaluationId))
             {
@@ -65,8 +68,7 @@ namespace api.Services
         {
             var answers = await _context.Answers
                 .Include(a => a.Question)
-                .Where(a => a.Question.EvaluationId == evaluationId)
-                .Where(a => a.Severity != Severity.NA)
+                .Where(a => a.Question.EvaluationId == evaluationId && a.Severity != Severity.NA)
                 .ToListAsync();
 
             var workshopAnswers = answers.Where(a => a.Progression == Progression.Workshop);

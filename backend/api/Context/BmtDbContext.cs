@@ -24,6 +24,8 @@ namespace api.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Project>().HasIndex(p => p.IndicatorEvaluationId).IsUnique();
+            modelBuilder.Entity<Answer>().HasIndex(q => q.Severity);
             modelBuilder.Entity<Participant>().HasIndex(p => new { p.AzureUniqueId, p.EvaluationId }).IsUnique();
             modelBuilder.Entity<Answer>().HasIndex(a => new { a.QuestionId, a.AnsweredById, a.Progression }).IsUnique();
         }

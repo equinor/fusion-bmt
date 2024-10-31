@@ -106,26 +106,18 @@ const DashboardView = ({ project }: Props) => {
     const portfoliosSelected = selectedProjectTable === TableSelection.Portfolio
 
     const {
-        loading: loadingActiveEvaluations,
-        evaluations: activeEvaluations,
-        error: errorActiveEvaluations,
-        refetch: refetchActiveEvaluations,
-    } = useAllEvaluationsQuery(Status.Active)
-
-    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations) // TODO: re render when status changes
-
-    const errorMessage = <ErrorMessage title="Error" message={genericErrorMessage} />
-
-    const {
+        activeEvaluations,
         projectsByUser,
         projectsByUserHidden,
         loadingEvaluations,
         evaluationsByUserProject,
         evaluationsByUser,
-        evaluationsByUserHidden,
+        evaluationsHidden,
         evaluationsByProject,
         evaluationsByProjectHidden,
     } = useAppContext()
+
+    const allActiveEvaluationsWithProjectMasterAndPortfolio = useEvaluationsWithPortfolio(activeEvaluations) // TODO: re render when status changes
 
     useEffect(() => {
         const generateScore = async () => {
@@ -178,7 +170,6 @@ const DashboardView = ({ project }: Props) => {
                 </Chips>
             </Grid>
             <Grid item>
-                {/* {currentContext && <CreateEvaluationButton />} */}
                 <CreateEvaluationButton />
                 <Typography
                     link
@@ -208,13 +199,17 @@ const DashboardView = ({ project }: Props) => {
                 )}
                 {(hiddenUserEvaluationsSelected) && (
                     <>
-                        {evaluationsByUserHidden &&
+                        {evaluationsHidden &&
                             <Accordion headerLevel="h3">
                                 {projectsByUserHidden.map(projectByUserHidden => (
                                     <Accordion.Item key={projectByUserHidden.id} isExpanded>
                                         <Accordion.Header>{projectByUserHidden.title}</Accordion.Header>
                                         <Accordion.Panel>
-                                            <EvaluationsTable evaluations={evaluationsByUserHidden.filter((ebuh: Evaluation) => ebuh.project.externalId === projectByUserHidden.externalId)} />
+                                            <EvaluationsTable evaluations=
+                                                {evaluationsHidden.filter((ebuh: Evaluation) =>
+                                                    ebuh.project.externalId === projectByUserHidden.externalId
+                                                )}
+                                            />
                                         </Accordion.Panel>
                                     </Accordion.Item>
                                 ))}
@@ -229,10 +224,9 @@ const DashboardView = ({ project }: Props) => {
                             <Portfolios
                                 evaluationsWithProjectMasterAndPortfolio={allActiveEvaluationsWithProjectMasterAndPortfolio}
                                 generatedBMTScores={generatedBMTScores}
-                                refetchActiveEvaluations={refetchActiveEvaluations}
                             />
                         )}
-                        {(loadingActiveEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
+                        {(loadingEvaluations || !allActiveEvaluationsWithProjectMasterAndPortfolio) && <CenteredCircularProgress />}
                     </>
                 )}
                 {(myEvaluationsSelected && !currentContext && evaluationsByUser) && (
@@ -241,7 +235,11 @@ const DashboardView = ({ project }: Props) => {
                             <Accordion.Item key={projectByUser.id} isExpanded>
                                 <Accordion.Header>{projectByUser.title}</Accordion.Header>
                                 <Accordion.Panel>
-                                    <EvaluationsTable evaluations={evaluationsByUser.filter((ebu: Evaluation) => ebu.project.externalId === projectByUser.externalId)} />
+                                    <EvaluationsTable
+                                        evaluations={evaluationsByUser.filter((ebu: Evaluation) =>
+                                            ebu.project.externalId === projectByUser.externalId
+                                        )}
+                                    />
                                 </Accordion.Panel>
                             </Accordion.Item>
                         ))}

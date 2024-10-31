@@ -5,9 +5,8 @@ import EvaluationScoreIndicator from '../../../../components/EvaluationScoreIndi
 import FollowUpIndicator from '../../../../components/FollowUpIndicator'
 import { noProjectMasterTitle } from '../../../../utils/hooks'
 import styled from 'styled-components'
-import { ApolloQueryResult } from '@apollo/client'
 import { Evaluation, Progression } from '../../../../api/models'
-import React from 'react'
+import { useState } from 'react'
 import { ProjectBMTScore, ProjectIndicator } from '../../../../utils/helperModels'
 
 const Indicators = styled.div`
@@ -24,83 +23,86 @@ const StyledPanel = styled(Accordion.Panel)`
 interface Props {
     evaluationsWithProjectMasterTitle: EvaluationsByProjectMaster
     generatedBMTScores: any
-    refetchActiveEvaluations: (() => Promise<ApolloQueryResult<{ evaluations: Evaluation[] }>>) | undefined
 }
 
 const TablesAndTitles = ({
     evaluationsWithProjectMasterTitle,
     generatedBMTScores,
-    refetchActiveEvaluations,
 }: Props) => {
-    const [projectIndicators, setProjectIndicators] = React.useState<ProjectIndicator[]>([])
-    const [projectBMTScores, setProjectBMTScores] = React.useState<ProjectBMTScore[]>([])
+    const [projectIndicators, setProjectIndicators] = useState<ProjectIndicator[]>([])
+    const [projectBMTScores, setProjectBMTScores] = useState<ProjectBMTScore[]>([])
+    const [openPanels, setOpenPanels] = useState<{ [key: string]: boolean }>({})
+
+    const preprocessEvaluations = (evaluations: Evaluation[]) => {
+        const activityDates: { [projectId: string]: string } = {}
+        const followUpScores: { [projectId: string]: number | null } = {}
+
+        evaluations.forEach(evalData => {
+            const projectId = evalData.projectId
+            const isFollowUp = evalData.progression === Progression.FollowUp
+            const isIndicatorEvaluation = evalData.project.indicatorEvaluationId === evalData.id
+            const isProjectIndicator = projectIndicators.some(pi => pi.evaluationId === evalData.id)
+
+            if ((isProjectIndicator || isIndicatorEvaluation) && isFollowUp) {
+                activityDates[projectId] = evalData.indicatorActivityDate || evalData.workshopCompleteDate || activityDates[projectId] || ""
+            }
+
+            if (!followUpScores[projectId]) {
+                const score = projectBMTScores.find(score => score.projectId === projectId) ||
+                              generatedBMTScores?.generateBMTScores.find((score: { projectId: string }) => score.projectId === projectId)
+                followUpScores[projectId] = score ? score.followUpScore : null
+            }
+        })
+
+        return { activityDates, followUpScores }
+    }
+
+    const { activityDates, followUpScores } = preprocessEvaluations(Object.values(evaluationsWithProjectMasterTitle).flat())
+
+    const handlePanelToggle = (projectMasterTitle: string) => {
+        setOpenPanels(prevState => ({
+            ...prevState,
+            [projectMasterTitle]: !prevState[projectMasterTitle],
+        }))
+    }
 
     return (
-        <>
-            <Accordion headerLevel="h2">
-                {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
-                    if (projectMasterTitle === noProjectMasterTitle) {
-                        return null
-                    }
-                    let activityDate = ""
-                    let projectId = ""
-                    let followUpScore = null
+        <Accordion headerLevel="h2">
+            {Object.entries(evaluationsWithProjectMasterTitle).map(([projectMasterTitle, evaluations], index) => {
+                if (projectMasterTitle === noProjectMasterTitle) {
+                    return null
+                }
 
-                    Object.entries(evaluations).forEach((evaluation) => {
-                        const evalData = evaluation[1]
-                        if (evalData.projectId !== projectId) {
-                            projectId = evalData.projectId
-                        }
+                const projectId = evaluations[0]?.projectId || ""
+                const activityDate = activityDates[projectId] || ""
+                const followUpScore = followUpScores[projectId]
+                const isOpen = openPanels[projectMasterTitle] || false
 
-                        const isFollowUp = evalData.progression === Progression.FollowUp
-                        const isIndicatorEvaluation = evalData.project.indicatorEvaluationId === evalData.id
-                        const isProjectIndicator = projectIndicators.findIndex(pi => pi.evaluationId === evalData.id) > -1
-
-                        if ((isProjectIndicator || isIndicatorEvaluation) && isFollowUp) {
-                            if (evalData.indicatorActivityDate) {
-                                activityDate = evalData.indicatorActivityDate
-                            } else if (evalData.workshopCompleteDate) {
-                                activityDate = evalData.workshopCompleteDate
-                            }
-                        }
-                    })
-                    if (projectBMTScores.length > 0) {
-                        const score = projectBMTScores.find((score: any) => score.projectId === projectId)
-                        if (score) {
-                            followUpScore = score.bmtScore
-                        }
-                    } else if (generatedBMTScores) {
-                        const score = generatedBMTScores.generateBMTScores.find((score: any) => score.projectId === projectId)
-                        if (score) {
-                            followUpScore = score.followUpScore
-                        }
-                    }
-
-                    return (
-                        <Accordion.Item key={index}>
-                            <Accordion.Header>
-                                <Indicators>
-                                    {projectMasterTitle}
-                                    <FollowUpIndicator value={followUpScore} />
-                                    <EvaluationScoreIndicator date={activityDate} />
-                                </Indicators>
-                            </Accordion.Header>
-                            <StyledPanel>
+                return (
+                    <Accordion.Item key={index} isExpanded={isOpen} onExpandedChange={() => handlePanelToggle(projectMasterTitle)}>
+                        <Accordion.Header>
+                            <Indicators>
+                                {projectMasterTitle}
+                                <FollowUpIndicator value={followUpScore} />
+                                <EvaluationScoreIndicator date={activityDate} />
+                            </Indicators>
+                        </Accordion.Header>
+                        <StyledPanel>
+                            {isOpen && (
                                 <EvaluationsTable
                                     evaluations={evaluations}
                                     isInPortfolio={true}
-                                    refetchActiveEvaluations={refetchActiveEvaluations}
                                     projectIndicators={projectIndicators}
                                     setProjectIndicators={setProjectIndicators}
                                     projectBMTScores={projectBMTScores}
                                     setProjectBmtScores={setProjectBMTScores}
                                 />
-                            </StyledPanel>
-                        </Accordion.Item>
-                    )
-                })}
-            </Accordion>
-        </>
+                            )}
+                        </StyledPanel>
+                    </Accordion.Item>
+                )
+            })}
+        </Accordion>
     )
 }
 

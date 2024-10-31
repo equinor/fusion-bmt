@@ -22,6 +22,7 @@ import {
 import { centered } from '../../utils/styles'
 import { useAppContext } from '../../context/AppContext'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import { BASEPATH } from '../../utils/constants'
 
 interface Params {
     fusionProjectId: string
@@ -46,12 +47,7 @@ const EvaluationView = ({ match }: RouteComponentProps<Params>) => {
         if (!currentContext && !currentProject) {
             setCurrentProject(undefined)
             setCurrentEvaluation(undefined)
-            history.push("/apps/bmt/")
-        }
-        else if (!loading && currentContext?.externalId !== evaluation?.project.externalId) {
-            setCurrentProject(undefined)
-            setCurrentEvaluation(undefined)
-            history.push(`/apps/bmt/${currentContext?.id}`)
+            history.push(BASEPATH)
         }
     }, [currentContext])
 

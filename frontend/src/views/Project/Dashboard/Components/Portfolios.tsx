@@ -1,19 +1,15 @@
 import { EvaluationsByProjectMasterAndPortfolio } from '../../../../utils/hooks'
 import { Accordion } from '@equinor/eds-core-react'
 import TablesAndTitles from './TablesAndTitles'
-import { ApolloQueryResult } from '@apollo/client'
-import { Evaluation } from '../../../../api/models'
 
 interface Props {
     evaluationsWithProjectMasterAndPortfolio: EvaluationsByProjectMasterAndPortfolio
     generatedBMTScores: any
-    refetchActiveEvaluations: (() => Promise<ApolloQueryResult<{evaluations: Evaluation[]}>>) | undefined
 }
 
 const Portfolios = ({
     evaluationsWithProjectMasterAndPortfolio,
     generatedBMTScores,
-    refetchActiveEvaluations,
 }: Props) => {
     return (
         <>
@@ -28,7 +24,6 @@ const Portfolios = ({
                                     <TablesAndTitles
                                         evaluationsWithProjectMasterTitle={evaluationsWithProjectMasterTitle}
                                         generatedBMTScores={generatedBMTScores}
-                                        refetchActiveEvaluations={refetchActiveEvaluations}
                                     />
                                 </Accordion.Panel>
                             </Accordion.Item>

@@ -3,11 +3,24 @@ import { Grid } from '@mui/material'
 import { Typography } from '@equinor/eds-core-react'
 import BreadCrumbs from './Breadcrumbs'
 import { useAppContext } from '../../context/AppContext'
+import { useHistory } from 'react-router-dom'
+import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import { BASEPATH } from '../../utils/constants'
 
 const Header = () => {
     const initialHeader = "All projects"
-    const { currentProject, currentEvaluation } = useAppContext()
+    const {currentContext} = useModuleCurrentContext()
+    const { currentProject, currentEvaluation, setCurrentEvaluation, setCurrentProject } = useAppContext()
     const [headerTitle, setHeaderTitle] = useState<string>(initialHeader)
+    const history = useHistory()
+
+    useEffect(() => {
+        if (!currentContext) {
+            setCurrentProject(undefined)
+            setCurrentEvaluation(undefined)
+            history.push(BASEPATH)
+        }
+    }, [currentContext])
 
     useEffect(() => {
         if (currentProject && headerTitle !== String(currentProject.title) && !currentEvaluation) {
@@ -20,7 +33,6 @@ const Header = () => {
             setHeaderTitle(initialHeader)
         }
     }, [currentProject, currentEvaluation])
-    
 
     return (
         <Grid container display="grid" gridTemplateColumns="1fr auto 1fr" alignItems="center">

@@ -185,8 +185,8 @@ const AdminView = () => {
                             <Box display="flex" flexDirection={'column'} alignItems={'center'} mt={8}>
                                 <Typography style={{ marginBottom: '5px' }}>Nothing here yet.</Typography>
                                 <Typography>
-                                    Add a new question or select "All project categories" to find questions that can be assigned to your new
-                                    category.
+                                    Add a new question or select "All questionnaire templates" to find questions that can be assigned to your new
+                                    questionnaire template.
                                 </Typography>
                             </Box>
                         )}
