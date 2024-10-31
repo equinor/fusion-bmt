@@ -65,10 +65,10 @@ const CategoryHeader = ({
         const projectCategory = projectCategories.find(pc => pc.id === selectedProjectCategory)
 
         if (projectCategory) {
-            return 'Are you sure you want to delete the project category: ' + "'" + projectCategory.name + "'?"
+            return 'Are you sure you want to delete the questionnaire template: ' + "'" + projectCategory.name + "'?"
         }
 
-        return 'Are you sure you want to delete the selected project category?'
+        return 'Are you sure you want to delete the selected questionnaire template?'
     }
 
     const onCreated = (projectCategory: string, isCopy: boolean) => {
@@ -125,7 +125,7 @@ const CategoryHeader = ({
                 {showErrorMessage && (
                     <Box mt={1} ml={4} mr={4}>
                         <ErrorBanner
-                            message={'Could not delete project category. ' + genericErrorMessage}
+                            message={'Could not delete questionnaire template. ' + genericErrorMessage}
                             onClose={() => setShowErrorMessage(false)}
                         />
                     </Box>
@@ -134,7 +134,7 @@ const CategoryHeader = ({
             <ConfirmationDialog
                 isOpen={isInConfirmDeleteMode}
                 isLoading={deletingProjectCategory}
-                title={'Delete project category'}
+                title={'Delete questionnaire template'}
                 description={createDeleteConfirmation()}
                 onConfirmClick={() => deleteProjectCategory(selectedProjectCategory)}
                 onCancelClick={() => setIsInConfirmDeleteMode(false)}

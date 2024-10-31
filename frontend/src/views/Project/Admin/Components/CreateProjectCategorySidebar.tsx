@@ -79,14 +79,14 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                 setIsOpen(false)
             }}
             >
-            <SideSheet.Title title="Create Project Category" />
-            <SideSheet.SubTitle subTitle="Create a new Project Category" />
+            <SideSheet.Title title="Create questionnaire template" />
+            <SideSheet.SubTitle subTitle="Create a new questionnaire template" />
             <SideSheet.Content>
                 <Grid container>
                     {showErrorMessage && (
                         <Grid item xs={12}>
                             <ErrorBanner
-                                message={'Could not save project category. ' + genericErrorMessage}
+                                message={'Could not save questionnaire template. ' + genericErrorMessage}
                                 onClose={() => setShowErrorMessage(false)}
                             />
                         </Grid>
@@ -108,7 +108,7 @@ const CreateProjectCategorySidebar = ({ isOpen, setIsOpen, onProjectCategoryCrea
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: 20 }}>
                         <SearchableDropdown
-                            label="Add questions from project category (optional)"
+                            label="Add questions from questionnaire template (optional)"
                             value={projectCategoryOptions.find(option => option.id === projectCategoryToCopy)?.title}
                             onSelect={option => {
                                 const selectedOption = (option as any).nativeEvent.detail.selected[0]

@@ -79,7 +79,7 @@ const BarrierHeader = ({
                 >
                     <Icon data={isInAddCategoryMode ? close_circle_outlined : add_circle_outlined} size={16} />
                     <Typography group="navigation" variant="menu_title" as="span" data-testid="add-qt-to-project-cat-or-close-view">
-                        {isInAddCategoryMode ? 'Close add to category view' : 'Add questions to project categories'}
+                        {isInAddCategoryMode ? 'Close add to questionnaire template view' : 'Add questions to questionnaire template'}
                     </Typography>
                 </Menu.Item>
                 <Menu.Item

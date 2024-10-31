@@ -244,7 +244,7 @@ const StaticQuestionItem = ({
                 {showAddProjectCategoryErrorMessage && (
                     <Box mb={2}>
                         <ErrorBanner
-                            message={'Not able to add project category to question template. ' + genericErrorMessage}
+                            message={'Not able to add questionnaire template to question template. ' + genericErrorMessage}
                             onClose={() => setShowAddProjectCategoryErrorMessage(false)}
                         />
                     </Box>
@@ -252,7 +252,7 @@ const StaticQuestionItem = ({
                 {showRemoveProjectCategoryErrorMessage && (
                     <Box mb={2}>
                         <ErrorBanner
-                            message={'Not able to remove project category from question template. ' + genericErrorMessage}
+                            message={'Not able to remove questionnaire template from question template. ' + genericErrorMessage}
                             onClose={() => setShowRemoveProjectCategoryErrorMessage(false)}
                         />
                     </Box>
@@ -316,7 +316,7 @@ const StaticQuestionItem = ({
                                         data-testid={'project-category-' + question.adminOrder + '-' + category.name}
                                     >
                                         <Chip style={{ backgroundColor: tokens.colors.infographic.primary__mist_blue.rgba }}>
-                                            <Tooltip title={'Project category'} placement={'bottom'}>
+                                            <Tooltip title={'Questionnaire template'} placement={'bottom'}>
                                                 <Icon data={platform} size={16}></Icon>
                                             </Tooltip>
                                             {category.name}
