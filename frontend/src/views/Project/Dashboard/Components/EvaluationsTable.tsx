@@ -256,18 +256,17 @@ const EvaluationsTable = ({
             return evaluation.project.indicatorEvaluationId === evaluation.id
         }
 
+        const getEvaluationProject = () => {
+            return projects.find(project => project.externalId === evaluation.project.externalId)
+        }
+
         const getContextId = () => {
-            let evaluationProject = projects.filter(project => project.externalId === evaluation.project.externalId)[0]
-            if (evaluationProject) {
-                return evaluationProject.fusionProjectId
-            }
+            const evaluationProject = getEvaluationProject()
+            return evaluationProject ? evaluationProject.fusionProjectId : undefined
         }
 
         const getProjectId = () => {
-            let evaluationProject = projects.filter(project => project.externalId === evaluation.project.externalId)[0]
-            if (evaluationProject) {
-                return evaluationProject
-            }
+            return getEvaluationProject()
         }
 
         return (
