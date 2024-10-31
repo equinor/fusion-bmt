@@ -22,6 +22,7 @@ import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 import ConfirmationDialog from '../../../../components/ConfirmationDialog'
 import { useAppContext } from '../../../../context/AppContext'
 import { useHistory } from 'react-router-dom'
+import { BASEPATH } from '../../../../utils/constants'
 
 const { Row, Cell } = Table
 
@@ -283,7 +284,7 @@ const EvaluationsTable = ({
                             setCurrentContext(getContextId())
                             setCurrentProject(getProjectId())
                             setCurrentEvaluation(evaluation)
-                            history.push(`/apps/bmt/${getContextId()}/evaluation/${evaluation.id}`)
+                            history.push(`${BASEPATH}${getContextId()}/evaluation/${evaluation.id}`)
                         }}
                     >
                         {evaluation.name}

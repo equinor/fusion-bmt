@@ -5,6 +5,7 @@ import BreadCrumbs from './Breadcrumbs'
 import { useAppContext } from '../../context/AppContext'
 import { useHistory } from 'react-router-dom'
 import { useModuleCurrentContext } from '@equinor/fusion-framework-react-module-context'
+import { BASEPATH } from '../../utils/constants'
 
 const Header = () => {
     const initialHeader = "All projects"
@@ -17,7 +18,7 @@ const Header = () => {
         if (!currentContext) {
             setCurrentProject(undefined)
             setCurrentEvaluation(undefined)
-            history.push("/apps/bmt/")
+            history.push(BASEPATH)
         }
     }, [currentContext])
 
