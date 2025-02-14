@@ -86,17 +86,10 @@ try
             builder.AllowAnyHeader();
             builder.AllowAnyMethod();
             builder.WithOrigins(
-                (Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000"),
+                Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000",
                 "https://*.equinor.com",
-                "https://pro-s-portal-ci.azurewebsites.net",
-                "https://pro-s-portal-fqa.azurewebsites.net",
-                "https://pro-s-portal-fprd.azurewebsites.net",
-                "https://pro-s-portal-fprd.azurewebsites.net",
-                "https://fusion-s-portal-ci.azurewebsites.net",
-                "https://fusion-s-portal-fqa.azurewebsites.net",
-                "https://fusion-s-portal-fprd.azurewebsites.net",
-                "https://pr-3422.fusion-dev.net",
-                "https://pr-*.fusion-dev.net"
+                "https://fusion.fqa.fusion-dev.net",
+                "https://fusion.ci.fusion-dev.net"
             ).SetIsOriginAllowedToAllowWildcardSubdomains();
         });
     });
