@@ -7,14 +7,13 @@ const getEnv = (): string => {
     }
 
     switch (location.hostname) {
-    case "fusion-s-portal-fqa.azurewebsites.net":
+    case "fusion.fqa.fusion-dev.net":
         return "QA"
 
-    case "fusion-s-portal-ci.azurewebsites.net":
+    case "fusion.ci.fusion-dev.net":
         return "CI"
 
     case "fusion.equinor.com":
-    case "fusion-s-portal-fprd.azurewebsites.net":
         return "FPRD"
 
     default:
