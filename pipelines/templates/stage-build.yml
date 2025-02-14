@@ -23,7 +23,7 @@ stages:
                       command: "install"
                       workingDir: "frontend"
 
-                # Add build id to version in package.json
+                # Add buildid to version in package.json
                 - script: |
                     buildId=$(Build.BuildId)
                     currentVersion=$(jq -r '.version' frontend/package.json)
