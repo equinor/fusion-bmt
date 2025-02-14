@@ -13,32 +13,23 @@ stages:
       jobs:
           - job: "Build_Fusion_App"
             steps:
-                - task: UseDotNet@2
-                  displayName: "Install Dotnet"
-                  inputs:
-                      packageType: "sdk"
-                      version: "6.0.x"
-
-                - task: DotNetCoreCLI@2
-                  displayName: Install dotnet-ef
-                  inputs:
-                      command: "custom"
-                      custom: "tool"
-                      arguments: "install --global --version 6.0 dotnet-ef"
                 - task: NodeTool@0
                   inputs:
                       versionSpec: "18.x"
+
                 - task: Npm@1
                   displayName: "Install frontend"
                   inputs:
                       command: "install"
                       workingDir: "frontend"
+
                 - task: Npm@1
                   displayName: "Bundle frontend"
                   inputs:
                       command: "custom"
                       workingDir: "frontend"
                       customCommand: "run-script build"
+
                 - task: Bash@3
                   displayName: 'Extract manifest data from package.json'
                   inputs:
@@ -59,6 +50,7 @@ stages:
                             patch: .version | split(".")[2]
                         }
                         }' package.json)" > ./dist/app-manifest.json
+
                 - task: Bash@3
                   displayName: 'Print app-manifest.json'
                   inputs:
@@ -66,6 +58,7 @@ stages:
                     targetType: 'inline'
                     script: |
                       cat frontend/dist/app-manifest.json
+
                 - task: ArchiveFiles@2
                   displayName: "Archive files"
                   inputs:
@@ -74,6 +67,7 @@ stages:
                     archiveType: "zip"
                     archiveFile: "${{ parameters.workSpace }}/s/frontend/out/bmt.zip"
                     replaceExistingArchive: true
+
                 - task: PublishPipelineArtifact@1
                   inputs:
                       targetPath: "${{ parameters.workSpace }}/s/frontend/out/bmt.zip"
