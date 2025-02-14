@@ -23,54 +23,26 @@ stages:
                       command: "install"
                       workingDir: "frontend"
 
+                # Add build id to version in package.json
+                - script: |
+                    buildId=$(Build.BuildId)
+                    currentVersion=$(jq -r '.version' frontend/package.json)
+                    majorMinorVersion=$(echo $currentVersion | cut -d. -f1,2)
+                    frontendVersion="$majorMinorVersion.$buildId"
+                    sed -i 's/"version": "'$currentVersion'"/"version": "'$frontendVersion'"/' frontend/package.json
+                  displayName: "Update version in package.json"
+
                 - task: Npm@1
-                  displayName: "Bundle frontend"
+                  displayName: "Build frontend"
                   inputs:
                       command: "custom"
                       workingDir: "frontend"
+                      verbose: true
                       customCommand: "run-script build"
-
-                - task: Bash@3
-                  displayName: 'Extract manifest data from package.json'
-                  inputs:
-                    workingDir: "frontend"
-                    targetType: 'inline'
-                    script: |
-                      cd frontend
-                      echo "$(jq '{
-                        key: .name,
-                        name: .manifest.name,
-                        shortName: .manifest.shortName,
-                        description: .description,
-                        type: .manifest.type,
-                        entry: .main,
-                        version: {
-                            major: .version | split(".")[0],
-                            minor: .version | split(".")[1],
-                            patch: .version | split(".")[2]
-                        }
-                        }' package.json)" > ./dist/app-manifest.json
-
-                - task: Bash@3
-                  displayName: 'Print app-manifest.json'
-                  inputs:
-                    workingDir: "frontend"
-                    targetType: 'inline'
-                    script: |
-                      cat frontend/dist/app-manifest.json
-
-                - task: ArchiveFiles@2
-                  displayName: "Archive files"
-                  inputs:
-                    rootFolderOrFile: "frontend/dist"
-                    includeRootFolder: false
-                    archiveType: "zip"
-                    archiveFile: "${{ parameters.workSpace }}/s/frontend/out/bmt.zip"
-                    replaceExistingArchive: true
 
                 - task: PublishPipelineArtifact@1
                   inputs:
-                      targetPath: "${{ parameters.workSpace }}/s/frontend/out/bmt.zip"
+                      targetPath: "${{ parameters.workSpace }}/s/frontend/bmt.zip"
                       artifactName: FusionBMT
 
           - job: "Build_backend_container_and_Push_To_acr"
@@ -95,29 +67,5 @@ stages:
                       name: "Push_backend-container_to_ACR"
                       registry: "BMT Registry"
                       repository: "backend"
-                      buildId: $(Build.BuildId)
-
-          - job: "Build_frontend_container_and_Push_To_acr"
-            steps:
-                - template: step-dtlogin.yml
-                  parameters:
-                      dt_tenant: ${{ parameters.dt_tenant }}
-                      dt_url: ${{ parameters.dt_url }}
-                      dt_password: ${{ parameters.dt_password }}
-
-                - template: step-dtdockerbuild.yml
-                  parameters:
-                      dt_tenant: ${{ parameters.dt_tenant }}
-                      dt_url: ${{ parameters.dt_url }}
-                      dt_password: ${{ parameters.dt_password }}
-                      buildId: $(Build.BuildId)
-                      sourcesDirectory: $(Build.SourcesDirectory)
-                      appName: "frontend"
-
-                - template: step-docker-push.yml
-                  parameters:
-                      name: "Push_backend-container_to_ACR"
-                      registry: "BMT Registry"
-                      repository: "frontend"
                       buildId: $(Build.BuildId)
 
