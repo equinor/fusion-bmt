@@ -3,6 +3,7 @@ parameters:
     - name: buildId
     - name: sourcesDirectory
     - name: name
+    - name: azAppConfig
 
 stages:
     - stage: ${{ parameters.name }}
