@@ -25,7 +25,7 @@ jobs:
       steps:
           - task: NodeTool@0
             inputs:
-                versionSpec: "16.x"
+                versionSpec: "20.x"
           - task: Npm@1
             inputs:
                 command: "install"
@@ -53,7 +53,7 @@ jobs:
       steps:
           - task: NodeTool@0
             inputs:
-                versionSpec: "16.x"
+                versionSpec: "20.x"
           - task: Npm@1
             name: Install
             inputs:

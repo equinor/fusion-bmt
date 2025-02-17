@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using api.GQL;
 using api.Services;
 using api.Authorization;
-using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authorization;
@@ -86,17 +85,10 @@ try
             builder.AllowAnyHeader();
             builder.AllowAnyMethod();
             builder.WithOrigins(
-                (Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000"),
+                Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:3000",
                 "https://*.equinor.com",
-                "https://pro-s-portal-ci.azurewebsites.net",
-                "https://pro-s-portal-fqa.azurewebsites.net",
-                "https://pro-s-portal-fprd.azurewebsites.net",
-                "https://pro-s-portal-fprd.azurewebsites.net",
-                "https://fusion-s-portal-ci.azurewebsites.net",
-                "https://fusion-s-portal-fqa.azurewebsites.net",
-                "https://fusion-s-portal-fprd.azurewebsites.net",
-                "https://pr-3422.fusion-dev.net",
-                "https://pr-*.fusion-dev.net"
+                "https://fusion.fqa.fusion-dev.net",
+                "https://fusion.ci.fusion-dev.net"
             ).SetIsOriginAllowedToAllowWildcardSubdomains();
         });
     });
@@ -110,16 +102,14 @@ try
 
     if (_connectionToInMemorySqlite == null)
     {
-        // Setting splitting behavior explicitly to avoid warning
         builder.Services.AddDbContext<BmtDbContext>(
-                    options => options.UseSqlServer(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery))
+                    options => options.UseSqlServer(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
                 );
     }
     else
     {
-        // Setting splitting behavior explicitly to avoid warning
         builder.Services.AddDbContext<BmtDbContext>(
-            options => options.UseSqlite(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery))
+            options => options.UseSqlite(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
         );
     }
 

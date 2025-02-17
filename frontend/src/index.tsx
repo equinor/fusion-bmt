@@ -1,4 +1,4 @@
-import React, { createElement, useEffect } from 'react'
+import React, { createElement, useEffect, useState } from 'react'
 import { createRoot } from "react-dom/client"
 import { ComponentRenderArgs, makeComponent } from "@equinor/fusion-framework-react-app"
 import { ApolloProvider } from '@apollo/client'
@@ -15,7 +15,7 @@ import { EnvironmentVariables } from './environmentVariables'
 import { AppContextProvider } from './context/AppContext'
 
 const Start = () => {
-    const [apiUrl, setApiUrl] = React.useState('')
+    const [apiUrl, setApiUrl] = useState<string | undefined>()
 
     React.useLayoutEffect(() => {
         const config = resolveConfiguration(EnvironmentVariables.ENVIRONMENT)

@@ -29,9 +29,10 @@ stages:
     - template: templates/stage-deploy.yml
       parameters:
           name: Deploy_CI
+          fusionEnvironment: ci
           envshortname: ci
           envfullname: CI
-          fusionToken: $(fusionClientIdDev)
+          FusionEnvId: $(fusionClientIdDev)
           portalUrl: $(FusionCIPortalUrl)
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
@@ -44,9 +45,10 @@ stages:
     - template: templates/stage-deploy.yml
       parameters:
           name: Deploy_QA
+          fusionEnvironment: fqa
           envshortname: qa
           envfullname: QA
-          fusionToken: $(fusionClientIdDev)
+          FusionEnvId: $(fusionClientIdDev)
           portalUrl: $(FusionQAPortalUrl)
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
@@ -59,9 +61,10 @@ stages:
     - template: templates/stage-deploy.yml
       parameters:
           name: Deploy_Prod
+          fusionEnvironment: fprd
           envshortname: prod
           envfullname: Production
-          fusionToken: $(fusionClientIdProd)
+          FusionEnvId: $(fusionClientIdProd)
           portalUrl: $(FusionPRDPortalUrl)
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
