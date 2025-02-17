@@ -1,12 +1,7 @@
 # Barrier Management Tool
 
-[![Build Status](https://dev.azure.com/Shellvis/Fusion-BMT/_apis/build/status/equinor.fusion-bmt?branchName=master)](https://dev.azure.com/Shellvis/Fusion-BMT/_build/latest?definitionId=22&branchName=master)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/898e3ea418fb495aa2abdbb02633bf9d)](https://www.codacy.com/gh/equinor/fusion-bmt/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=equinor/fusion-bmt&amp;utm_campaign=Badge_Grade)
-[![BMT](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/detailed/ry3x7y&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ry3x7y/runs)
+[![SCM Compliance](https://scm-compliance-api.radix.equinor.com/repos/equinor/fusion-bmt/badge)](https://scm-compliance-api.radix.equinor.com/repos/equinor/fusion-bmt/badge)
 
-**Dev**: [![Dev Build Status!](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/dev/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/dev)
-**QA**: [![QA Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/qa/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/qa)
-**Prod**: [![Prod Build Status](https://api.radix.equinor.com/api/v1/applications/fusion-bmt/environments/prod/buildstatus)](https://console.radix.equinor.com/applications/fusion-bmt/envs/prod)
 
 ## Runbook
 
@@ -94,7 +89,7 @@ We have 4 different environments in use; dev, qa, prod and pr.
 
 ## Monitoring
 
-We use both Azure Application Insight and dynatrace to monitor our applications.
+We use Azure Application Insight to monitor our applications.
 
 ## Model overview
 

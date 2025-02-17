@@ -204,12 +204,7 @@ the frontend to Fusion.
 
 ## Monitoring
 
-We use both Azure Application Insight and dynatrace to monitor our applications.
-To start components with Dynatrace OneAgent locally, simply run
-
-```
-docker-compose -f docker-compose.dynatrace.yml up --build
-```
+We use Azure Application Insight to monitor our applications.
 
 ### Formatting
 

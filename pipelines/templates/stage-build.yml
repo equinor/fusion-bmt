@@ -1,11 +1,9 @@
 parameters:
     - name: workSpace
     - name: buildId
-    - name: dt_tenant
-    - name: dt_password
-    - name: dt_url
     - name: sourcesDirectory
     - name: name
+    - name: azAppConfig
 
 stages:
     - stage: ${{ parameters.name }}
@@ -18,7 +16,7 @@ stages:
                       versionSpec: "20.x"
 
                 - task: Npm@1
-                  displayName: "Install frontend"
+                  displayName: "NPM Install"
                   inputs:
                       command: "install"
                       workingDir: "frontend"
@@ -47,20 +45,12 @@ stages:
 
           - job: "Build_backend_container_and_Push_To_acr"
             steps:
-                - template: step-dtlogin.yml
+                - template: step-dockerbuild.yml
                   parameters:
-                      dt_tenant: ${{ parameters.dt_tenant }}
-                      dt_url: ${{ parameters.dt_url }}
-                      dt_password: ${{ parameters.dt_password }}
-
-                - template: step-dtdockerbuild.yml
-                  parameters:
-                      dt_tenant: ${{ parameters.dt_tenant }}
-                      dt_url: ${{ parameters.dt_url }}
-                      dt_password: ${{ parameters.dt_password }}
-                      buildId: $(Build.BuildId)
-                      sourcesDirectory: $(Build.SourcesDirectory)
-                      appName: "backend"
+                    azAppConfig: ${{ parameters.azAppConfig }}
+                    buildId: $(Build.BuildId)
+                    sourcesDirectory: $(Build.SourcesDirectory)
+                    appName: "backend"
 
                 - template: step-docker-push.yml
                   parameters:
@@ -68,4 +58,3 @@ stages:
                       registry: "BMT Registry"
                       repository: "backend"
                       buildId: $(Build.BuildId)
-

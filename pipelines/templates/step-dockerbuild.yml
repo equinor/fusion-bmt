@@ -1,0 +1,13 @@
+parameters:
+    - name: buildId
+    - name: sourcesDirectory
+    - name: appName
+    - name: azAppConfig
+
+steps:
+    - script: |
+          docker build -f ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/Dockerfile \
+          --build-arg azappconfig=${{ parameters.azAppConfig }} \
+          ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/ \
+          -t fusionbmt.azurecr.io/${{ parameters.appName }}:${{ parameters.buildId }}
+      displayName: "docker build"
