@@ -48,7 +48,7 @@ stages:
           FusionEnvId: $(fusionClientIdDev)
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
-          branch: qa
+          branch: master
           DBContext: $(dbContextQa)
           SpAzureClientId: $(SpPreProdAzureClientId)
           SpAzureClientSecret: $(SpPreProdAzureClientSecret)
@@ -63,7 +63,7 @@ stages:
           FusionEnvId: $(fusionClientIdProd)
           buildId: $(Build.BuildId)
           radixToken: $(RadixToken)
-          branch: prod
+          branch: master
           DBContext: $(dbContextProd)
           SpAzureClientId: $(SpPreProdAzureClientId)
           SpAzureClientSecret: $(SpPreProdAzureClientSecret)

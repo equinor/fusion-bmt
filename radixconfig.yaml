@@ -9,13 +9,10 @@ spec:
         from: master
     - name: qa
       build:
-        from: qa
-    - name: pr
-      build:
-        from: pr
+        from: master
     - name: prod
       build:
-        from: prod
+        from: master
 
   privateImageHubs:
     fusionbmt.azurecr.io:
