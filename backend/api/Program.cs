@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using api.GQL;
 using api.Services;
 using api.Authorization;
-using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authorization;
@@ -103,16 +102,14 @@ try
 
     if (_connectionToInMemorySqlite == null)
     {
-        // Setting splitting behavior explicitly to avoid warning
         builder.Services.AddDbContext<BmtDbContext>(
-                    options => options.UseSqlServer(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery))
+                    options => options.UseSqlServer(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
                 );
     }
     else
     {
-        // Setting splitting behavior explicitly to avoid warning
         builder.Services.AddDbContext<BmtDbContext>(
-            options => options.UseSqlite(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery))
+            options => options.UseSqlite(_sqlConnectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
         );
     }
 
