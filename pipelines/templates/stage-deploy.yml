@@ -4,7 +4,6 @@ parameters:
     - name: envshortname
     - name: envfullname
     - name: FusionEnvId
-    - name: portalUrl
     - name: buildId
     - name: radixToken
     - name: branch

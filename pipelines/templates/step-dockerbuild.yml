@@ -1,0 +1,12 @@
+parameters:
+    - name: buildId
+    - name: sourcesDirectory
+    - name: appName
+
+steps:
+    - script: |
+          docker build -f ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/Dockerfile \
+          ${{ parameters.sourcesDirectory }}/${{ parameters.appName }}/ \
+          -t fusionbmt.azurecr.io/${{ parameters.appName }}:release \
+          -t fusionbmt.azurecr.io/${{ parameters.appName }}:${{ parameters.buildId }}
+      displayName: "docker build with OneAgent"
