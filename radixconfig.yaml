@@ -43,9 +43,6 @@ spec:
             limits:
               memory: "3000Mi"
               cpu: "1000m"
-        - environment: pr
-          imageTagName: pr-release
-          replicas: 0
         - environment: qa
           imageTagName: qa-release
           resources:
