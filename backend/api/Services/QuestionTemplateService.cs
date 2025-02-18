@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using api.Context;
 using api.Models;
+using Barrier = api.Models.Barrier;
 
 namespace api.Services
 {

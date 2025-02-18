@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using api.Services;
-using api.Models;
-using Action = api.Models.Action;
 using api.Authorization;
+using api.Models;
+using api.Services;
 using HotChocolate.Authorization;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Action = api.Models.Action;
+using Barrier = api.Models.Barrier;
 
 namespace api.GQL
 {
@@ -72,7 +68,7 @@ namespace api.GQL
             string projectCategoryId
         )
         {
-            var azureUniqueId = _authService.GetOID();
+            var azureUniqueId = _authService.GetOid();
 
             var project = _projectService.GetProject(projectId);
             var evaluation = _evaluationService.Create(
@@ -168,7 +164,7 @@ namespace api.GQL
 
         public Participant ProgressParticipant(string evaluationId, Progression newProgression)
         {
-            string azureUniqueId = _authService.GetOID();
+            string azureUniqueId = _authService.GetOid();
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
             Participant participant = _participantService.GetParticipant(azureUniqueId, evaluation);
 
@@ -501,13 +497,13 @@ namespace api.GQL
         /* Helpers */
         private Participant CurrentUser(Evaluation evaluation)
         {
-            string azureUniqueId = _authService.GetOID();
+            string azureUniqueId = _authService.GetOid();
             return _participantService.GetParticipant(azureUniqueId, evaluation);
         }
 
         private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles)
         {
-            string oid = _authService.GetOID();
+            string oid = _authService.GetOid();
             Role userRoleInEvaluation;
 
             try

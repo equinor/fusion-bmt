@@ -1,6 +1,3 @@
-using HotChocolate;
-using Microsoft.Extensions.Logging;
-
 namespace api.GQL
 {
     class ErrorFilter : IErrorFilter
