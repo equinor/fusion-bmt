@@ -58,7 +58,7 @@ namespace tests
             _loggedInUser = participant.AzureUniqueId;
         }
 
-        public string GetOID()
+        public string GetOid()
         {
             return _loggedInUser;
         }

@@ -1,12 +1,7 @@
-using System.Collections.Generic;
-using System;
-
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Any;
-
-using Swashbuckle.AspNetCore.SwaggerGen;
-
 using api.Models;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace api.Swagger
 {
