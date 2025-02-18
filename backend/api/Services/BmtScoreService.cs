@@ -1,24 +1,18 @@
-using System;
-using System.Linq;
-
 using api.Context;
 using api.Models;
-
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace api.Services
 {
-    public class BMTScoreService
+    public class BmtScoreService
     {
         private readonly BmtDbContext _context;
 
-        public BMTScoreService(BmtDbContext context)
+        public BmtScoreService(BmtDbContext context)
         {
             _context = context;
         }
-        public async Task<List<BMTScore>> GenerateBMTScores()
+        public async Task<List<BMTScore>> GenerateBmtScores()
         {
             var projectsWithIndicator = await _context.Projects
                 .Where(p => p.IndicatorEvaluationId != null)
@@ -27,14 +21,14 @@ namespace api.Services
             var bmtScores = new List<BMTScore>();
             foreach (var project in projectsWithIndicator)
             {
-                var score = await GenerateBMTScore(project.IndicatorEvaluationId, project.Id);
+                var score = await GenerateBmtScore(project.IndicatorEvaluationId, project.Id);
                 bmtScores.Add(score);
             }
 
             return bmtScores;
         }
 
-        public async Task<BMTScore> GenerateBMTScore(string projectId) {
+        public async Task<BMTScore> GenerateBmtScore(string projectId) {
             var project = await _context.Projects.FindAsync(projectId)
                 ?? throw new ArgumentException("ProjectId does not exist.");
 
@@ -43,10 +37,10 @@ namespace api.Services
                 throw new ArgumentException("Project does not have an IndicatorEvaluationId.");
             }
 
-            return await GenerateBMTScore(project.IndicatorEvaluationId, projectId);
+            return await GenerateBmtScore(project.IndicatorEvaluationId, projectId);
         }
 
-        public async Task<BMTScore> GenerateBMTScore(string evaluationId, string projectId)
+        public async Task<BMTScore> GenerateBmtScore(string evaluationId, string projectId)
         {
             if (string.IsNullOrEmpty(evaluationId) || string.IsNullOrEmpty(projectId))
             {

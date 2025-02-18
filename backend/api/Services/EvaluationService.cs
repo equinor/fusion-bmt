@@ -1,11 +1,5 @@
-using System;
-using System.Linq;
-
 using api.Context;
 using api.Models;
-
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace api.Services

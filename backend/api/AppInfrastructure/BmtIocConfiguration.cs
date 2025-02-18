@@ -20,7 +20,7 @@ public static class BmtIocConfiguration
         services.AddScoped<ClosingRemarkService>();
         services.AddScoped<QuestionTemplateService>();
         services.AddScoped<ProjectCategoryService>();
-        services.AddScoped<BMTScoreService>();
+        services.AddScoped<BmtScoreService>();
         services.AddScoped<IAuthService, AuthService>();
     }
 }

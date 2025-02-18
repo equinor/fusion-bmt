@@ -19,7 +19,7 @@ namespace api.GQL
         private readonly ActionService _actionService;
         private readonly NoteService _noteService;
         private readonly ClosingRemarkService _closingRemarkService;
-        private readonly BMTScoreService _BMTScoreService;
+        private readonly BmtScoreService _BMTScoreService;
 
         /* Admin Services */
         private readonly QuestionTemplateService _questionTemplateService;
@@ -41,7 +41,7 @@ namespace api.GQL
             QuestionTemplateService questionTemplateService,
             ProjectCategoryService projectCategoryService,
             IAuthService authService,
-            BMTScoreService BMTScoreService,
+            BmtScoreService BMTScoreService,
             ILogger<Mutation> logger
         )
         {
@@ -484,13 +484,13 @@ namespace api.GQL
 
         public async Task<List<BMTScore>> GenerateBMTScores()
         {
-            var scores = await _BMTScoreService.GenerateBMTScores();
+            var scores = await _BMTScoreService.GenerateBmtScores();
             return scores;
         }
 
         public async Task<BMTScore> GenerateBMTScore(string projectId)
         {
-            var score = await _BMTScoreService.GenerateBMTScore(projectId);
+            var score = await _BMTScoreService.GenerateBmtScore(projectId);
             return score;
         }
 

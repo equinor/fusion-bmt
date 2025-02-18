@@ -1,15 +1,13 @@
-using api.GQL;
-using api.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.OpenApi.Models;
-using api.Swagger;
-using Microsoft.AspNetCore.Rewrite;
 using System.Globalization;
 using api.AppInfrastructure;
+using api.GQL;
 using api.Helpers;
+using api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Identity.Web;
 
 var cultureInfo = new CultureInfo("en-US");
 

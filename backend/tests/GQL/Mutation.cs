@@ -25,7 +25,7 @@ namespace tests
         protected readonly ActionService _actionService;
         protected readonly NoteService _noteService;
         protected readonly ClosingRemarkService _closingRemarkService;
-        private readonly BMTScoreService _BMTScoreService;
+        private readonly BmtScoreService _BMTScoreService;
 
         /* Admin Services */
         protected readonly QuestionTemplateService _questionTemplateService;
@@ -52,7 +52,7 @@ namespace tests
             _closingRemarkService = new ClosingRemarkService(fixture.context);
             _questionTemplateService = new QuestionTemplateService(fixture.context);
             _projectCategoryService = new ProjectCategoryService(fixture.context);
-            _BMTScoreService = new BMTScoreService(fixture.context);
+            _BMTScoreService = new BmtScoreService(fixture.context);
             _authService = new MockAuthService();
             _mutation = new Mutation(
                 _projectService,
