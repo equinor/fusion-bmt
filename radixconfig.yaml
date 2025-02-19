@@ -69,5 +69,6 @@ spec:
             AppConfiguration__Environment: prod
       secrets:
         - AppConfiguration__ConnectionString
+        - AZURE_CLIENT_ID
         - AzureAd__ClientSecret
-        - Database__ConnectionString
+        - Database__ConnectionString # TODO: remove once azure app config is in use
