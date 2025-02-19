@@ -20,7 +20,7 @@ spec:
       email: radix@statoilsrm.onmicrosoft.com
 
   components:
-    - name: backend
+    - name: backend-acr
       image: fusionbmt.azurecr.io/backend:{imageTagName}
       alwaysPullImageOnDeploy: true
       ports:
@@ -33,8 +33,6 @@ spec:
       environmentConfig:
         - environment: dev
           imageTagName: ci-release
-          variables:
-            AppConfiguration__Environment: "radix-dev"
           resources:
             requests:
               memory: "700Mi"
@@ -44,8 +42,6 @@ spec:
               cpu: "1000m"
         - environment: qa
           imageTagName: qa-release
-          variables:
-            AppConfiguration__Environment: "radix-qa"
           resources:
             requests:
               memory: "700Mi"
@@ -53,14 +49,11 @@ spec:
             limits:
               memory: "3000Mi"
               cpu: "1000m"
-          horizontalScaling:
-            minReplicas: 2
-            maxReplicas: 6
+          variables:
+            ASPNETCORE_ENVIRONMENT: "Production"
+            AppConfiguration__Environment: qa
         - environment: prod
           imageTagName: prod-release
-          variables:
-            AppConfiguration__Environment: "radix-prod"
-            ASPNETCORE_ENVIRONMENT: "Production"
           resources:
             requests:
               memory: "700Mi"
@@ -71,6 +64,9 @@ spec:
           horizontalScaling:
             minReplicas: 2
             maxReplicas: 6
+          variables:
+            ASPNETCORE_ENVIRONMENT: "Production"
+            AppConfiguration__Environment: prod
       secrets:
         - AppConfiguration__ConnectionString
         - AzureAd__ClientSecret
