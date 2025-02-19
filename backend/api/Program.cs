@@ -140,4 +140,5 @@ app.MapHealthChecks("/health").AllowAnonymous();
 app.MapGraphQL();
 app.MapControllers();
 
+Console.WriteLine($"Application started with {BmtEnvironments.CurrentEnvironment} config");
 app.Run();
