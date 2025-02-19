@@ -9,11 +9,6 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Identity.Web;
 
-var cultureInfo = new CultureInfo("en-US");
-
-CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
-
 var builder = WebApplication.CreateBuilder(args);
 BmtEnvironments.CurrentEnvironment = builder.Configuration["AppConfiguration:Environment"] ?? "CI";
 Console.WriteLine($"Loading config for: {BmtEnvironments.CurrentEnvironment}");
