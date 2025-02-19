@@ -1,11 +1,11 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 
 WORKDIR /source
 COPY . .
 WORKDIR /source/api
 RUN dotnet publish -c release -o /app
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
 WORKDIR /app
 COPY --from=build /app ./
 EXPOSE 5000
