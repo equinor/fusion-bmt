@@ -68,5 +68,9 @@ spec:
             ASPNETCORE_ENVIRONMENT: "Production"
             AppConfiguration__Environment: prod
       secrets:
+        - AppConfiguration__ConnectionString
+        - AZURE_CLIENT_ID
+        - AZURE_CLIENT_SECRET
+        - AZURE_TENANT_ID
         - AzureAd__ClientSecret
-        - Database__ConnectionString
+        - Database__ConnectionString # TODO: remove once azure app config is in use
