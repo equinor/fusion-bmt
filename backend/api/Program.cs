@@ -1,4 +1,3 @@
-using System.Globalization;
 using api.AppInfrastructure;
 using api.GQL;
 using api.Helpers;
