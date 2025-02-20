@@ -69,6 +69,6 @@ public static class BmtDatabaseConfiguration
         dbBuilder.UseSqlServer(sqlServerConnectionString);
         using var context = new BmtDbContext(dbBuilder.Options);
 
-        // context.Database.Migrate();
+        context.Database.Migrate();
     }
 }
