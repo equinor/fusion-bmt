@@ -28,7 +28,6 @@ spec:
           port: 5000
       publicPort: http
       variables:
-        ApplicationInsights__InstrumentationKey: 6f08fb54-d348-44cb-9fa6-be2c9e29d419
         ASPNETCORE_ENVIRONMENT: "Development"
       environmentConfig:
         - environment: dev
@@ -74,5 +73,3 @@ spec:
         - AZURE_CLIENT_ID
         - AZURE_CLIENT_SECRET
         - AZURE_TENANT_ID
-        - AzureAd__ClientSecret
-        - Database__ConnectionString # TODO: remove once azure app config is in use
