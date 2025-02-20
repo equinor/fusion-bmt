@@ -1,10 +1,7 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-
 using api.Context;
 using api.Models;
+using Microsoft.EntityFrameworkCore;
+using Barrier = api.Models.Barrier;
 
 namespace api.Services
 {

@@ -1,16 +1,10 @@
-using System;
-using Microsoft.AspNetCore.Http;
-
 using api.Services;
-using api.Models;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace api.Authorization
 {
     public interface IAuthService
     {
-        public string GetOID();
+        public string GetOid();
         public IEnumerable<string> GetRoles();
     }
 
@@ -29,7 +23,7 @@ namespace api.Authorization
             _participantService = participantService;
             _evaluationService = evaluationService;
         }
-        public string GetOID()
+        public string GetOid()
         {
             var httpContext = _contextAccessor.HttpContext;
             string oid = httpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;

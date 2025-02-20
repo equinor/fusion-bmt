@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,6 +18,8 @@ namespace api.Models
         public DateTimeOffset CreateDate { get; set; }
         [Required]
         public virtual ICollection<Evaluation> Evaluations { get; private set; }
+
+        public string Foo { get; set; } = string.Empty;
     }
 
     public class Evaluation

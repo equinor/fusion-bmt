@@ -1,5 +1,3 @@
-using System;
-
 public class NotFoundInDBException : Exception
 {
     public NotFoundInDBException()
