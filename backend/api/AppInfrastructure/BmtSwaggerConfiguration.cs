@@ -1,41 +1,49 @@
+using api.Swagger;
 using Microsoft.OpenApi.Models;
 
 namespace api.AppInfrastructure;
 
 public static class BmtSwaggerConfiguration
 {
-    public static void ConfigureBmtSwagger(this IServiceCollection services)
+    public static void ConfigureBmtSwagger(this WebApplicationBuilder builder)
     {
-        services.AddSwaggerGen(options =>
+        builder.Services.AddSwaggerGen(c =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
+            c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
-                Title = "BMT",
-                Version = "v1"
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
+                {
+                    Implicit = new OpenApiOAuthFlow
+                    {
+                        TokenUrl = new Uri(
+                            $"{builder.Configuration["AzureAd:Instance"]}/{builder.Configuration["AzureAd:TenantId"]}/oauth2/token"),
+                        AuthorizationUrl =
+                            new Uri(
+                                $"{builder.Configuration["AzureAd:Instance"]}/{builder.Configuration["AzureAd:TenantId"]}/oauth2/authorize"),
+                        Scopes =
+                        {
+                            {
+                                $"api://{builder.Configuration["AzureAd:ClientId"]}/user_impersonation",
+                                "User Impersonation"
+                            }
+                        }
+                    }
+                }
             });
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer eyJ0eXAiOiJKV1\""
-            });
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
-                    new OpenApiSecurityScheme
+                    new OpenApiSecurityScheme()
                     {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
                     },
                     Array.Empty<string>()
                 }
             });
+            c.DocumentFilter<GraphEndpoint>();
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "api", Version = "v1" });
         });
     }
 }

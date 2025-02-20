@@ -19,7 +19,6 @@ builder.ConfigureBmtLogging();
 
 builder.Services.AddBmtCorsPolicy();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-// builder.Services.AddControllers(options => options.Conventions.Add(new RouteTokenTransformerConvention(new DcdApiEndpointTransformer())));
 
 builder.Services.AddGraphQLServer()
     .AddProjections()
@@ -31,7 +30,7 @@ builder.Services.AddGraphQLServer()
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.ConfigureBmtSwagger();
+builder.ConfigureBmtSwagger();
 
 builder.Services.AddResponseCompression(options =>
 {
@@ -40,15 +39,8 @@ builder.Services.AddResponseCompression(options =>
     options.Providers.Add<GzipCompressionProvider>();
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+builder.AddBmtAuthentication();
+builder.Services.AddBmtAuthorization();
 
 builder.Services.AddBmtIocConfiguration();
 
@@ -58,47 +50,11 @@ builder.Services.AddErrorFilter<ErrorFilter>();
 
 builder.Services.AddHealthChecks().AddCheck<EvaluationService>("ModelsFromDB");
 
-// builder.Services.AddSwaggerGen(c =>
-// {
-//     c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-//     {
-//         Type = SecuritySchemeType.OAuth2,
-//         Flows = new OpenApiOAuthFlows
-//         {
-//             Implicit = new OpenApiOAuthFlow
-//             {
-//                 TokenUrl = new Uri(
-//                     $"{builder.Configuration["AzureAd:Instance"]}/{builder.Configuration["AzureAd:TenantId"]}/oauth2/token"),
-//                 AuthorizationUrl =
-//                     new Uri(
-//                         $"{builder.Configuration["AzureAd:Instance"]}/{builder.Configuration["AzureAd:TenantId"]}/oauth2/authorize"),
-//                 Scopes =
-//                 {
-//                     { $"api://{builder.Configuration["AzureAd:ClientId"]}/user_impersonation", "User Impersonation" }
-//                 }
-//             }
-//         }
-//     });
-//
-//     c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//     {
-//         {
-//             new OpenApiSecurityScheme()
-//             {
-//                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-//             },
-//             Array.Empty<string>()
-//         }
-//     });
-//     c.DocumentFilter<GraphEndpoint>();
-//     c.SwaggerDoc("v1", new OpenApiInfo { Title = "api", Version = "v1" });
-// });
-
 var app = builder.Build();
 
 app.Logger.LogInformation("Starting application...");
 
-if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Test")
+if (BmtEnvironments.ShowDebugInfo)
 {
     app.Logger.LogInformation($"Configuring for {app.Environment.EnvironmentName} environment");
     app.UseDeveloperExceptionPage();
