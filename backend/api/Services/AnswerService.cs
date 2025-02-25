@@ -80,7 +80,7 @@ namespace api.Services
 
             if (answer == null)
             {
-                throw new NotFoundInDBException($"Answer not found for question {question.Id} for participant {participant.Id} and progression {progression}");
+                throw new NotFoundInDBException($"Answer not found for question {question.Id} for participant {participant?.Id} and progression {progression}");
             }
             return answer;
         }

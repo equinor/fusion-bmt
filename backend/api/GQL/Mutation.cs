@@ -286,15 +286,29 @@ namespace api.GQL
             }
             catch (NotFoundInDBException)
             {
-                if (currentUser != null)
+                if (currentUser == null && isAdmin)
                 {
-                    answer = _answerService.Create(currentUser, question, severity, text, progression);
+                    var azureUniqueId = _authService.GetOid();
+                    var newUser = _participantService.Create(
+                        azureUniqueId: azureUniqueId,
+                        evaluation: evaluation,
+                        organization: Organization.All,
+                        role: Role.Facilitator
+                    );
+                    answer = _answerService.Create(newUser, question, severity, text, progression);
                 }
                 else
                 {
-                    throw new Exception($"You must be a participant in order to create answers");
-                }
+                    if (currentUser != null)
+                    {
+                        answer = _answerService.Create(currentUser, question, severity, text, progression);
+                    }
+                    else
+                    {
+                        throw new Exception($"You must be a participant in order to create answers");
+                    }
 
+                }
                 UpdateEvaluationIndicatorActivity(evaluation);
             }
 
