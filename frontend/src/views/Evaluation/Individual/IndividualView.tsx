@@ -14,6 +14,8 @@ import { useFilter } from '../../../utils/hooks'
 import OrganizationFilter from '../../../components/OrganizationFilter'
 import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../utils/disableComponents'
 import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
+import { getCachedRoles } from '../../../utils/helpers'
 
 interface IndividualViewProps {
     evaluation: Evaluation
@@ -25,6 +27,9 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
     const [selectedBarrier, setSelectedBarrier] = React.useState<Barrier>(Barrier.Gm)
     const headerRef = React.useRef<HTMLElement>(null)
     const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
+
+    const currentUser = useCurrentUser()
+    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
 
     const questions = evaluation.questions
     const barrierQuestions = questions.filter(q => q.barrier === selectedBarrier)
@@ -93,7 +98,7 @@ const IndividualView = ({ evaluation, onNextStepClick, onProgressParticipant }: 
                         questions={barrierQuestions}
                         organizationFilter={organizationFilter}
                         viewProgression={viewProgression}
-                        disable={disableAnswer(participant, evaluation, viewProgression)}
+                        disable={disableAnswer(participant, evaluation, viewProgression, userIsAdmin)}
                     />
                 </Box>
             </Box>

@@ -39,13 +39,13 @@ namespace api.Services
             return newAnswer;
         }
 
-        public Answer GetAnswer(Question question, Participant participant, Progression progression)
+        public Answer GetAnswer(Question question, Participant participant, Progression progression, bool isAdmin = false)
         {
             if (question == null)
             {
                 throw new ArgumentNullException(nameof(question));
             }
-            if (participant == null)
+            if (participant == null && !isAdmin)
             {
                 throw new ArgumentNullException(nameof(participant));
             }
@@ -64,7 +64,7 @@ namespace api.Services
              * this generic GetAnswer method. We should strongly consider adding
              * a seperate API endpoint for this to avoid confusion.
              */
-            if (participant.Role == Role.Facilitator &&
+            if ((isAdmin || participant.Role == Role.Facilitator) &&
                 progression >= Progression.Workshop)
             {
                 answer = answers.FirstOrDefault(answer =>

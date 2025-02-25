@@ -44,7 +44,22 @@ export const disableCompleteSwitch = (participant: Participant | undefined, eval
     }
 }
 
-export const disableAnswer = (participant: Participant | undefined, evaluation: Evaluation, viewProgression: Progression) => {
+export const disableAnswer = (
+    participant: Participant | undefined,
+    evaluation: Evaluation,
+    viewProgression: Progression,
+    isAdmin: boolean
+) => {
+    if (isAdmin) {
+        /* Admins can edit answers in followup and followup completed */
+        if (viewProgression === Progression.FollowUp && evaluation.progression === Progression.Finished) {
+            return false
+        }
+        if (viewProgression === Progression.FollowUp && evaluation.progression === Progression.FollowUp) {
+            return false
+        }
+    }
+
     if (!participant) {
         return true
     }

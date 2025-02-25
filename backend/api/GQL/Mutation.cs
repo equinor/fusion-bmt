@@ -147,7 +147,8 @@ namespace api.GQL
 
             if (evaluation.Progression != Progression.FollowUp && evaluation.Progression != Progression.Finished)
             {
-                string msg = "Evaluation must be in FollowUp or Finished progression to set as active indicator for project";
+                string msg =
+                    "Evaluation must be in FollowUp or Finished progression to set as active indicator for project";
                 throw new InvalidOperationException(msg);
             }
 
@@ -176,7 +177,8 @@ namespace api.GQL
             return progressedParticipant;
         }
 
-        public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization, Role role)
+        public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization,
+            Role role)
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
@@ -211,16 +213,19 @@ namespace api.GQL
                 destinationProject = _projectService.Create(destinationProjectExternalId, destinationProjectFusionId);
                 _logger.LogInformation($"Created new project with externalId: {destinationProjectExternalId}");
             }
-            Evaluation updatedEvaluation = _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
+
+            Evaluation updatedEvaluation =
+                _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
             return updatedEvaluation;
         }
+
         public Participant DeleteParticipant(string participantId)
         {
             Evaluation evaluation = _participantService.GetAll()
-                .Where(p => p.Id.Equals(participantId))
-                .Select(p => p.Evaluation)
-                .First()
-            ;
+                    .Where(p => p.Id.Equals(participantId))
+                    .Select(p => p.Evaluation)
+                    .First()
+                ;
 
             Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
             AssertCanPerformMutation(evaluation, canBePerformedBy);
@@ -231,15 +236,14 @@ namespace api.GQL
             if (subject.Role.Equals(Role.Facilitator))
             {
                 int facilitators = evaluation.Participants
-                    .Where(p => p.Role.Equals(Role.Facilitator))
-                    .Count()
-                ;
+                        .Where(p => p.Role.Equals(Role.Facilitator))
+                        .Count()
+                    ;
 
                 if (facilitators < 2)
                 {
                     string msg = "Cannot delete last Facilitator in Evaluation";
                     throw new InvalidOperationException(msg);
-
                 }
             }
 
@@ -253,13 +257,19 @@ namespace api.GQL
             Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
 
             Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
 
-            Participant currentUser = CurrentUser(evaluation);
+            var isAdmin = _authService.GetRoles().Contains("Role.Admin");
+
+            if (!isAdmin)
+            {
+                AssertCanPerformMutation(evaluation, canBePerformedBy);
+            }
+
+            Participant currentUser = CurrentUser(evaluation, isAdmin);
             Answer answer;
             try
             {
-                answer = _answerService.GetAnswer(question, currentUser, progression);
+                answer = _answerService.GetAnswer(question, currentUser, progression, isAdmin);
                 var previousSeverity = answer.Severity;
                 _answerService.UpdateAnswer(answer, severity, text);
 
@@ -270,7 +280,15 @@ namespace api.GQL
             }
             catch (NotFoundInDBException)
             {
-                answer = _answerService.Create(currentUser, question, severity, text, progression);
+                if (currentUser != null)
+                {
+                    answer = _answerService.Create(currentUser, question, severity, text, progression);
+                }
+                else
+                {
+                    throw new Exception($"You must be a participant in order to create answers");
+                }
+
                 UpdateEvaluationIndicatorActivity(evaluation);
             }
 
@@ -297,7 +315,8 @@ namespace api.GQL
             _evaluationService.SetIndicatorActivity(evaluation);
         }
 
-        public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate, Priority priority, string title)
+        public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate,
+            Priority priority, string title)
         {
             IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
             Question question = queryableQuestion.First();
@@ -308,10 +327,12 @@ namespace api.GQL
 
             Participant assignedTo = _participantService.GetParticipant(assignedToId);
 
-            return _actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority, question);
+            return _actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority,
+                question);
         }
 
-        public Action EditAction(string actionId, string assignedToId, string description, DateTimeOffset dueDate, string title, bool onHold, bool completed, Priority priority)
+        public Action EditAction(string actionId, string assignedToId, string description, DateTimeOffset dueDate,
+            string title, bool onHold, bool completed, Priority priority)
         {
             IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
             Action action = queryableAction.First();
@@ -322,7 +343,8 @@ namespace api.GQL
 
             Participant assignedTo = _participantService.GetParticipant(assignedToId);
 
-            return _actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed, priority);
+            return _actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed,
+                priority);
         }
 
         public Action VoidAction(string actionId)
@@ -390,7 +412,8 @@ namespace api.GQL
         [Authorize(Roles = new[] { adminRole })]
         public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
         {
-            var other = _projectCategoryService.GetAll().Include(x => x.QuestionTemplates).Single(x => x.Id == projectCategoryId);
+            var other = _projectCategoryService.GetAll().Include(x => x.QuestionTemplates)
+                .Single(x => x.Id == projectCategoryId);
             return _projectCategoryService.CopyFrom(newName, other);
         }
 
@@ -425,10 +448,10 @@ namespace api.GQL
         )
         {
             var questionTemplate = _questionTemplateService
-                .GetAll()
-                .Include(x => x.ProjectCategories)
-                .Single(x => x.Id == questionTemplateId)
-            ;
+                    .GetAll()
+                    .Include(x => x.ProjectCategories)
+                    .Single(x => x.Id == questionTemplateId)
+                ;
             return _questionTemplateService.Edit(
                 questionTemplate,
                 barrier,
@@ -459,7 +482,8 @@ namespace api.GQL
             }
             else
             {
-                QuestionTemplate newNextQuestionTemplate = _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
+                QuestionTemplate newNextQuestionTemplate =
+                    _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
                 return _questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
             }
         }
@@ -495,10 +519,10 @@ namespace api.GQL
         }
 
         /* Helpers */
-        private Participant CurrentUser(Evaluation evaluation)
+        private Participant CurrentUser(Evaluation evaluation, bool isAdmin = false)
         {
             string azureUniqueId = _authService.GetOid();
-            return _participantService.GetParticipant(azureUniqueId, evaluation);
+            return _participantService.GetParticipant(azureUniqueId, evaluation, isAdmin);
         }
 
         private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles)
@@ -520,7 +544,9 @@ namespace api.GQL
             {
                 string msg = "{0} are not allowed to perform this operation";
                 throw new UnauthorizedAccessException(String.Format(msg, userRoleInEvaluation));
-            };
+            }
+
+            ;
         }
     }
 }

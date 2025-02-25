@@ -35,10 +35,8 @@ export const findCorrectAnswer = (
     }
 }
 
-export const useSharedFacilitatorAnswer = (progression: Progression) => {
-    const correctProgression = !!(progression == Progression.Workshop || progression == Progression.FollowUp)
-
-    return correctProgression
+export const useSharedFacilitatorAnswer = (progression: Progression): boolean => {
+    return progression === Progression.Workshop || progression === Progression.FollowUp
 }
 
 export const selectSeverity = (severityCount: SeverityCount) => {
