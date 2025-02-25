@@ -182,8 +182,14 @@ namespace api.GQL
         {
             Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
 
-            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+            var isAdmin = _authService.GetRoles().Contains("Role.Admin");
+
+            if (!isAdmin)
+            {
+                Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
+                AssertCanPerformMutation(evaluation, canBePerformedBy);
+            }
 
             return _participantService.Create(azureUniqueId, evaluation, organization, role);
         }
@@ -545,8 +551,6 @@ namespace api.GQL
                 string msg = "{0} are not allowed to perform this operation";
                 throw new UnauthorizedAccessException(String.Format(msg, userRoleInEvaluation));
             }
-
-            ;
         }
     }
 }
