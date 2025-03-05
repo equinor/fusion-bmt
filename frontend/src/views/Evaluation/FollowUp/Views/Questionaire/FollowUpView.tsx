@@ -2,6 +2,7 @@ import React from 'react'
 
 import { Box } from '@mui/material'
 import { Button, Typography } from '@equinor/eds-core-react'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
 
 import { Barrier, Evaluation, Question, Progression, Severity, Organization } from '../../../../../api/models'
 import { barrierToString, progressionToString } from '../../../../../utils/EnumToString'
@@ -17,6 +18,7 @@ import QuestionProgressionFollowUpSidebar from '../../components/QuestionProgres
 import QuestionsList from '../../../../../components/QuestionsList'
 import OrganizationFilter from '../../../../../components/OrganizationFilter'
 import AnswerSummarySidebar from '../../../../../components/AnswerSummarySidebar'
+import { getCachedRoles } from '../../../../../utils/helpers'
 
 interface FollowUpViewProps {
     evaluation: Evaluation
@@ -29,6 +31,8 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
     const { filter: severityFilter, onFilterToggled: onSeverityFilterToggled } = useFilter<Severity>()
     const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
     const headerRef = React.useRef<HTMLElement>(null)
+    const currentUser = useCurrentUser()
+    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
 
     const questions = evaluation.questions
     const viewProgression = Progression.FollowUp
@@ -114,9 +118,8 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
                         onScroll(selectedQuestion, tablistPositionBottom, barrierQuestions, onQuestionSummarySelected)
                     }}
                     style={{
-                        height: `calc(100vh - ${
-                            tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
-                        }px)`,
+                        height: `calc(100vh - ${tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
+                            }px)`,
                         overflow: 'scroll',
                     }}
                 >
@@ -158,7 +161,7 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
                         organizationFilter={organizationFilter}
                         questions={barrierQuestions}
                         viewProgression={viewProgression}
-                        disable={disableAnswer(participant, evaluation, viewProgression)}
+                        disable={disableAnswer(participant, evaluation, viewProgression, userIsAdmin)}
                         onQuestionSummarySelected={onQuestionSummarySelected}
                     />
                 </Box>

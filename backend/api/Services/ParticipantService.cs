@@ -55,7 +55,7 @@ namespace api.Services
             return participant;
         }
 
-        public Participant GetParticipant(string azureUniqueId, Evaluation evaluation)
+        public Participant GetParticipant(string azureUniqueId, Evaluation evaluation, bool isAdmin = false)
         {
             if (evaluation == null)
             {
@@ -67,7 +67,7 @@ namespace api.Services
                 && participant.Evaluation.Equals(evaluation)
             );
 
-            if (participant == null)
+            if (participant == null && !isAdmin)
             {
                 throw new NotFoundInDBException($"Participant not found: azure id: {azureUniqueId}, evaluation id: {evaluation.Id}");
             }

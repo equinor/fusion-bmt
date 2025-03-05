@@ -18,6 +18,8 @@ import { countSeverities } from '../../../../utils/Severity'
 import { hasSeverity, hasOrganization, toggleFilter } from '../../../../utils/QuestionAndAnswerUtils'
 import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../../utils/disableComponents'
 import { participantCanProgressEvaluation } from '../../../../utils/RoleBasedAccess'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
+import { getCachedRoles } from '../../../../utils/helpers'
 
 interface WorkshopViewProps {
     evaluation: Evaluation
@@ -30,6 +32,9 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
     const { filter: severityFilter, onFilterToggled: onSeverityFilterToggled } = useFilter<Severity>()
+
+    const currentUser = useCurrentUser()
+    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
 
     const headerRef = React.useRef<HTMLElement>(null)
 
@@ -129,9 +134,8 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                         onScroll(selectedQuestion, tablistPositionBottom, barrierQuestions, onQuestionSummarySelected)
                     }}
                     style={{
-                        height: `calc(100vh - ${
-                            tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
-                        }px)`,
+                        height: `calc(100vh - ${tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
+                            }px)`,
                         overflow: 'scroll',
                     }}
                 >
@@ -179,7 +183,7 @@ const WorkshopView = ({ evaluation, onNextStepClick, onProgressParticipant }: Wo
                         organizationFilter={organizationFilter}
                         questions={barrierQuestions}
                         viewProgression={viewProgression}
-                        disable={disableAnswer(participant, evaluation, viewProgression)}
+                        disable={disableAnswer(participant, evaluation, viewProgression, userIsAdmin)}
                         onQuestionSummarySelected={onQuestionSummarySelected}
                     />
                 </Box>

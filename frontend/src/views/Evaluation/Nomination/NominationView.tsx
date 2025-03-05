@@ -203,7 +203,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                         onClick={() => {
                             setPanelOpen(true)
                         }}
-                        disabled={!participantCanAddParticipant(participant)}
+                        disabled={!participantCanAddParticipant(participant) && !isAdmin}
                     >
                         Add Person
                     </Button>
@@ -285,7 +285,7 @@ const NominationView = ({ evaluation, onNextStep }: NominationViewProps) => {
                 currentNominees={participants}
                 createParticipantLoading={createParticipantLoading}
             />
-            <Snackbar 
+            <Snackbar
                 open={showErrorMessage}
                 placement="top"
                 onClose={() => setShowErrorMessage(false)}

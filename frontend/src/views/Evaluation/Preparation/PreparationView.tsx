@@ -19,6 +19,8 @@ import { countSeverities } from '../../../utils/Severity'
 import { hasSeverity, hasOrganization, toggleFilter } from '../../../utils/QuestionAndAnswerUtils'
 import { disableAnswer, disableCompleteSwitch, disableProgression } from '../../../utils/disableComponents'
 import { participantCanProgressEvaluation } from '../../../utils/RoleBasedAccess'
+import { useCurrentUser } from '@equinor/fusion-framework-react/hooks'
+import { getCachedRoles } from '../../../utils/helpers'
 
 interface PreparationViewProps {
     evaluation: Evaluation
@@ -31,6 +33,9 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
     const [selectedQuestion, setSelectedQuestion] = React.useState<Question | undefined>(undefined)
     const { filter: organizationFilter, onFilterToggled: onOrganizationFilterToggled } = useFilter<Organization>()
     const { filter: severityFilter, onFilterToggled: onSeverityFilterToggled } = useFilter<Severity>()
+
+    const currentUser = useCurrentUser()
+    const userIsAdmin = currentUser && getCachedRoles()?.includes('Role.Admin') ? true : false
 
     const headerRef = React.useRef<HTMLElement>(null)
 
@@ -130,9 +135,8 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                         onScroll(selectedQuestion, tablistPositionBottom, barrierQuestions, onQuestionSummarySelected)
                     }}
                     style={{
-                        height: `calc(100vh - ${
-                            tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
-                        }px)`,
+                        height: `calc(100vh - ${tablistPositionBottom + boxPaddingTopPlusBottom + tabsPanelPadding + extraPixelToAvoidScrollbar
+                            }px)`,
                         overflow: 'scroll',
                     }}
                 >
@@ -179,7 +183,7 @@ const PreparationView = ({ evaluation, onNextStepClick, onProgressParticipant }:
                         severityFilter={severityFilter}
                         organizationFilter={organizationFilter}
                         viewProgression={viewProgression}
-                        disable={disableAnswer(participant, evaluation, viewProgression)}
+                        disable={disableAnswer(participant, evaluation, viewProgression, userIsAdmin)}
                         onQuestionSummarySelected={onQuestionSummarySelected}
                     />
                 </Box>
