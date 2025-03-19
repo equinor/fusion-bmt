@@ -118,17 +118,19 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             })
         }
 
-    const searchPersons = () => {
+    const searchPersons = async () => {
         if (searchQuery) {
             setIsSearching(true)
-            apiClients.search(searchQuery)
-                .then(res => {
-                    const result = apiResponseToPersonDetails(res)
-                    setSearchResults(result)
-                })
-                .finally(() => {
-                    setIsSearching(false)
-                })
+            try {
+                // Add @equinor.com to search query to return only employees with Equinor emails
+                const res = await apiClients.search(searchQuery + ' @equinor.com')
+                const result = apiResponseToPersonDetails(res)
+                setSearchResults(result)
+            } catch (error) {
+                console.error('Error searching persons:', error)
+            } finally {
+                setIsSearching(false)
+            }
         }
     }
 
@@ -143,8 +145,8 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             minWidth={550}
             onClose={onCloseClick}
         >
-            <SideSheet.Title title="Create Evaluation" />
-            <SideSheet.SubTitle subTitle="Create a new evaluation" />
+            <SideSheet.Title title="Add nominee" />
+            <SideSheet.SubTitle subTitle="" />
             <SideSheet.Content>
                 <Wrapper data-testid="nominee_dialog_body">
                     <SearchableDropdown
