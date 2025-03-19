@@ -78,10 +78,15 @@ const ActionEditForm = ({
     const { showErrorMessage: showClosingNoteErrorMessage, setShowErrorMessage: setShowClosingNoteErrorMessage } =
         useShowErrorHook(apiErrorClosingRemark)
 
-    const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails.azureId,
-        title: personDetails.name,
-    }))
+    const [assigneesOptions, setAssigneesOptions] = useState<{ id: string; title: string | undefined }[]>([])
+
+    useEffect(() => {
+        const options = possibleAssigneesDetails.map(personDetails => ({
+            id: personDetails.azureId,
+            title: personDetails.name,
+        }))
+        setAssigneesOptions(options)
+    }, [possibleAssigneesDetails])
 
     const createdDateString = new Date(action.createDate).toLocaleDateString()
 
