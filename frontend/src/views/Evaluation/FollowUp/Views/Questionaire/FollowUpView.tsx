@@ -143,7 +143,7 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
                                 />
                             </Box>
                             <Box flexDirection="row" mt={1} display="flex" justifyContent="flex-end">
-                                {participantCanProgressEvaluation(participant) || userIsAdmin && (
+                                {(participantCanProgressEvaluation(participant) || userIsAdmin) && (
                                     <Button
                                         style={{ marginLeft: '20px' }}
                                         onClick={onNextStepClick}
