@@ -2,52 +2,47 @@ using api.Context;
 using api.Models;
 using Action = api.Models.Action;
 
-namespace api.Services
+namespace api.Services;
+
+public class ClosingRemarkService(BmtDbContext context)
 {
-    public class ClosingRemarkService
+    public ClosingRemark Create(
+        Participant createdBy,
+        string text,
+        Action action
+    )
     {
-        private readonly BmtDbContext _context;
+        var createDate = DateTimeOffset.UtcNow;
 
-        public ClosingRemarkService(BmtDbContext context)
+        var newClosingRemark = new ClosingRemark
         {
-            _context = context;
+            CreateDate = createDate,
+            Text = text,
+            CreatedBy = createdBy,
+            Action = action
+        };
+
+        context.ClosingRemarks.Add(newClosingRemark);
+
+        context.SaveChanges();
+
+        return newClosingRemark;
+    }
+
+    public IQueryable<ClosingRemark> GetAll()
+    {
+        return context.ClosingRemarks;
+    }
+
+    public ClosingRemark GetClosingRemark(string closingRemarkId)
+    {
+        var ClosingRemark = context.ClosingRemarks.FirstOrDefault(closingRemark => closingRemark.Id.Equals(closingRemarkId));
+
+        if (ClosingRemark == null)
+        {
+            throw new NotFoundInDBException($"ClosingRemark not found: {closingRemarkId}");
         }
 
-        public ClosingRemark Create(
-            Participant createdBy,
-            string text,
-            Action action
-        )
-        {
-            DateTimeOffset createDate = DateTimeOffset.UtcNow;
-
-            ClosingRemark newClosingRemark = new ClosingRemark
-            {
-                CreateDate = createDate,
-                Text = text,
-                CreatedBy = createdBy,
-                Action = action
-            };
-
-            _context.ClosingRemarks.Add(newClosingRemark);
-
-            _context.SaveChanges();
-            return newClosingRemark;
-        }
-
-        public IQueryable<ClosingRemark> GetAll()
-        {
-            return _context.ClosingRemarks;
-        }
-
-        public ClosingRemark GetClosingRemark(string closingRemarkId)
-        {
-            ClosingRemark ClosingRemark = _context.ClosingRemarks.FirstOrDefault(closingRemark => closingRemark.Id.Equals(closingRemarkId));
-            if (ClosingRemark == null)
-            {
-                throw new NotFoundInDBException($"ClosingRemark not found: {closingRemarkId}");
-            }
-            return ClosingRemark;
-        }
+        return ClosingRemark;
     }
 }

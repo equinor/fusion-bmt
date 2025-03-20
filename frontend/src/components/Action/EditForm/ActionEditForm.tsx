@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Icon, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
 import { Grid } from '@mui/material'
 import styled from 'styled-components'
-import { Action, Participant, Priority, Question } from '../../../api/models'
+import { Action, Organization, Participant, Priority, Progression, Question, Role } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useEffectNotOnMount, useShowErrorHook } from '../../../utils/hooks'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
@@ -13,8 +13,7 @@ import { ApolloError } from '@apollo/client'
 import ErrorBanner from '../../ErrorBanner'
 import { genericErrorMessage } from '../../../utils/Variables'
 import { toCapitalizedCase } from '../../../utils/helpers'
-import SearchableDropdown from '../../../components/SearchableDropDown'
-import { PersonDetails } from '@equinor/fusion-react-person'
+import { PersonSelect, PersonSelectEvent } from '@equinor/fusion-react-person'
 
 
 const StyledDate = styled(Typography)`
@@ -38,7 +37,6 @@ interface Props {
     action: Action
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    possibleAssigneesDetails: PersonDetails[]
     onEditShouldDelay: (action: Action, isValid: boolean) => void
     onEditShouldNotDelay: (action: Action, isValid: boolean) => void
     createClosingRemark: (text: string) => void
@@ -52,7 +50,6 @@ const ActionEditForm = ({
     action,
     connectedQuestion,
     possibleAssignees,
-    possibleAssigneesDetails,
     onEditShouldDelay,
     onEditShouldNotDelay,
     isClosingRemarkSaved,
@@ -65,7 +62,9 @@ const ActionEditForm = ({
     const [titleValidity, setTitleValidity] = useState<Validity>()
 
     const [assignedToId, setAssignedToId] = useState<string | undefined>(action.assignedTo?.azureUniqueId)
-    const assignedTo: Participant | undefined = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+    const [assignedTo, setAssignedTo] = useState<Participant | undefined>(
+        possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+    )
     const [assignedToValidity, setAssignedToValidity] = useState<Validity>()
 
     const [dueDate, setDueDate] = useState<Date>(new Date(action.dueDate))
@@ -78,27 +77,36 @@ const ActionEditForm = ({
     const { showErrorMessage: showClosingNoteErrorMessage, setShowErrorMessage: setShowClosingNoteErrorMessage } =
         useShowErrorHook(apiErrorClosingRemark)
 
-    const assigneesOptions = possibleAssigneesDetails.map(personDetails => ({
-        id: personDetails.azureId,
-        title: personDetails.name,
-    }))
-
     const createdDateString = new Date(action.createDate).toLocaleDateString()
 
-    const checkAndUpdateValidity = () => {
-        const isTitleValid = checkIfTitleValid(title)
-        const isParticipantValid = checkIfParticipantValid(assignedTo)
-        if (!isTitleValid || !isParticipantValid) {
-            if (!isTitleValid) {
-                setTitleValidity('error')
-            }
-            if (!isParticipantValid) {
-                setAssignedToValidity('error')
-            }
-            return false
-        }
-        return true
+    const checkAndUpdateValidity = (): boolean => {
+        const isValid = checkIfTitleValid(title)
+        setTitleValidity(isValid ? 'success' : 'error')
+        return isValid
     }
+
+    useEffect(() => {
+        const foundAssignee = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+        setAssignedTo(foundAssignee)
+    }, [possibleAssignees])
+
+    // If user assigned is not in the list of possible assignees, create a new participant
+    useEffect(() => {
+        const evaluation = possibleAssignees[0].evaluation
+        if (assignedToId && !possibleAssignees.find(a => a.azureUniqueId === assignedToId)) {
+            const newParticipant: Participant = {
+                azureUniqueId: assignedToId,
+                createDate: new Date().toISOString(),
+                id: '',
+                evaluation: evaluation,
+                evaluationId: '',
+                organization: Organization.All,
+                role: Role.Participant,
+                progression: Progression.Nomination
+            }
+            setAssignedTo(newParticipant)
+        }
+    }, [assignedToId])
 
     useEffectNotOnMount(() => {
         const isValid = checkAndUpdateValidity()
@@ -160,6 +168,11 @@ const ActionEditForm = ({
         setCompletingReason(completingReason + '[text](url)')
     }
 
+    const onAssigneeSelected = (e: PersonSelectEvent) => {
+        const selectedPersonId = e.nativeEvent.detail.selected?.azureId
+        setAssignedToId(selectedPersonId)
+    }
+
     return (
         <>
             <Grid container spacing={3}>
@@ -192,22 +205,21 @@ const ActionEditForm = ({
                         disabled={disableEditAction}
                     />
                 </Grid>
-                <Grid item xs={5}>
-                    <SearchableDropdown
-                        label="Assignee"
-                        options={assigneesOptions}
-                        value={assigneesOptions.find(option => option.id === assignedToId)?.title}
-                        onSelect={(option) => {
-                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                            setAssignedToId(selectedOption.id)
-                        }}
-                        searchQuery={async (searchTerm: string) => {
-                            return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
-                        } }
+                <Grid item xs={12}>
+                    <PersonSelect
+                        selectedPerson={assignedToId}
+                        dropdownHeight="300px"
+                        initialText="The initial text result"
+                        leadingIcon="search"
+                        onDropdownClosed={function Ki() { }}
+                        onSelect={onAssigneeSelected}
+                        placeholder="Start to type to search..."
+                        variant="page"
+                        value=' @equinor.com '
                     />
                 </Grid>
-                <Grid item xs={4}>
-                     <TextField
+                <Grid item xs={6}>
+                    <TextField
                         label='Due date'
                         id='dueDate'
                         type='date'
@@ -217,8 +229,8 @@ const ActionEditForm = ({
                         value={dueDate.toISOString().slice(0, 10)}
                     />
                 </Grid>
-                <Grid item xs={3}>
-                 <NativeSelect
+                <Grid item xs={6}>
+                    <NativeSelect
                         label="Priority"
                         id="priority-select"
                         disabled={disableEditAction}

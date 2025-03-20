@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Button, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
 import { Grid } from '@mui/material'
-import { Participant, Priority, Question } from '../../../api/models'
+import { Organization, Participant, Priority, Progression, Question, Role } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
 import { DataToCreateAction } from './ActionCreateSidebarWithApi'
 import ButtonWithSaveIndicator from '../../ButtonWithSaveIndicator'
-import SearchableDropdown from '../../../components/SearchableDropDown'
 import { toCapitalizedCase } from '../../../utils/helpers'
-import { PersonDetails } from '@equinor/fusion-react-person'
+import { PersonDetails, PersonSelect, PersonSelectEvent } from '@equinor/fusion-react-person'
 
 interface Props {
     connectedQuestion: Question
@@ -33,7 +32,9 @@ const ActionCreateForm = ({
     const [titleValidity, setTitleValidity] = useState<Validity>()
 
     const [assignedToId, setAssignedToId] = useState<string | undefined>(undefined)
-    const assignedTo: Participant | undefined = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+    const [assignedTo, setAssignedTo] = useState<Participant | undefined>(
+        possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+    )
     const [assignedToValidity, setAssignedToValidity] = useState<Validity>()
 
     const [dueDate, setDueDate] = useState<Date>(new Date())
@@ -44,6 +45,29 @@ const ActionCreateForm = ({
         id: personDetails?.azureId,
         title: personDetails?.name,
     }))
+
+    useEffect(() => {
+        const foundAssignee = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+        setAssignedTo(foundAssignee)
+    }, [possibleAssignees])
+
+    // If user assigned is not in the list of possible assignees, create a new participant
+    useEffect(() => {
+        const evaluation = possibleAssignees[0].evaluation
+        if (assignedToId && !possibleAssignees.find(a => a.azureUniqueId === assignedToId)) {
+            const newParticipant: Participant = {
+                azureUniqueId: assignedToId,
+                createDate: new Date().toISOString(),
+                id: '',
+                evaluation: evaluation,
+                evaluationId: '',
+                organization: Organization.All,
+                role: Role.Participant,
+                progression: Progression.Nomination
+            }
+            setAssignedTo(newParticipant)
+        }
+    }, [assignedToId])
 
     useEffect(() => {
         if (titleValidity === 'error') {
@@ -86,17 +110,23 @@ const ActionCreateForm = ({
 
     const onLocalCreateClick = () => {
         const valid = setFormValidity()
-        if (valid) {
+        if (valid && assignedTo && assignedToId) {
             const newAction: DataToCreateAction = {
                 title,
                 dueDate,
                 priority,
                 description,
+                azureUniqueId: assignedToId,
                 assignedToId: assignedTo!.id,
                 questionId: connectedQuestion.id,
             }
             onActionCreate(newAction)
         }
+    }
+
+    const onAssigneeSelected = (e: PersonSelectEvent) => {
+        const selectedPersonId = e.nativeEvent.detail.selected?.azureId
+        setAssignedToId(selectedPersonId)
     }
 
     return (
@@ -116,18 +146,17 @@ const ActionCreateForm = ({
                         helperIcon={titleValidity === 'error' ? ErrorIcon : <></>}
                     />
                 </Grid>
-                <Grid item xs={5}>
-                    <SearchableDropdown
-                        label="Assignee"
-                        value={assigneesOptions.find(option => option.id === assignedToId)?.title}
-                        options={assigneesOptions}
-                        onSelect={(option) => {
-                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                            setAssignedToId(selectedOption.id)
-                        }}
-                        searchQuery={async (searchTerm: string) => {
-                            return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
-                        }}
+                <Grid item xs={12}>
+                    <PersonSelect
+                        selectedPerson={assignedToId}
+                        dropdownHeight="300px"
+                        initialText="The initial text result"
+                        leadingIcon="search"
+                        onDropdownClosed={function Ki() { }}
+                        onSelect={onAssigneeSelected}
+                        placeholder="Start to type to search..."
+                        variant="page"
+                        value=' @equinor.com '
                     />
                 </Grid>
                 <Grid item xs={4}>

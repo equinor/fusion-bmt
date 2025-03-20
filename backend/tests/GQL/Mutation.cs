@@ -176,6 +176,7 @@ namespace tests
             Action action = _mutation.CreateAction(
                 questionId: questionId,
                 assignedToId: assignedToId,
+                azureUniqueId: null,
                 description: description,
                 dueDate: dueDate.GetValueOrDefault(System.DateTimeOffset.Now),
                 priority: priority.GetValueOrDefault(Randomize.Priority()),
@@ -188,6 +189,7 @@ namespace tests
         protected Action EditAction(
             string actionId,
             string assignedToId,
+            string azureUniqueId = null,
             string description = null,
             System.DateTimeOffset? dueDate = null,
             Priority? priority = null,
@@ -209,6 +211,7 @@ namespace tests
             Action action = _mutation.EditAction(
                 actionId: actionId,
                 assignedToId: assignedToId,
+                azureUniqueId: azureUniqueId,
                 description: description,
                 dueDate: dueDate.GetValueOrDefault(System.DateTimeOffset.Now),
                 priority: priority.GetValueOrDefault(Randomize.Priority()),

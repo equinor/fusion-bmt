@@ -25,6 +25,21 @@ export const disableProgression = (evaluation: Evaluation, participant: Particip
     return !participantCanProgressEvaluation(participant)
 }
 
+export const disableProgressionFollowUp = (
+    evaluation: Evaluation,
+    participant: Participant | undefined,
+    viewProgression: Progression,
+    userIsAdmin: boolean
+) => {
+    if (evaluation.progression !== viewProgression) {
+        return true
+    }
+    if (userIsAdmin) {
+        return false
+    }
+    return !participantCanProgressEvaluation(participant)
+}
+
 export const disableCompleteSwitch = (participant: Participant | undefined, evaluation: Evaluation, viewProgression: Progression) => {
     if (!participant) {
         return true

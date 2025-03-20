@@ -6,565 +6,605 @@ using Microsoft.EntityFrameworkCore;
 using Action = api.Models.Action;
 using Barrier = api.Models.Barrier;
 
-namespace api.GQL
+namespace api.GQL;
+
+public class Mutation(
+    ProjectService projectService,
+    EvaluationService evaluationService,
+    ParticipantService participantService,
+    QuestionService questionService,
+    AnswerService answerService,
+    ActionService actionService,
+    NoteService noteService,
+    ClosingRemarkService closingRemarkService,
+    QuestionTemplateService questionTemplateService,
+    ProjectCategoryService projectCategoryService,
+    IAuthService authService,
+    BmtScoreService bmtScoreService,
+    ILogger<Mutation> logger)
 {
-    public class Mutation
+    private readonly ILogger _logger = logger;
+
+    /* Primary mutations - manipulating specific Evaluations */
+    public Evaluation CreateEvaluation(
+        string name,
+        string projectId,
+        string previousEvaluationId,
+        string projectCategoryId
+    )
     {
-        /* Primary Services*/
-        private readonly ProjectService _projectService;
-        private readonly EvaluationService _evaluationService;
-        private readonly ParticipantService _participantService;
-        private readonly QuestionService _questionService;
-        private readonly AnswerService _answerService;
-        private readonly ActionService _actionService;
-        private readonly NoteService _noteService;
-        private readonly ClosingRemarkService _closingRemarkService;
-        private readonly BmtScoreService _BMTScoreService;
+        var azureUniqueId = authService.GetOid();
 
-        /* Admin Services */
-        private readonly QuestionTemplateService _questionTemplateService;
-        private readonly ProjectCategoryService _projectCategoryService;
+        var project = projectService.GetProject(projectId);
 
-        /* Other Services */
-        private readonly IAuthService _authService;
-        private readonly ILogger _logger;
+        var evaluation = evaluationService.Create(
+            name: name,
+            project: project,
+            previousEvaluationId: previousEvaluationId
+        );
 
-        public Mutation(
-            ProjectService projectService,
-            EvaluationService evaluationService,
-            ParticipantService participantService,
-            QuestionService questionService,
-            AnswerService answerService,
-            ActionService actionService,
-            NoteService noteService,
-            ClosingRemarkService closingRemarkService,
-            QuestionTemplateService questionTemplateService,
-            ProjectCategoryService projectCategoryService,
-            IAuthService authService,
-            BmtScoreService BMTScoreService,
-            ILogger<Mutation> logger
-        )
+        participantService.Create(
+            azureUniqueId: azureUniqueId,
+            evaluation: evaluation,
+            organization: Organization.All,
+            role: Role.Facilitator
+        );
+
+        var projectCategory = projectCategoryService.Get(projectCategoryId);
+        var questions = questionTemplateService.ActiveQuestions(projectCategory);
+        questionService.CreateBulk(questions, evaluation);
+        questionService.SquashOrder(evaluation.Questions);
+
+        var log = $"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}";
+        _logger.LogInformation(log);
+
+        return evaluation;
+    }
+
+    public Evaluation ProgressEvaluation(string evaluationId, Progression newProgression)
+    {
+        var evaluation = evaluationService.GetEvaluation(evaluationId);
+
+        Role[] canBePerformedBy = [Role.Facilitator];
+        var isAdmin = authService.GetRoles().Contains("Role.Admin");
+
+        if (!isAdmin)
         {
-            _projectService = projectService;
-            _evaluationService = evaluationService;
-            _participantService = participantService;
-            _questionService = questionService;
-            _answerService = answerService;
-            _actionService = actionService;
-            _noteService = noteService;
-            _closingRemarkService = closingRemarkService;
-            _questionTemplateService = questionTemplateService;
-            _projectCategoryService = projectCategoryService;
-            _authService = authService;
-            _BMTScoreService = BMTScoreService;
-            _logger = logger;
-        }
-
-        /* Primary mutations - manupulating specific Evaluations */
-        public Evaluation CreateEvaluation(
-            string name,
-            string projectId,
-            string previousEvaluationId,
-            string projectCategoryId
-        )
-        {
-            var azureUniqueId = _authService.GetOid();
-
-            var project = _projectService.GetProject(projectId);
-            var evaluation = _evaluationService.Create(
-                name: name,
-                project: project,
-                previousEvaluationId: previousEvaluationId
-            );
-
-            _participantService.Create(
-                azureUniqueId: azureUniqueId,
-                evaluation: evaluation,
-                organization: Organization.All,
-                role: Role.Facilitator
-            );
-
-            var projectCategory = _projectCategoryService.Get(projectCategoryId);
-            var questions = _questionTemplateService.ActiveQuestions(projectCategory);
-            _questionService.CreateBulk(questions, evaluation);
-            _questionService.SquashOrder(evaluation.Questions);
-
-            var log = $"Evaluation with id: {evaluation.Id} was created by azureId: {azureUniqueId}";
-            _logger.LogInformation(log);
-            return evaluation;
-        }
-
-        public Evaluation ProgressEvaluation(string evaluationId, Progression newProgression)
-        {
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-
-            Role[] canBePerformedBy = { Role.Facilitator };
             AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            _evaluationService.ProgressEvaluation(evaluation, newProgression);
-
-            _participantService.ProgressAllParticipants(evaluation, newProgression);
-
-            if (newProgression.Equals(Progression.FollowUp))
-            {
-                _evaluationService.SetWorkshopCompleteDate(evaluation);
-                _answerService.CreateFollowUpAnswers(evaluation);
-                _projectService.SetIndicatorEvaluation(evaluation.ProjectId, evaluation);
-            }
-
-            return evaluation;
         }
 
-        public Evaluation SetSummary(string evaluationId, string summary)
-        {
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+        evaluationService.ProgressEvaluation(evaluation, newProgression);
 
-            Role[] canBePerformedBy = { Role.Facilitator };
+        participantService.ProgressAllParticipants(evaluation, newProgression);
+
+        if (newProgression.Equals(Progression.FollowUp))
+        {
+            evaluationService.SetWorkshopCompleteDate(evaluation);
+            answerService.CreateFollowUpAnswers(evaluation);
+            projectService.SetIndicatorEvaluation(evaluation.ProjectId, evaluation);
+        }
+
+        return evaluation;
+    }
+
+    public Evaluation SetSummary(string evaluationId, string summary)
+    {
+        var evaluation = evaluationService.GetEvaluation(evaluationId);
+
+        Role[] canBePerformedBy = [Role.Facilitator];
+        AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+        evaluationService.SetSummary(evaluation, summary);
+
+        return evaluation;
+    }
+
+    public Evaluation SetEvaluationStatus(string evaluationId, Status newStatus)
+    {
+        var evaluation = evaluationService.GetEvaluation(evaluationId);
+        var roles = authService.GetRoles();
+
+        if (!roles.Contains("Role.Admin"))
+        {
+            Role[] canBePerformedBy = [Role.Facilitator];
             AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            _evaluationService.SetSummary(evaluation, summary);
-            return evaluation;
         }
 
-        public Evaluation SetEvaluationStatus(string evaluationId, Status newStatus)
+        evaluationService.SetStatus(evaluation, newStatus);
+
+        return evaluation;
+    }
+
+    public Project SetIndicatorEvaluation(string projectId, string evaluationId)
+    {
+        var evaluation = evaluationService.GetEvaluation(evaluationId);
+
+        if (evaluation.Progression != Progression.FollowUp && evaluation.Progression != Progression.Finished)
         {
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-            var roles = _authService.GetRoles();
+            var msg =
+                "Evaluation must be in FollowUp or Finished progression to set as active indicator for project";
 
-            if (!roles.Contains("Role.Admin"))
-            {
-                Role[] canBePerformedBy = { Role.Facilitator };
-                AssertCanPerformMutation(evaluation, canBePerformedBy);
-            }
-
-            _evaluationService.SetStatus(evaluation, newStatus);
-            return evaluation;
+            throw new InvalidOperationException(msg);
         }
 
-        public Project SetIndicatorEvaluation(string projectId, string evaluationId)
+        var roles = authService.GetRoles();
+
+        if (!roles.Contains("Role.Admin"))
         {
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-
-            if (evaluation.Progression != Progression.FollowUp && evaluation.Progression != Progression.Finished)
-            {
-                string msg =
-                    "Evaluation must be in FollowUp or Finished progression to set as active indicator for project";
-                throw new InvalidOperationException(msg);
-            }
-
-            var roles = _authService.GetRoles();
-
-            if (!roles.Contains("Role.Admin"))
-            {
-                Role[] canBePerformedBy = { Role.Facilitator };
-                AssertCanPerformMutation(evaluation, canBePerformedBy);
-            }
-
-            return _projectService.SetIndicatorEvaluation(projectId, evaluation);
-        }
-
-        public Participant ProgressParticipant(string evaluationId, Progression newProgression)
-        {
-            string azureUniqueId = _authService.GetOid();
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-            Participant participant = _participantService.GetParticipant(azureUniqueId, evaluation);
-
-            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead, Role.Participant };
+            Role[] canBePerformedBy = [Role.Facilitator];
             AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            Participant progressedParticipant = _participantService.ProgressParticipant(participant, newProgression);
-
-            return progressedParticipant;
         }
 
-        public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization,
-            Role role)
+        return projectService.SetIndicatorEvaluation(projectId, evaluation);
+    }
+
+    public Participant ProgressParticipant(string evaluationId, Progression newProgression)
+    {
+        var azureUniqueId = authService.GetOid();
+        var evaluation = evaluationService.GetEvaluation(evaluationId);
+        var participant = participantService.GetParticipant(azureUniqueId, evaluation);
+
+        Role[] canBePerformedBy = [Role.Facilitator, Role.OrganizationLead, Role.Participant];
+        AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+        var progressedParticipant = participantService.ProgressParticipant(participant, newProgression);
+
+        return progressedParticipant;
+    }
+
+    public Participant CreateParticipant(string azureUniqueId, string evaluationId, Organization organization,
+                                         Role role)
+    {
+        var evaluation = evaluationService.GetEvaluation(evaluationId);
+
+        var isAdmin = authService.GetRoles().Contains("Role.Admin");
+
+        if (!isAdmin)
         {
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
-
-
-            var isAdmin = _authService.GetRoles().Contains("Role.Admin");
-
-            if (!isAdmin)
-            {
-                Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
-                AssertCanPerformMutation(evaluation, canBePerformedBy);
-            }
-
-            return _participantService.Create(azureUniqueId, evaluation, organization, role);
+            Role[] canBePerformedBy = [Role.Facilitator, Role.OrganizationLead];
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
         }
 
-        public Evaluation setEvaluationToAnotherProject(
-            string evaluationId,
-            string destinationProjectFusionId,
-            string destinationProjectExternalId
-        )
-        {
-            Evaluation evaluation = _evaluationService.GetEvaluation(evaluationId);
+        return participantService.Create(azureUniqueId, evaluation, organization, role);
+    }
 
-            Project destinationProject;
+    public Evaluation SetEvaluationToAnotherProject(
+        string evaluationId,
+        string destinationProjectFusionId,
+        string destinationProjectExternalId
+    )
+    {
+        var evaluation = evaluationService.GetEvaluation(evaluationId);
+
+        Project destinationProject;
+
+        try
+        {
             try
             {
-                try
-                {
-                    destinationProject = _projectService.GetProjectFromExternalId(destinationProjectExternalId);
-                }
-                catch (NotFoundInDBException)
-                {
-                    destinationProject = _projectService.GetProjectFromFusionId(destinationProjectFusionId);
-                }
-            }
-            catch
-            {
-                destinationProject = _projectService.Create(destinationProjectExternalId, destinationProjectFusionId);
-                _logger.LogInformation($"Created new project with externalId: {destinationProjectExternalId}");
-            }
-
-            Evaluation updatedEvaluation =
-                _evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
-            return updatedEvaluation;
-        }
-
-        public Participant DeleteParticipant(string participantId)
-        {
-            Evaluation evaluation = _participantService.GetAll()
-                    .Where(p => p.Id.Equals(participantId))
-                    .Select(p => p.Evaluation)
-                    .First()
-                ;
-
-            Role[] canBePerformedBy = { Role.Facilitator, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            Participant subject = _participantService.GetParticipant(participantId);
-
-            /* Safeguard against deleting the last Facilitator */
-            if (subject.Role.Equals(Role.Facilitator))
-            {
-                int facilitators = evaluation.Participants
-                        .Where(p => p.Role.Equals(Role.Facilitator))
-                        .Count()
-                    ;
-
-                if (facilitators < 2)
-                {
-                    string msg = "Cannot delete last Facilitator in Evaluation";
-                    throw new InvalidOperationException(msg);
-                }
-            }
-
-            return _participantService.Remove(participantId);
-        }
-
-        public Answer SetAnswer(string questionId, Severity severity, string text, Progression progression)
-        {
-            IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
-            Question question = queryableQuestion.First();
-            Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
-
-            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
-
-            var isAdmin = _authService.GetRoles().Contains("Role.Admin");
-
-            if (!isAdmin)
-            {
-                AssertCanPerformMutation(evaluation, canBePerformedBy);
-            }
-
-            Participant currentUser = CurrentUser(evaluation, isAdmin);
-            Answer answer;
-            try
-            {
-                answer = _answerService.GetAnswer(question, currentUser, progression, isAdmin);
-                var previousSeverity = answer.Severity;
-                _answerService.UpdateAnswer(answer, severity, text);
-
-                if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, previousSeverity))
-                {
-                    UpdateEvaluationIndicatorActivity(evaluation);
-                }
+                destinationProject = projectService.GetProjectFromExternalId(destinationProjectExternalId);
             }
             catch (NotFoundInDBException)
             {
-                if (currentUser == null && isAdmin)
-                {
-                    var azureUniqueId = _authService.GetOid();
-                    var newUser = _participantService.Create(
-                        azureUniqueId: azureUniqueId,
-                        evaluation: evaluation,
-                        organization: Organization.All,
-                        role: Role.Facilitator
-                    );
-                    answer = _answerService.Create(newUser, question, severity, text, progression);
-                }
-                else
-                {
-                    if (currentUser != null)
-                    {
-                        answer = _answerService.Create(currentUser, question, severity, text, progression);
-                    }
-                    else
-                    {
-                        throw new Exception($"You must be a participant in order to create answers");
-                    }
+                destinationProject = projectService.GetProjectFromFusionId(destinationProjectFusionId);
+            }
+        }
+        catch
+        {
+            destinationProject = projectService.Create(destinationProjectExternalId, destinationProjectFusionId);
+            _logger.LogInformation($"Created new project with externalId: {destinationProjectExternalId}");
+        }
 
-                }
+        var updatedEvaluation =
+            evaluationService.SetEvaluationToAnotherProject(evaluation, destinationProject);
+
+        return updatedEvaluation;
+    }
+
+    public Participant DeleteParticipant(string participantId)
+    {
+        var evaluation = participantService.GetAll()
+                                           .Where(p => p.Id.Equals(participantId))
+                                           .Select(p => p.Evaluation)
+                                           .First()
+            ;
+
+        Role[] canBePerformedBy = [Role.Facilitator, Role.OrganizationLead];
+        AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+        var subject = participantService.GetParticipant(participantId);
+
+        /* Safeguard against deleting the last Facilitator */
+        if (subject.Role.Equals(Role.Facilitator))
+        {
+            var facilitators = evaluation.Participants
+                                         .Where(p => p.Role.Equals(Role.Facilitator))
+                                         .Count()
+                ;
+
+            if (facilitators < 2)
+            {
+                var msg = "Cannot delete last Facilitator in Evaluation";
+
+                throw new InvalidOperationException(msg);
+            }
+        }
+
+        return participantService.Remove(participantId);
+    }
+
+    public Answer SetAnswer(string questionId, Severity severity, string text, Progression progression)
+    {
+        var queryableQuestion = questionService.GetQuestion(questionId);
+        var question = queryableQuestion.First();
+        var evaluation = queryableQuestion.Select(q => q.Evaluation).First();
+
+        Role[] canBePerformedBy = [Role.Facilitator, Role.Participant, Role.OrganizationLead];
+
+        var isAdmin = authService.GetRoles().Contains("Role.Admin");
+
+        if (!isAdmin)
+        {
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+        }
+
+        var currentUser = CurrentUser(evaluation, isAdmin);
+        Answer answer;
+
+        try
+        {
+            answer = answerService.GetAnswer(question, currentUser, progression, isAdmin);
+            var previousSeverity = answer.Severity;
+            answerService.UpdateAnswer(answer, severity, text);
+
+            if (ShouldUpdateEvaluationIndicatorActivity(evaluation, progression, severity, previousSeverity))
+            {
                 UpdateEvaluationIndicatorActivity(evaluation);
             }
-
-            return answer;
         }
-
-        private static bool ShouldUpdateEvaluationIndicatorActivity(
-            Evaluation evaluation,
-            Progression questionProgression,
-            Severity newAnswerSeverity,
-            Severity previousAnswerSeverity
-        )
+        catch (NotFoundInDBException)
         {
-            bool isQuestionInFollowUpProgression = questionProgression == Progression.FollowUp;
-            bool isEvaluationInFollowUp = evaluation.Progression == Progression.FollowUp;
-            bool isSeverityChanged = newAnswerSeverity != previousAnswerSeverity;
-
-            return isQuestionInFollowUpProgression && isSeverityChanged && isEvaluationInFollowUp;
-        }
-
-
-        private void UpdateEvaluationIndicatorActivity(Evaluation evaluation)
-        {
-            _evaluationService.SetIndicatorActivity(evaluation);
-        }
-
-        public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate,
-            Priority priority, string title)
-        {
-            IQueryable<Question> queryableQuestion = _questionService.GetQuestion(questionId);
-            Question question = queryableQuestion.First();
-            Evaluation evaluation = queryableQuestion.Select(q => q.Evaluation).First();
-
-            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            Participant assignedTo = _participantService.GetParticipant(assignedToId);
-
-            return _actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority,
-                question);
-        }
-
-        public Action EditAction(string actionId, string assignedToId, string description, DateTimeOffset dueDate,
-            string title, bool onHold, bool completed, Priority priority)
-        {
-            IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
-            Action action = queryableAction.First();
-            Evaluation evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
-
-            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            Participant assignedTo = _participantService.GetParticipant(assignedToId);
-
-            return _actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed,
-                priority);
-        }
-
-        public Action VoidAction(string actionId)
-        {
-            /* Note that no related fields are loaded */
-            IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
-            Action action = queryableAction.First();
-            Evaluation evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
-
-            Role[] canBePerformedBy = { Role.Facilitator };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            _actionService.SetVoid(action, true);
-            return action;
-        }
-
-        public Note CreateNote(string actionId, string text)
-        {
-            IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
-            Action action = queryableAction.First();
-            Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
-
-            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            return _noteService.Create(CurrentUser(evaluation), text, action);
-        }
-
-        public ClosingRemark CreateClosingRemark(string actionId, string text)
-        {
-            IQueryable<Action> queryableAction = _actionService.GetAction(actionId);
-            Action action = queryableAction.First();
-            Evaluation evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
-
-            Role[] canBePerformedBy = { Role.Facilitator, Role.Participant, Role.OrganizationLead };
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
-
-            return _closingRemarkService.Create(CurrentUser(evaluation), text, action);
-        }
-
-        /* Admin mutations
-         *
-         * These mutations will check if the user has the
-         * user role Role.Admin in the jwt token. Note that
-         * this role is different from the role used in the
-         * application
-         */
-        private const string adminRole = "Role.Admin";
-
-
-        [Authorize(Roles = new[] { adminRole })]
-        public ProjectCategory CreateProjectCategory(string name)
-        {
-            return _projectCategoryService.Create(name);
-        }
-
-
-        [Authorize(Roles = new[] { adminRole })]
-        public ProjectCategory DeleteProjectCategory(string projectCategoryId)
-        {
-            var projectCategory = _projectCategoryService.Get(projectCategoryId);
-            return _projectCategoryService.Delete(projectCategory);
-        }
-
-        [Authorize(Roles = new[] { adminRole })]
-        public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
-        {
-            var other = _projectCategoryService.GetAll().Include(x => x.QuestionTemplates)
-                .Single(x => x.Id == projectCategoryId);
-            return _projectCategoryService.CopyFrom(newName, other);
-        }
-
-        [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate CreateQuestionTemplate(
-            Barrier barrier,
-            Organization organization,
-            string text,
-            string supportNotes,
-            string[] projectCategoryIds,
-            int newOrder = 0
-        )
-        {
-            var qt = _questionTemplateService.Create(barrier, organization, text, supportNotes, newOrder);
-
-            foreach (var projectCategoryId in projectCategoryIds)
+            if (currentUser == null && isAdmin)
             {
-                _questionTemplateService.AddToProjectCategory(qt.Id, projectCategoryId);
-            }
+                var azureUniqueId = authService.GetOid();
 
-            return qt;
-        }
+                var newUser = participantService.Create(
+                    azureUniqueId: azureUniqueId,
+                    evaluation: evaluation,
+                    organization: Organization.All,
+                    role: Role.Facilitator
+                );
 
-        [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate EditQuestionTemplate(
-            string questionTemplateId,
-            Barrier barrier,
-            Organization organization,
-            string text,
-            string supportNotes,
-            Status status
-        )
-        {
-            var questionTemplate = _questionTemplateService
-                    .GetAll()
-                    .Include(x => x.ProjectCategories)
-                    .Single(x => x.Id == questionTemplateId)
-                ;
-            return _questionTemplateService.Edit(
-                questionTemplate,
-                barrier,
-                organization,
-                text,
-                supportNotes,
-                status
-            );
-        }
-
-        [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate DeleteQuestionTemplate(string questionTemplateId)
-        {
-            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
-            return _questionTemplateService.Delete(questionTemplate);
-        }
-
-        [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate ReorderQuestionTemplate(
-            string questionTemplateId,
-            string newNextQuestionTemplateId
-        )
-        {
-            QuestionTemplate questionTemplate = _questionTemplateService.GetQuestionTemplate(questionTemplateId);
-            if (string.IsNullOrEmpty(newNextQuestionTemplateId))
-            {
-                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate);
+                answer = answerService.Create(newUser, question, severity, text, progression);
             }
             else
             {
-                QuestionTemplate newNextQuestionTemplate =
-                    _questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
-                return _questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
-            }
-        }
-
-        [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate AddToProjectCategory(
-            string questionTemplateId,
-            string projectCategoryId
-        )
-        {
-            return _questionTemplateService.AddToProjectCategory(questionTemplateId, projectCategoryId);
-        }
-
-        [Authorize(Roles = new[] { adminRole })]
-        public QuestionTemplate RemoveFromProjectCategories(
-            string questionTemplateId,
-            List<string> projectCategoryIds
-        )
-        {
-            return _questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
-        }
-
-        public async Task<List<BMTScore>> GenerateBMTScores()
-        {
-            var scores = await _BMTScoreService.GenerateBmtScores();
-            return scores;
-        }
-
-        public async Task<BMTScore> GenerateBMTScore(string projectId)
-        {
-            var score = await _BMTScoreService.GenerateBmtScore(projectId);
-            return score;
-        }
-
-        /* Helpers */
-        private Participant CurrentUser(Evaluation evaluation, bool isAdmin = false)
-        {
-            string azureUniqueId = _authService.GetOid();
-            return _participantService.GetParticipant(azureUniqueId, evaluation, isAdmin);
-        }
-
-        private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles)
-        {
-            string oid = _authService.GetOid();
-            Role userRoleInEvaluation;
-
-            try
-            {
-                userRoleInEvaluation = _participantService.GetParticipant(oid, evaluation).Role;
-            }
-            catch (NotFoundInDBException)
-            {
-                string msg = "Non-participants cannot perform mutations on Evaluation";
-                throw new UnauthorizedAccessException(msg);
+                if (currentUser != null)
+                {
+                    answer = answerService.Create(currentUser, question, severity, text, progression);
+                }
+                else
+                {
+                    throw new Exception($"You must be a participant in order to create answers");
+                }
             }
 
-            if (!validRoles.Contains(userRoleInEvaluation))
-            {
-                string msg = "{0} are not allowed to perform this operation";
-                throw new UnauthorizedAccessException(String.Format(msg, userRoleInEvaluation));
-            }
+            UpdateEvaluationIndicatorActivity(evaluation);
+        }
+
+        return answer;
+    }
+
+    private static bool ShouldUpdateEvaluationIndicatorActivity(
+        Evaluation evaluation,
+        Progression questionProgression,
+        Severity newAnswerSeverity,
+        Severity previousAnswerSeverity
+    )
+    {
+        var isQuestionInFollowUpProgression = questionProgression == Progression.FollowUp;
+        var isEvaluationInFollowUp = evaluation.Progression == Progression.FollowUp;
+        var isSeverityChanged = newAnswerSeverity != previousAnswerSeverity;
+
+        return isQuestionInFollowUpProgression && isSeverityChanged && isEvaluationInFollowUp;
+    }
+
+    private void UpdateEvaluationIndicatorActivity(Evaluation evaluation)
+    {
+        evaluationService.SetIndicatorActivity(evaluation);
+    }
+
+    public Action CreateAction(
+        string questionId,
+        string assignedToId,
+        string azureUniqueId,
+        string description,
+        DateTimeOffset dueDate,
+        Priority priority,
+        string title)
+    {
+        var queryableQuestion = questionService.GetQuestion(questionId);
+        var question = queryableQuestion.First();
+        var evaluation = queryableQuestion.Select(q => q.Evaluation).First();
+
+        Role[] canBePerformedBy = [Role.Facilitator, Role.Participant, Role.OrganizationLead];
+        var isAdmin = authService.GetRoles().Contains("Role.Admin");
+
+        if (!isAdmin)
+        {
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+        }
+
+        Participant assignedTo;
+
+        try
+        {
+            assignedTo = participantService.GetParticipant(assignedToId);
+        }
+        catch (NotFoundInDBException)
+        {
+            assignedTo = participantService.Create(
+                azureUniqueId: azureUniqueId,
+                evaluation: evaluation,
+                organization: Organization.All,
+                role: Role.Participant
+            );
+        }
+
+        return actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority,
+                                    question);
+    }
+
+    public Action EditAction(
+        string actionId,
+        string assignedToId,
+        string azureUniqueId,
+        string description,
+        DateTimeOffset dueDate,
+        string title,
+        bool onHold,
+        bool completed,
+        Priority priority)
+    {
+        var queryableAction = actionService.GetAction(actionId);
+        var action = queryableAction.First();
+        var evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
+
+        Role[] canBePerformedBy = [Role.Facilitator, Role.Participant, Role.OrganizationLead];
+        var isAdmin = authService.GetRoles().Contains("Role.Admin");
+
+        if (!isAdmin)
+        {
+            AssertCanPerformMutation(evaluation, canBePerformedBy);
+        }
+
+        Participant assignedTo;
+
+        try
+        {
+            assignedTo = participantService.GetParticipant(assignedToId);
+        }
+        catch (NotFoundInDBException)
+        {
+            assignedTo = participantService.Create(
+                azureUniqueId: azureUniqueId,
+                evaluation: evaluation,
+                organization: Organization.All,
+                role: Role.Participant
+            );
+        }
+
+        return actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed,
+                                        priority);
+    }
+
+    public Action VoidAction(string actionId)
+    {
+        /* Note that no related fields are loaded */
+        var queryableAction = actionService.GetAction(actionId);
+        var action = queryableAction.First();
+        var evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
+
+        Role[] canBePerformedBy = [Role.Facilitator];
+        AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+        actionService.SetVoid(action, true);
+
+        return action;
+    }
+
+    public Note CreateNote(string actionId, string text)
+    {
+        var queryableAction = actionService.GetAction(actionId);
+        var action = queryableAction.First();
+        var evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
+
+        Role[] canBePerformedBy = [Role.Facilitator, Role.Participant, Role.OrganizationLead];
+        AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+        return noteService.Create(CurrentUser(evaluation), text, action);
+    }
+
+    public ClosingRemark CreateClosingRemark(string actionId, string text)
+    {
+        var queryableAction = actionService.GetAction(actionId);
+        var action = queryableAction.First();
+        var evaluation = queryableAction.Select(a => a.Question.Evaluation).First();
+
+        Role[] canBePerformedBy = [Role.Facilitator, Role.Participant, Role.OrganizationLead];
+        AssertCanPerformMutation(evaluation, canBePerformedBy);
+
+        return closingRemarkService.Create(CurrentUser(evaluation), text, action);
+    }
+
+    /* Admin mutations
+     *
+     * These mutations will check if the user has the
+     * user role Role.Admin in the jwt token. Note that
+     * this role is different from the role used in the
+     * application
+     */
+    private const string AdminRole = "Role.Admin";
+
+    [Authorize(Roles = [AdminRole])]
+    public ProjectCategory CreateProjectCategory(string name)
+    {
+        return projectCategoryService.Create(name);
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public ProjectCategory DeleteProjectCategory(string projectCategoryId)
+    {
+        var projectCategory = projectCategoryService.Get(projectCategoryId);
+
+        return projectCategoryService.Delete(projectCategory);
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
+    {
+        var other = projectCategoryService.GetAll().Include(x => x.QuestionTemplates)
+                                          .Single(x => x.Id == projectCategoryId);
+
+        return projectCategoryService.CopyFrom(newName, other);
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public QuestionTemplate CreateQuestionTemplate(
+        Barrier barrier,
+        Organization organization,
+        string text,
+        string supportNotes,
+        string[] projectCategoryIds,
+        int newOrder = 0
+    )
+    {
+        var qt = questionTemplateService.Create(barrier, organization, text, supportNotes, newOrder);
+
+        foreach (var projectCategoryId in projectCategoryIds)
+        {
+            questionTemplateService.AddToProjectCategory(qt.Id, projectCategoryId);
+        }
+
+        return qt;
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public QuestionTemplate EditQuestionTemplate(
+        string questionTemplateId,
+        Barrier barrier,
+        Organization organization,
+        string text,
+        string supportNotes,
+        Status status
+    )
+    {
+        var questionTemplate = questionTemplateService
+                               .GetAll()
+                               .Include(x => x.ProjectCategories)
+                               .Single(x => x.Id == questionTemplateId)
+            ;
+
+        return questionTemplateService.Edit(
+            questionTemplate,
+            barrier,
+            organization,
+            text,
+            supportNotes,
+            status
+        );
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public QuestionTemplate DeleteQuestionTemplate(string questionTemplateId)
+    {
+        var questionTemplate = questionTemplateService.GetQuestionTemplate(questionTemplateId);
+
+        return questionTemplateService.Delete(questionTemplate);
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public QuestionTemplate ReorderQuestionTemplate(
+        string questionTemplateId,
+        string newNextQuestionTemplateId
+    )
+    {
+        var questionTemplate = questionTemplateService.GetQuestionTemplate(questionTemplateId);
+
+        if (string.IsNullOrEmpty(newNextQuestionTemplateId))
+        {
+            return questionTemplateService.ReorderQuestionTemplate(questionTemplate);
+        }
+        else
+        {
+            var newNextQuestionTemplate =
+                questionTemplateService.GetQuestionTemplate(newNextQuestionTemplateId);
+
+            return questionTemplateService.ReorderQuestionTemplate(questionTemplate, newNextQuestionTemplate);
+        }
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public QuestionTemplate AddToProjectCategory(
+        string questionTemplateId,
+        string projectCategoryId
+    )
+    {
+        return questionTemplateService.AddToProjectCategory(questionTemplateId, projectCategoryId);
+    }
+
+    [Authorize(Roles = [AdminRole])]
+    public QuestionTemplate RemoveFromProjectCategories(
+        string questionTemplateId,
+        List<string> projectCategoryIds
+    )
+    {
+        return questionTemplateService.RemoveFromProjectCategories(questionTemplateId, projectCategoryIds);
+    }
+
+    public async Task<List<BMTScore>> GenerateBmtScores()
+    {
+        var scores = await bmtScoreService.GenerateBmtScores();
+
+        return scores;
+    }
+
+    public async Task<BMTScore> GenerateBmtScore(string projectId)
+    {
+        var score = await bmtScoreService.GenerateBmtScore(projectId);
+
+        return score;
+    }
+
+    /* Helpers */
+    private Participant CurrentUser(Evaluation evaluation, bool isAdmin = false)
+    {
+        var azureUniqueId = authService.GetOid();
+
+        return participantService.GetParticipant(azureUniqueId, evaluation, isAdmin);
+    }
+
+    private void AssertCanPerformMutation(Evaluation evaluation, Role[] validRoles)
+    {
+        var oid = authService.GetOid();
+        Role userRoleInEvaluation;
+
+        try
+        {
+            userRoleInEvaluation = participantService.GetParticipant(oid, evaluation).Role;
+        }
+        catch (NotFoundInDBException)
+        {
+            var msg = "Non-participants cannot perform mutations on Evaluation";
+
+            throw new UnauthorizedAccessException(msg);
+        }
+
+        if (!validRoles.Contains(userRoleInEvaluation))
+        {
+            var msg = "{0} are not allowed to perform this operation";
+
+            throw new UnauthorizedAccessException(String.Format(msg, userRoleInEvaluation));
         }
     }
 }

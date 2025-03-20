@@ -11,7 +11,7 @@ import { countSeverities } from '../../../../../utils/Severity'
 import { useFilter } from '../../../../../utils/hooks'
 import { getBarrierAnswers, onScroll } from '../../../../helpers'
 import { hasSeverity, hasOrganization, toggleFilter } from '../../../../../utils/QuestionAndAnswerUtils'
-import { disableAnswer, disableProgression } from '../../../../../utils/disableComponents'
+import { disableAnswer, disableProgressionFollowUp } from '../../../../../utils/disableComponents'
 import { participantCanProgressEvaluation } from '../../../../../utils/RoleBasedAccess'
 import SeveritySummary from '../../../../../components/SeveritySummary'
 import QuestionProgressionFollowUpSidebar from '../../components/QuestionProgressionFollowUpSidebar'
@@ -143,11 +143,11 @@ const FollowUpView = ({ evaluation, onNextStepClick }: FollowUpViewProps) => {
                                 />
                             </Box>
                             <Box flexDirection="row" mt={1} display="flex" justifyContent="flex-end">
-                                {participantCanProgressEvaluation(participant) && (
+                                {participantCanProgressEvaluation(participant) || userIsAdmin && (
                                     <Button
                                         style={{ marginLeft: '20px' }}
                                         onClick={onNextStepClick}
-                                        disabled={disableProgression(evaluation, participant, viewProgression)}
+                                        disabled={disableProgressionFollowUp(evaluation, participant, viewProgression, userIsAdmin)}
                                     >
                                         {'Finish ' + progressionToString(viewProgression)}
                                     </Button>

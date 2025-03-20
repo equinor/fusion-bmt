@@ -23,11 +23,11 @@ public static class BmtDatabaseConfiguration
         var dbContextOptionsBuilder = new DbContextOptionsBuilder<BmtDbContext>();
 
         var sqliteConnectionString = new SqliteConnectionStringBuilder
-        {
-            DataSource = "file::memory:",
-            Mode = SqliteOpenMode.ReadWriteCreate,
-            Cache = SqliteCacheMode.Shared
-        }
+            {
+                DataSource = "file::memory:",
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Cache = SqliteCacheMode.Shared
+            }
             .ToString();
 
         var sqliteConnection = new SqliteConnection(sqliteConnectionString);

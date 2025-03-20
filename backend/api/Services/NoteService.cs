@@ -2,69 +2,65 @@ using api.Context;
 using api.Models;
 using Action = api.Models.Action;
 
-namespace api.Services
+namespace api.Services;
+
+public class NoteService(BmtDbContext context)
 {
-    public class NoteService
+    public Note Create(
+        Participant createdBy,
+        string text,
+        Action action
+    )
     {
-        private readonly BmtDbContext _context;
+        var createDate = DateTimeOffset.UtcNow;
 
-        public NoteService(BmtDbContext context)
+        var newNote = new Note
         {
-            _context = context;
+            CreateDate = createDate,
+            Text = text,
+            CreatedBy = createdBy,
+            Action = action
+        };
+
+        context.Notes.Add(newNote);
+
+        context.SaveChanges();
+
+        return newNote;
+    }
+
+    public Note EditNote(
+        Note note,
+        string text
+    )
+    {
+        if (note == null)
+        {
+            throw new ArgumentNullException(nameof(note));
         }
 
-        public Note Create(
-            Participant createdBy,
-            string text,
-            Action action
-        )
+        note.Text = text;
+
+        context.Notes.Update(note);
+        context.SaveChanges();
+
+        return note;
+    }
+
+    public IQueryable<Note> GetAll()
+    {
+        return context.Notes;
+    }
+
+    public Note GetNote(string noteId)
+    {
+        var Note = context.Notes.FirstOrDefault(note => note.Id.Equals(noteId));
+
+        if (Note == null)
         {
-            DateTimeOffset createDate = DateTimeOffset.UtcNow;
-
-            Note newNote = new Note
-            {
-                CreateDate = createDate,
-                Text = text,
-                CreatedBy = createdBy,
-                Action = action
-            };
-
-            _context.Notes.Add(newNote);
-
-            _context.SaveChanges();
-            return newNote;
+            throw new NotFoundInDBException($"Note not found: {noteId}");
         }
 
-        public Note EditNote(
-            Note note,
-            string text
-        )
-        {
-            if (note == null)
-            {
-                throw new ArgumentNullException(nameof(note));
-            }
-            note.Text = text;
-
-            _context.Notes.Update(note);
-            _context.SaveChanges();
-
-            return note;
-        }
-
-        public IQueryable<Note> GetAll()
-        {
-            return _context.Notes;
-        }
-
-        public Note GetNote(string noteId)
-        {
-            Note Note = _context.Notes.FirstOrDefault(note => note.Id.Equals(noteId));
-            if (Note == null)
-            {
-                throw new NotFoundInDBException($"Note not found: {noteId}");
-            }
-            return Note;
-        }
+        return Note;
     }
 }

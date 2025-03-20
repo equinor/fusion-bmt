@@ -1,6 +1,6 @@
 import React from 'react'
 import { PersonAvatar, PersonCard, PersonDetails } from '@equinor/fusion-react-person'
-import { Button, Typography } from '@equinor/eds-core-react'
+import { Button, Switch, Typography } from '@equinor/eds-core-react'
 import { Organization, Role, Participant } from '../../../../api/models'
 import { useEffect } from 'react'
 import { organizationToString, roleToString } from '../../../../utils/EnumToString'
@@ -49,6 +49,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
     const [selectedRole, setSelectedRole] = React.useState<Role>(Role.Participant)
     const [selectedOrg, setSelectedOrg] = React.useState<Organization>(Organization.Commissioning)
     const [isSearching, setIsSearching] = React.useState<boolean>(false)
+    const [filterEquinorUsers, setFilterEqunorUsers] = React.useState<boolean>(true)
 
     const [orgOptions, setOrgOptions] = React.useState(
         Object.entries(Organization).map(([key, org]) => {
@@ -82,7 +83,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
         return () => {
             clearTimeout(timeout)
         }
-    }, [searchQuery])
+    }, [searchQuery, filterEquinorUsers])
 
     const updateOrgOptions = (item: any) =>
         setOrgOptions(oldOptions =>
@@ -101,34 +102,37 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             })
         )
 
-        const apiResponseToPersonDetails = (response: any[]): PersonDetails[] => {
-            return response.map((person: any) => {
-                return {
-                    azureId: person.azureUniquePersonId,
-                    name: person.name,
-                    jobTitle: person.jobTitle,
-                    department: person.department,
-                    mail: person.mail,
-                    upn: person.upn,
-                    mobilePhone: person.mobilePhone,
-                    accountType: person.accountType,
-                    officeLocation: person.officeLocation,
-                    managerAzureUniqueId: person.managerAzureUniqueId,
-                }
-            })
-        }
+    const apiResponseToPersonDetails = (response: any[]): PersonDetails[] => {
+        return response.map((person: any) => {
+            return {
+                azureId: person.azureUniquePersonId,
+                name: person.name,
+                jobTitle: person.jobTitle,
+                department: person.department,
+                mail: person.mail,
+                upn: person.upn,
+                mobilePhone: person.mobilePhone,
+                accountType: person.accountType,
+                officeLocation: person.officeLocation,
+                managerAzureUniqueId: person.managerAzureUniqueId,
+            }
+        })
+    }
 
-    const searchPersons = () => {
+    const searchPersons = async () => {
         if (searchQuery) {
             setIsSearching(true)
-            apiClients.search(searchQuery)
-                .then(res => {
-                    const result = apiResponseToPersonDetails(res)
-                    setSearchResults(result)
-                })
-                .finally(() => {
-                    setIsSearching(false)
-                })
+            try {
+                // Add @equinor.com to search query to return only employees with Equinor emails
+                const query = filterEquinorUsers ? searchQuery + ' @equinor.com' : searchQuery
+                const res = await apiClients.search(query)
+                const result = apiResponseToPersonDetails(res)
+                setSearchResults(result)
+            } catch (error) {
+                console.error('Error searching persons:', error)
+            } finally {
+                setIsSearching(false)
+            }
         }
     }
 
@@ -143,8 +147,8 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
             minWidth={550}
             onClose={onCloseClick}
         >
-            <SideSheet.Title title="Create Evaluation" />
-            <SideSheet.SubTitle subTitle="Create a new evaluation" />
+            <SideSheet.Title title="Add nominee" />
+            <SideSheet.SubTitle subTitle="" />
             <SideSheet.Content>
                 <Wrapper data-testid="nominee_dialog_body">
                     <SearchableDropdown
@@ -156,7 +160,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                             updateOrgOptions(selectedOption)
                             setSelectedOrg(Organization[selectedOption.id as keyof typeof Organization])
                         }}
-                        searchQuery={ async (query: string) => {
+                        searchQuery={async (query: string) => {
                             return orgOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
                         }}
                     />
@@ -169,7 +173,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                             updateRoleOptions(selectedOption)
                             setSelectedRole(Role[selectedOption.id as keyof typeof Role])
                         }}
-                        searchQuery={ async (query: string) => {
+                        searchQuery={async (query: string) => {
                             return roleOptions.filter(option => option.title.toLowerCase().includes(query.toLowerCase()))
                         }}
                     />
@@ -184,6 +188,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                         placeholder="Search for person..."
                         data-testid="nominee_dialog_search_text_field"
                     />
+                    <Switch label="Only show users with @equinor.com email" checked={filterEquinorUsers} onChange={() => setFilterEqunorUsers(!filterEquinorUsers)} />
                 </Wrapper>
                 <SearchResults>
                     {(isSearching || createParticipantLoading) && (
@@ -199,6 +204,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                                     <PersonInfo style={{ marginBottom: 10 }} key={p.azureId}>
                                         <PersonAvatar azureId={p.azureId} />
                                         <Typography>{p.name}</Typography>
+                                        <Typography>{p.mail}</Typography>
                                         <Button
                                             onClick={() => {
                                                 onNomineeSelected(p.azureId, selectedRole, selectedOrg)

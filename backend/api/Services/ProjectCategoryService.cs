@@ -1,76 +1,72 @@
 using api.Context;
 using api.Models;
 
-namespace api.Services
+namespace api.Services;
+
+public class ProjectCategoryService(BmtDbContext context)
 {
-    public class ProjectCategoryService
+    private ProjectCategory _Create(string name)
     {
-        private readonly BmtDbContext _context;
-
-        private ProjectCategory _Create(string name)
+        var newProjectCategory = new ProjectCategory
         {
-            var newProjectCategory = new ProjectCategory
-            {
-                Name = name,
-                QuestionTemplates = new List<QuestionTemplate>()
-            };
+            Name = name,
+            QuestionTemplates = new List<QuestionTemplate>()
+        };
 
-            return newProjectCategory;
+        return newProjectCategory;
+    }
+
+    public ProjectCategory Create(string name)
+    {
+        var newProjectCategory = _Create(name);
+        context.ProjectCategories.Add(newProjectCategory);
+        context.SaveChanges();
+
+        return newProjectCategory;
+    }
+
+    public ProjectCategory Delete(ProjectCategory projectCategory)
+    {
+        context.ProjectCategories.Remove(projectCategory);
+        context.SaveChanges();
+
+        return projectCategory;
+    }
+
+    public ProjectCategory CopyFrom(string newName, ProjectCategory other)
+    {
+        var newProjectCategory = _Create(newName);
+        var activeTemplates = other.QuestionTemplates.Where(qt => qt.Status == Status.Active);
+
+        foreach (var template in activeTemplates)
+        {
+            newProjectCategory.QuestionTemplates.Add(template);
         }
 
-        public ProjectCategoryService(BmtDbContext context)
+        context.ProjectCategories.Add(newProjectCategory);
+        context.SaveChanges();
+
+        return newProjectCategory;
+    }
+
+    public ProjectCategory Get(string id)
+    {
+        var category = context.ProjectCategories.FirstOrDefault(
+            x => x.Id.Equals(id)
+        );
+
+        if (category == null)
         {
-            _context = context;
+            var msg = $"ProjectCategory not found: {id}";
+
+            throw new NotFoundInDBException(msg);
         }
 
-        public ProjectCategory Create(string name)
-        {
-            var newProjectCategory = _Create(name);
-            _context.ProjectCategories.Add(newProjectCategory);
-            _context.SaveChanges();
-            return newProjectCategory;
-        }
+        return category;
+    }
 
-        public ProjectCategory Delete(ProjectCategory projectCategory)
-        {
-            _context.ProjectCategories.Remove(projectCategory);
-            _context.SaveChanges();
-            return projectCategory;
-        }
-
-        public ProjectCategory CopyFrom(string newName, ProjectCategory other)
-        {
-            var newProjectCategory = _Create(newName);
-            var activeTemplates = other.QuestionTemplates.Where(qt => qt.Status == Status.Active);
-
-            foreach (var template in activeTemplates)
-            {
-                newProjectCategory.QuestionTemplates.Add(template);
-            }
-
-            _context.ProjectCategories.Add(newProjectCategory);
-            _context.SaveChanges();
-            return newProjectCategory;
-        }
-
-        public ProjectCategory Get(string id)
-        {
-            ProjectCategory category = _context.ProjectCategories.FirstOrDefault(
-                x => x.Id.Equals(id)
-            );
-
-            if (category == null)
-            {
-                string msg = $"ProjectCategory not found: {id}";
-                throw new NotFoundInDBException(msg);
-            }
-
-            return category;
-        }
-
-        public IQueryable<ProjectCategory> GetAll()
-        {
-            return _context.ProjectCategories;
-        }
+    public IQueryable<ProjectCategory> GetAll()
+    {
+        return context.ProjectCategories;
     }
 }

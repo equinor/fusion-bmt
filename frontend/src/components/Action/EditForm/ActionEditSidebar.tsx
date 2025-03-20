@@ -121,7 +121,6 @@ const ActionEditSidebar = ({
                         action={action}
                         connectedQuestion={connectedQuestion}
                         possibleAssignees={possibleAssignees}
-                        possibleAssigneesDetails={personDetailsList}
                         onEditShouldDelay={onEditWithDelay}
                         onEditShouldNotDelay={onEditWithoutDelay}
                         createClosingRemark={text => onCreateClosingRemark(text)}
