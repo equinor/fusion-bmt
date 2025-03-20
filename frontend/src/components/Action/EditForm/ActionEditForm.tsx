@@ -13,8 +13,7 @@ import { ApolloError } from '@apollo/client'
 import ErrorBanner from '../../ErrorBanner'
 import { genericErrorMessage } from '../../../utils/Variables'
 import { toCapitalizedCase } from '../../../utils/helpers'
-import SearchableDropdown from '../../../components/SearchableDropDown'
-import { PersonDetails, PersonSelect, PersonSelectEvent } from '@equinor/fusion-react-person'
+import { PersonSelect, PersonSelectEvent } from '@equinor/fusion-react-person'
 
 
 const StyledDate = styled(Typography)`

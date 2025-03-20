@@ -176,6 +176,7 @@ namespace tests
             Action action = _mutation.CreateAction(
                 questionId: questionId,
                 assignedToId: assignedToId,
+                azureUniqueId: null,
                 description: description,
                 dueDate: dueDate.GetValueOrDefault(System.DateTimeOffset.Now),
                 priority: priority.GetValueOrDefault(Randomize.Priority()),

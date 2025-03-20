@@ -66,7 +66,12 @@ namespace api.GQL
             var evaluation = evaluationService.GetEvaluation(evaluationId);
 
             Role[] canBePerformedBy = [Role.Facilitator];
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
+            var isAdmin = authService.GetRoles().Contains("Role.Admin");
+
+            if (!isAdmin)
+            {
+                AssertCanPerformMutation(evaluation, canBePerformedBy);
+            }
 
             evaluationService.ProgressEvaluation(evaluation, newProgression);
 
