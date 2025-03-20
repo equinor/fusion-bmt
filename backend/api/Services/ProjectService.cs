@@ -11,6 +11,7 @@ namespace api.Services
         {
             _context = context;
         }
+
         public Project Create(string externalID, string fusionProjectID)
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;
@@ -25,6 +26,7 @@ namespace api.Services
             _context.Projects.Add(newProject);
 
             _context.SaveChanges();
+
             return newProject;
         }
 
@@ -36,31 +38,38 @@ namespace api.Services
         public Project GetProjectFromExternalId(string externalId)
         {
             Project project = _context.Projects
-                .FirstOrDefault(project => project.ExternalId.Equals(externalId));
+                                      .FirstOrDefault(project => project.ExternalId.Equals(externalId));
+
             if (project == null)
             {
                 throw new NotFoundInDBException($"Project with externalId: {externalId} not found");
             }
+
             return project;
         }
 
         public Project GetProjectFromFusionId(string fusionProjectId)
         {
             Project project = _context.Projects
-                .FirstOrDefault(project => project.FusionProjectId.Equals(fusionProjectId));
+                                      .FirstOrDefault(project => project.FusionProjectId.Equals(fusionProjectId));
+
             if (project == null)
             {
                 throw new NotFoundInDBException($"Project with fusionProjectId: {fusionProjectId} not found");
             }
+
             return project;
         }
+
         public Project GetProject(string projectId)
         {
             Project project = _context.Projects.FirstOrDefault(project => project.Id.Equals(projectId));
+
             if (project == null)
             {
                 throw new NotFoundInDBException($"Project not found: {projectId}");
             }
+
             return project;
         }
 
@@ -70,6 +79,7 @@ namespace api.Services
             project.IndicatorEvaluationId = evaluation.Id;
             _context.Projects.Update(project);
             _context.SaveChanges();
+
             return project;
         }
     }

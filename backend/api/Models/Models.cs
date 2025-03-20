@@ -9,15 +9,12 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public string ExternalId { get; set; }
-        [Required]
-        public string FusionProjectId { get; set; }
+
+        [Required] public string ExternalId { get; set; }
+        [Required] public string FusionProjectId { get; set; }
         public string IndicatorEvaluationId { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
-        [Required]
-        public virtual ICollection<Evaluation> Evaluations { get; private set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
+        [Required] public virtual ICollection<Evaluation> Evaluations { get; private set; }
 
         public string Foo { get; set; } = string.Empty;
     }
@@ -28,22 +25,15 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public string Name { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
-        [Required]
-        public Progression Progression { get; set; }
-        [Required]
-        public Status Status { get; set; }
-        [Required]
-        public virtual ICollection<Participant> Participants { get; private set; }
-        [Required]
-        public virtual ICollection<Question> Questions { get; private set; }
-        [Required]
-        public virtual Project Project { get; set; }
-        [Required]
-        public string ProjectId { get; set; }
+
+        [Required] public string Name { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
+        [Required] public Progression Progression { get; set; }
+        [Required] public Status Status { get; set; }
+        [Required] public virtual ICollection<Participant> Participants { get; private set; }
+        [Required] public virtual ICollection<Question> Questions { get; private set; }
+        [Required] public virtual Project Project { get; set; }
+        [Required] public string ProjectId { get; set; }
 
         public DateTimeOffset? IndicatorActivityDate { get; set; }
 
@@ -60,18 +50,14 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public string AzureUniqueId { get; set; }
-        [Required]
-        public Organization Organization { get; set; }
-        [Required]
-        public Role Role { get; set; }
-        [Required]
-        public Progression Progression { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
-        [Required]
-        public string EvaluationId { get; set; }
+
+        [Required] public string AzureUniqueId { get; set; }
+        [Required] public Organization Organization { get; set; }
+        [Required] public Role Role { get; set; }
+        [Required] public Progression Progression { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
+        [Required] public string EvaluationId { get; set; }
+
         [Required]
         [ForeignKey("EvaluationId")]
         public virtual Evaluation Evaluation { get; set; }
@@ -83,28 +69,18 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public Organization Organization { get; set; }
-        [Required]
-        public string Text { get; set; }
-        [Required]
-        public int Order { get; set; }
-        [Required]
-        public string SupportNotes { get; set; }
-        [Required]
-        public Barrier Barrier { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
-        [Required]
-        public virtual ICollection<Answer> Answers { get; private set; }
-        [Required]
-        public virtual ICollection<Action> Actions { get; private set; }
-        [Required]
-        public virtual Evaluation Evaluation { get; set; }
-        [Required]
-        public string EvaluationId { get; set; }
-        [Required]
-        public virtual QuestionTemplate QuestionTemplate { get; set; }
+
+        [Required] public Organization Organization { get; set; }
+        [Required] public string Text { get; set; }
+        [Required] public int Order { get; set; }
+        [Required] public string SupportNotes { get; set; }
+        [Required] public Barrier Barrier { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
+        [Required] public virtual ICollection<Answer> Answers { get; private set; }
+        [Required] public virtual ICollection<Action> Actions { get; private set; }
+        [Required] public virtual Evaluation Evaluation { get; set; }
+        [Required] public string EvaluationId { get; set; }
+        [Required] public virtual QuestionTemplate QuestionTemplate { get; set; }
     }
 
     public class ProjectCategory
@@ -114,11 +90,9 @@ namespace api.Models
         [Required]
         public string Id { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+        [Required] public string Name { get; set; }
 
-        [Required]
-        public ICollection<QuestionTemplate> QuestionTemplates { get; set; }
+        [Required] public ICollection<QuestionTemplate> QuestionTemplates { get; set; }
     }
 
     public class QuestionTemplate
@@ -127,27 +101,18 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public Status Status { get; set; }
-        [Required]
-        public Organization Organization { get; set; }
-        [Required]
-        public string Text { get; set; }
-        [Required]
-        public int Order { get; set; }
-        [Required]
-        public int AdminOrder { get; set; }
-        [Required]
-        public string SupportNotes { get; set; }
-        [Required]
-        public Barrier Barrier { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
-        [Required]
-        public virtual ICollection<Question> Questions { get; private set; }
+
+        [Required] public Status Status { get; set; }
+        [Required] public Organization Organization { get; set; }
+        [Required] public string Text { get; set; }
+        [Required] public int Order { get; set; }
+        [Required] public int AdminOrder { get; set; }
+        [Required] public string SupportNotes { get; set; }
+        [Required] public Barrier Barrier { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
+        [Required] public virtual ICollection<Question> Questions { get; private set; }
         public QuestionTemplate previous { get; set; }
-        [Required]
-        public ICollection<ProjectCategory> ProjectCategories { get; set; }
+        [Required] public ICollection<ProjectCategory> ProjectCategories { get; set; }
     }
 
     public class Answer
@@ -156,22 +121,15 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public Progression Progression { get; set; }
-        [Required]
-        public Severity Severity { get; set; }
-        [Required]
-        public string Text { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
+
+        [Required] public Progression Progression { get; set; }
+        [Required] public Severity Severity { get; set; }
+        [Required] public string Text { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
         public string AnsweredById { get; set; }
-        [ForeignKey("AnsweredById")]
-        public Participant AnsweredBy { get; set; }
-        [Required]
-        public string QuestionId { get; set; }
-        [Required]
-        [ForeignKey("QuestionId")]
-        public virtual Question Question { get; set; }
+        [ForeignKey("AnsweredById")] public Participant AnsweredBy { get; set; }
+        [Required] public string QuestionId { get; set; }
+        [Required] [ForeignKey("QuestionId")] public virtual Question Question { get; set; }
     }
 
     public class Action
@@ -180,30 +138,20 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
+
         public virtual Participant AssignedTo { get; set; }
-        [Required]
-        public string Title { get; set; }
-        [Required]
-        public string Description { get; set; }
-        [Required]
-        public Priority Priority { get; set; }
-        [Required]
-        public bool OnHold { get; set; }
-        [Required]
-        public bool Completed { get; set; }
-        [Required]
-        public DateTimeOffset DueDate { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
+        [Required] public string Title { get; set; }
+        [Required] public string Description { get; set; }
+        [Required] public Priority Priority { get; set; }
+        [Required] public bool OnHold { get; set; }
+        [Required] public bool Completed { get; set; }
+        [Required] public DateTimeOffset DueDate { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
         public virtual Participant CreatedBy { get; set; }
-        [Required]
-        public virtual ICollection<Note> Notes { get; private set; }
-        [Required]
-        public virtual ICollection<ClosingRemark> ClosingRemarks { get; private set; }
-        [Required]
-        public virtual Question Question { get; set; }
-        [Required]
-        public bool IsVoided { get; set; }
+        [Required] public virtual ICollection<Note> Notes { get; private set; }
+        [Required] public virtual ICollection<ClosingRemark> ClosingRemarks { get; private set; }
+        [Required] public virtual Question Question { get; set; }
+        [Required] public bool IsVoided { get; set; }
     }
 
     public class Note
@@ -212,13 +160,11 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public string Text { get; set; }
+
+        [Required] public string Text { get; set; }
         public Participant CreatedBy { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
-        [Required]
-        public virtual Action Action { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
+        [Required] public virtual Action Action { get; set; }
     }
 
     public class ClosingRemark
@@ -227,47 +173,72 @@ namespace api.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Required]
         public string Id { get; set; }
-        [Required]
-        public string Text { get; set; }
+
+        [Required] public string Text { get; set; }
         public Participant CreatedBy { get; set; }
-        [Required]
-        public DateTimeOffset CreateDate { get; set; }
-        [Required]
-        public virtual Action Action { get; set; }
+        [Required] public DateTimeOffset CreateDate { get; set; }
+        [Required] public virtual Action Action { get; set; }
     }
 
     public enum Status
     {
-        Active, Inactive, Voided
+        Active,
+        Inactive,
+        Voided
     }
 
     public enum Progression
     {
-        Nomination, Individual, Preparation, Workshop, FollowUp, Finished
+        Nomination,
+        Individual,
+        Preparation,
+        Workshop,
+        FollowUp,
+        Finished
     }
 
     public enum Barrier
     {
-        GM, PS1, PS2, PS3, PS4, PS6, PS7, PS12, PS15, PS22
+        GM,
+        PS1,
+        PS2,
+        PS3,
+        PS4,
+        PS6,
+        PS7,
+        PS12,
+        PS15,
+        PS22
     }
 
     public enum Organization
     {
-        Commissioning, Construction, Engineering, PreOps, All
+        Commissioning,
+        Construction,
+        Engineering,
+        PreOps,
+        All
     }
 
     public enum Role
     {
-        Participant, Facilitator, OrganizationLead
+        Participant,
+        Facilitator,
+        OrganizationLead
     }
 
     public enum Severity
     {
-        MajorIssues, SomeConcerns, OnTrack, NA
+        MajorIssues,
+        SomeConcerns,
+        OnTrack,
+        NA
     }
 
     public enum Priority
     {
-        Low, Medium, High
+        Low,
+        Medium,
+        High
     }
 }

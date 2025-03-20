@@ -32,6 +32,7 @@ namespace api.Services
             _context.Notes.Add(newNote);
 
             _context.SaveChanges();
+
             return newNote;
         }
 
@@ -44,6 +45,7 @@ namespace api.Services
             {
                 throw new ArgumentNullException(nameof(note));
             }
+
             note.Text = text;
 
             _context.Notes.Update(note);
@@ -60,10 +62,12 @@ namespace api.Services
         public Note GetNote(string noteId)
         {
             Note Note = _context.Notes.FirstOrDefault(note => note.Id.Equals(noteId));
+
             if (Note == null)
             {
                 throw new NotFoundInDBException($"Note not found: {noteId}");
             }
+
             return Note;
         }
     }

@@ -29,6 +29,7 @@ namespace api.Services
             _context.Participants.Add(newParticipant);
 
             _context.SaveChanges();
+
             return newParticipant;
         }
 
@@ -37,6 +38,7 @@ namespace api.Services
             Participant participant = GetParticipant(participantId);
             _context.Participants.Remove(participant);
             _context.SaveChanges();
+
             return participant;
         }
 
@@ -48,10 +50,12 @@ namespace api.Services
         public Participant GetParticipant(string participantId)
         {
             Participant participant = _context.Participants.FirstOrDefault(participant => participant.Id.Equals(participantId));
+
             if (participant == null)
             {
                 throw new NotFoundInDBException($"Participant not found: {participantId}");
             }
+
             return participant;
         }
 
@@ -62,10 +66,12 @@ namespace api.Services
                 throw new ArgumentNullException(nameof(evaluation));
             }
 
-            Participant participant = _context.Participants.FirstOrDefault(participant =>
-                participant.AzureUniqueId.Equals(azureUniqueId)
-                && participant.Evaluation.Equals(evaluation)
-            );
+            Participant participant = _context
+                                      .Participants
+                                      .FirstOrDefault(participant =>
+                                                          participant.AzureUniqueId.Equals(azureUniqueId)
+                                                          && participant.Evaluation.Equals(evaluation)
+                                      );
 
             if (participant == null && !isAdmin)
             {
@@ -78,10 +84,12 @@ namespace api.Services
         public IQueryable<Participant> ProgressAllParticipants(Evaluation evaluation, Progression newProgression)
         {
             IQueryable<Participant> participants = _context.Participants.Where(p => p.Evaluation.Equals(evaluation));
+
             foreach (Participant p in participants)
             {
                 p.Progression = newProgression;
             }
+
             _context.UpdateRange(participants);
             _context.SaveChanges();
 

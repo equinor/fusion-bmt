@@ -12,13 +12,16 @@ namespace api.Services
         {
             _context = context;
         }
+
         public async Task<List<BMTScore>> GenerateBmtScores()
         {
-            var projectsWithIndicator = await _context.Projects
-                .Where(p => p.IndicatorEvaluationId != null)
-                .ToListAsync();
+            var projectsWithIndicator = await _context
+                                              .Projects
+                                              .Where(p => p.IndicatorEvaluationId != null)
+                                              .ToListAsync();
 
             var bmtScores = new List<BMTScore>();
+
             foreach (var project in projectsWithIndicator)
             {
                 var score = await GenerateBmtScore(project.IndicatorEvaluationId, project.Id);
@@ -28,9 +31,10 @@ namespace api.Services
             return bmtScores;
         }
 
-        public async Task<BMTScore> GenerateBmtScore(string projectId) {
+        public async Task<BMTScore> GenerateBmtScore(string projectId)
+        {
             var project = await _context.Projects.FindAsync(projectId)
-                ?? throw new ArgumentException("ProjectId does not exist.");
+                          ?? throw new ArgumentException("ProjectId does not exist.");
 
             if (string.IsNullOrEmpty(project.IndicatorEvaluationId))
             {
@@ -61,9 +65,9 @@ namespace api.Services
         private async Task<(double WorkshopScore, double FollowUpScore)> CalculateScores(string evaluationId)
         {
             var answers = await _context.Answers
-                .Include(a => a.Question)
-                .Where(a => a.Question.EvaluationId == evaluationId && a.Severity != Severity.NA)
-                .ToListAsync();
+                                        .Include(a => a.Question)
+                                        .Where(a => a.Question.EvaluationId == evaluationId && a.Severity != Severity.NA)
+                                        .ToListAsync();
 
             var workshopAnswers = answers.Where(a => a.Progression == Progression.Workshop);
             var followUpAnswers = answers.Where(a => a.Progression == Progression.FollowUp);
@@ -77,6 +81,7 @@ namespace api.Services
         private static double CalculateScore(IEnumerable<Answer> answers)
         {
             var totalAnswers = answers.Count();
+
             if (totalAnswers == 0)
             {
                 return 0;

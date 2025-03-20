@@ -10,7 +10,7 @@ namespace api.Swagger
         public static readonly string graphEndpoint = @"/graphql";
 
         public static readonly string query = "{\"query\":\n\"" +
-        "query {projects {id, fusionProjectId, createDate}}\"}";
+                                              "query {projects {id, fusionProjectId, createDate}}\"}";
 
         public void Apply(OpenApiDocument openApiDocument, DocumentFilterContext context)
         {
@@ -18,16 +18,19 @@ namespace api.Swagger
 
             var operation = new OpenApiOperation();
             operation.Tags.Add(new OpenApiTag { Name = "GraphQL" });
+
             operation.RequestBody = new OpenApiRequestBody()
             {
-                Content = new Dictionary<string, OpenApiMediaType> {
-                    {"application/json",
-                    new OpenApiMediaType()
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
                     {
-                        Schema = context.SchemaGenerator
-                        .GenerateSchema(typeof(Project), context.SchemaRepository),
-                        Example = new OpenApiString(query)
-                    }
+                        "application/json",
+                        new OpenApiMediaType()
+                        {
+                            Schema = context.SchemaGenerator
+                                            .GenerateSchema(typeof(Project), context.SchemaRepository),
+                            Example = new OpenApiString(query)
+                        }
                     }
                 }
             };
@@ -36,5 +39,4 @@ namespace api.Swagger
             openApiDocument?.Paths.Add(graphEndpoint, pathItem);
         }
     }
-
 }

@@ -34,6 +34,7 @@ namespace api.Services
             _context.Evaluations.Add(newEvaluation);
 
             _context.SaveChanges();
+
             return newEvaluation;
         }
 
@@ -42,6 +43,7 @@ namespace api.Services
             evaluation.Progression = nextProgression;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();
+
             return evaluation;
         }
 
@@ -50,6 +52,7 @@ namespace api.Services
             evaluation.Summary = summary;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();
+
             return evaluation;
         }
 
@@ -60,14 +63,17 @@ namespace api.Services
                 throw new InvalidOperationException(
                     $"Completion date already set as: {evaluation.WorkshopCompleteDate}");
             }
+
             if (evaluation.Progression != Progression.FollowUp)
             {
                 throw new InvalidOperationException(
                     $"WorkshopCompleteDate requires an evaluation on FollowUp; it is: {evaluation.Progression}");
             }
+
             evaluation.WorkshopCompleteDate = DateTimeOffset.UtcNow;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();
+
             return evaluation;
         }
 
@@ -76,6 +82,7 @@ namespace api.Services
             evaluation.Project = newProject;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();
+
             return evaluation;
         }
 
@@ -87,10 +94,12 @@ namespace api.Services
         public Evaluation GetEvaluation(string evaluationId)
         {
             Evaluation evaluation = _context.Evaluations.FirstOrDefault(evaluation => evaluation.Id.Equals(evaluationId));
+
             if (evaluation == null)
             {
                 throw new NotFoundInDBException($"Evaluation not found: {evaluationId}");
             }
+
             return evaluation;
         }
 
@@ -99,6 +108,7 @@ namespace api.Services
             evaluation.Status = newStatus;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();
+
             return evaluation;
         }
 
@@ -107,6 +117,7 @@ namespace api.Services
             evaluation.IndicatorActivityDate = DateTime.UtcNow;
             _context.Evaluations.Update(evaluation);
             _context.SaveChanges();
+
             return evaluation;
         }
 

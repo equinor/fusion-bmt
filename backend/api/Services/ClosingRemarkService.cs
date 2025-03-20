@@ -32,6 +32,7 @@ namespace api.Services
             _context.ClosingRemarks.Add(newClosingRemark);
 
             _context.SaveChanges();
+
             return newClosingRemark;
         }
 
@@ -43,10 +44,12 @@ namespace api.Services
         public ClosingRemark GetClosingRemark(string closingRemarkId)
         {
             ClosingRemark ClosingRemark = _context.ClosingRemarks.FirstOrDefault(closingRemark => closingRemark.Id.Equals(closingRemarkId));
+
             if (ClosingRemark == null)
             {
                 throw new NotFoundInDBException($"ClosingRemark not found: {closingRemarkId}");
             }
+
             return ClosingRemark;
         }
     }

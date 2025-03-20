@@ -42,6 +42,7 @@ namespace api.Services
             _context.Actions.Add(newAction);
 
             _context.SaveChanges();
+
             return newAction;
         }
 
@@ -60,6 +61,7 @@ namespace api.Services
             {
                 throw new ArgumentNullException(nameof(action));
             }
+
             action.AssignedTo = assignedTo;
             action.Description = description;
             action.DueDate = dueDate;
@@ -79,6 +81,7 @@ namespace api.Services
             action.IsVoided = newStatus;
             _context.Actions.Update(action);
             _context.SaveChanges();
+
             return action;
         }
 
@@ -91,10 +94,12 @@ namespace api.Services
         {
             IQueryable<Action> queryableAction = _context.Actions.Where(action => action.Id.Equals(actionId));
             Action action = queryableAction.FirstOrDefault();
+
             if (action == null)
             {
                 throw new NotFoundInDBException($"Action not found: {actionId}");
             }
+
             return queryableAction;
         }
     }

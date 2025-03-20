@@ -17,11 +17,11 @@ namespace api.Services
             Evaluation evaluation
         )
         {
-
             Question newQuestion = CreateInternal(template, evaluation);
             _context.Questions.Add(newQuestion);
 
             _context.SaveChanges();
+
             return newQuestion;
         }
 
@@ -51,12 +51,15 @@ namespace api.Services
         )
         {
             List<Question> questions = new List<Question>();
+
             foreach (QuestionTemplate template in templates)
             {
                 questions.Add(CreateInternal(template, evaluation));
             }
+
             _context.Questions.AddRange(questions);
             _context.SaveChanges();
+
             return questions;
         }
 
@@ -64,6 +67,7 @@ namespace api.Services
         {
             var orderedQuestions = questions.OrderBy(q => q.Order);
             int order = 1;
+
             foreach (var q in orderedQuestions)
             {
                 q.Order = order++;
@@ -71,6 +75,7 @@ namespace api.Services
             }
 
             _context.SaveChanges();
+
             return questions;
         }
 
@@ -83,10 +88,12 @@ namespace api.Services
         {
             IQueryable<Question> queryableQuestion = _context.Questions.Where(question => question.Id.Equals(questionId));
             Question question = queryableQuestion.FirstOrDefault();
+
             if (question == null)
             {
                 throw new NotFoundInDBException($"Question not found: {questionId}");
             }
+
             return queryableQuestion;
         }
     }

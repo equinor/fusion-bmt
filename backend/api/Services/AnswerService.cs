@@ -36,6 +36,7 @@ namespace api.Services
             _context.Answers.Add(newAnswer);
 
             _context.SaveChanges();
+
             return newAnswer;
         }
 
@@ -45,15 +46,18 @@ namespace api.Services
             {
                 throw new ArgumentNullException(nameof(question));
             }
+
             if (participant == null && !isAdmin)
             {
                 throw new ArgumentNullException(nameof(participant));
             }
 
-            IQueryable<Answer> answers = _context.Answers.Where(Answer =>
-                Answer.Question.Equals(question)
-                && Answer.Progression.Equals(progression)
-            );
+            IQueryable<Answer> answers = _context
+                                         .Answers
+                                         .Where(Answer =>
+                                                    Answer.Question.Equals(question)
+                                                    && Answer.Progression.Equals(progression)
+                                         );
 
             Answer answer;
 
@@ -67,21 +71,24 @@ namespace api.Services
             if ((isAdmin || participant.Role == Role.Facilitator) &&
                 progression >= Progression.Workshop)
             {
-                answer = answers.FirstOrDefault(answer =>
-                    answer.AnsweredBy.Role.Equals(Role.Facilitator)
-                );
+                answer = answers
+                    .FirstOrDefault(answer =>
+                                        answer.AnsweredBy.Role.Equals(Role.Facilitator)
+                    );
             }
             else
             {
-                answer = answers.FirstOrDefault(answer =>
-                    answer.AnsweredBy.Equals(participant)
-                );
+                answer = answers
+                    .FirstOrDefault(answer =>
+                                        answer.AnsweredBy.Equals(participant)
+                    );
             }
 
             if (answer == null)
             {
                 throw new NotFoundInDBException($"Answer not found for question {question.Id} for participant {participant?.Id} and progression {progression}");
             }
+
             return answer;
         }
 
@@ -109,12 +116,14 @@ namespace api.Services
                 a => a.Question
             ).Where(
                 a => (a.Progression.Equals(Progression.Workshop)
-                    && a.Question.Evaluation.Equals(evaluation))
+                      && a.Question.Evaluation.Equals(evaluation))
             ).ToList();
+
             foreach (Answer a in answers)
             {
                 Create(a.AnsweredBy, a.Question, a.Severity, a.Text, Progression.FollowUp);
             }
+
             return GetAll().Where(a => a.Progression.Equals(Progression.FollowUp));
         }
 
@@ -126,10 +135,12 @@ namespace api.Services
         public Answer GetAnswer(string AnswerId)
         {
             Answer Answer = _context.Answers.FirstOrDefault(Answer => Answer.Id.Equals(AnswerId));
+
             if (Answer == null)
             {
                 throw new NotFoundInDBException($"Answer not found: {AnswerId}");
             }
+
             return Answer;
         }
     }

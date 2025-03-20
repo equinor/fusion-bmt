@@ -42,6 +42,7 @@ public static class BmtSwaggerConfiguration
                     Array.Empty<string>()
                 }
             });
+
             c.DocumentFilter<GraphEndpoint>();
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "api", Version = "v1" });
         });

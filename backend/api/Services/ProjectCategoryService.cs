@@ -28,6 +28,7 @@ namespace api.Services
             var newProjectCategory = _Create(name);
             _context.ProjectCategories.Add(newProjectCategory);
             _context.SaveChanges();
+
             return newProjectCategory;
         }
 
@@ -35,6 +36,7 @@ namespace api.Services
         {
             _context.ProjectCategories.Remove(projectCategory);
             _context.SaveChanges();
+
             return projectCategory;
         }
 
@@ -50,6 +52,7 @@ namespace api.Services
 
             _context.ProjectCategories.Add(newProjectCategory);
             _context.SaveChanges();
+
             return newProjectCategory;
         }
 
@@ -62,6 +65,7 @@ namespace api.Services
             if (category == null)
             {
                 string msg = $"ProjectCategory not found: {id}";
+
                 throw new NotFoundInDBException(msg);
             }
 

@@ -12,6 +12,7 @@ namespace api.Models
         )
         {
             string barrierString = reader.GetString();
+
             Barrier barrier = barrierString switch
             {
                 "General matters" => Barrier.GM,
@@ -26,15 +27,15 @@ namespace api.Models
                 "PS22 HMI" => Barrier.PS22,
                 _ => throw new Exception($"Barrier from JSON is not valid: '{barrierString}'"),
             };
+
             return barrier;
         }
-
 
         public override void Write(
             Utf8JsonWriter writer,
             Barrier barrier,
             JsonSerializerOptions options
-            )
+        )
         {
             writer.WriteStringValue(barrier.ToString());
         }
@@ -49,6 +50,7 @@ namespace api.Models
         )
         {
             string organizationString = reader.GetString();
+
             Organization organization = organizationString switch
             {
                 "All" => Organization.All,
@@ -58,15 +60,15 @@ namespace api.Models
                 "Commissioning" => Organization.Commissioning,
                 _ => throw new Exception($"Organization from JSON is not valid: '{organizationString}'"),
             };
+
             return organization;
         }
-
 
         public override void Write(
             Utf8JsonWriter writer,
             Organization organization,
             JsonSerializerOptions options
-            )
+        )
         {
             writer.WriteStringValue(organization.ToString());
         }

@@ -17,12 +17,12 @@ namespace api.Services
         public List<QuestionTemplate> ActiveQuestions(ProjectCategory projectCategory)
         {
             List<QuestionTemplate> questions = _context.QuestionTemplates
-                .Include(x => x.ProjectCategories)
-                .Where(template =>
-                    template.Status.Equals(Status.Active) &&
-                    template.ProjectCategories.Contains(projectCategory)
-                )
-                .ToList();
+                                                       .Include(x => x.ProjectCategories)
+                                                       .Where(template =>
+                                                                  template.Status.Equals(Status.Active) &&
+                                                                  template.ProjectCategories.Contains(projectCategory)
+                                                       )
+                                                       .ToList();
 
             return questions;
         }
@@ -35,10 +35,10 @@ namespace api.Services
         private int NumberOfQuestionsInBarrier(Barrier barrier)
         {
             return _context.QuestionTemplates
-                .Where(qt => qt.Status == Status.Active)
-                .Where(qt => qt.Barrier == barrier)
-                .Count()
-            ;
+                           .Where(qt => qt.Status == Status.Active)
+                           .Where(qt => qt.Barrier == barrier)
+                           .Count()
+                ;
         }
 
         public QuestionTemplate Create(
@@ -50,14 +50,16 @@ namespace api.Services
         )
         {
             DateTimeOffset createDate = DateTimeOffset.UtcNow;
+
             int last = _context.QuestionTemplates
-                .Where(qt => qt.Status == Status.Active)
-                .Max(qt => qt.Order) + 1
-            ;
+                               .Where(qt => qt.Status == Status.Active)
+                               .Max(qt => qt.Order) + 1
+                ;
+
             int maxAdminOrder = _context.QuestionTemplates
-                .Where(qt => qt.Status == Status.Active)
-                .Max(qt => qt.AdminOrder) + 1
-            ;
+                                        .Where(qt => qt.Status == Status.Active)
+                                        .Max(qt => qt.AdminOrder) + 1
+                ;
 
             // If newOrder == 0, we want to place the new
             // question template as the last one in the barrier.
@@ -70,6 +72,7 @@ namespace api.Services
             if (newOrder == 0)
             {
                 var currentBarrier = barrier;
+
                 while (NumberOfQuestionsInBarrier(currentBarrier) == 0 && currentBarrier != Barrier.GM)
                 {
                     Barrier prevBarrier = currentBarrier - 1;
@@ -83,10 +86,10 @@ namespace api.Services
                 else
                 {
                     newOrder = _context.QuestionTemplates
-                        .Where(qt => qt.Status == Status.Active)
-                        .Where(qt => qt.Barrier == currentBarrier)
-                        .Max(qt => qt.Order) + 1
-                    ;
+                                       .Where(qt => qt.Status == Status.Active)
+                                       .Where(qt => qt.Barrier == currentBarrier)
+                                       .Max(qt => qt.Order) + 1
+                        ;
                 }
             }
 
@@ -121,6 +124,7 @@ namespace api.Services
             {
                 throw new ArgumentNullException(nameof(questionTemplate));
             }
+
             QuestionTemplate newQuestionTemplate = new QuestionTemplate
             {
                 Barrier = barrier,
@@ -133,26 +137,29 @@ namespace api.Services
                 ProjectCategories = questionTemplate.ProjectCategories,
                 AdminOrder = questionTemplate.AdminOrder
             };
+
             _context.QuestionTemplates.Add(newQuestionTemplate);
 
             questionTemplate.Status = Status.Inactive;
             _context.QuestionTemplates.Update(questionTemplate);
             _context.SaveChanges();
+
             return newQuestionTemplate;
         }
 
         public QuestionTemplate Delete(QuestionTemplate questionTemplate)
         {
             /* ReorderQuestionTemplate gives the question template
-            *  that should be deleted the highest order, and gives the
-            *  remaining question templates the correct order. The
-            *  consquence is that all active question templates are
-            *  ordered correctly.
-            */
+             *  that should be deleted the highest order, and gives the
+             *  remaining question templates the correct order. The
+             *  consquence is that all active question templates are
+             *  ordered correctly.
+             */
             ReorderQuestionTemplate(questionTemplate);
             questionTemplate.Status = Status.Voided;
             _context.QuestionTemplates.Update(questionTemplate);
             _context.SaveChanges();
+
             return questionTemplate;
         }
 
@@ -188,22 +195,24 @@ namespace api.Services
              *  shouldn't) do Include.
              */
             var template = _context.QuestionTemplates
-                .Include(x => x.ProjectCategories)
-                .Single(x => x.Id == questionTemplateId)
-            ;
+                                   .Include(x => x.ProjectCategories)
+                                   .Single(x => x.Id == questionTemplateId)
+                ;
 
             var projectCategory = _context.ProjectCategories
-                .Single(x => x.Id == projectCategoryId)
-            ;
+                                          .Single(x => x.Id == projectCategoryId)
+                ;
 
             if (template.ProjectCategories.Contains(projectCategory))
             {
                 string msg = "QuestionTemplate is already in ProjectCategory";
+
                 throw new Exception(msg);
             }
 
             template.ProjectCategories.Add(projectCategory);
             _context.SaveChanges();
+
             return template;
         }
 
@@ -213,19 +222,20 @@ namespace api.Services
         )
         {
             var template = _context.QuestionTemplates
-                .Include(x => x.ProjectCategories)
-                .Single(x => x.Id == questionTemplateId)
-            ;
+                                   .Include(x => x.ProjectCategories)
+                                   .Single(x => x.Id == questionTemplateId)
+                ;
 
             foreach (var id in projectCategoryIds)
             {
                 var projectCategory = _context.ProjectCategories
-                    .Single(x => x.Id == id)
-                ;
+                                              .Single(x => x.Id == id)
+                    ;
 
                 if (!template.ProjectCategories.Contains(projectCategory))
                 {
                     string msg = "QuestionTemplate is not in ProjectCategory";
+
                     throw new Exception(msg);
                 }
 
@@ -233,6 +243,7 @@ namespace api.Services
             }
 
             _context.SaveChanges();
+
             return template;
         }
 
@@ -248,12 +259,13 @@ namespace api.Services
             _context.QuestionTemplates.Update(questionTemplate);
 
             var questionTemplates = _context.QuestionTemplates
-                .Where(qt => qt.Status == Status.Active)
-                .Where(qt => qt.Id != questionTemplate.Id)
-                .OrderBy(qt => qt.Order)
-            ;
+                                            .Where(qt => qt.Status == Status.Active)
+                                            .Where(qt => qt.Id != questionTemplate.Id)
+                                            .OrderBy(qt => qt.Order)
+                ;
 
             int order = 1;
+
             foreach (QuestionTemplate qt in questionTemplates)
             {
                 if (order == newOrder)
@@ -261,33 +273,39 @@ namespace api.Services
                     // Skip new order to make room for updated QT
                     order += 1;
                 }
+
                 qt.Order = order++;
                 _context.QuestionTemplates.Update(qt);
             }
 
             _context.SaveChanges();
+
             return questionTemplate;
         }
 
         public QuestionTemplate ReorderQuestionTemplate(QuestionTemplate questionTemplate)
         {
             int newOrder = _context.QuestionTemplates.Where(qt => qt.Status == Status.Active).Max(qt => qt.Order);
+
             return ReorderQuestionTemplateInternal(questionTemplate, newOrder);
         }
 
         public QuestionTemplate ReorderQuestionTemplate(QuestionTemplate questionTemplate, QuestionTemplate newNextQuestionTemplate)
         {
             int newOrder = newNextQuestionTemplate.Order - 1;
+
             return ReorderQuestionTemplateInternal(questionTemplate, newOrder);
         }
 
         public QuestionTemplate GetQuestionTemplate(string questionTemplateId)
         {
             QuestionTemplate questionTemplate = _context.QuestionTemplates.FirstOrDefault(qt => qt.Id.Equals(questionTemplateId));
+
             if (questionTemplate == null)
             {
                 throw new NotFoundInDBException($"QuestionTemplate not found: {questionTemplateId}");
             }
+
             return questionTemplate;
         }
     }

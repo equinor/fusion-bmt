@@ -55,6 +55,7 @@ namespace api.GQL
         public Project GetProject(string fusionProjectID, string externalID)
         {
             Project project;
+
             try
             {
                 try
@@ -71,6 +72,7 @@ namespace api.GQL
                 project = _projectService.Create(externalID, fusionProjectID);
                 _logger.LogInformation($"Created new project with fusionProjectId: {fusionProjectID}");
             }
+
             return project;
         }
 

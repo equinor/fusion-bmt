@@ -1,5 +1,4 @@
 using System.Text.Json;
-
 using api.Models;
 
 namespace api.Utils

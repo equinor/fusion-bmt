@@ -1,24 +1,24 @@
 ﻿{
-  "profiles": {
-    "localdev": {
-        "commandName": "Project",
-        "dotnetRunMessages": true,
-        "launchBrowser": false,
-        "applicationUrl": "http://localhost:5000",
-        "environmentVariables": {
-            "AppConfiguration:Environment": "localdev",
-            "AppConfiguration:ConnectionString": ""
-        }
-    },
-    "CI": {
-        "commandName": "Project",
-        "dotnetRunMessages": true,
-        "launchBrowser": false,
-        "applicationUrl": "http://localhost:5000",
-        "environmentVariables": {
-            "AppConfiguration:Environment": "CI",
-            "AppConfiguration:ConnectionString": ""
+    "profiles": {
+        "localdev": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "launchBrowser": false,
+            "applicationUrl": "http://localhost:5000",
+            "environmentVariables": {
+                "AppConfiguration:Environment": "localdev",
+                "AppConfiguration:ConnectionString": ""
+            }
+        },
+        "CI": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "launchBrowser": false,
+            "applicationUrl": "http://localhost:5000",
+            "environmentVariables": {
+                "AppConfiguration:Environment": "CI",
+                "AppConfiguration:ConnectionString": ""
+            }
         }
     }
-  }
 }

@@ -21,11 +21,11 @@ builder.Services.AddBmtCorsPolicy();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services.AddGraphQLServer()
-    .AddProjections()
-    .AddAuthorization()
-    .AddFiltering()
-    .AddQueryType<GraphQuery>()
-    .AddMutationType<Mutation>();
+       .AddProjections()
+       .AddAuthorization()
+       .AddFiltering()
+       .AddQueryType<GraphQuery>()
+       .AddMutationType<Mutation>();
 
 builder.Services.AddControllers();
 
@@ -44,9 +44,7 @@ builder.Services.AddBmtAuthorization();
 
 builder.Services.AddBmtIocConfiguration();
 
-
 builder.Services.AddErrorFilter<ErrorFilter>();
-
 
 builder.Services.AddHealthChecks().AddCheck<EvaluationService>("ModelsFromDB");
 
@@ -76,8 +74,9 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "api v1");
     c.OAuthAppName("Fusion-BMT");
     c.OAuthClientId(builder.Configuration["AzureAd:ClientId"]);
+
     c.OAuthAdditionalQueryStringParams(new Dictionary<string, string>
-        { { "resource", $"{builder.Configuration["AzureAd:ClientId"]}" } });
+                                           { { "resource", $"{builder.Configuration["AzureAd:ClientId"]}" } });
 });
 
 app.UseCors(BmtCorsPolicyConfiguration.AccessControlPolicyName);

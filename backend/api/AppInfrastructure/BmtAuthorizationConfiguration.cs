@@ -11,8 +11,8 @@ public static class BmtAuthorizationConfiguration
         services.AddAuthorization(options =>
         {
             options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build();
+                                     .RequireAuthenticatedUser()
+                                     .Build();
         });
     }
 }

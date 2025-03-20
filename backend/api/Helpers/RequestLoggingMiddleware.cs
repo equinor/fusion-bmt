@@ -2,6 +2,7 @@ using System.Net;
 using Newtonsoft.Json;
 
 namespace api.Helpers;
+
 public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -25,7 +26,6 @@ public class RequestLoggingMiddleware
         }
         finally
         {
-
             _logger.LogInformation(
                 "Request {trace} {user} {method} {url} => {statusCode}",
                 context.TraceIdentifier,
@@ -44,6 +44,7 @@ public class RequestLoggingMiddleware
         var errorMessage = JsonConvert.SerializeObject(errorMessageObject);
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
         return context.Response.WriteAsync(errorMessage);
     }
 }

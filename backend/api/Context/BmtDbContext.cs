@@ -18,7 +18,7 @@ namespace api.Context
         public DbSet<ProjectCategory> ProjectCategories { get; set; }
 
         public BmtDbContext(DbContextOptions<BmtDbContext> options)
-        : base(options)
+            : base(options)
         {
         }
 

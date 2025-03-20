@@ -23,12 +23,15 @@ namespace api.Context
         {
             string pathJsonRelativeToApiRoot = "Context/InitQuestions.json";
             List<QuestionTemplate> questions;
+
             using (StreamReader reader = new StreamReader(pathJsonRelativeToApiRoot))
             {
                 string json = reader.ReadToEnd();
                 questions = JsonSerializer.Deserialize<List<QuestionTemplate>>(json, JsonUtils.SerializerOptions);
             }
+
             int order = 1;
+
             foreach (QuestionTemplate q in questions)
             {
                 q.CreateDate = DateTimeOffset.UtcNow;
@@ -38,6 +41,7 @@ namespace api.Context
 
                 order += 1;
             }
+
             return questions;
         }
 
@@ -50,6 +54,7 @@ namespace api.Context
                 Action = Actions[0],
                 CreatedBy = Participants[0]
             };
+
             var note2 = new Note
             {
                 Text = "Note2",
@@ -57,6 +62,7 @@ namespace api.Context
                 Action = Actions[0],
                 CreatedBy = Participants[0]
             };
+
             return new List<Note>(new Note[] { note1, note2 });
         }
 
@@ -69,6 +75,7 @@ namespace api.Context
                 Action = Actions[0],
                 CreatedBy = Participants[0]
             };
+
             var closingRemark2 = new ClosingRemark
             {
                 Text = "ClosingRemark2",
@@ -76,6 +83,7 @@ namespace api.Context
                 Action = Actions[0],
                 CreatedBy = Participants[0]
             };
+
             return new List<ClosingRemark>(new ClosingRemark[] { closingRemark1, closingRemark2 });
         }
 
@@ -94,6 +102,7 @@ namespace api.Context
                 CreatedBy = Participants[0],
                 Question = Questions[0]
             };
+
             var action2 = new Action
             {
                 Title = "Action2",
@@ -107,6 +116,7 @@ namespace api.Context
                 CreatedBy = Participants[0],
                 Question = Questions[0]
             };
+
             return new List<Action>(new Action[] { action1, action2 });
         }
 
@@ -121,6 +131,7 @@ namespace api.Context
                 Question = Questions[1],
                 AnsweredBy = Participants[0]
             };
+
             var answer2 = new Answer
             {
                 Progression = Progression.FollowUp,
@@ -130,6 +141,7 @@ namespace api.Context
                 Question = Questions[2],
                 AnsweredBy = Participants[0]
             };
+
             var answer3 = new Answer
             {
                 Progression = Progression.Preparation,
@@ -139,12 +151,14 @@ namespace api.Context
                 Question = Questions[3],
                 AnsweredBy = Participants[0]
             };
+
             return new List<Answer>(new Answer[] { answer1, answer2, answer3 });
         }
 
         private static List<Question> GetQuestions()
         {
             List<Question> questions = new List<Question>();
+
             foreach (QuestionTemplate questionTemplate in QuestionTemplates)
             {
                 questions.Add(new Question
@@ -173,6 +187,7 @@ namespace api.Context
                 Project = Projects[0],
                 Status = Status.Active
             };
+
             var evaluation2 = new Evaluation
             {
                 Name = "Evaluation2",
@@ -181,6 +196,7 @@ namespace api.Context
                 Project = Projects[0],
                 Status = Status.Active
             };
+
             var evaluation3 = new Evaluation
             {
                 Name = "Evaluation3",
@@ -189,6 +205,7 @@ namespace api.Context
                 Project = Projects[1],
                 Status = Status.Active
             };
+
             var evaluation4 = new Evaluation
             {
                 Name = "Evaluation4",
@@ -212,6 +229,7 @@ namespace api.Context
                 Progression = Progression.Nomination,
                 Evaluation = Evaluations[0]
             };
+
             var participant2 = new Participant
             {
                 AzureUniqueId = "2",
@@ -221,6 +239,7 @@ namespace api.Context
                 Progression = Progression.Individual,
                 Evaluation = Evaluations[1]
             };
+
             var participant3 = new Participant
             {
                 AzureUniqueId = "3",
@@ -230,6 +249,7 @@ namespace api.Context
                 Progression = Progression.Individual,
                 Evaluation = Evaluations[1]
             };
+
             return new List<Participant>(new Participant[] { participant1, participant2, participant3 });
         }
 
@@ -241,6 +261,7 @@ namespace api.Context
                 ExternalId = "1",
                 CreateDate = DateTimeOffset.UtcNow
             };
+
             var project2 = new Project
             {
                 FusionProjectId = "2",
@@ -291,18 +312,22 @@ namespace api.Context
             var templates = context.QuestionTemplates.Include(x => x.ProjectCategories);
             var categories = context.ProjectCategories;
             int qCounter = 0;
+
             foreach (var template in templates)
             {
                 qCounter++;
+
                 foreach (var category in categories)
                 {
                     template.ProjectCategories.Add(category);
+
                     if (qCounter % 2 == 1)
                     {
                         break;
                     }
                 }
             }
+
             context.SaveChanges();
         }
     }
