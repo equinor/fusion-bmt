@@ -201,6 +201,7 @@ const AddNomineeDialog = ({ currentNominees, open, onCloseClick, onNomineeSelect
                                     <PersonInfo style={{ marginBottom: 10 }} key={p.azureId}>
                                         <PersonAvatar azureId={p.azureId} />
                                         <Typography>{p.name}</Typography>
+                                        <Typography>{p.mail}</Typography>
                                         <Button
                                             onClick={() => {
                                                 onNomineeSelected(p.azureId, selectedRole, selectedOrg)

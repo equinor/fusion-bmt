@@ -49,7 +49,7 @@ const TablesAndTitles = ({
 
             if (!followUpScores[projectId]) {
                 const score = projectBMTScores.find(score => score.projectId === projectId) ||
-                              generatedBMTScores?.generateBMTScores.find((score: { projectId: string }) => score.projectId === projectId)
+                              generatedBMTScores?.generateBmtScores.find((score: { projectId: string }) => score.projectId === projectId)
                 followUpScores[projectId] = score ? score.followUpScore : null
             }
         })

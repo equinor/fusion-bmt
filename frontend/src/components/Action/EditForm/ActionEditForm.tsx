@@ -14,7 +14,7 @@ import ErrorBanner from '../../ErrorBanner'
 import { genericErrorMessage } from '../../../utils/Variables'
 import { toCapitalizedCase } from '../../../utils/helpers'
 import SearchableDropdown from '../../../components/SearchableDropDown'
-import { PersonDetails } from '@equinor/fusion-react-person'
+import { PersonDetails, PersonSelect, PersonSelectEvent } from '@equinor/fusion-react-person'
 
 
 const StyledDate = styled(Typography)`
@@ -65,6 +65,7 @@ const ActionEditForm = ({
     const [titleValidity, setTitleValidity] = useState<Validity>()
 
     const [assignedToId, setAssignedToId] = useState<string | undefined>(action.assignedTo?.azureUniqueId)
+    // TODO: Use people API to get the person details
     const assignedTo: Participant | undefined = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
     const [assignedToValidity, setAssignedToValidity] = useState<Validity>()
 
@@ -92,13 +93,10 @@ const ActionEditForm = ({
 
     const checkAndUpdateValidity = () => {
         const isTitleValid = checkIfTitleValid(title)
-        const isParticipantValid = checkIfParticipantValid(assignedTo)
-        if (!isTitleValid || !isParticipantValid) {
+        // const isParticipantValid = checkIfParticipantValid(assignedTo)
+        if (!isTitleValid) {
             if (!isTitleValid) {
                 setTitleValidity('error')
-            }
-            if (!isParticipantValid) {
-                setAssignedToValidity('error')
             }
             return false
         }
@@ -107,6 +105,7 @@ const ActionEditForm = ({
 
     useEffectNotOnMount(() => {
         const isValid = checkAndUpdateValidity()
+        console.log('useEffectNotOnMount assignedTo', assignedTo)
         const editedAction: Action = {
             ...action,
             title,
@@ -121,6 +120,7 @@ const ActionEditForm = ({
 
     useEffectNotOnMount(() => {
         const isValid = checkAndUpdateValidity()
+        console.log('useEffectNotOnMount assignedTo', assignedTo)
         const editedAction: Action = {
             ...action,
             title,
@@ -165,6 +165,11 @@ const ActionEditForm = ({
         setCompletingReason(completingReason + '[text](url)')
     }
 
+    const onAssigneeSelected = (e: PersonSelectEvent) => {
+        const selectedPersonId = e.nativeEvent.detail.selected?.azureId
+        setAssignedToId(selectedPersonId)
+    }
+
     return (
         <>
             <Grid container spacing={3}>
@@ -197,8 +202,19 @@ const ActionEditForm = ({
                         disabled={disableEditAction}
                     />
                 </Grid>
-                <Grid item xs={5}>
-                    <SearchableDropdown
+                <Grid item xs={12}>
+                    <PersonSelect
+                        selectedPerson={assignedToId}
+                        dropdownHeight="300px"
+                        initialText="The initial text result"
+                        leadingIcon="search"
+                        onDropdownClosed={function Ki() { }}
+                        onSelect={onAssigneeSelected}
+                        placeholder="Start to type to search..."
+                        variant="page"
+                        value=' @equinor.com '
+                    />
+                    {/* <SearchableDropdown
                         label="Assignee"
                         options={assigneesOptions}
                         value={assigneesOptions.find(option => option.id === assignedToId)?.title}
@@ -209,10 +225,10 @@ const ActionEditForm = ({
                         searchQuery={async (searchTerm: string) => {
                             return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
                         } }
-                    />
+                    /> */}
                 </Grid>
-                <Grid item xs={4}>
-                     <TextField
+                <Grid item xs={6}>
+                    <TextField
                         label='Due date'
                         id='dueDate'
                         type='date'
@@ -222,8 +238,8 @@ const ActionEditForm = ({
                         value={dueDate.toISOString().slice(0, 10)}
                     />
                 </Grid>
-                <Grid item xs={3}>
-                 <NativeSelect
+                <Grid item xs={6}>
+                    <NativeSelect
                         label="Priority"
                         id="priority-select"
                         disabled={disableEditAction}

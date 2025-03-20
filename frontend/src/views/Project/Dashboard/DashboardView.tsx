@@ -331,8 +331,8 @@ interface useGenerateBMTScoresMutationProps {
 
 const useGenerateBMTScoresMutation = (): useGenerateBMTScoresMutationProps => {
     const GENERATE_BMTSCORE = gql`
-        mutation GenerateBMTScores {
-            generateBMTScores {
+        mutation GenerateBmtScores {
+            generateBmtScores {
                 evaluationId
                 projectId
                 workshopScore

@@ -125,6 +125,7 @@ const useEditActionMutation = (): EditActionMutationProps => {
     })
 
     const editAction = (action: Action) => {
+        console.log('editAction', action)
         editActionApolloFunc({ variables: { ...action, actionId: action.id, assignedToId: action.assignedTo!.id } })
     }
 
