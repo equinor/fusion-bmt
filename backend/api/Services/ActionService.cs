@@ -2,105 +2,97 @@ using api.Context;
 using api.Models;
 using Action = api.Models.Action;
 
-namespace api.Services
+namespace api.Services;
+
+public class ActionService(BmtDbContext context)
 {
-    public class ActionService
+    public Action Create(
+        Participant createdBy,
+        Participant assignedTo,
+        string description,
+        DateTimeOffset dueDate,
+        string title,
+        Priority priority,
+        Question question
+    )
     {
-        private readonly BmtDbContext _context;
+        var createDate = DateTimeOffset.UtcNow;
 
-        public ActionService(BmtDbContext context)
+        var newAction = new Action
         {
-            _context = context;
+            CreateDate = createDate,
+            AssignedTo = assignedTo,
+            CreatedBy = createdBy,
+            Description = description,
+            DueDate = dueDate,
+            OnHold = false,
+            Completed = false,
+            Priority = priority,
+            Title = title,
+            Question = question
+        };
+
+        context.Actions.Add(newAction);
+
+        context.SaveChanges();
+
+        return newAction;
+    }
+
+    public Action EditAction(
+        Action action,
+        Participant assignedTo,
+        string description,
+        DateTimeOffset dueDate,
+        string title,
+        bool onHold,
+        bool completed,
+        Priority priority
+    )
+    {
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(action));
         }
 
-        public Action Create(
-            Participant createdBy,
-            Participant assignedTo,
-            string description,
-            DateTimeOffset dueDate,
-            string title,
-            Priority priority,
-            Question question
-        )
+        action.AssignedTo = assignedTo;
+        action.Description = description;
+        action.DueDate = dueDate;
+        action.Title = title;
+        action.OnHold = onHold;
+        action.Completed = completed;
+        action.Priority = priority;
+
+        context.Actions.Update(action);
+        context.SaveChanges();
+
+        return action;
+    }
+
+    public Action SetVoid(Action action, bool newStatus)
+    {
+        action.IsVoided = newStatus;
+        context.Actions.Update(action);
+        context.SaveChanges();
+
+        return action;
+    }
+
+    public IQueryable<Action> GetAll()
+    {
+        return context.Actions;
+    }
+
+    public IQueryable<Action> GetAction(string actionId)
+    {
+        var queryableAction = context.Actions.Where(action => action.Id.Equals(actionId));
+        var action = queryableAction.FirstOrDefault();
+
+        if (action == null)
         {
-            DateTimeOffset createDate = DateTimeOffset.UtcNow;
-
-            Action newAction = new Action
-            {
-                CreateDate = createDate,
-                AssignedTo = assignedTo,
-                CreatedBy = createdBy,
-                Description = description,
-                DueDate = dueDate,
-                OnHold = false,
-                Completed = false,
-                Priority = priority,
-                Title = title,
-                Question = question
-            };
-
-            _context.Actions.Add(newAction);
-
-            _context.SaveChanges();
-
-            return newAction;
+            throw new NotFoundInDBException($"Action not found: {actionId}");
         }
 
-        public Action EditAction(
-            Action action,
-            Participant assignedTo,
-            string description,
-            DateTimeOffset dueDate,
-            string title,
-            bool onHold,
-            bool completed,
-            Priority priority
-        )
-        {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-
-            action.AssignedTo = assignedTo;
-            action.Description = description;
-            action.DueDate = dueDate;
-            action.Title = title;
-            action.OnHold = onHold;
-            action.Completed = completed;
-            action.Priority = priority;
-
-            _context.Actions.Update(action);
-            _context.SaveChanges();
-
-            return action;
-        }
-
-        public Action SetVoid(Action action, bool newStatus)
-        {
-            action.IsVoided = newStatus;
-            _context.Actions.Update(action);
-            _context.SaveChanges();
-
-            return action;
-        }
-
-        public IQueryable<Action> GetAll()
-        {
-            return _context.Actions;
-        }
-
-        public IQueryable<Action> GetAction(string actionId)
-        {
-            IQueryable<Action> queryableAction = _context.Actions.Where(action => action.Id.Equals(actionId));
-            Action action = queryableAction.FirstOrDefault();
-
-            if (action == null)
-            {
-                throw new NotFoundInDBException($"Action not found: {actionId}");
-            }
-
-            return queryableAction;
-        }
+        return queryableAction;
     }
 }

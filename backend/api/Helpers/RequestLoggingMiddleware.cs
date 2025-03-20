@@ -3,22 +3,13 @@ using Newtonsoft.Json;
 
 namespace api.Helpers;
 
-public class RequestLoggingMiddleware
+public class RequestLoggingMiddleware(RequestDelegate requestDelegate, ILogger<RequestLoggingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<RequestLoggingMiddleware> _logger;
-
-    public RequestLoggingMiddleware(RequestDelegate requestDelegate, ILogger<RequestLoggingMiddleware> logger)
-    {
-        _next = requestDelegate;
-        _logger = logger;
-    }
-
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await requestDelegate(context);
         }
         catch (Exception ex)
         {
@@ -26,7 +17,7 @@ public class RequestLoggingMiddleware
         }
         finally
         {
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Request {trace} {user} {method} {url} => {statusCode}",
                 context.TraceIdentifier,
                 context.User?.Identity?.Name,
@@ -38,7 +29,7 @@ public class RequestLoggingMiddleware
 
     private Task HandleException(HttpContext context, Exception ex)
     {
-        _logger.LogError(ex.ToString());
+        logger.LogError(ex.ToString());
         var errorMessageObject = new { Message = ex.Message, Code = "system_error" };
 
         var errorMessage = JsonConvert.SerializeObject(errorMessageObject);

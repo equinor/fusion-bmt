@@ -1,109 +1,101 @@
 using api.Context;
 using api.Models;
 
-namespace api.Services
+namespace api.Services;
+
+public class ParticipantService(BmtDbContext context)
 {
-    public class ParticipantService
+    public Participant Create(string azureUniqueId, Evaluation evaluation, Organization organization, Role role)
     {
-        private readonly BmtDbContext _context;
+        var createDate = DateTimeOffset.UtcNow;
 
-        public ParticipantService(BmtDbContext context)
+        var newParticipant = new Participant
         {
-            _context = context;
+            CreateDate = createDate,
+            AzureUniqueId = azureUniqueId,
+            Evaluation = evaluation,
+            Organization = organization,
+            Role = role,
+            Progression = evaluation.Progression
+        };
+
+        context.Participants.Add(newParticipant);
+
+        context.SaveChanges();
+
+        return newParticipant;
+    }
+
+    public Participant Remove(string participantId)
+    {
+        var participant = GetParticipant(participantId);
+        context.Participants.Remove(participant);
+        context.SaveChanges();
+
+        return participant;
+    }
+
+    public IQueryable<Participant> GetAll()
+    {
+        return context.Participants;
+    }
+
+    public Participant GetParticipant(string participantId)
+    {
+        var participant = context.Participants.FirstOrDefault(participant => participant.Id.Equals(participantId));
+
+        if (participant == null)
+        {
+            throw new NotFoundInDBException($"Participant not found: {participantId}");
         }
 
-        public Participant Create(string azureUniqueId, Evaluation evaluation, Organization organization, Role role)
+        return participant;
+    }
+
+    public Participant GetParticipant(string azureUniqueId, Evaluation evaluation, bool isAdmin = false)
+    {
+        if (evaluation == null)
         {
-            DateTimeOffset createDate = DateTimeOffset.UtcNow;
-
-            Participant newParticipant = new Participant
-            {
-                CreateDate = createDate,
-                AzureUniqueId = azureUniqueId,
-                Evaluation = evaluation,
-                Organization = organization,
-                Role = role,
-                Progression = evaluation.Progression
-            };
-
-            _context.Participants.Add(newParticipant);
-
-            _context.SaveChanges();
-
-            return newParticipant;
+            throw new ArgumentNullException(nameof(evaluation));
         }
 
-        public Participant Remove(string participantId)
-        {
-            Participant participant = GetParticipant(participantId);
-            _context.Participants.Remove(participant);
-            _context.SaveChanges();
+        var participant = context
+                          .Participants
+                          .FirstOrDefault(participant =>
+                                              participant.AzureUniqueId.Equals(azureUniqueId)
+                                              && participant.Evaluation.Equals(evaluation)
+                          );
 
-            return participant;
+        if (participant == null && !isAdmin)
+        {
+            throw new NotFoundInDBException($"Participant not found: azure id: {azureUniqueId}, evaluation id: {evaluation.Id}");
         }
 
-        public IQueryable<Participant> GetAll()
+        return participant;
+    }
+
+    public IQueryable<Participant> ProgressAllParticipants(Evaluation evaluation, Progression newProgression)
+    {
+        var participants = context.Participants.Where(p => p.Evaluation.Equals(evaluation));
+
+        foreach (var p in participants)
         {
-            return _context.Participants;
+            p.Progression = newProgression;
         }
 
-        public Participant GetParticipant(string participantId)
-        {
-            Participant participant = _context.Participants.FirstOrDefault(participant => participant.Id.Equals(participantId));
+        context.UpdateRange(participants);
+        context.SaveChanges();
 
-            if (participant == null)
-            {
-                throw new NotFoundInDBException($"Participant not found: {participantId}");
-            }
+        return participants;
+    }
 
-            return participant;
-        }
+    public Participant ProgressParticipant(Participant participant, Progression newProgression)
+    {
+        participant.Progression = newProgression;
 
-        public Participant GetParticipant(string azureUniqueId, Evaluation evaluation, bool isAdmin = false)
-        {
-            if (evaluation == null)
-            {
-                throw new ArgumentNullException(nameof(evaluation));
-            }
+        context.Update(participant);
+        context.SaveChanges();
 
-            Participant participant = _context
-                                      .Participants
-                                      .FirstOrDefault(participant =>
-                                                          participant.AzureUniqueId.Equals(azureUniqueId)
-                                                          && participant.Evaluation.Equals(evaluation)
-                                      );
-
-            if (participant == null && !isAdmin)
-            {
-                throw new NotFoundInDBException($"Participant not found: azure id: {azureUniqueId}, evaluation id: {evaluation.Id}");
-            }
-
-            return participant;
-        }
-
-        public IQueryable<Participant> ProgressAllParticipants(Evaluation evaluation, Progression newProgression)
-        {
-            IQueryable<Participant> participants = _context.Participants.Where(p => p.Evaluation.Equals(evaluation));
-
-            foreach (Participant p in participants)
-            {
-                p.Progression = newProgression;
-            }
-
-            _context.UpdateRange(participants);
-            _context.SaveChanges();
-
-            return participants;
-        }
-
-        public Participant ProgressParticipant(Participant participant, Progression newProgression)
-        {
-            participant.Progression = newProgression;
-
-            _context.Update(participant);
-            _context.SaveChanges();
-
-            return participant;
-        }
+        return participant;
     }
 }
