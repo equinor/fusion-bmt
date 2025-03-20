@@ -46,6 +46,7 @@ export default ActionCreateSidebarWithApi
 export interface DataToCreateAction {
     questionId: string
     assignedToId: string
+    azureUniqueId: string
     description: string
     dueDate: Date
     priority: Priority
@@ -64,6 +65,7 @@ const useCreateActionMutation = (): CreateActionMutationProps => {
         mutation CreateAction(
             $questionId: String
             $assignedToId: String
+            $azureUniqueId: String
             $description: String
             $dueDate: DateTime!
             $priority: Priority!
@@ -72,6 +74,7 @@ const useCreateActionMutation = (): CreateActionMutationProps => {
             createAction(
                 questionId: $questionId
                 assignedToId: $assignedToId
+                azureUniqueId: $azureUniqueId
                 description: $description
                 dueDate: $dueDate
                 priority: $priority

@@ -89,7 +89,7 @@ const ActionEditForm = ({
     useEffect(() => {
         const foundAssignee = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
         setAssignedTo(foundAssignee)
-    }, [assignedToId, possibleAssignees])
+    }, [possibleAssignees])
 
     // If user assigned is not in the list of possible assignees, create a new participant
     useEffect(() => {

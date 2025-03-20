@@ -312,6 +312,7 @@ namespace api.GQL
         public Action CreateAction(
             string questionId,
             string assignedToId,
+            string azureUniqueId,
             string description,
             DateTimeOffset dueDate,
             Priority priority,
@@ -322,9 +323,28 @@ namespace api.GQL
             var evaluation = queryableQuestion.Select(q => q.Evaluation).First();
 
             Role[] canBePerformedBy = [Role.Facilitator, Role.Participant, Role.OrganizationLead];
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
+            var isAdmin = authService.GetRoles().Contains("Role.Admin");
 
-            var assignedTo = participantService.GetParticipant(assignedToId);
+            if (!isAdmin)
+            {
+                AssertCanPerformMutation(evaluation, canBePerformedBy);
+            }
+
+            Participant assignedTo;
+
+            try
+            {
+                assignedTo = participantService.GetParticipant(assignedToId);
+            }
+            catch (NotFoundInDBException)
+            {
+                assignedTo = participantService.Create(
+                    azureUniqueId: azureUniqueId,
+                    evaluation: evaluation,
+                    organization: Organization.All,
+                    role: Role.Participant
+                );
+            }
 
             return actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority,
                                         question);
