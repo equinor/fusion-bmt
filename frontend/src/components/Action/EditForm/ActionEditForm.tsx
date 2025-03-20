@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Icon, TextField, Typography, NativeSelect } from '@equinor/eds-core-react'
 import { Grid } from '@mui/material'
 import styled from 'styled-components'
-import { Action, Participant, Priority, Question } from '../../../api/models'
+import { Action, Organization, Participant, Priority, Progression, Question, Role } from '../../../api/models'
 import { barrierToString } from '../../../utils/EnumToString'
 import { useEffectNotOnMount, useShowErrorHook } from '../../../utils/hooks'
 import { checkIfParticipantValid, checkIfTitleValid, ErrorIcon, TextFieldChangeEvent, Validity } from '../utils'
@@ -65,8 +65,9 @@ const ActionEditForm = ({
     const [titleValidity, setTitleValidity] = useState<Validity>()
 
     const [assignedToId, setAssignedToId] = useState<string | undefined>(action.assignedTo?.azureUniqueId)
-    // TODO: Use people API to get the person details
-    const assignedTo: Participant | undefined = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+    const [assignedTo, setAssignedTo] = useState<Participant | undefined>(
+        possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+    )
     const [assignedToValidity, setAssignedToValidity] = useState<Validity>()
 
     const [dueDate, setDueDate] = useState<Date>(new Date(action.dueDate))
@@ -102,6 +103,31 @@ const ActionEditForm = ({
         }
         return true
     }
+
+    useEffect(() => {
+        const foundAssignee = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+        setAssignedTo(foundAssignee)
+    }, [assignedToId, possibleAssignees])
+
+    // If user assigned is not in the list of possible assignees, create a new participant
+    useEffect(() => {
+        console.log('useEffect assignedToId', assignedToId)
+        const evaluation = possibleAssignees[0].evaluation
+        console.log('useEffect evaluation', evaluation)
+        if (assignedToId && !possibleAssignees.find(a => a.azureUniqueId === assignedToId)) {
+            const newParticipant: Participant = {
+                azureUniqueId: assignedToId,
+                createDate: new Date().toISOString(),
+                id: '',
+                evaluation: evaluation,
+                evaluationId: '',
+                organization: Organization.All,
+                role: Role.Participant,
+                progression: Progression.Nomination
+            }
+            setAssignedTo(newParticipant)
+        }
+    }, [assignedToId])
 
     useEffectNotOnMount(() => {
         const isValid = checkAndUpdateValidity()
@@ -167,6 +193,7 @@ const ActionEditForm = ({
 
     const onAssigneeSelected = (e: PersonSelectEvent) => {
         const selectedPersonId = e.nativeEvent.detail.selected?.azureId
+        console.log('detail selected', e.nativeEvent.detail.selected)
         setAssignedToId(selectedPersonId)
     }
 

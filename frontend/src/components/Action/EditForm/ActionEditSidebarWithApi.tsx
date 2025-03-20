@@ -89,6 +89,7 @@ const useEditActionMutation = (): EditActionMutationProps => {
         mutation EditAction(
             $actionId: String
             $assignedToId: String
+            $azureUniqueId: String
             $description: String
             $dueDate: DateTime!
             $title: String
@@ -99,6 +100,7 @@ const useEditActionMutation = (): EditActionMutationProps => {
             editAction(
                 actionId: $actionId
                 assignedToId: $assignedToId
+                azureUniqueId: $azureUniqueId
                 description: $description
                 dueDate: $dueDate
                 title: $title
@@ -126,7 +128,7 @@ const useEditActionMutation = (): EditActionMutationProps => {
 
     const editAction = (action: Action) => {
         console.log('editAction', action)
-        editActionApolloFunc({ variables: { ...action, actionId: action.id, assignedToId: action.assignedTo!.id } })
+        editActionApolloFunc({ variables: { ...action, actionId: action.id, assignedToId: action.assignedTo!.id, azureUniqueId: action.assignedTo?.azureUniqueId } })
     }
 
     return {

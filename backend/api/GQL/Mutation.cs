@@ -199,9 +199,9 @@ namespace api.GQL
         public Participant DeleteParticipant(string participantId)
         {
             var evaluation = participantService.GetAll()
-                                                .Where(p => p.Id.Equals(participantId))
-                                                .Select(p => p.Evaluation)
-                                                .First()
+                                               .Where(p => p.Id.Equals(participantId))
+                                               .Select(p => p.Evaluation)
+                                               .First()
                 ;
 
             Role[] canBePerformedBy = [Role.Facilitator, Role.OrganizationLead];
@@ -309,8 +309,13 @@ namespace api.GQL
             evaluationService.SetIndicatorActivity(evaluation);
         }
 
-        public Action CreateAction(string questionId, string assignedToId, string description, DateTimeOffset dueDate,
-                                   Priority priority, string title)
+        public Action CreateAction(
+            string questionId,
+            string assignedToId,
+            string description,
+            DateTimeOffset dueDate,
+            Priority priority,
+            string title)
         {
             var queryableQuestion = questionService.GetQuestion(questionId);
             var question = queryableQuestion.First();
@@ -322,23 +327,50 @@ namespace api.GQL
             var assignedTo = participantService.GetParticipant(assignedToId);
 
             return actionService.Create(CurrentUser(evaluation), assignedTo, description, dueDate, title, priority,
-                                         question);
+                                        question);
         }
 
-        public Action EditAction(string actionId, string assignedToId, string description, DateTimeOffset dueDate,
-                                 string title, bool onHold, bool completed, Priority priority)
+        public Action EditAction(
+            string actionId,
+            string assignedToId,
+            string azureUniqueId,
+            string description,
+            DateTimeOffset dueDate,
+            string title,
+            bool onHold,
+            bool completed,
+            Priority priority)
         {
             var queryableAction = actionService.GetAction(actionId);
             var action = queryableAction.First();
             var evaluation = queryableAction.Select(q => q.Question.Evaluation).First();
 
             Role[] canBePerformedBy = [Role.Facilitator, Role.Participant, Role.OrganizationLead];
-            AssertCanPerformMutation(evaluation, canBePerformedBy);
+            var isAdmin = authService.GetRoles().Contains("Role.Admin");
 
-            var assignedTo = participantService.GetParticipant(assignedToId);
+            if (!isAdmin)
+            {
+                AssertCanPerformMutation(evaluation, canBePerformedBy);
+            }
+
+            Participant assignedTo;
+
+            try
+            {
+                assignedTo = participantService.GetParticipant(assignedToId);
+            }
+            catch (NotFoundInDBException)
+            {
+                assignedTo = participantService.Create(
+                    azureUniqueId: azureUniqueId,
+                    evaluation: evaluation,
+                    organization: Organization.All,
+                    role: Role.Participant
+                );
+            }
 
             return actionService.EditAction(action, assignedTo, description, dueDate, title, onHold, completed,
-                                             priority);
+                                            priority);
         }
 
         public Action VoidAction(string actionId)
@@ -407,7 +439,7 @@ namespace api.GQL
         public ProjectCategory CopyProjectCategory(string newName, string projectCategoryId)
         {
             var other = projectCategoryService.GetAll().Include(x => x.QuestionTemplates)
-                                               .Single(x => x.Id == projectCategoryId);
+                                              .Single(x => x.Id == projectCategoryId);
 
             return projectCategoryService.CopyFrom(newName, other);
         }
