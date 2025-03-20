@@ -38,7 +38,6 @@ interface Props {
     action: Action
     connectedQuestion: Question
     possibleAssignees: Participant[]
-    possibleAssigneesDetails: PersonDetails[]
     onEditShouldDelay: (action: Action, isValid: boolean) => void
     onEditShouldNotDelay: (action: Action, isValid: boolean) => void
     createClosingRemark: (text: string) => void
@@ -52,7 +51,6 @@ const ActionEditForm = ({
     action,
     connectedQuestion,
     possibleAssignees,
-    possibleAssigneesDetails,
     onEditShouldDelay,
     onEditShouldNotDelay,
     isClosingRemarkSaved,
@@ -80,28 +78,12 @@ const ActionEditForm = ({
     const { showErrorMessage: showClosingNoteErrorMessage, setShowErrorMessage: setShowClosingNoteErrorMessage } =
         useShowErrorHook(apiErrorClosingRemark)
 
-    const [assigneesOptions, setAssigneesOptions] = useState<{ id: string; title: string | undefined }[]>([])
-
-    useEffect(() => {
-        const options = possibleAssigneesDetails.map(personDetails => ({
-            id: personDetails.azureId,
-            title: personDetails.name,
-        }))
-        setAssigneesOptions(options)
-    }, [possibleAssigneesDetails])
-
     const createdDateString = new Date(action.createDate).toLocaleDateString()
 
-    const checkAndUpdateValidity = () => {
-        const isTitleValid = checkIfTitleValid(title)
-        // const isParticipantValid = checkIfParticipantValid(assignedTo)
-        if (!isTitleValid) {
-            if (!isTitleValid) {
-                setTitleValidity('error')
-            }
-            return false
-        }
-        return true
+    const checkAndUpdateValidity = (): boolean => {
+        const isValid = checkIfTitleValid(title)
+        setTitleValidity(isValid ? 'success' : 'error')
+        return isValid
     }
 
     useEffect(() => {
@@ -111,9 +93,7 @@ const ActionEditForm = ({
 
     // If user assigned is not in the list of possible assignees, create a new participant
     useEffect(() => {
-        console.log('useEffect assignedToId', assignedToId)
         const evaluation = possibleAssignees[0].evaluation
-        console.log('useEffect evaluation', evaluation)
         if (assignedToId && !possibleAssignees.find(a => a.azureUniqueId === assignedToId)) {
             const newParticipant: Participant = {
                 azureUniqueId: assignedToId,
@@ -131,7 +111,6 @@ const ActionEditForm = ({
 
     useEffectNotOnMount(() => {
         const isValid = checkAndUpdateValidity()
-        console.log('useEffectNotOnMount assignedTo', assignedTo)
         const editedAction: Action = {
             ...action,
             title,
@@ -146,7 +125,6 @@ const ActionEditForm = ({
 
     useEffectNotOnMount(() => {
         const isValid = checkAndUpdateValidity()
-        console.log('useEffectNotOnMount assignedTo', assignedTo)
         const editedAction: Action = {
             ...action,
             title,
@@ -193,7 +171,6 @@ const ActionEditForm = ({
 
     const onAssigneeSelected = (e: PersonSelectEvent) => {
         const selectedPersonId = e.nativeEvent.detail.selected?.azureId
-        console.log('detail selected', e.nativeEvent.detail.selected)
         setAssignedToId(selectedPersonId)
     }
 
@@ -241,18 +218,6 @@ const ActionEditForm = ({
                         variant="page"
                         value=' @equinor.com '
                     />
-                    {/* <SearchableDropdown
-                        label="Assignee"
-                        options={assigneesOptions}
-                        value={assigneesOptions.find(option => option.id === assignedToId)?.title}
-                        onSelect={(option) => {
-                            const selectedOption = (option as any).nativeEvent.detail.selected[0]
-                            setAssignedToId(selectedOption.id)
-                        }}
-                        searchQuery={async (searchTerm: string) => {
-                            return assigneesOptions.filter(option => option.title!.toLowerCase().includes(searchTerm.toLowerCase()))
-                        } }
-                    /> */}
                 </Grid>
                 <Grid item xs={6}>
                     <TextField
