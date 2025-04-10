@@ -66,7 +66,10 @@ const ActionCreateForm = ({
                 progression: Progression.Nomination
             }
             setAssignedTo(newParticipant)
-        }
+        } else if (assignedToId && possibleAssignees.find(a => a.azureUniqueId === assignedToId)) {
+            const foundAssignee = possibleAssignees.find(a => a.azureUniqueId === assignedToId)
+            setAssignedTo(foundAssignee)
+        } 
     }, [assignedToId])
 
     useEffect(() => {
